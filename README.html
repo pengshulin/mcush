@@ -1,0 +1,67 @@
+<h1>DESCRIPTION</h1>
+
+<ul>
+<li>MCUSH is the short name for MCU-SHell.</li>
+<li>A practical project that enhance microcontroller serial port command line interface with shell features like in many linux systems.</li>
+<li>The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.</li>
+<li>MCUSH is heavily based on FreeRTOS, the shell task runs as a stand-alone task with middle level priority.</li>
+<li>Test suites and templates written in python are privided to ease the test work and create new CLI/GUI applications.</li>
+<li>Hosted on github: <a href="https://github.com/pengshulin/mcush">https://github.com/pengshulin/mcush</a></li>
+</ul>
+
+<h1>FEATURES</h1>
+
+<ul>
+<li>SUPPORT:
+<ul>
+<li>call command functions with arguments in form of argc and argv</li>
+<li>arguments parser with short option '-' and long option '--'</li>
+<li>low memory requirement, suitable for some tiny chips</li>
+<li>prompt hook function for customize</li>
+<li>serial line loop back, can be disabled </li>
+<li>may port to different architectures, but currently it runs on CORTEX-M only</li>
+</ul></li>
+<li>NOT SUPPORT:
+<ul>
+<li>lineedit feature which requires much memory, only BACKSPACE and Ctrl-C are supported</li>
+</ul></li>
+</ul>
+
+<h1>ROADMAP</h1>
+
+<ul>
+<li>run the basic shell on STM32 chips</li>
+<li>add commands to control more peripherals</li>
+<li>use USB virtual com port driver provided by ST</li>
+<li>test embedded dynamic languages (eg. lua/picolisp/tinyscheme...)</li>
+</ul>
+
+<h1>ENVIRONMENT</h1>
+
+<ul>
+<li>arm-none-eabi-gcc, newlibc, arm-none-eabi-gdb</li>
+<li>STLink v2 + st-flash(flasher) + st-util(gdb server)
+<a href="https://github.com/texane/stlink">https://github.com/texane/stlink</a></li>
+<li>scons + personal MCU build scripts
+<a href="https://github.com/pengshulin/site_scons">https://github.com/pengshulin/site_scons</a></li>
+<li>develope and test on Debian/Ubuntu machines</li>
+</ul>
+
+<h1>LICENSE</h1>
+
+<ul>
+<li>source codes:
+<ul>
+<li>As this is my personal software toolkit, you can use it freely only for personal use.</li>
+<li>Commerical use is not authorized!!!</li>
+</ul></li>
+<li>binary executables:
+<ul>
+<li>free as BSD</li>
+</ul></li>
+</ul>
+
+<h1>AUTHOR</h1>
+
+<p>Shulin Peng  <a href="&#x6D;&#97;&#x69;l&#x74;&#111;:t&#x72;&#101;&#101;&#x73;&#95;&#112;&#x65;&#x6E;&#x67;&#64;&#x31;&#54;3&#46;&#x63;&#x6F;&#109;">t&#x72;&#101;&#101;&#x73;&#95;&#112;&#x65;&#x6E;&#x67;&#64;&#x31;&#54;3&#46;&#x63;&#x6F;&#109;</a>
+Shanghai, China 2016</p>
