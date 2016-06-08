@@ -1,0 +1,57 @@
+from Arm.Stm32 import *
+
+
+env = Stm32f1md()
+haldir='stm32f103xb'
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#haldir='stm32f103ze_redbull'
+#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+
+if env.DEBUG:
+    env.appendCompilerFlag(['-g', '-O0'] )
+    DEFINES = ['DEBUG', 'DEBUG_HALT_MESSAGE']
+else:
+    env.appendCompilerFlag(['-Os'] )
+    DEFINES = ['NDEBUG']
+    
+env.appendCompilerFlag(['-Werror'])
+
+env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
+
+
+env.appendPath([
+    '.',
+    '/libFreeRTOS',
+    '/libFreeRTOS/include',
+    '/libFreeRTOS/portable/GCC/ARM_CM3',
+    '/mcush',
+    '/hal%s'% haldir,
+])
+
+env.appendSource([
+])
+
+env.appendGlobSource([
+    '*.c',
+    '/mcush/*.c',
+    '/hal%s/*.c'% haldir,
+])
+
+env.appendLibPath([
+    '/libFreeRTOS',
+    '/libprintf2',
+])
+
+if env.DEBUG:
+    env.appendLib([
+        'libFreeRTOS_dbg.a',
+        'libprintf2_dbg.a',
+    ])
+else:
+    env.appendLib([
+        'libFreeRTOS.a',
+        'libprintf2.a',
+    ])
+
+env.makeApp()
+
