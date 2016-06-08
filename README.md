@@ -51,6 +51,6 @@ LICENSE
 
 AUTHOR
 ======
-Shulin Peng  <trees_peng@163.com>
+Peng Shulin <trees_peng@163.com>
 Shanghai, China 2016
  
