@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -n "$1" ]; then
+    target="$1"
+elif [ -n "$DEBUG" ]; then
+    if [ $DEBUG -gt 0 ]; then
+        target=`ls *_dbg.bin | head -1`
+    else
+        target=`ls *.bin | head -1`
+    fi
+else
+    target=`ls *.bin | head -1`
+fi
+
+echo "st-flash" write $target 
+killall -q st-util 
+st-flash write $target 0x08000000  
+
+

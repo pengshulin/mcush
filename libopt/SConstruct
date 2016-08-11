@@ -1,0 +1,11 @@
+from Arm import CortexM3
+env = CortexM3()
+
+if env.DEBUG:
+    env.appendCompilerFlag( ['-g', '-O0'] )
+else:
+    env.appendCompilerFlag( ['-Os'] )
+env.appendPath( ['.'] )
+env.appendGlobSource( ['opt.c'] )
+env.makeLib()
+
