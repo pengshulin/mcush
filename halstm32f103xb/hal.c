@@ -23,7 +23,6 @@ void test_hal_delay_ms(void)
 }
 
 
-
 void hal_rcc_init(void)
 {  
     /* Enable ADC & SYSCFG clocks */
@@ -37,6 +36,8 @@ int hal_init(void)
 {
     hal_rcc_init();
     hal_debug_init();
+    hal_gpio_init();
+    hal_led_init();
     if( !hal_uart_init(baudrate) )
         return 0;
     return 1;

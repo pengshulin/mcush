@@ -3,12 +3,15 @@
 #define _MCUSH_H_
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "hal.h"
 #include "mcush_config.h"
+#include "shell.h"
+#include "mcush_opt.h"
 
 
 #define MCUSH_VERSION_MAJOR    1
@@ -36,22 +39,6 @@
 #define MCUSH_QUEUE_SIZE  (64)
 #endif
 
-#ifndef MCUSH_TX_BUF_SIZE
-#define MCUSH_TX_BUF_SIZE  (128)
-#endif
-
-#ifndef MCUSH_RX_BUF_SIZE
-#define MCUSH_RX_BUF_SIZE  (128)
-#endif
-
-#ifndef MCUSH_MAX_ARG_NUM
-#define MCUSH_MAX_ARG_NUM  (16)
-#endif
-
-#ifndef MCUSH_DEFAULT_PROMPT
-#define MCUSH_DEFAULT_PROMPT   "mcush>"
-#endif
-
 
 #ifndef DEBUG_HALT_MESSAGE
 #define halt(message)  while(1)
@@ -59,11 +46,6 @@
 extern void halt(const char *message);
 #endif
 
-#ifdef DEBUG_LED
-#define debug_led(index,mode) hal_debug_led(index,mode)
-#else
-#define debug_led(index,mode)
-#endif
 
 
 typedef struct {
@@ -77,14 +59,9 @@ typedef struct {
 #define MCUSH_MESSAGE_TYPE_BAUD   3
 
 
-
-
-
-void mcush_init(void);
-void mcush_start(void);
-void mcush_set_echo(int echo);
-void mcush_set_errno(int errno);
-const char *mcush_get_prompt_hook(void);
+extern void mcush_init(void);
+extern void mcush_start(void);
+extern TaskHandle_t task_mcush;
 
 #endif
 

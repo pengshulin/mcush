@@ -1,3 +1,5 @@
+.PHONY: clean flash
+
 all:
 	scons
 

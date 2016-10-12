@@ -1,4 +1,4 @@
-#include "hal.h"
+#include "mcush.h"
 
 
 #define QUEUE_UART_RX_LEN    128
@@ -56,12 +56,6 @@ void USART1_IRQHandler(void)
         USART_ClearITPendingBit( USART1, USART_IT_ORE_RX );
     }
 
-    /* If sending or receiving from a queue has caused a task to unblock, and
-    the unblocked task has a priority equal to or higher than the currently 
-    running task (the task this ISR interrupted), then xHigherPriorityTaskWoken 
-    will have automatically been set to pdTRUE within the queue send or receive 
-    function.  portEND_SWITCHING_ISR() will then ensure that this ISR returns 
-    directly to the higher priority unblocked task. */
     portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
@@ -77,7 +71,6 @@ void hal_uart_enable(uint8_t enable)
 {
     USART_Cmd(USART1, enable ? ENABLE : DISABLE );
 }
-
 
 int hal_uart_init(uint32_t baudrate)
 {
@@ -140,5 +133,61 @@ int hal_uart_init(uint32_t baudrate)
 
 
 
+
+int  shell_driver_init( void )
+{
+    return 1;  /* already inited */
+}
+
+
+void shell_driver_reset( void )
+{
+    hal_uart_reset();
+}
+
+int  shell_driver_read( char *buffer, int len )
+{
+    return 0;  /* not supported */
+}
+
+int  shell_driver_read_char( char *c )
+{
+    if( hal_uart_getc( c, portMAX_DELAY ) == pdFAIL )
+        return -1;
+    else
+        return c;
+}
+
+int  shell_driver_read_char_blocked( char *c, int block_time )
+{
+    if( hal_uart_getc( c, block_time ) == pdFAIL )
+        return -1;
+    else
+        return c;
+}
+
+int  shell_driver_read_is_empty( void )
+{
+    return 1;
+}
+
+int  shell_driver_write( const char *buffer, int len )
+{
+    int written=0;
+
+    while( written < len )
+    {
+        while( hal_uart_putc( *(char*)((int)buffer + written) , portMAX_DELAY ) == pdFAIL )
+            vTaskDelay(1);
+        written += 1;
+    }
+    return written;
+}
+
+void shell_driver_write_char( char c )
+{
+    while( hal_uart_putc( c, portMAX_DELAY ) == pdFAIL )
+        vTaskDelay(1);
+}
 
 

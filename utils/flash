@@ -14,6 +14,6 @@ fi
 
 echo "st-flash" write $target 
 killall -q st-util 
-st-flash write $target 0x08000000  
+st-flash write $target 0x08000000  2>&1
 
 

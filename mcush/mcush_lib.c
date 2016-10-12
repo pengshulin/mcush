@@ -29,4 +29,53 @@ void halt(const char *message)
 #endif
 
 
+size_t _read( int fd, void *buf, size_t len )
+{
+    return 0;
+}
+
+
+size_t _write( int fd, const void *buf, size_t len )
+{
+    return shell_driver_write( buf, len );
+}
+
+int _close( int fd )
+{
+    return 0;
+}
+
+off_t _lseek( int fd, off_t offset, int w )
+{
+    return 0;
+}
+
+//int _fstat( int fd, struct stat *s )
+int _fstat( int fd, void *s )
+{
+    return 0;
+}
+
+int _isatty( int fd )
+{
+    return 0;
+}
+
+void _exit(int status)
+{
+    halt("EXIT");
+    while(1);
+}
+
+void _kill(int pid)
+{
+
+}
+
+int _getpid(void)
+{
+    return 0;
+}
+
+
 

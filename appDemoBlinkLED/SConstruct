@@ -4,10 +4,12 @@ from Arm.Stm32 import *
 env = Stm32f1md()
 haldir='stm32f103ze_redbull'
 env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+#haldir='stm32f103xb'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 
 if env.DEBUG:
     env.appendCompilerFlag(['-g', '-O0'] )
-    DEFINES = ['DEBUG', 'DEBUG_HALT_MESSAGE', 'DEBUG_LED']
+    DEFINES = ['DEBUG', 'DEBUG_HALT_MESSAGE']
 else:
     env.appendCompilerFlag(['-Os'] )
     DEFINES = ['NDEBUG']
