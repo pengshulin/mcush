@@ -31,6 +31,11 @@ void hal_rcc_init(void)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
+
+void hal_debug_init(void)
+{
+}
+
  
 int hal_init(void)
 {

@@ -1,7 +1,0 @@
-GPIO DEMO
-=========
-* this demo expand commands to control GPIO including:
-  * set digital input/output mode
-  * set pull-up/down resistance 
-  * set as analog input mode and measure input voltage
-

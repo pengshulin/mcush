@@ -87,11 +87,19 @@ int shell_get_errno( void )
 }
 
 
-const shell_cmd_t *shell_set_cmd_table( const shell_cmd_t *cmd_table )
+int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 {
-    const shell_cmd_t *orig = cb.cmd_table;
-    cb.cmd_table = cmd_table;
-    return orig;
+    int i;
+
+    for( i=0; i<SHELL_CMD_TABLE_LEN; i++ )
+    {
+        if( ! cb.cmd_table[i] )
+        {
+            cb.cmd_table[i] = cmd_table;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 
@@ -140,10 +148,10 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
 }
 
 
-static int shell_search_command( char *name )
+static int shell_search_command( int index, char *name )
 {
     int i=0;
-    const shell_cmd_t *ct = cb.cmd_table;
+    const shell_cmd_t *ct = cb.cmd_table[index];
     if( !ct )
         return -1;
     for( i=0; ct->name; i++, ct++ )
@@ -160,7 +168,7 @@ static int shell_search_command( char *name )
 static int shell_process_char( char c )
 {
     int (*cmd)(int argc, char *argv[]);
-    int i;
+    int i, j;
 
     if( c == '\n' )
     {
@@ -171,7 +179,14 @@ static int shell_process_char( char c )
             strcpy( cb.cmdline_history, cb.cmdline );
             if( shell_split_cmdline_into_argvs( cb.cmdline ) )
             {
-                i = shell_search_command( cb.argv[0] );
+                for( j = 0; j < SHELL_CMD_TABLE_LEN; j++ )
+                {
+                    i = shell_search_command( j, cb.argv[0] );
+                    if( i == -1 )
+                        continue;
+                    else;
+                        break;
+                }
                 if( i == -1 )
                 {
                     shell_write_str( "Invalid command: " );
@@ -180,7 +195,7 @@ static int shell_process_char( char c )
                 }
                 else
                 {
-                    cmd = ((shell_cmd_t*)(cb.cmd_table + i))->cmd;
+                    cmd = ((shell_cmd_t*)(cb.cmd_table[j] + i))->cmd;
                     cb.errno = (*cmd)( cb.argc, cb.argv );
                 }
             }
@@ -313,10 +328,29 @@ static int shell_process_char( char c )
 }
 
 
+int shell_print_help( void )
+{
+    int i, j;
+
+    for( i = 0; (i < SHELL_CMD_TABLE_LEN) && cb.cmd_table[i]; i++ )
+    {
+        for( j=0; cb.cmd_table[i][j].name; j++ )
+        {
+            shell_write_str( cb.cmd_table[i][j].name );
+            shell_write_str( "  " );
+            shell_write_line( cb.cmd_table[i][j].help );
+            shell_write_str( "  " );
+            shell_write_line( cb.cmd_table[i][j].usage );
+        }
+    }
+    return 0;
+}
+
+
 int shell_init( const shell_cmd_t *cmd_table )
 {
     memset( &cb, 0, sizeof(shell_control_block_t) );
-    cb.cmd_table = cmd_table;
+    cb.cmd_table[0] = cmd_table;
     return shell_driver_init();
 }
 

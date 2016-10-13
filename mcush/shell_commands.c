@@ -11,6 +11,7 @@ int cmd_led( int argc, char *argv[] );
 int cmd_dump( int argc, char *argv[] );
 int cmd_write( int argc, char *argv[] );
 int cmd_mfill( int argc, char *argv[] );
+int cmd_wait( int argc, char *argv[] );
 
 
 
@@ -44,28 +45,22 @@ shell_cmd_t CMD_TAB[] = {
 {   0,  "mfill",  cmd_mfill, 
     "fill memory",
     "mfill -b <address> [-l <length>] [-w 1|2|4] [-p <pattern>]" },
+{   0,  "wait",  cmd_wait, 
+    "wait in milliseconds",
+    "wait <ms>" },
 {   0,  0,  0,  0  } };
 
 
 
 int cmd_help( int argc, char *argv[] )
 {
-    int i;
     if( argc > 1 )
     {
         shell_write_line("no arguments needed");
         return -1;
     }
 
-    for( i=0; CMD_TAB[i].name; i++ )
-    {
-        shell_write_str( CMD_TAB[i].name );
-        shell_write_str( "  " );
-        shell_write_line( CMD_TAB[i].help );
-        shell_write_str( "  " );
-        shell_write_line( CMD_TAB[i].usage );
-    }
-    return 0;
+    return shell_print_help();
 }
 
 
@@ -573,4 +568,29 @@ int cmd_mfill( int argc, char *argv[] )
     }
     return 0;
 }
+
+
+int cmd_wait( int argc, char *argv[] )
+{
+    int ms=-1;
+
+    if( argc == 1 )
+        ms = 1000;
+    else if( argc == 2 )
+    {
+        ms = atoi(argv[1]);
+        if( ms == 0 )
+            ms = 1000;
+    }
+    else
+        return -1; 
+        
+    vTaskDelay( ms * configTICK_RATE_HZ / 1000  );
+    return 0;
+}
+
+
+
+
+
 

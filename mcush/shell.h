@@ -5,8 +5,9 @@
 #define _SHELL_H_
 
 
-#define SHELL_CMDLINE_LEN   128
-#define SHELL_ARGV_LEN      20
+#define SHELL_CMDLINE_LEN    128
+#define SHELL_ARGV_LEN       20
+#define SHELL_CMD_TABLE_LEN  5
 
 #define STOP_AT_INVALID_ARGUMENT    {  \
         shell_write_str( "invalid arg: " ); \
@@ -33,7 +34,7 @@ typedef struct _shell_control_block_t {
     int cmdline_len;
     int cmdline_cursor;
     const char *(*prompt_hook)(void);
-    const shell_cmd_t *cmd_table;
+    const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
 } shell_control_block_t;
 
 
@@ -41,17 +42,17 @@ typedef struct _shell_control_block_t {
 int  shell_init( const shell_cmd_t *cmd_table );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
-const shell_cmd_t *shell_set_cmd_table( const shell_cmd_t *cmd_table );
+int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
 void shell_set_errno( int errno );
-int shell_get_errno( void );
-int shell_read_char( char *c );
+int  shell_get_errno( void );
+int  shell_read_char( char *c );
 void shell_write_char( char c );
 void shell_write_str( const char *str );
 void shell_write_line( const char *str );
 void shell_write_int( int i );
 void shell_write_float( float f );
 void shell_write_hex( int x );
-int shell_printf( char *fmt, ... );
+int  shell_printf( char *fmt, ... );
 
 
 /* driver APIs needed */

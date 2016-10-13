@@ -155,7 +155,7 @@ int  shell_driver_read_char( char *c )
     if( hal_uart_getc( c, portMAX_DELAY ) == pdFAIL )
         return -1;
     else
-        return c;
+        return (int)c;
 }
 
 int  shell_driver_read_char_blocked( char *c, int block_time )
@@ -163,7 +163,7 @@ int  shell_driver_read_char_blocked( char *c, int block_time )
     if( hal_uart_getc( c, block_time ) == pdFAIL )
         return -1;
     else
-        return c;
+        return (int)c;
 }
 
 int  shell_driver_read_is_empty( void )
