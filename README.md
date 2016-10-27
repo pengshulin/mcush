@@ -18,7 +18,7 @@ FEATURES
   * serial line loop back, can be disabled 
   * may port to different architectures, but currently it runs on CORTEX-M only
 * NOT SUPPORT:
-  * lineedit feature which requires much memory, only BACKSPACE and Ctrl-C are supported
+  * lineedit features require multi-bytes (such as array keys, shell colors...) not supported, only support simple features that require single-byte (such as BACKSPACE, Ctrl-A/B/C/D/E/F/P/N)
   
 
 ROADMAP

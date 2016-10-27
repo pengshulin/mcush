@@ -167,7 +167,7 @@ int cmd_gpio( int argc, char *argv[] )
         }
         else
             STOP_AT_INVALID_ARGUMENT  
-    }; 
+    }
 
     if( !pport )
         goto port_error;
@@ -252,7 +252,7 @@ loop_start:
         tick = xTaskGetTickCount();
         while( xTaskGetTickCount() < tick + loop_delay*configTICK_RATE_HZ/1000 )
         {
-            if( shell_driver_read_char_blocked(&c, 1*configTICK_RATE_HZ/1000) != -1 )
+            if( shell_driver_read_char_blocked(&c, 250*configTICK_RATE_HZ/1000) != -1 )
                 if( c == 0x03 ) /* Ctrl-C for stop */
                     return 0;
         }
@@ -299,7 +299,7 @@ int cmd_led( int argc, char *argv[] )
         }
         else
             STOP_AT_INVALID_ARGUMENT  
-    }; 
+    }
 
     if( index == -1 )
     {
@@ -356,7 +356,7 @@ int cmd_dump( int argc, char *argv[] )
         }
         else
             STOP_AT_INVALID_ARGUMENT  
-    }; 
+    }
 
     if( addr == (void*)-1 )
     {
@@ -436,7 +436,7 @@ int cmd_write( int argc, char *argv[] )
         }
         else
             STOP_AT_INVALID_ARGUMENT  
-    }; 
+    }
 
     if( addr == (void*)-1 )
     {
@@ -521,7 +521,7 @@ int cmd_mfill( int argc, char *argv[] )
        }
         else
             STOP_AT_INVALID_ARGUMENT  
-    }; 
+    }
 
     if( addr == (void*)-1 )
     {

@@ -1,4 +1,5 @@
-define init 
+define init
+
 file DemoBlinkErrorNumber_dbg.elf
 # STM32L152RB
 #    # IROM 128k

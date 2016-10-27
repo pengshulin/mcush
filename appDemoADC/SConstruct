@@ -1,18 +1,11 @@
 from Arm.Stm32 import *
 
 
-#env = Stm32f1md()
-#haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
-
-#env = Stm32f1md()
+env = Stm32f1md()
+haldir='stm32f103ze_redbull'
+env.setLinkfile( '/ld/stm32f103xe_min.ld' )
 #haldir='stm32f103xb'
 #env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-
-env = Stm32f407xx()
-haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-
 
 if env.DEBUG:
     env.appendCompilerFlag(['-g', '-O0'] )
@@ -30,8 +23,7 @@ env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    #'/libFreeRTOS/portable/GCC/ARM_CM3',
-    '/libFreeRTOS/portable/GCC/ARM_CM4F',
+    '/libFreeRTOS/portable/GCC/ARM_CM3',
     '/mcush',
     '/hal%s'% haldir,
 ])

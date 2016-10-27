@@ -7,7 +7,7 @@
 
 #define SHELL_CMDLINE_LEN    128
 #define SHELL_ARGV_LEN       20
-#define SHELL_CMD_TABLE_LEN  5
+#define SHELL_CMD_TABLE_LEN  4
 
 #define STOP_AT_INVALID_ARGUMENT    {  \
         shell_write_str( "invalid arg: " ); \
@@ -43,6 +43,7 @@ int  shell_init( const shell_cmd_t *cmd_table );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
+int  shell_print_help( void );
 void shell_set_errno( int errno );
 int  shell_get_errno( void );
 int  shell_read_char( char *c );

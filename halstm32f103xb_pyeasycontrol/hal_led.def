@@ -1,0 +1,4 @@
+const uint8_t led_num = 2;
+GPIO_TypeDef *led_ports[] = { GPIOB, GPIOB };
+uint16_t led_pins[] = { GPIO_Pin_0, GPIO_Pin_1 };
+
