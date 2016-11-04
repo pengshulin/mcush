@@ -356,7 +356,10 @@ class SerialInstrument:
         
     def setReg( self, regname, value ):
         r = self.regs[regname]
-        self.writeMem( r.address, value )
+        ml = []
+        for i in range(r.length):
+            ml.append( chr((value/(256**i))%256) )
+        self.writeMem( r.address, ''.join(ml) )
     
     def getReg( self, regname ):
         '''set register'''

@@ -16,6 +16,7 @@ def main(argv=None):
     print hex(s.getReg('PORTA_CRH'))
     print hex(s.getReg('PORTA_IDR'))
     print hex(s.getReg('PORTA_ODR'))
+    s.setReg('PORTA_ODR', 0x12345678)
 
 
 if __name__ == '__main__':
