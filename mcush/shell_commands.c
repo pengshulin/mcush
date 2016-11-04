@@ -252,7 +252,7 @@ loop_start:
         tick = xTaskGetTickCount();
         while( xTaskGetTickCount() < tick + loop_delay*configTICK_RATE_HZ/1000 )
         {
-            if( shell_driver_read_char_blocked(&c, 250*configTICK_RATE_HZ/1000) != -1 )
+            if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 )
                 if( c == 0x03 ) /* Ctrl-C for stop */
                     return 0;
         }

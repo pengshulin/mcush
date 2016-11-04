@@ -1,9 +1,10 @@
 # coding: utf-8
 '''common instrument classes'''
+import re
+import time
 import serial
 import logging
 import binascii
-import re
 import Env
 import Utils
 
@@ -30,6 +31,19 @@ class CommandSemanticsError( Exception ):
 class CommandTimeoutError( Exception ):
     pass
 
+class reg:
+    '''mcu register'''
+    def __init__( self, name, address, description, width ):
+        self.name = str(name)
+        self.address = int(address)
+        self.description = str(description)
+        self.width = int(width)
+        assert self.wdith in [8, 16, 32]
+
+    def __str__( self ):
+        return self.name
+
+
 class SerialInstrument:
     '''Instruments based on serial port'''
     DEFAULT_NAME = 'INST'
@@ -39,6 +53,7 @@ class SerialInstrument:
     DEFAULT_TIMEOUT = 5
     DEFAULT_PROMPTS = re.compile( '[=#?!]>' )
     DEFAULT_IDN = None
+    DEFAULT_RESET_RETRY = 10
     
 
     def __init__( self, port=None, baudrate=None, rtscts=False, connect=True ):
@@ -47,6 +62,8 @@ class SerialInstrument:
         self.debug = Env.DEBUG
         self.info = Env.INFO
         self.prompts = self.DEFAULT_PROMPTS
+        self.regs = {}
+
         if self.debug:
             logging.basicConfig( level=logging.DEBUG )
         elif self.info:
@@ -68,16 +85,13 @@ class SerialInstrument:
             self.rtscts = Env.RTSCTS
         
         self.idn = None
-        self.open_port()
-        if connect:
-            self.connect()
-
-    def open_port( self ):
         try:
             self.ser = serial.serial_for_url( self.port, do_not_open=True )
         except AttributeError:
             self.ser = serial.Serial()
- 
+        if connect:
+            self.connect()
+        
     def setVerbose( self, verbose ):
         '''Set verbose mode'''
         self.verbose = verbose
@@ -110,11 +124,6 @@ class SerialInstrument:
         self.ser.baudrate = self.baudrate
         self.ser.ttscts = self.rtscts
         self.ser.timeout = self.DEFAULT_TIMEOUT
- 
-        #self.ser.setPort( self.port )
-        #self.ser.setBaudrate( self.baudrate )
-        #self.ser.setRtsCts( self.rtscts )
-        #self.ser.setTimeout( self.DEFAULT_TIMEOUT )
         try:
             self.ser.open()
         except Exception:
@@ -124,7 +133,6 @@ class SerialInstrument:
             self.ser.flush()
             self.readUntilPrompts()
             self.scpiIdn()
-            #self.scpiRst()
         except serial.SerialException, e:
             raise UnknownSerialError( str(e) )
         #except Exception, e:
@@ -184,8 +192,7 @@ class SerialInstrument:
             return
         cmdret = ret[0].strip()
         if cmd and cmd != cmdret:
-            raise ResponseError('Command %s, but returned %s'% \
-                                                (cmd, cmdret))
+            raise ResponseError('Command %s, but returned %s'% (cmd, cmdret))
 
     def checkReturnedPrompt( self, ret ):
         '''assert prompt is valid'''
@@ -199,7 +206,7 @@ class SerialInstrument:
             raise CommandSemanticsError( err )
  
     def scpiRst( self ):
-        '''send *rst command'''
+        '''scpi reset'''
         self.writeCommand( '*rst' )
 
     def scpiIdn( self ):
@@ -210,12 +217,73 @@ class SerialInstrument:
         if not self.DEFAULT_IDN.match( self.idn ):
             raise Exception, "IDN not match"
 
-    def reset( self ):
-        '''send reset command'''
-        self.writeCommand( 'reset' )
+    def reset( self, delay=None ):
+        '''reset command'''
+        sync = False
+        retry = 0
+        try:
+            self.writeCommand( 'reset' )
+            self.connect()
+            sync = True
+        except ResponseError:
+            pass
+        except CommandTimeoutError:
+            pass
+        while not sync: 
+            try:
+                SerialInstrument.connect( self )
+                sync = True
+            except:
+                retry = retry + 1
+                if retry > self.DEFAULT_RESET_RETRY:
+                    raise CommandTimeoutError()
+        self.scpiIdn()
+        if delay is None:
+            time.sleep( Env.DELAY_AFTER_RESET )
+        else:
+            time.sleep( delay )
+
+    def getModel( self ):
+        if self.idn is None:
+            self.scpiIdn()
+        try:
+            return self.idn.split(',')[0]
+        except IndexError:
+            return ''
+
+    def getSerialNumber( self ):
+        if self.idn is None:
+            self.scpiIdn()
+        try:
+            return self.idn.split(',')[2]
+        except IndexError:
+            return ''
+
+    def getVersion( self ):
+        if self.idn is None:
+            self.scpiIdn()
+        try:
+            return self.idn.split(',')[1]
+        except IndexError:
+            return ''
+
+    def led( self, idx, on=None, toggle=None ):
+        '''led control'''
+        if on is None and toggle is None:
+            # read
+            r = self.writeCommand( 'led -i %d'% (idx) )
+            return bool(r[0].strip() == '1')
+        else:
+            # set 
+            cmd = 'led -i %d'% (idx)
+            if toggle is not None:
+                cmd += ' -t'
+            else:
+                cmd += ' -s' if on else ' -c'
+            self.writeCommand( cmd )
 
     def gpio( self, port, i=None, o=None, s=None, c=None, t=None ):
-        '''gpio command'''
+        '''gpio control'''
         cmd = 'gpio -p %s'% str(port)
         if i is not None:
             if type(i) is int:
@@ -247,11 +315,12 @@ class SerialInstrument:
             return eval(ret[0])
 
     def parseMemLine( self, line ):
-        '''format:  xx xx xx xx xx'''
-        return ''.join([binascii.unhexlify(i) for i in line.split()])
+        '''parse memory line'''
+        # format:  XXXXXXXX: xx xx xx xx xx'''
+        return ''.join([binascii.unhexlify(i) for i in line[10:].split()])
  
     def fillMem( self, addr, pattern, width, length ):
-        '''fill memory'''
+        '''fill memory with specific pattern'''
         cmd = 'mfill -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
         self.writeCommand( cmd )
          
@@ -277,10 +346,15 @@ class SerialInstrument:
             written += left
             addr += left
 
- 
     def dumpMem( self, addr, length=1 ):
         '''dump memory'''
         Utils.dumpMem( self.readMem(addr, length) )
+
+    def setReg( self, regname, value, width=32 ):
+        '''set register'''
+        pass
+
+
     
 class SerialInstrumentTest( SerialInstrument ):
     '''for test'''

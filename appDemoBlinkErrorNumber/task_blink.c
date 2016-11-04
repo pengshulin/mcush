@@ -5,7 +5,7 @@ TaskHandle_t  task_blink;
 QueueHandle_t queue_blink;
 
 const int errled = 0;
-int _errno = 0;
+int _errno = 123;
 
 int set_errno(int new)
 {

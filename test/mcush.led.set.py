@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-import Mcush
-import Env
-import time
 import sys
+import time
+import Env
+import Mcush
 
 CMD = {
 '-1': -1,

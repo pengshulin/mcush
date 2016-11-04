@@ -44,7 +44,9 @@ if platform == 'win32':
     PORT = getenv('PORT', 'COM1')
 else:
     PORT = getenv('PORT', '/dev/ttyUSB0')
-PORTS = getenv( 'PORTS', '' )
+    PORTS = subprocess.check_output(['allports']).strip()
+    PORTS_LIST = PORTS.split(',')
+
 BAUDRATE = getenv_int( 'BAUDRATE', 9600 )
 RTSCTS = getenv_bool( 'RTSCTS' )
 
@@ -57,9 +59,6 @@ DEBUG = getenv_bool( 'DEBUG' )
 VERBOSE = getenv_bool( 'VERBOSE' )
 INFO = getenv_bool( 'INFO' )
 WARNING = getenv_bool( 'WARNING' )
-
-PORTS = subprocess.check_output(['allports']).strip()
-PORTS_LIST = PORTS.split(',')
 
 LOGGING_FORMAT = getenv('LOGGING_FORMAT')
 
@@ -74,4 +73,21 @@ ESPEAK = getenv_bool( 'ESPEAK' )
 TEST_ADDR = getenv_int( 'TEST_ADDR', 0x28000000 )
 TEST_ADDR_INC = getenv_int( 'TEST_ADDR_INC', DATA_SIZE )
 TEST_PATTERN = getenv_int( 'TEST_PATTERN', 0x55AA )
+
+DEBUG_SIM = getenv_bool( 'DEBUG_SIM' )
+
+PDF_READER = None
+SOFFICE_BIN = None 
+if platform == 'win32':
+    PDF_READER = 'AcroRd32.exe'
+    SOFFICE_BIN = 'soffice.exe'
+    MPLAYER_BIN = 'mplayer.exe'
+    NOTEPAD_BIN = 'notepad.exe'
+elif platform == 'linux2':
+    PDF_READER = '/usr/bin/evince'
+    SOFFICE_BIN = '/usr/bin/soffice'
+    MPLAYER_BIN = '/usr/bin/mplayer'
+    NOTEPAD_BIN = '/usr/bin/mousepad'
+
+
 
