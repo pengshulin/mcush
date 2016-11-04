@@ -30,15 +30,16 @@ class CommandSemanticsError( Exception ):
 
 class CommandTimeoutError( Exception ):
     pass
+_W2L = { 8:1, 16:2, 32:4 }
 
 class reg:
     '''mcu register'''
-    def __init__( self, name, address, description, width ):
+    def __init__( self, name, address, description, width=32 ):
         self.name = str(name)
         self.address = int(address)
         self.description = str(description)
         self.width = int(width)
-        assert self.wdith in [8, 16, 32]
+        self.length = _W2L[self.width]
 
     def __str__( self ):
         return self.name
@@ -350,9 +351,21 @@ class SerialInstrument:
         '''dump memory'''
         Utils.dumpMem( self.readMem(addr, length) )
 
-    def setReg( self, regname, value, width=32 ):
+    def addReg( self, r ):
+        self.regs[r.name] = r
+        
+    def setReg( self, regname, value ):
+        r = self.regs[regname]
+        self.writeMem( r.address, value )
+    
+    def getReg( self, regname ):
         '''set register'''
-        pass
+        r = self.regs[regname]
+        m = self.readMem( r.address, length=r.length )
+        ret = 0
+        for i in range(r.length):
+            ret += ord(m[i]) * (256**i)
+        return ret
 
 
     

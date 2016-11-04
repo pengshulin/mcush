@@ -380,6 +380,9 @@ int cmd_dump( int argc, char *argv[] )
             {
                 shell_printf( "%02X ", *(unsigned char*)addr );
                 addr = (void*)(((int)addr) + 1 );
+                count += 1;
+                if( count >= length )
+                    break;
             }
             break;
         case 2:
@@ -387,6 +390,9 @@ int cmd_dump( int argc, char *argv[] )
             {
                 shell_printf( "%04X ", *(unsigned short*)addr );
                 addr = (void*)(((int)addr) + 2 );
+                count += 2;
+                if( count >= length )
+                    break;
             }
             break;
         case 4:
@@ -394,10 +400,12 @@ int cmd_dump( int argc, char *argv[] )
             {
                 shell_printf( "%08X ", *(unsigned int*)addr );
                 addr = (void*)(((int)addr) + 4 );
+                count += 4;
+                if( count >= length )
+                    break;
             }
             break;
         }
-        count += 16;
         shell_write_str( "\r\n" );
     }
     return 0;

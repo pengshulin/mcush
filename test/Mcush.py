@@ -8,7 +8,7 @@ import logging
 import Env
 import Utils
 import Instrument
-
+from Instrument import reg
 
 class Mcush( Instrument.SerialInstrument ):
     '''Mcush core'''

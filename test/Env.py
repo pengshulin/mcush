@@ -1,11 +1,11 @@
-import os
-from sys import platform
-import subprocess
+# basic environment
+from os import getenv
 from os.path import isdir, join
-from tempfile import mktemp
+from sys import platform
 from binascii import unhexlify
+from tempfile import mktemp
+from subprocess import check_output
 
-getenv = os.getenv
 
 _bool_true_list = ['1', 't', 'T', 'y', 'Y']
  
@@ -44,7 +44,7 @@ if platform == 'win32':
     PORT = getenv('PORT', 'COM1')
 else:
     PORT = getenv('PORT', '/dev/ttyUSB0')
-    PORTS = subprocess.check_output(['allports']).strip()
+    PORTS = check_output(['allports']).strip()
     PORTS_LIST = PORTS.split(',')
 
 BAUDRATE = getenv_int( 'BAUDRATE', 9600 )
@@ -62,19 +62,7 @@ WARNING = getenv_bool( 'WARNING' )
 
 LOGGING_FORMAT = getenv('LOGGING_FORMAT')
 
-DATA_MODE = getenv_bool( 'DATA_MODE' )
-
-DATA_SIZE = getenv_int( 'DATA_SIZE', 4096 )
-
-DIRECTION = getenv_int( 'DIRECTION', 0 )
-
 ESPEAK = getenv_bool( 'ESPEAK' )
-
-TEST_ADDR = getenv_int( 'TEST_ADDR', 0x28000000 )
-TEST_ADDR_INC = getenv_int( 'TEST_ADDR_INC', DATA_SIZE )
-TEST_PATTERN = getenv_int( 'TEST_PATTERN', 0x55AA )
-
-DEBUG_SIM = getenv_bool( 'DEBUG_SIM' )
 
 PDF_READER = None
 SOFFICE_BIN = None 
@@ -89,5 +77,8 @@ elif platform == 'linux2':
     MPLAYER_BIN = '/usr/bin/mplayer'
     NOTEPAD_BIN = '/usr/bin/mousepad'
 
-
+try:
+    from EnvExtra import *
+except ImportError:
+    pass
 
