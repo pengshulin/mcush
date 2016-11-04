@@ -352,9 +352,12 @@ class SerialInstrument:
         Utils.dumpMem( self.readMem(addr, length) )
 
     def addReg( self, r ):
+        '''add register'''
         self.regs[r.name] = r
+        self.regs[r.address] = r
         
     def setReg( self, regname, value ):
+        '''set register'''
         r = self.regs[regname]
         ml = []
         for i in range(r.length):
@@ -362,7 +365,7 @@ class SerialInstrument:
         self.writeMem( r.address, ''.join(ml) )
     
     def getReg( self, regname ):
-        '''set register'''
+        '''get register'''
         r = self.regs[regname]
         m = self.readMem( r.address, length=r.length )
         ret = 0
