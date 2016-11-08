@@ -337,6 +337,7 @@ int cmd_dump( int argc, char *argv[] )
     int width=1;
     int count=0;
     int i;
+    char c;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 

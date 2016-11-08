@@ -1,16 +1,16 @@
-/* STM32F103xB, 128kB FLASH, 20kB SRAM */
+/* STM32F103xC, 256kB FLASH, 48kB SRAM */
 
 
 /* user heap size used by LIBC */
-USER_HEAP_SIZE = 10K;
+USER_HEAP_SIZE = 16K;
 
 /* main stack size used by ISR */
 USER_STACK_SIZE = 2K;
 
 MEMORY
 {
-  FLASH (xrw) :  ORIGIN = 0x08000000, LENGTH = 128K 
-  SRAM (rx) :    ORIGIN = 0x20000000, LENGTH = 20K 
+  FLASH (xrw) :  ORIGIN = 0x08000000, LENGTH = 256K 
+  SRAM (rx) :    ORIGIN = 0x20000000, LENGTH = 48K 
 }
 
 SECTIONS

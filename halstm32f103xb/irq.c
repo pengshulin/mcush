@@ -1,6 +1,5 @@
 #include "hal.h"
 
-
 void EXTI0_IRQHandler(void)
 {
     EXTI_ClearITPendingBit(EXTI_Line0);
@@ -16,18 +15,17 @@ void WWDG_IRQHandler(void)
 {
 }
 
-void USB_HP_IRQHandler(void)
+void USB_HP_CAN1_TX_IRQHandler(void)
 {
 }
 
-void USB_LP_IRQHandler(void)
+void USB_LP_CAN1_RX0_IRQHandler(void)
 {
 }
 
-void USB_FS_WKUP_IRQHandler(void)
+void USBWakeUp_IRQHandler(void)
 {
 }
-
 
 void USART2_IRQHandler(void)
 {

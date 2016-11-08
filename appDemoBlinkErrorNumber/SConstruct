@@ -5,9 +5,18 @@ from Arm.Stm32 import *
 #haldir='stm32f103ze_redbull'
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
 
+#env = Stm32f1md()
+#haldir='stm32f103xb'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+
+#env = Stm32f1md()
+#haldir='stm32f103xb_pyeasycontrol'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+
 env = Stm32f1md()
-haldir='stm32f103xb'
+haldir='stm32f103xb_pyeasycontrol_usb'
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env.appendDriver(STM32_USB_FS_Driver())
 
 #env = Stm32f407xx()
 #haldir='stm32f407zg_eu'

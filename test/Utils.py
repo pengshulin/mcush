@@ -1,8 +1,8 @@
 '''utilities'''
-import sys
 import os
-import subprocess
+import sys
 import binascii
+import subprocess
 import Env
 import random
 
@@ -78,7 +78,6 @@ def enumPorts():
     return ports
 
 
-       
 def espeak( contents ):
     if Env.platform == 'linux2':
         os.system( 'espeak %s'% contents )

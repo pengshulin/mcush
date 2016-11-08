@@ -19,7 +19,7 @@
 #define MCUSH_VERSION_STRING   "1.0"
 
 #ifndef MCUSH_STACK_SIZE
-#define MCUSH_STACK_SIZE  (4*1024)
+#define MCUSH_STACK_SIZE  (2*1024)
 #endif
 
 /* task priority

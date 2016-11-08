@@ -5,7 +5,7 @@ TaskHandle_t  task_blink;
 QueueHandle_t queue_blink;
 
 const int errled = 0;
-int _errno = 123;
+int _errno = 0;
 
 int set_errno(int new)
 {
@@ -87,13 +87,20 @@ void blink_errorno(void)
 
 void task_blink_entry(void *p)
 {
-    set_errno( 123 );
     shell_add_cmd_table( cmd_tab );
 
     while( 1 )
     {
-        blink_errorno();
-        vTaskDelay(BLINK_ERROR_DELAY_C*configTICK_RATE_HZ/1000);
+        if( _errno )
+        {
+            blink_errorno();
+            vTaskDelay(2000*configTICK_RATE_HZ/1000);
+        }
+        else
+        {
+            hal_led_toggle(0);
+            vTaskDelay(1000*configTICK_RATE_HZ/1000);
+        }
     }
 }
 
