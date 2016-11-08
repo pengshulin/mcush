@@ -9,12 +9,8 @@ from Arm.Stm32 import *
 #haldir='stm32f103xb'
 #env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 
-#env = Stm32f1md()
-#haldir='stm32f103xb_pyeasycontrol'
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-
 env = Stm32f1md()
-haldir='stm32f103xb_pyeasycontrol_usb'
+haldir='stm32f103xb_pyeasycontrol'
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDriver(STM32_USB_FS_Driver())
 
