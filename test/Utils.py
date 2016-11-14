@@ -42,6 +42,9 @@ def testSingleRandomFile( device, targetfile, size ):
     device.getFile( targetfile, Env.TEST_RD )
     return diffTestFiles()
 
+def dumpFile( fname ):
+    os.system( "hexdump -C %s"% fname )
+
 def dumpMem( mem, method=2 ):
     if sys.platform == 'win32':
         method = 1  # force

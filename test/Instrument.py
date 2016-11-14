@@ -268,6 +268,9 @@ class SerialInstrument:
         except IndexError:
             return ''
 
+    def printInfo( self ):
+        print '%s, %s'% (self.getModel(), self.getVersion())
+    
     def led( self, idx, on=None, toggle=None ):
         '''led control'''
         if on is None and toggle is None:

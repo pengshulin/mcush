@@ -77,6 +77,7 @@ elif platform == 'linux2':
     MPLAYER_BIN = '/usr/bin/mplayer'
     NOTEPAD_BIN = '/usr/bin/mousepad'
 
+
 try:
     from EnvExtra import *
 except ImportError:
