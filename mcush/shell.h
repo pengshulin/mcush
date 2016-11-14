@@ -1,6 +1,4 @@
-/* shell interpreter
- * Peng Shulin <trees_peng@163.com> 2016
- */
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #ifndef _SHELL_H_
 #define _SHELL_H_
 

@@ -1,6 +1,4 @@
-/* shell interpreter
- * Peng Shulin <trees_peng@163.com> 2016
- */
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
