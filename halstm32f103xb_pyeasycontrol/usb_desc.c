@@ -174,8 +174,9 @@ uint8_t Virtual_Com_Port_StringSerial[VIRTUAL_COM_PORT_SIZ_STRING_SERIAL] =
   {
     VIRTUAL_COM_PORT_SIZ_STRING_SERIAL,           /* bLength */
     USB_STRING_DESCRIPTOR_TYPE,                   /* bDescriptorType */
-    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
-    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
+    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
+    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
+    '?', 0, '?', 0, '?', 0, '?', 0
   };
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

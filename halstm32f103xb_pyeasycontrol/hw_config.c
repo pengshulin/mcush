@@ -226,7 +226,6 @@ void USB_To_USART_Send_Data(uint8_t* data_buffer, uint8_t Nb_bytes)
     for (i = 0; i < Nb_bytes; i++)
     {
         if( xQueueSendFromISR( hal_queue_uart_rx, data_buffer + i, &xHigherPriorityTaskWoken ) == errQUEUE_FULL )
-        //if( xQueueSend( hal_queue_uart_rx, data_buffer + i, 0 ) == errQUEUE_FULL )
             break;
     }  
 }
@@ -326,13 +325,16 @@ void Get_SerialNum(void)
   Device_Serial1 = *(uint32_t*)ID2;
   Device_Serial2 = *(uint32_t*)ID3;  
 
-  Device_Serial0 += Device_Serial2;
-
-  if (Device_Serial0 != 0)
-  {
-    IntToUnicode (Device_Serial0, &Virtual_Com_Port_StringSerial[2] , 8);
-    IntToUnicode (Device_Serial1, &Virtual_Com_Port_StringSerial[18], 4);
-  }
+  //Device_Serial0 += Device_Serial2;
+  //
+  //if (Device_Serial0 != 0)
+  //{
+  //  IntToUnicode (Device_Serial0, &Virtual_Com_Port_StringSerial[2] , 8);
+  //  IntToUnicode (Device_Serial1, &Virtual_Com_Port_StringSerial[18], 4);
+  //}
+  IntToUnicode (Device_Serial0, &Virtual_Com_Port_StringSerial[2] , 8);
+  IntToUnicode (Device_Serial1, &Virtual_Com_Port_StringSerial[2+8*2] , 8);
+  IntToUnicode (Device_Serial2, &Virtual_Com_Port_StringSerial[2+16*2] , 8);
 }
 
 /*******************************************************************************
