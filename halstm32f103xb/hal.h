@@ -42,6 +42,15 @@ void hal_uart_reset(void);
 signed portBASE_TYPE hal_uart_putc( char c, TickType_t xBlockTime );
 signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime );
 
+
+void hal_wdg_init(void);
+int hal_wdg_is_enable(void);
+void hal_wdg_enable(void);
+void hal_wdg_disable(void);
+void hal_wdg_clear(void);
+
+
+
 int hal_init(void);
 
 #endif

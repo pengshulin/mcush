@@ -39,6 +39,7 @@ void hal_debug_init(void)
  
 int hal_init(void)
 {
+    hal_wdg_init();
     hal_rcc_init();
     hal_debug_init();
     hal_gpio_init();

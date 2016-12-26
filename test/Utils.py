@@ -5,16 +5,21 @@ import binascii
 import subprocess
 import Env
 import random
+import ctypes
+from ctypes import c_int, c_uint, c_long, c_ulong, c_int64, c_uint64
+from ctypes import c_float, c_double, c_void_p
+from ctypes import create_string_buffer
+from ctypes import sizeof, Structure, POINTER, pointer, byref, memmove
 
-MAX_LINE_LEN = 79
 
-def writeTitle( title='' ):
+MAX_LINE_LEN = 80
+
+def writeTitle( title='', mark='=' ):
     line = title.join( '  ' ) if title.strip() else ''
-    while (len(line) + 2) <= MAX_LINE_LEN:
-        line = line.join( '==' )
-    if len(line) < MAX_LINE_LEN:
-        line += '='
-    sys.stdout.write( line + '\n' )
+    marks = mark + mark
+    while len(line) < MAX_LINE_LEN:
+        line = line.join( marks )
+    sys.stdout.write( line[:MAX_LINE_LEN] + '\n' )
     sys.stdout.flush()
 
 def generateRandomFile( size ):
@@ -85,5 +90,47 @@ def espeak( contents ):
     if Env.platform == 'linux2':
         os.system( 'espeak %s'% contents )
 
+class int_val(Structure):
+    _fields_ = [("val", c_uint)]
 
+class float_val(Structure):
+    _fields_ = [("val", c_float)]
+
+def i2f( val ):
+    ival, fval = int_val(), float_val()
+    ival.val = val
+    memmove( pointer(fval), pointer(ival), sizeof(float_val) )
+    return fval.val
+ 
+def f2i( val ):
+    ival, fval = int_val(), float_val()
+    fval.val = val
+    memmove( pointer(ival), pointer(fval), sizeof(int_val) )
+    return ival.val
+ 
+def s2f( val ):
+    fval = float_val()
+    s = create_string_buffer(val)
+    memmove( pointer(fval), pointer(s), sizeof(float_val) )
+    return fval.val
+ 
+def s2i( val ):
+    ifval = int_val()
+    s = create_string_buffer(val)
+    memmove( pointer(ival), pointer(s), sizeof(int_val) )
+    return ival.val
+    
+def f2s( val ):
+    fval = float_val()
+    fval.val = val
+    s = create_string_buffer(sizeof(float_val))
+    memmove( pointer(s), pointer(fval), sizeof(float_val) )
+    return s.raw
+ 
+def i2s( val ):
+    ival = int_val()
+    ival.val = val
+    s = create_string_buffer(sizeof(int_val))
+    memmove( pointer(s), pointer(ival), sizeof(int_val) )
+    return s.raw
  

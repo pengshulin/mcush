@@ -12,6 +12,7 @@ int cmd_dump( int argc, char *argv[] );
 int cmd_write( int argc, char *argv[] );
 int cmd_mfill( int argc, char *argv[] );
 int cmd_wait( int argc, char *argv[] );
+int cmd_wdg( int argc, char *argv[] );
 
 
 
@@ -48,6 +49,9 @@ shell_cmd_t CMD_TAB[] = {
 {   0,  "wait",  cmd_wait, 
     "wait in milliseconds",
     "wait <ms>" },
+{   0,  "wdg",  cmd_wdg, 
+    "watchdog",
+    "wdg enable|disable|clear|reset" },
 {   0,  0,  0,  0  } };
 
 
@@ -603,6 +607,38 @@ int cmd_wait( int argc, char *argv[] )
 }
 
 
+int cmd_wdg( int argc, char *argv[] )
+{
+    if( argc == 1 )
+    {
+        shell_write_line( hal_wdg_is_enable() ? "enable" : "disable" );
+        return 0;
+    }
+    else if( argc > 2 )
+        return -1;
+
+    if( strcmp( argv[1], "enable" ) == 0 )
+    {
+        hal_wdg_enable();
+    }
+    else if( strcmp( argv[1], "disable" ) == 0 )
+    {
+        hal_wdg_disable();
+    }
+    else if( strcmp( argv[1], "clear" ) == 0 )
+    {
+        hal_wdg_clear();
+    }
+    else if( strcmp( argv[1], "reset" ) == 0 )
+    {
+        portENTER_CRITICAL();
+        while(1);
+    }
+    else
+        return -1;
+    
+    return 0;
+}
 
 
 

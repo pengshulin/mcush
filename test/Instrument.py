@@ -28,18 +28,25 @@ class CommandSyntaxError( Exception ):
 class CommandSemanticsError( Exception ):
     pass
 
+class CommandExecuteError( Exception ):
+    pass
+
 class CommandTimeoutError( Exception ):
     pass
-_W2L = { 8:1, 16:2, 32:4 }
+
+    
 
 class reg:
     '''mcu register'''
-    def __init__( self, name, address, description, width=32 ):
+    def __init__( self, name, address, description, reg_type=int, width=32 ):
         self.name = str(name)
         self.address = int(address)
         self.description = str(description)
-        self.width = int(width)
-        self.length = _W2L[self.width]
+        self.width = width
+        self.length = (width+7)/8
+        self.reg_type = reg_type
+        assert 0 < self.length < 32
+        assert reg_type in [int, float, str]
 
     def __str__( self ):
         return self.name
@@ -63,7 +70,8 @@ class SerialInstrument:
         self.debug = Env.DEBUG
         self.info = Env.INFO
         self.prompts = self.DEFAULT_PROMPTS
-        self.regs = {}
+        self.regs_by_name = {}
+        self.regs_by_addr = {}
 
         if self.debug:
             logging.basicConfig( level=logging.DEBUG )
@@ -204,7 +212,7 @@ class SerialInstrument:
         elif prompt == '!>':
             result = ret[1:-1]
             err = cmd + ', returns: ' + ','.join(result)
-            raise CommandSemanticsError( err )
+            raise CommandExecuteError( err )
  
     def scpiRst( self ):
         '''scpi reset'''
@@ -253,11 +261,13 @@ class SerialInstrument:
             return ''
 
     def getSerialNumber( self ):
-        if self.idn is None:
-            self.scpiIdn()
+        ret = self.writeCommand( '*idn?' )
         try:
-            return self.idn.split(',')[2]
+            self.serial_number = ret[1].strip()
+            self.logger.info( 'SN:%s', str(self.serial_number) )
+            return self.serial_number
         except IndexError:
+            self.serial_number = None
             return ''
 
     def getVersion( self ):
@@ -337,18 +347,25 @@ class SerialInstrument:
             self.logger.info( line )
         mem = ''.join([self.parseMemLine(line.strip()) for line in ret])
         return mem[:length]
-      
-    def writeMem( self, addr, data ):
+
+    MAX_ITEMS_PER_WRITE = { 1: 16, 2: 8, 4: 4  }
+
+    def writeMem( self, addr, data, width=1 ):
         '''write memory'''
         length = len(data)
         written = 0
         while written < length:
-            cmd = 'w -b 0x%X -w1 '% ( addr )
-            left = min(length - written, 16)
-            cmd += ' '.join([str(ord(c)) for c in data[written:written+left]])
+            cmd = 'w -b 0x%X -w%d '% ( addr, width )
+            left = min(length-written, self.MAX_ITEMS_PER_WRITE[width])
+            if width == 1:
+                cmd += ' '.join([str(ord(c)) for c in data[written:written+left]])
+            elif width == 2:
+                cmd += ' '.join([hex(ord(data[i])+(ord(data[i+1])<<8)) for i in range(written, written+left*2, 2)])
+            elif width == 4:
+                cmd += ' '.join([hex(ord(data[i])+(ord(data[i+1])<<8)+(ord(data[i+2])<<16)+(ord(data[i+3])<<24)) for i in range(written, written+left*4, 4)])
             self.writeCommand( cmd )
-            written += left
-            addr += left
+            written += left*width
+            addr += left*width
 
     def dumpMem( self, addr, length=1 ):
         '''dump memory'''
@@ -356,25 +373,31 @@ class SerialInstrument:
 
     def addReg( self, r ):
         '''add register'''
-        self.regs[r.name] = r
-        self.regs[r.address] = r
+        self.regs_by_name[r.name] = r
+        self.regs_by_addr[r.address] = r
         
     def setReg( self, regname, value ):
         '''set register'''
-        r = self.regs[regname]
-        ml = []
-        for i in range(r.length):
-            ml.append( chr((value/(256**i))%256) )
-        self.writeMem( r.address, ''.join(ml) )
+        r = self.regs_by_name[regname]
+        if r.reg_type == float:
+            m = Utils.f2s(value)
+        elif r.reg_type == int:
+            m = Utils.i2s(value)
+        else:
+            m = str(value)
+        #print 'setReg', regname, value, binascii.hexlify(m)
+        self.writeMem( r.address, m )
     
     def getReg( self, regname ):
         '''get register'''
-        r = self.regs[regname]
+        r = self.regs_by_name[regname]
         m = self.readMem( r.address, length=r.length )
-        ret = 0
-        for i in range(r.length):
-            ret += ord(m[i]) * (256**i)
-        return ret
+        if r.reg_type == float:
+            return Utils.s2f(m)
+        elif r.reg_type == int:
+            return Utils.s2i(m)
+        else:
+            return m
 
 
     
