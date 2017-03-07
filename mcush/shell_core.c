@@ -301,6 +301,9 @@ static int shell_process_char( char c )
                 shell_driver_write_char( '\b' );
         }
     }
+    else if( c == 0 )  /* NULL, ignore */
+    {
+    }
     else if( cb.cmdline_len < SHELL_CMDLINE_LEN )  /* new char */
     {
         if( cb.cmdline_cursor == cb.cmdline_len )  /* append */

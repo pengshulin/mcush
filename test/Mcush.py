@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding:utf8
+# mcush controller
+# Peng Shulin <trees_peng@163.com>
 import os
 import re
 import sys
@@ -29,5 +31,7 @@ class Mcush( Instrument.SerialInstrument ):
 if __name__ == '__main__':
     m = Mcush()
     print m.getModel(), m.getVersion()
+    while 1 :
+        print m.uptime()
     m.disconnect()
 

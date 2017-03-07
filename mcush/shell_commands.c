@@ -13,6 +13,8 @@ int cmd_write( int argc, char *argv[] );
 int cmd_mfill( int argc, char *argv[] );
 int cmd_wait( int argc, char *argv[] );
 int cmd_wdg( int argc, char *argv[] );
+int cmd_uptime( int argc, char *argv[] );
+int cmd_system( int argc, char *argv[] );
 
 
 
@@ -33,9 +35,9 @@ shell_cmd_t CMD_TAB[] = {
     "reset" },
 {   "p",  "gpio",  cmd_gpio, 
     "control gpio",
-    "gpio -p <port.bit> -i <val> -o <val> -s <val> -c <val> -t <val>" },
+    "gpio -p <port.bit> -i <val> -o <val> -s <val> -c <val> -t <val> -l" },
 {   "",  "led",  cmd_led, 
-    "set led status",
+    "control led",
     "led -s|c|t -i <idx>" },
 {   "x",  "dump",  cmd_dump, 
     "dump memory",
@@ -52,6 +54,12 @@ shell_cmd_t CMD_TAB[] = {
 {   0,  "wdg",  cmd_wdg, 
     "watchdog",
     "wdg enable|disable|clear|reset" },
+{   0,  "uptime",  cmd_uptime, 
+    "show how long mcu has been running",
+    "uptime" },
+{   "sys",  "system",  cmd_system, 
+    "show system info",
+    "sys" },
 {   0,  0,  0,  0  } };
 
 
@@ -335,13 +343,17 @@ int cmd_dump( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, "addr", 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_VALUE, "length", 'l', "length", "memory length", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_VALUE, "width", 'w', "width", "bus width 1|2|4, 1 for default", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "ascii", 'C', 0, "ascii output", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "compact", 'c', 0, "compact output", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
-    void *addr=(void*)-1;
+    void *addr=(void*)-1, *addr2;
     int length=16;
     int width=1;
-    int count=0;
+    int count=0, count2;
     int i;
     char c;
+    uint8_t ascii_mode=0;
+    uint8_t compact_mode=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
@@ -351,13 +363,20 @@ int cmd_dump( int argc, char *argv[] )
         {
             if( strcmp( opt.spec->name, "addr" ) == 0 )
             {
-                if( 1 != sscanf(opt.value, "%i", (int*)&addr) )
+                if( 1 != sscanf(opt.value, "%x", (unsigned int*)&addr) )
                     addr = (void*)-1;
             }
             else if( strcmp( opt.spec->name, "length" ) == 0 )
-                length = atoi(opt.value);
+            {
+                if( 1 != sscanf(opt.value, "%i", (int*)&length) )
+                    length = 16;
+            }
             else if( strcmp( opt.spec->name, "width" ) == 0 )
                 width = atoi(opt.value);
+            else if( strcmp( opt.spec->name, "ascii" ) == 0 )
+                ascii_mode = 1;
+            else if( strcmp( opt.spec->name, "compact" ) == 0 )
+                compact_mode = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -375,25 +394,56 @@ int cmd_dump( int argc, char *argv[] )
         return -1;
     }
 
+    if( (width != 1) || compact_mode )
+        ascii_mode = 0;
     while( count < length )
     {
-        shell_printf( "%08X: ", (unsigned int)addr );
+        if( !compact_mode )
+            shell_printf( "%08X: ", (unsigned int)addr );
         switch(width)
         {
         case 1:
+            if( ascii_mode )
+            {
+                count2 = count;
+                addr2 = addr;
+            }
             for( i=0; i<16; i++ )
             {
-                shell_printf( "%02X ", *(unsigned char*)addr );
+                shell_printf( compact_mode ? "%02X" : "%02X ", *(unsigned char*)addr );
                 addr = (void*)(((int)addr) + 1 );
                 count += 1;
                 if( count >= length )
+                {
+                    if( ascii_mode )
+                    {
+                        for( i++; i<16; i++ )
+                            shell_write_str( "   " ); 
+                    }
                     break;
+                }
+            }
+            if( ascii_mode )
+            {
+                shell_write_str( " |" );
+                for( i=0; i<16; i++ )
+                {
+                    if( isprint((int)(*(char*)addr2)) )
+                        shell_write_char(*(char*)addr2);
+                    else
+                        shell_write_char('.');
+                    addr2 = (void*)(((int)addr2) + 1 );
+                    count2 += 1;
+                    if( count2 >= length )
+                        break;
+                }
+                shell_write_char( '|' );
             }
             break;
         case 2:
             for( i=0; i<8; i++ )
             {
-                shell_printf( "%04X ", *(unsigned short*)addr );
+                shell_printf( compact_mode ? "%04X" : "%04X ", *(unsigned short*)addr );
                 addr = (void*)(((int)addr) + 2 );
                 count += 2;
                 if( count >= length )
@@ -403,7 +453,7 @@ int cmd_dump( int argc, char *argv[] )
         case 4:
             for( i=0; i<4; i++ )
             {
-                shell_printf( "%08X ", *(unsigned int*)addr );
+                shell_printf( compact_mode ? "%08X" : "%08X ", *(unsigned int*)addr );
                 addr = (void*)(((int)addr) + 4 );
                 count += 4;
                 if( count >= length )
@@ -639,6 +689,108 @@ int cmd_wdg( int argc, char *argv[] )
     
     return 0;
 }
+
+
+char *get_uptime_str(char *buf, int ms)
+{
+    unsigned int t = xTaskGetTickCount();
+    unsigned int s = t / configTICK_RATE_HZ;
+    if( ms )
+    {
+        t = t - s * configTICK_RATE_HZ;
+        t = t * 1000 / configTICK_RATE_HZ; 
+        sprintf(buf, "%d:%02d:%02d.%03d", s/3600, (s/60)%60, s%60, t);
+    }
+    else
+        sprintf(buf, "%d:%02d:%02d", s/3600, (s/60)%60, s%60);
+    return buf;
+}
+
+
+int cmd_uptime( int argc, char *argv[] )
+{
+    char buf[16];
+    shell_write_line( get_uptime_str(buf, 1) );
+    return 0;
+}
+
+
+int cmd_system( int argc, char *argv[] )
+{
+    QueueHandle_t xQueue;
+    mcush_queue_info_t qinfo;
+    mcush_task_info_t tinfo;
+    mcush_kern_info_t kinfo;
+    const char *name=0, *filter_name=0;
+    int i;
+    char buf[32];
+
+    if( argc < 2 )
+        goto usage_error;
+
+    if( (strcmp( argv[1], "t" ) == 0) || (strcmp( argv[1], "task" ) == 0) )
+    {
+        if( argc > 2 )
+            filter_name = argv[2];
+        for( i=0; i<MCUSH_TASK_REGISTRY_SIZE; i++ )
+        {
+            if( mcushGetTaskInfo( i, &tinfo ) )
+            {
+                 shell_printf( "%8s 0x%08X %d 0x%08X 0x%08X (free %d)\n",
+                        tinfo.pcTaskName, (uint32_t)tinfo.pTaskHandle, tinfo.uxPriority,
+                        tinfo.pxStack, tinfo.pxTopOfStack, tinfo.uxFreeStack );
+            }
+        } 
+    }
+    else if( (strcmp( argv[1], "q" ) == 0 ) || (strcmp( argv[1], "queue" ) == 0 ) )
+    {
+        if( argc > 2 )
+            filter_name = argv[2];
+        for( i=0; i<configQUEUE_REGISTRY_SIZE; i++ )
+        {
+            if( mcushGetQueueRegistered( i, &xQueue, &name ) )
+            {
+                if( filter_name && strcmp(filter_name, name) )
+                    continue; 
+                if( ! mcushGetQueueInfo( xQueue, &qinfo ) )
+                    continue; 
+                shell_printf( "%8s 0x%08X  %4d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)xQueue, 
+                        qinfo.uxLength, qinfo.uxItemSize, qinfo.uxMessagesWaiting, 
+                        (int)qinfo.pcHead, (int)qinfo.pcTail, ((int)qinfo.pcTail-(int)qinfo.pcHead) );
+            }
+        }
+    }
+    else if( (strcmp( argv[1], "k" ) == 0 ) || (strcmp( argv[1], "kern" ) == 0 ) )
+    {
+        mcushGetKernInfo(&kinfo);
+        shell_printf( "CurrentNumberOfTasks: %d\n", kinfo.uxCurrentNumberOfTasks );
+        shell_printf( "TopReadyPriority:     %d\n", kinfo.uxTopReadyPriority );
+        shell_printf( "PendedTicks:          %d\n", kinfo.uxPendedTicks );
+        shell_printf( "NumOfOverflows:       %d\n", kinfo.uxNumOfOverflows );
+        shell_printf( "CurrentTCB:           0x%08X %s\n", (uint32_t)kinfo.pxCurrentTCB, mcushGetTaskNameFromTCB(kinfo.pxCurrentTCB) );
+        for( i=0; i<configMAX_PRIORITIES; i++ )
+            shell_printf( "ReadyTaskLists[%d]:    0x%08X %s\n", i, (uint32_t)kinfo.pxReadyTaskLists[i], mcushGetTaskNamesFromTaskList(kinfo.pxReadyTaskLists[i], buf) );
+        shell_printf( "DelayedTaskList1:     0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList1, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList1, buf) );
+        shell_printf( "DelayedTaskList2:     0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList2, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList2, buf) );
+        shell_printf( "DelayedTaskList:      0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList, buf) );
+        shell_printf( "OverflowDelayedTList: 0x%08X %s\n", (uint32_t)kinfo.pxOverflowDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxOverflowDelayedTaskList, buf) );
+        shell_printf( "PendingReadyList:     0x%08X %s\n", (uint32_t)kinfo.pxPendingReadyList, mcushGetTaskNamesFromTaskList(kinfo.pxPendingReadyList, buf) );
+#if ( INCLUDE_vTaskSuspend == 1 )
+        shell_printf( "SuspendedTaskList:    0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
+#endif
+    }
+    else
+        goto usage_error;
+    return 0;
+
+usage_error:
+    shell_write_line( "system t|task <task_name>" );
+    shell_write_line( "system q|queue <queue_name>" );
+    shell_write_line( "system k|kern" );
+    return -1;
+}
+
+
 
 
 

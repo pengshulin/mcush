@@ -1,10 +1,11 @@
-# coding: utf-8
-'''common instrument classes'''
-import re
-import time
-import serial
+# coding: utf8
+# instrument class with basic port communication
+# Peng Shulin <trees_peng@163.com>
+from re import compile as re_compile
+from time import sleep
+from binascii import unhexlify
 import logging
-import binascii
+import serial
 import Env
 import Utils
 
@@ -59,7 +60,7 @@ class SerialInstrument:
     DEFAULT_TERMINATOR_READ = '\x0A'  # '\n'
     DEFAULT_TERMINATOR_RESET = '\x03'  # Ctrl-C
     DEFAULT_TIMEOUT = 5
-    DEFAULT_PROMPTS = re.compile( '[=#?!]>' )
+    DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
     DEFAULT_IDN = None
     DEFAULT_RESET_RETRY = 10
     
@@ -194,7 +195,21 @@ class SerialInstrument:
         self.checkReturnedPrompt( ret )
         self.checkReturnedCommand( ret, cmd )
         return ret[1:-1] 
- 
+    
+    def writeCommandRetry( self, cmd, retry=None ):
+        '''write command with retry '''
+        if retry is None:
+            retry = Env.COMMAND_FAIL_RETRY
+        assert retry > 1
+        for r in range(retry-1):
+            try:
+                ret = self.writeCommand( cmd )
+                return ret
+            except Exception, e:  # capture ANY exception
+                if Env.VERBOSE:
+                    print e
+        return self.writeCommand( cmd )
+  
     def checkReturnedCommand( self, ret, cmd ):
         '''assert command returned is valid'''
         if Env.NO_ECHO_CHECK:
@@ -248,9 +263,9 @@ class SerialInstrument:
                     raise CommandTimeoutError()
         self.scpiIdn()
         if delay is None:
-            time.sleep( Env.DELAY_AFTER_RESET )
+            sleep( Env.DELAY_AFTER_RESET )
         else:
-            time.sleep( delay )
+            sleep( delay )
 
     def getModel( self ):
         if self.idn is None:
@@ -328,24 +343,37 @@ class SerialInstrument:
         if ret:
             return eval(ret[0])
 
-    def parseMemLine( self, line ):
-        '''parse memory line'''
-        # format:  XXXXXXXX: xx xx xx xx xx'''
-        return ''.join([binascii.unhexlify(i) for i in line[10:].split()])
- 
+    def parseMemLine( self, line, compact_mode=False ):
+        '''parse memory line which has been stripped'''
+        # format(standard):  XXXXXXXX: xx xx xx xx xx ... xx    (no ascii mode, final space stripped)
+        # format(compact):   xxxxxxxxxxxx...xx
+        line_len = len(line)
+        line_len_err = bool(line_len % 2) if compact_mode else bool((line_len-9) % 3)
+        if line_len_err:
+            raise CommandExecuteError('memory line width error, length=%s'% line_len)
+        if compact_mode:
+            return ''.join([unhexlify(line[i:i+2]) for i in range(0,line_len,2)])
+        else:
+            return ''.join([unhexlify(line[i:i+2]) for i in range(10,line_len,3)])
+       
     def fillMem( self, addr, pattern, width, length ):
         '''fill memory with specific pattern'''
         cmd = 'mfill -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
         self.writeCommand( cmd )
          
-    def readMem( self, addr, length=1 ):
+    def readMem( self, addr, length=1, compact_mode=False, retry=None ):
         '''get memory'''
         cmd = 'x -b 0x%X -l %d'% ( addr, length )
-        ret = self.writeCommand( cmd )
+        if compact_mode:
+            cmd += ' -c'
+        if retry:
+            ret = self.writeCommandRetry( cmd, retry )
+        else:
+            ret = self.writeCommand( cmd )
         assert 1 <= len(ret)
         for line in ret:
             self.logger.info( line )
-        mem = ''.join([self.parseMemLine(line.strip()) for line in ret])
+        mem = ''.join([self.parseMemLine(line.strip(), compact_mode) for line in ret])
         return mem[:length]
 
     MAX_ITEMS_PER_WRITE = { 1: 16, 2: 8, 4: 4  }
@@ -399,8 +427,18 @@ class SerialInstrument:
         else:
             return m
 
+    def uptime( self ):
+        return self.writeCommand('uptime')[0].strip()
 
-    
+    def sysTask( self ):
+        ret = self.writeCommand('sys t')
+        return ret
+
+    def sysQueue( self ):
+        ret = self.writeCommand('sys q')
+        return ret
+   
+ 
 class SerialInstrumentTest( SerialInstrument ):
     '''for test'''
     def test( self ):

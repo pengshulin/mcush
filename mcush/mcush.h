@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -12,6 +13,7 @@
 #include "mcush_config.h"
 #include "shell.h"
 #include "mcush_opt.h"
+#include "mcush_freertos_api.h"
 
 
 #define MCUSH_VERSION_MAJOR    1
@@ -40,10 +42,11 @@
 #endif
 
 
-#ifndef DEBUG_HALT_MESSAGE
-#define halt(message)  while(1)
-#else
+
+#ifdef DEBUG
 extern void halt(const char *message);
+#else
+  #define halt(message)  while(1)
 #endif
 
 

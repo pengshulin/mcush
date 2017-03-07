@@ -82,6 +82,9 @@ int hal_uart_init(uint32_t baudrate)
     hal_queue_uart_tx = xQueueCreate( QUEUE_UART_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
     if( !hal_queue_uart_rx || !hal_queue_uart_tx )
         return 0;
+
+    vQueueAddToRegistry( hal_queue_uart_rx, "RxQ" );
+    vQueueAddToRegistry( hal_queue_uart_tx, "TxQ" );
  
     USART_ClearFlag( USART1, USART_FLAG_CTS | USART_FLAG_LBD | USART_FLAG_TC | USART_FLAG_RXNE );	
     USART_ITConfig( USART1, USART_IT_CTS | USART_IT_LBD | USART_IT_TXE | USART_IT_TC | \
@@ -125,8 +128,8 @@ int hal_uart_init(uint32_t baudrate)
 
     /* Interrupt Enable */  
     NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 15;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; /* Not used as 4 bits are used for the pre-emption priority. */;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init( &NVIC_InitStructure );
 

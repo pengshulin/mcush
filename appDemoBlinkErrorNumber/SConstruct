@@ -4,30 +4,32 @@ from Arm.Stm32 import *
 #env = Stm32f1md()
 #haldir='stm32f103ze_redbull'
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+#port = 'ARM_CM3'
 
 #env = Stm32f1md()
 #haldir='stm32f103xb'
 #env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#port = 'ARM_CM3'
 
-env = Stm32f1md()
-haldir='stm32f103xb_pyeasycontrol'
-env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-env.appendDriver(STM32_USB_FS_Driver())
+#env = Stm32f1md()
+#haldir='stm32f103xb_pyeasycontrol'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.appendDriver(STM32_USB_FS_Driver())
+#port = 'ARM_CM3'
 
-#env = Stm32f407xx()
-#haldir='stm32f407zg_eu'
-#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+env = Stm32f407xx()
+haldir='stm32f407zg_eu'
+env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+port = 'ARM_CM4F'
 
 
 if env.DEBUG:
     env.appendCompilerFlag(['-g', '-O0'] )
-    DEFINES = ['DEBUG', 'DEBUG_HALT_MESSAGE']
+    DEFINES = ['DEBUG']
 else:
-    env.appendCompilerFlag(['-Os'] )
+    env.appendCompilerFlag(['-Os', '-Werror'] )
     DEFINES = ['NDEBUG']
     
-#env.appendCompilerFlag(['-Werror'])
-
 env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
 
 
@@ -35,36 +37,21 @@ env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/ARM_CM3',
-    #'/libFreeRTOS/portable/GCC/ARM_CM4F',
+    '/libFreeRTOS/portable/GCC/%s'% port,
     '/mcush',
     '/hal%s'% haldir,
 ])
 
-env.appendSource([
-])
 
 env.appendGlobSource([
     '*.c',
     '/mcush/*.c',
     '/hal%s/*.c'% haldir,
+    '/libFreeRTOS/*.c',
+    '/libFreeRTOS/portable/MemMang/heap_3.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
 ])
 
-env.appendLibPath([
-    '/libFreeRTOS',
-    '/libprintf2',
-])
-
-if env.DEBUG:
-    env.appendLib([
-        'libFreeRTOS_dbg.a',
-        'libprintf2_dbg.a',
-    ])
-else:
-    env.appendLib([
-        'libFreeRTOS.a',
-        'libprintf2.a',
-    ])
 
 env.makeApp()
 

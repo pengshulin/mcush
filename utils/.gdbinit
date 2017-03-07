@@ -40,7 +40,8 @@ end
 define connect
 shell killall -q st-util
 shell sleep 0.5 
-target remote localhost:4242
+#target remote localhost:4242
+target remote localhost:3333
 #target extended-remote localhost:4242
 #set remote hardware-watchpoint-limit 6
 #set remote hardware-breakpoint-limit 6

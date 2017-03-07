@@ -4805,3 +4805,7 @@ const TickType_t xConstTickCount = xTickCount;
 	#include "tasks_test_access_functions.h"
 #endif
 
+
+#define INCLUDE_MCUSH_TASK_API
+#include "mcush_freertos_api.c"
+

@@ -13,7 +13,7 @@ def main(argv=None):
         addr = int(eval(argv[1]))
         length = int(eval(argv[2]))
     except:
-        print 'Syntax: %s addr length <file_name>'% argv[0]
+        print >> sys.stderr, 'Syntax: %s addr length <file_name>'% argv[0]
         return
     try:
         fname = argv[3]
@@ -27,11 +27,12 @@ def main(argv=None):
         return
 
     s = Mcush.Mcush()
-    mem = s.readMem( addr, length )
+    mem = s.readMem( addr, length, compact_mode=Env.COMPACT_MODE )
     if fname is None:
         #Utils.dumpMem( mem, method=1 ) 
         open(Env.TEST_WR, 'w+').write(mem)
-        Utils.dumpFile( Env.TEST_WR )
+        #Utils.dumpFile( Env.TEST_WR )
+        sys.stdout.write( mem )  # write binary directly to console
         os.remove( Env.TEST_WR )
     else:
         open(fname, 'w+').write(mem)

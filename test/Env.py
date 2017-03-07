@@ -1,4 +1,6 @@
+# coding: utf8
 # basic environment
+# Peng Shulin <trees_peng@163.com>
 from os import getenv
 from os.path import isdir, join
 from sys import platform
@@ -49,18 +51,23 @@ else:
 
 BAUDRATE = getenv_int( 'BAUDRATE', 9600 )
 RTSCTS = getenv_bool( 'RTSCTS' )
+COMMAND_FAIL_RETRY = getenv_int( 'COMMAND_FAIL_RETRY', 3 )
 
 DELAY = getenv_float( 'DELAY', 1 )
 DELAY_AFTER_RESET = getenv_float( 'DELAY_AFTER_RESET', 1 )
 RETRY = getenv_int( 'RETRY', 1000 )
 NO_ECHO_CHECK = getenv_bool( 'NO_ECHO_CHECK' )
+COMPACT_MODE = getenv_bool( 'COMPACT_MODE' )
+
+DEVELOPMENT = getenv_bool( 'DEVELOPMENT' )
+PROFILE = getenv_bool( 'PROFILE' )
+LOGGING_FORMAT = getenv('LOGGING_FORMAT')
 
 DEBUG = getenv_bool( 'DEBUG' )
 VERBOSE = getenv_bool( 'VERBOSE' )
 INFO = getenv_bool( 'INFO' )
 WARNING = getenv_bool( 'WARNING' )
 
-LOGGING_FORMAT = getenv('LOGGING_FORMAT')
 
 ESPEAK = getenv_bool( 'ESPEAK' )
 
@@ -77,9 +84,14 @@ elif platform == 'linux2':
     MPLAYER_BIN = '/usr/bin/mplayer'
     NOTEPAD_BIN = '/usr/bin/mousepad'
 
+REV = getenv_bool( 'REV' )
+
+LANGUAGES = {'en', 'zh_cn'}
+LANGUAGE = 'en'
 
 try:
     from EnvExtra import *
 except ImportError:
     pass
+
 

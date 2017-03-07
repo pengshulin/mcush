@@ -62,7 +62,7 @@
 //lint -esym(752, debug_output)
 //lint -esym(766, stdio.h)
 
-// #define  TEST_PRINTF    1
+//#define  TEST_PRINTF    1
 
 #include "printf2.h"
 
@@ -152,7 +152,8 @@ static int printchar (
 //  It is more useful when implementing a walking-string function.
 //****************************************************************************
 //lint -esym(728, round_nums)
-static const FLOAT_OR_DOUBLE round_nums[8] = {
+//static const FLOAT_OR_DOUBLE round_nums[8] = {
+static const FLOAT_OR_DOUBLE round_nums[] = {
         0.5,
         0.05,
         0.005,
@@ -160,7 +161,16 @@ static const FLOAT_OR_DOUBLE round_nums[8] = {
         0.00005,
         0.000005,
         0.0000005,
-        0.00000005
+        0.00000005,
+#if ! USE_FLOATING_POINT
+        0.000000005,
+        0.0000000005,
+        0.00000000005,
+        0.000000000005,
+        0.0000000000005,
+        0.00000000000005,
+        0.000000000000005,
+#endif
 } ;
 
 static unsigned fltordbl2stri(char *outbfr, FLOAT_OR_DOUBLE flt_or_dbl, unsigned dec_digits, int use_leading_plus)
@@ -975,6 +985,8 @@ int testPrintf (void)
     char *np = 0;
     char buf[128];
     char buf2[10];
+    float pif=3.14159265358979323846;
+    float pid=3.14159265358979323846;
 
     stringfn(buf2, 10, "0123456789") ;   // Only 9 chars should be displayed
     termf ("%s", buf2);
@@ -1052,6 +1064,11 @@ int testPrintf (void)
     // float fvalue = 3.30 ;
     // stringf (buf, "%s%.2f", cmd, (double) fvalue);
     // printf("%s\n", buf);
+    
+    stringf (buf, "%f %.20f\n", pif, pid );
+    termf ("%s", buf);
+    termf ("\n");
+
 
     return 0;
 }

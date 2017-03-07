@@ -1,15 +1,16 @@
-'''utilities'''
-import os
-import sys
-import binascii
-import subprocess
-import Env
-import random
-import ctypes
+# coding: utf8
+# utilities
+# Peng Shulin <trees_peng@163.com>
+from os import system
+from sys import platform, stdout
+from binascii import hexlify
+from random import randint
+from subprocess import Popen, PIPE
 from ctypes import c_int, c_uint, c_long, c_ulong, c_int64, c_uint64
 from ctypes import c_float, c_double, c_void_p
 from ctypes import create_string_buffer
 from ctypes import sizeof, Structure, POINTER, pointer, byref, memmove
+import Env
 
 
 MAX_LINE_LEN = 80
@@ -19,20 +20,20 @@ def writeTitle( title='', mark='=' ):
     marks = mark + mark
     while len(line) < MAX_LINE_LEN:
         line = line.join( marks )
-    sys.stdout.write( line[:MAX_LINE_LEN] + '\n' )
-    sys.stdout.flush()
+    stdout.write( line[:MAX_LINE_LEN] + '\n' )
+    stdout.flush()
 
 def generateRandomFile( size ):
     FILE = open( Env.TEST_WR, 'wb+' )
     counter = 0
     while counter < size:
-        FILE.write( chr(random.randint(0, 255)) )
+        FILE.write( chr(randint(0, 255)) )
         counter += 1
     FILE.close()    
 
 def diffFiles( file1, file2 ):
     if Env.platform == 'linux2':
-        ret = os.system( 'colordiffbin %s %s'% (file1, file2) )
+        ret = system( 'colordiffbin %s %s'% (file1, file2) )
         return not bool(ret)
     else:
         import filecmp
@@ -48,35 +49,32 @@ def testSingleRandomFile( device, targetfile, size ):
     return diffTestFiles()
 
 def dumpFile( fname ):
-    os.system( "hexdump -C %s"% fname )
+    system( "hexdump -C %s"% fname )
 
 def dumpMem( mem, method=2 ):
-    if sys.platform == 'win32':
+    if platform == 'win32':
         method = 1  # force
     if method == 1:
         # method 1: use binascii
-        sys.stdout.write( binascii.hexlify(mem) + '\n' )
-        sys.stdout.flush()
+        stdout.write( hexlify(mem) + '\n' )
+        stdout.flush()
     elif method == 2:
         # method 2: use hexdump
-        proc = subprocess.Popen( ['hexdump -C'], 
-                                 stdin = subprocess.PIPE,
-                                 stdout = subprocess.PIPE,
-                                 shell=True )
+        proc = Popen( ['hexdump -C'], stdin = PIPE, stdout = PIPE, shell=True )
         proc.stdin.write( mem )
         proc.stdin.flush()
         proc.stdin.close()
         read = proc.stdout.read() 
-        sys.stdout.write( read + '\n' )
-        sys.stdout.flush()
+        stdout.write( read + '\n' )
+        stdout.flush()
 
 
 def enumPorts():
     ports = []
-    if sys.platform == 'linux2':
+    if platform == 'linux2':
         from glob import glob
         ports += glob( '/dev/ttyUSB*' )
-    elif sys.platform == 'win32':
+    elif platform == 'win32':
         try:
             from serial.tools import list_ports
             for p in list_ports.comports():
@@ -88,7 +86,7 @@ def enumPorts():
 
 def espeak( contents ):
     if Env.platform == 'linux2':
-        os.system( 'espeak %s'% contents )
+        system( 'espeak %s'% contents )
 
 class int_val(Structure):
     _fields_ = [("val", c_uint)]
