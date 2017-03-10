@@ -1,4 +1,6 @@
 /*
+ * adopt library is use and renamed as mcush_opt
+ *
  * Copyright (c), Edward Thomson <ethomson@edwardthomson.com>
  * All rights reserved.
  *
