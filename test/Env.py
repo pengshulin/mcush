@@ -1,6 +1,6 @@
 # coding: utf8
-# basic environment
-# Peng Shulin <trees_peng@163.com>
+__doc__ = 'basic environment'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
 from os import getenv
 from os.path import isdir, join
 from sys import platform

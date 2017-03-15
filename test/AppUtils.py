@@ -1,6 +1,6 @@
 # coding: utf8
-# subprocess task control
-# Peng Shulin <trees_peng@163.com>
+__doc__ = 'subprocess task control'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
 from time import sleep
 from Queue import Empty
 from threading import Thread

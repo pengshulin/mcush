@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding:utf8
-# mcush controller
-# Peng Shulin <trees_peng@163.com>
+__doc__ = 'mcush controller'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
 import os
 import re
 import sys

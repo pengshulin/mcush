@@ -1,6 +1,6 @@
 # coding: utf8
-# instrument class with basic port communication
-# Peng Shulin <trees_peng@163.com>
+__doc__ = 'instrument class with basic port communication'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
 from re import compile as re_compile
 from time import sleep
 from binascii import unhexlify

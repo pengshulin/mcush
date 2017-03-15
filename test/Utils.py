@@ -1,6 +1,6 @@
 # coding: utf8
-# utilities
-# Peng Shulin <trees_peng@163.com>
+__doc__ = 'utilities'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
 from os import system
 from sys import platform, stdout
 from binascii import hexlify
