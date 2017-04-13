@@ -1,4 +1,0 @@
-#!/bin/sh
-
-markdown README.md > README.html
-

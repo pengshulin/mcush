@@ -1,5 +1,5 @@
 /*
-** $Id: lgc.c,v 2.210 2015/11/03 18:10:44 roberto Exp $
+** $Id: lgc.c,v 2.205 2015/03/25 13:42:19 roberto Exp $
 ** Garbage Collector
 ** See Copyright Notice in lua.h
 */
@@ -114,13 +114,8 @@ static void reallymarkobject (global_State *g, GCObject *o);
 
 
 /*
-** If key is not marked, mark its entry as dead. This allows key to be
-** collected, but keeps its entry in the table.  A dead node is needed
-** when Lua looks up for a key (it may be part of a chain) and when
-** traversing a weak table (key might be removed from the table during
-** traversal). Other places never manipulate dead keys, because its
-** associated nil value is enough to signal that the entry is logically
-** empty.
+** if key is not marked, mark its entry as dead (therefore removing it
+** from the table)
 */
 static void removeentry (Node *n) {
   lua_assert(ttisnil(gval(n)));
@@ -547,8 +542,7 @@ static lu_mem traversethread (global_State *g, lua_State *th) {
   }
   else if (g->gckind != KGC_EMERGENCY)
     luaD_shrinkstack(th); /* do not change stack in emergency cycle */
-  return (sizeof(lua_State) + sizeof(TValue) * th->stacksize +
-          sizeof(CallInfo) * th->nci);
+  return (sizeof(lua_State) + sizeof(TValue) * th->stacksize);
 }
 
 
@@ -775,11 +769,12 @@ static GCObject **sweeptolive (lua_State *L, GCObject **p, int *n) {
 */
 
 /*
-** If possible, shrink string table
+** If possible, free concatenation buffer and shrink string table
 */
 static void checkSizes (lua_State *L, global_State *g) {
   if (g->gckind != KGC_EMERGENCY) {
     l_mem olddebt = g->GCdebt;
+    luaZ_freebuffer(L, &g->buff);  /* free concatenation buffer */
     if (g->strt.nuse < g->strt.size / 4)  /* string table too big? */
       luaS_resize(L, g->strt.size / 2);  /* shrink it a little */
     g->GCestimate += g->GCdebt - olddebt;  /* update estimate */
@@ -802,7 +797,7 @@ static GCObject *udata2finalize (global_State *g) {
 
 static void dothecall (lua_State *L, void *ud) {
   UNUSED(ud);
-  luaD_callnoyield(L, L->top - 2, 0);
+  luaD_call(L, L->top - 2, 0, 0);
 }
 
 
@@ -1119,12 +1114,9 @@ void luaC_runtilstate (lua_State *L, int statesmask) {
 static l_mem getdebt (global_State *g) {
   l_mem debt = g->GCdebt;
   int stepmul = g->gcstepmul;
-  if (debt <= 0) return 0;  /* minimal debt */
-  else {
-    debt = (debt / STEPMULADJ) + 1;
-    debt = (debt < MAX_LMEM / stepmul) ? debt * stepmul : MAX_LMEM;
-    return debt;
-  }
+  debt = (debt / STEPMULADJ) + 1;
+  debt = (debt < MAX_LMEM / stepmul) ? debt * stepmul : MAX_LMEM;
+  return debt;
 }
 
 /*

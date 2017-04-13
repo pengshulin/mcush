@@ -47,7 +47,7 @@ env.appendPath([
     '/libFreeRTOS/portable/GCC/%s'% port,
     '/mcush',
     '/hal%s'% haldir,
-    'lua',
+    '/liblua',
     #'/liblua',
 ])
 
@@ -59,7 +59,7 @@ env.appendGlobSource([
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
-    'lua/*.c',
+    '/liblua/*.c',
     #'/liblua/*.c',
 ])
 

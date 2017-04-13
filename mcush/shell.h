@@ -5,6 +5,9 @@
 #ifndef SHELL_CMDLINE_LEN
     #define SHELL_CMDLINE_LEN    128
 #endif
+#ifndef SHELL_CMDLINE_HISTORY_LEN
+    #define SHELL_CMDLINE_HISTORY_LEN    SHELL_CMDLINE_LEN
+#endif
 #ifndef SHELL_ARGV_LEN
     #define SHELL_ARGV_LEN       20
 #endif
@@ -29,13 +32,14 @@ typedef struct _shell_cmd {
 
 
 typedef struct _shell_control_block_t {
-    int errno;
+    int errnum;
     int argc;
     char *argv[SHELL_ARGV_LEN];
     char cmdline[SHELL_CMDLINE_LEN+1];
-    char cmdline_history[SHELL_CMDLINE_LEN+1];
+    char cmdline_history[SHELL_CMDLINE_HISTORY_LEN+1];
     int cmdline_len;
     int cmdline_cursor;
+    int history_index;
     const char *(*prompt_hook)(void);
     const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
 } shell_control_block_t;
@@ -47,8 +51,8 @@ void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
 int  shell_print_help( void );
-void shell_set_errno( int errno );
-int  shell_get_errno( void );
+void shell_set_errnum( int errnum );
+int  shell_get_errnum( void );
 int  shell_read_char( char *c );
 int  shell_read_line( char *c );
 void shell_write_char( char c );

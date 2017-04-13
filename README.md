@@ -4,7 +4,7 @@ DESCRIPTION
 * A practical project that enhance microcontroller serial port command line interface with shell features like in many linux systems.
 * The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.
 * MCUSH is heavily based on FreeRTOS, the shell task runs as a stand-alone task with middle level priority.
-* Test suites and templates written in python are privided to ease the test work and create new CLI/GUI applications.
+* Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.
 * Hosted on github: <https://github.com/pengshulin/mcush>
 
 
@@ -27,6 +27,8 @@ ROADMAP
 * add commands to control more peripherals
 * use USB virtual com port driver provided by ST
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme...)
+* add file system support (FatFS/spiffs...)
+* add bootloader and upgrade support
 
 
 ENVIRONMENT
@@ -39,18 +41,17 @@ ENVIRONMENT
 * develope and test on Debian/Ubuntu machines
 
 
-
 LICENSE
 =======
 * source codes:
   * As this is my personal software toolkit, you can use it freely only for personal use.
-  * Commerical use is not authorized!!!
+  * Commerical use is NOT AUTHORIZED!!!
 * binary executables:
-  * free as BSD
+  * images provided in build directory are free as BSD 
 
 
 AUTHOR
 ======
 Peng Shulin <trees_peng@163.com>
-Shanghai, China 2016
+Shanghai, China 2017
  

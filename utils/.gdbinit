@@ -10,11 +10,27 @@ file DemoLua_dbg.elf
 #    # EEPROM 4k
 #    mem 0x08080000 0x08080FFF rw 8 nocache
 # STM32F103ZE
-    # IROM 512k
-    mem 0x08000000 0x08080000 ro 32 cache
-    # IRAM 80k
-    mem 0x20000000 0x20014000 rw 32 nocache
-    mem 0x22000000 0x24000000 rw 32 nocache
+#    # IROM 512k
+#    mem 0x08000000 0x08080000 ro 32 cache
+#    # IRAM 80k
+#    mem 0x20000000 0x20014000 rw 32 nocache
+#    mem 0x22000000 0x24000000 rw 32 nocache
+#    # FSMC/bank1
+#    mem 0x60000000 0x64000000 rw 16 nocache
+#    # FSMC/bank2
+#    mem 0x64000000 0x68000000 rw 16 nocache
+#    # FSMC/bank3
+#    mem 0x68000000 0x6C000000 rw 16 nocache
+#    # FSMC/bank4
+#    mem 0x6C000000 0x70000000 rw 16 nocache
+# STM32F407ZG
+    # IROM 1M
+    mem 0x00000000 0x00100000 ro 32 cache
+    mem 0x08000000 0x08100000 ro 32 cache
+    # IRAM 128k
+    mem 0x20000000 0x20020000 rw 32 nocache
+    # CCM data RAM 64k
+    mem 0x10000000 0x10010000 rw 32 nocache
     # FSMC/bank1
     mem 0x60000000 0x64000000 rw 16 nocache
     # FSMC/bank2

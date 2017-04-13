@@ -73,15 +73,15 @@ void shell_write_line( const char *str )
 }
 
 
-void shell_set_errno( int errno )
+void shell_set_errnum( int errnum )
 {
-    cb.errno = errno;
+    cb.errnum = errnum;
 }
 
 
-int shell_get_errno( void )
+int shell_get_errnum( void )
 {
-    return cb.errno;
+    return cb.errnum;
 }
 
 
@@ -105,9 +105,9 @@ static const char *shell_get_prompt( void )
 {
     if( cb.prompt_hook )
         return (*cb.prompt_hook)();
-    if( cb.errno < 0 )
+    if( cb.errnum < 0 )
         return "?>";
-    else if( cb.errno > 0 )
+    else if( cb.errnum > 0 )
         return "!>";
     else
         return "=>";
@@ -163,13 +163,47 @@ static int shell_search_command( int index, char *name )
 }
 
 
+static void shell_add_cmd_to_history(void)
+{
+    char *p1, *p2;
+    if( cb.cmdline_len == 0 )
+        return;
+    if( cb.cmdline_len > SHELL_CMDLINE_HISTORY_LEN )
+        return;
+    p1 = &cb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN];
+    p2 = p1 - cb.cmdline_len - 1;
+    while( p1 >= cb.cmdline_history )
+        *p1-- = *p2--;
+    strcpy( cb.cmdline_history, cb.cmdline );
+    p1 = &cb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN];
+    while( *p1 )
+        *p1-- = 0;
+    cb.history_index = 0;
+}
+
+
+static char *shell_get_history(int index)
+{
+    char *p = cb.cmdline_history;
+    while( index > 1 )
+    {
+        while(*p++);  /* move to next item */
+        if( !*p || p >= &cb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN] )
+            return 0;
+        index--;
+    }
+    return *p ? p : 0;
+}
+
+
 static int shell_process_char( char c )
 {
     int i;
+    char *p;
 
     if( c == '\n' )
     {
-        cb.errno = 0;
+        cb.errnum = 0;
         shell_driver_write_char( '\n' );
         return 1;
     }
@@ -208,29 +242,44 @@ static int shell_process_char( char c )
         shell_driver_reset();
         cb.cmdline_len = 0;
         cb.cmdline_cursor = 0;
-        cb.errno = 0;
+        cb.errnum = 0;
+        cb.history_index = 0;
         return -1;
-        //shell_write_str( "\r\n" );
-        //shell_write_str( shell_get_prompt() );
     }
-    else if( c == 0x10 )  /* Ctrl-P, previous history */
+    else if( (c == 0x10) || (c == 0x0E) )  /* Ctrl-P/N, previous/next history */
     {
-        while( cb.cmdline_cursor < cb.cmdline_len )
+        p = 0;
+        if( c == 0x10 )  /* Ctrl-P */
         {
-            shell_write_str( " " );
-            cb.cmdline_cursor++;
+            p = shell_get_history( cb.history_index + 1 );
+            if( p )
+                cb.history_index += 1;
         }
-        while( cb.cmdline_len )
+        else if( c == 0x0E )  /* Ctrl-N */
         {
-            shell_write_str( "\b \b" );
-            cb.cmdline_len--;
+            if( cb.history_index > 1 )
+            {
+                p = shell_get_history( cb.history_index - 1 );
+                if( p )
+                    cb.history_index -= 1;
+            }
         }
-        strcpy( cb.cmdline, cb.cmdline_history );
-        cb.cmdline_cursor = cb.cmdline_len = strlen(cb.cmdline);
-        shell_write_str( cb.cmdline );
-    }
-    else if( c == 0x0E )  /* Ctrl-N, next history */
-    {
+        if( p )
+        {
+            while( cb.cmdline_cursor < cb.cmdline_len )
+            {
+                shell_write_str( " " );
+                cb.cmdline_cursor++;
+            }
+            while( cb.cmdline_len )
+            {
+                shell_write_str( "\b \b" );
+                cb.cmdline_len--;
+            }
+            strcpy( cb.cmdline, p );
+            cb.cmdline_cursor = cb.cmdline_len = strlen(cb.cmdline);
+            shell_write_str( cb.cmdline );
+        }
     }
     else if( c == 0x01 )  /* Ctrl-A, begin */
     {
@@ -298,7 +347,7 @@ static int shell_process_char( char c )
     return 0;
 }
 
-
+                
 int shell_read_line( char *buf )
 {
     char c;
@@ -315,7 +364,7 @@ int shell_read_line( char *buf )
         case 1:  /* end of line */
             cb.cmdline[cb.cmdline_len] = 0;
             if( cb.cmdline_len )
-                strcpy( cb.cmdline_history, cb.cmdline );
+                shell_add_cmd_to_history();
             if( buf )
                 strcpy( buf, cb.cmdline );
             return cb.cmdline_len;
@@ -344,12 +393,12 @@ int shell_process_command(void)
         {
             shell_write_str( "Invalid command: " );
             shell_write_line( cb.argv[0] );
-            cb.errno = -1;
+            cb.errnum = -1;
         }
         else
         {
             cmd = ((shell_cmd_t*)(cb.cmd_table[j] + i))->cmd;
-            cb.errno = (*cmd)( cb.argc, cb.argv );
+            cb.errnum = (*cmd)( cb.argc, cb.argv );
         }
     }
     cb.cmdline[0] = 0;
@@ -401,7 +450,6 @@ void shell_run( void )
             shell_write_str("\r\n");
             break;
         default:  /* commands */
-            //shell_printf("len=%d %s\n", strlen(cb.cmdline), cb.cmdline );
             shell_process_command();
         }
         shell_write_str( shell_get_prompt() );
