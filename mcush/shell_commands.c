@@ -1,6 +1,48 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-   
+
+#ifndef USE_CMD_HELP
+    #define USE_CMD_HELP  1
+#endif
+#ifndef USE_CMD_SCPI_IDN
+    #define USE_CMD_SCPI_IDN  1
+#endif
+#ifndef USE_CMD_SCPI_RST
+    #define USE_CMD_SCPI_RST  1
+#endif
+#ifndef USE_CMD_RESET
+    #define USE_CMD_RESET  1
+#endif
+#ifndef USE_CMD_GPIO
+    #define USE_CMD_GPIO  1
+#endif
+#ifndef USE_CMD_LED
+    #define USE_CMD_LED  1
+#endif
+#ifndef USE_CMD_DUMP
+    #define USE_CMD_DUMP  1
+#endif
+#ifndef USE_CMD_WRITE
+    #define USE_CMD_WRITE  1
+#endif
+#ifndef USE_CMD_MFILL
+    #define USE_CMD_MFILL  1
+#endif
+#ifndef USE_CMD_WAIT
+    #define USE_CMD_WAIT  1
+#endif
+#ifndef USE_CMD_WDG
+    #define USE_CMD_WDG  1
+#endif
+#ifndef USE_CMD_UPTIME
+    #define USE_CMD_UPTIME  1
+#endif
+#ifndef USE_CMD_SYSTEM
+    #define USE_CMD_SYSTEM  1
+#endif
+
+
+
 
 int cmd_help( int argc, char *argv[] );
 int cmd_scpi_idn( int argc, char *argv[] );
@@ -21,49 +63,76 @@ int cmd_system( int argc, char *argv[] );
 
 
 shell_cmd_t CMD_TAB[] = {
+#if USE_CMD_HELP
 {   "?", "help",  cmd_help, 
     "display command list",
     "help"  },
+#endif
+#if USE_CMD_SCPI_IDN
 {   "",  "*idn?", cmd_scpi_idn,
     "show device info",
     "*idn?" },
+#endif
+#if USE_CMD_SCPI_RST
 {   "",  "*rst",  cmd_scpi_rst, 
     "reset device",
     "*rst" },
+#endif
+#if USE_CMD_RESET
 {   "r",  "reset",  cmd_reset, 
     "reset CPU core",
     "reset" },
+#endif
+#if USE_CMD_GPIO
 {   "p",  "gpio",  cmd_gpio, 
     "control gpio",
     "gpio -p <port.bit> -i <val> -o <val> -s <val> -c <val> -t <val> -l" },
+#endif
+#if USE_CMD_LED
 {   "",  "led",  cmd_led, 
     "control led",
     "led -s|c|t -i <idx>" },
+#endif
+#if USE_CMD_DUMP
 {   "x",  "dump",  cmd_dump, 
     "dump memory",
     "dump -a <address> [-l <length>] [-w 1|2|4]" },
+#endif
+#if USE_CMD_WRITE
 {   "w",  "write",  cmd_write, 
     "write memory",
     "write -a <address> [-w 1|2|4] dat1 dat2 ..." },
+#endif
+#if USE_CMD_MFILL
 {   0,  "mfill",  cmd_mfill, 
     "fill memory",
     "mfill -b <address> [-l <length>] [-w 1|2|4] [-p <pattern>]" },
+#endif
+#if USE_CMD_WAIT
 {   0,  "wait",  cmd_wait, 
     "wait in milliseconds",
     "wait <ms>" },
+#endif
+#if USE_CMD_WDG
 {   0,  "wdg",  cmd_wdg, 
     "watchdog",
     "wdg enable|disable|clear|reset" },
+#endif
+#if USE_CMD_UPTIME
 {   0,  "uptime",  cmd_uptime, 
     "show how long mcu has been running",
     "uptime" },
+#endif
+#if USE_CMD_SYSTEM
 {   "sys",  "system",  cmd_system, 
     "show system info",
     "sys" },
+#endif
 {   0,  0,  0,  0  } };
 
 
 
+#if USE_CMD_HELP
 int cmd_help( int argc, char *argv[] )
 {
     if( argc > 1 )
@@ -74,8 +143,10 @@ int cmd_help( int argc, char *argv[] )
 
     return shell_print_help();
 }
+#endif
 
 
+#if USE_CMD_SCPI_IDN
 int cmd_scpi_idn( int argc, char *argv[] )
 {
     shell_write_str( "mcush" );
@@ -85,13 +156,18 @@ int cmd_scpi_idn( int argc, char *argv[] )
 
     return 0;
 }
+#endif
 
 
+#if USE_CMD_SCPI_RST
 int cmd_scpi_rst( int argc, char *argv[] )
 {
     return 0;
 }
+#endif
 
+
+#if USE_CMD_RESET
 int cmd_reset( int argc, char *argv[] )
 {
     portENTER_CRITICAL();
@@ -99,8 +175,10 @@ int cmd_reset( int argc, char *argv[] )
     while( 1 );
     //return 0;
 }
+#endif
 
 
+#if USE_CMD_GPIO
 int cmd_gpio( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -279,8 +357,10 @@ parm_error:
     shell_write_line("parm error");
     return 1;
 }
+#endif
 
 
+#if USE_CMD_LED
 int cmd_led( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -333,8 +413,10 @@ int cmd_led( int argc, char *argv[] )
     }
     return 0;
 }
+#endif
 
 
+#if USE_CMD_DUMP
 int cmd_dump( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -469,8 +551,10 @@ int cmd_dump( int argc, char *argv[] )
     }
     return 0;
 }
+#endif
 
 
+#if USE_CMD_WRITE
 int cmd_write( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -544,8 +628,10 @@ int cmd_write( int argc, char *argv[] )
     }
     return 0;
 }
+#endif
 
 
+#if USE_CMD_MFILL
 int cmd_mfill( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -635,8 +721,10 @@ int cmd_mfill( int argc, char *argv[] )
     }
     return 0;
 }
+#endif
 
 
+#if USE_CMD_WAIT
 int cmd_wait( int argc, char *argv[] )
 {
     int ms=-1;
@@ -655,8 +743,10 @@ int cmd_wait( int argc, char *argv[] )
     vTaskDelay( ms * configTICK_RATE_HZ / 1000  );
     return 0;
 }
+#endif
 
 
+#if USE_CMD_WDG
 int cmd_wdg( int argc, char *argv[] )
 {
     if( argc == 1 )
@@ -689,6 +779,7 @@ int cmd_wdg( int argc, char *argv[] )
     
     return 0;
 }
+#endif
 
 
 char *get_uptime_str(char *buf, int ms)
@@ -707,14 +798,17 @@ char *get_uptime_str(char *buf, int ms)
 }
 
 
+#if USE_CMD_UPTIME
 int cmd_uptime( int argc, char *argv[] )
 {
     char buf[16];
     shell_write_line( get_uptime_str(buf, 1) );
     return 0;
 }
+#endif
 
 
+#if USE_CMD_UPTIME
 int cmd_system( int argc, char *argv[] )
 {
     QueueHandle_t xQueue;
@@ -789,9 +883,7 @@ usage_error:
     shell_write_line( "system k|kern" );
     return -1;
 }
-
-
-
+#endif
 
 
 

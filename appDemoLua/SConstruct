@@ -1,0 +1,68 @@
+from Arm.Stm32 import *
+
+
+env = Stm32f407xx()
+haldir='stm32f407zg_eu'
+env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+port = 'ARM_CM4F'
+
+#env = Stm32f767xx()
+#haldir='stm32f767zi_nucleo'
+#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
+#port = 'ARM_CM7'
+
+
+if env.DEBUG:
+    env.appendCompilerFlag(['-g', '-O0'] )
+    DEFINES = ['DEBUG']
+else:
+    env.appendCompilerFlag(['-Os', '-Werror'] )
+    DEFINES = ['NDEBUG']
+   
+DEFINES += ['MCUSH_STACK_SIZE=10240'] 
+#DEFINES += ['LUA_32BITS'] 
+# disable some commands
+#DEFINES += [
+#'USE_CMD_HELP=0',
+#'USE_CMD_SCPI_IDN=0',
+#'USE_CMD_SCPI_RST=0',
+#'USE_CMD_RESET=0',
+#'USE_CMD_GPIO=0',
+#'USE_CMD_LED=0',
+#'USE_CMD_DUMP=0',
+#'USE_CMD_WRITE=0',
+#'USE_CMD_MFILL=0',
+#'USE_CMD_WAIT=0',
+#'USE_CMD_WDG=0',
+#'USE_CMD_UPTIME=0',
+#'USE_CMD_SYSTEM=0',
+#] 
+env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
+
+
+env.appendPath([
+    '.',
+    '/libFreeRTOS',
+    '/libFreeRTOS/include',
+    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/mcush',
+    '/hal%s'% haldir,
+    'lua',
+    #'/liblua',
+])
+
+
+env.appendGlobSource([
+    '*.c',
+    '/mcush/*.c',
+    '/hal%s/*.c'% haldir,
+    '/libFreeRTOS/*.c',
+    '/libFreeRTOS/portable/MemMang/heap_3.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
+    'lua/*.c',
+    #'/liblua/*.c',
+])
+
+
+env.makeApp()
+

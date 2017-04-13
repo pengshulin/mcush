@@ -1,5 +1,9 @@
 from Arm.Stm32 import *
 
+#env = Stm32f030xx()
+#haldir='stm32f030xx'
+#env.setLinkfile( '/ld/stm32f030xx_min.ld' )
+#port = 'ARM_CM0'
 
 #env = Stm32f1md()
 #haldir='stm32f103ze_redbull'
@@ -21,6 +25,11 @@ env = Stm32f407xx()
 haldir='stm32f407zg_eu'
 env.setLinkfile( '/ld/stm32f407zg_min.ld' )
 port = 'ARM_CM4F'
+
+#env = Stm32f767xx()
+#haldir='stm32f767zi_nucleo'
+#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
+#port = 'ARM_CM7'
 
 
 if env.DEBUG:

@@ -165,43 +165,12 @@ static int shell_search_command( int index, char *name )
 
 static int shell_process_char( char c )
 {
-    int (*cmd)(int argc, char *argv[]);
-    int i, j;
+    int i;
 
     if( c == '\n' )
     {
         cb.errno = 0;
         shell_driver_write_char( '\n' );
-        if( cb.cmdline_len )
-        {
-            strcpy( cb.cmdline_history, cb.cmdline );
-            if( shell_split_cmdline_into_argvs( cb.cmdline ) )
-            {
-                for( j = 0; j < SHELL_CMD_TABLE_LEN; j++ )
-                {
-                    i = shell_search_command( j, cb.argv[0] );
-                    if( i == -1 )
-                        continue;
-                    else;
-                        break;
-                }
-                if( i == -1 )
-                {
-                    shell_write_str( "Invalid command: " );
-                    shell_write_line( cb.argv[0] );
-                    cb.errno = -1;
-                }
-                else
-                {
-                    cmd = ((shell_cmd_t*)(cb.cmd_table[j] + i))->cmd;
-                    cb.errno = (*cmd)( cb.argc, cb.argv );
-                }
-            }
-        }
-        shell_write_str( shell_get_prompt() );
-        cb.cmdline[0] = 0;
-        cb.cmdline_len = 0; 
-        cb.cmdline_cursor = 0;
         return 1;
     }
     else if( c == '\r' )  /* ignored */
@@ -240,8 +209,9 @@ static int shell_process_char( char c )
         cb.cmdline_len = 0;
         cb.cmdline_cursor = 0;
         cb.errno = 0;
-        shell_write_str( "\r\n" );
-        shell_write_str( shell_get_prompt() );
+        return -1;
+        //shell_write_str( "\r\n" );
+        //shell_write_str( shell_get_prompt() );
     }
     else if( c == 0x10 )  /* Ctrl-P, previous history */
     {
@@ -329,6 +299,66 @@ static int shell_process_char( char c )
 }
 
 
+int shell_read_line( char *buf )
+{
+    char c;
+    cb.cmdline_len = 0;
+    cb.cmdline_cursor = 0;
+    if( buf )
+        *buf = 0;
+    while( 1 )
+    {
+        if( shell_driver_read_char(&c) == -1 )
+            continue;
+        switch( shell_process_char(c) )
+        {
+        case 1:  /* end of line */
+            cb.cmdline[cb.cmdline_len] = 0;
+            if( cb.cmdline_len )
+                strcpy( cb.cmdline_history, cb.cmdline );
+            if( buf )
+                strcpy( buf, cb.cmdline );
+            return cb.cmdline_len;
+        case -1:  /* Ctrl-C */
+            return -1;
+        }
+    }
+}
+
+
+int shell_process_command(void)
+{
+    int (*cmd)(int argc, char *argv[]);
+    int i, j;
+    if( shell_split_cmdline_into_argvs( cb.cmdline ) )
+    {
+        for( j = 0; j < SHELL_CMD_TABLE_LEN; j++ )
+        {
+            i = shell_search_command( j, cb.argv[0] );
+            if( i == -1 )
+                continue;
+            else;
+                break;
+        }
+        if( i == -1 )
+        {
+            shell_write_str( "Invalid command: " );
+            shell_write_line( cb.argv[0] );
+            cb.errno = -1;
+        }
+        else
+        {
+            cmd = ((shell_cmd_t*)(cb.cmd_table[j] + i))->cmd;
+            cb.errno = (*cmd)( cb.argc, cb.argv );
+        }
+    }
+    cb.cmdline[0] = 0;
+    cb.cmdline_len = 0; 
+    cb.cmdline_cursor = 0;
+    return 1;
+}
+
+ 
 int shell_print_help( void )
 {
     int i, j;
@@ -358,16 +388,23 @@ int shell_init( const shell_cmd_t *cmd_table )
 
 void shell_run( void )
 {
-    char c;
-    
     shell_write_str("\r\n");
     shell_write_str( shell_get_prompt() );
     
     while( 1 )
     {
-        if( shell_driver_read_char(&c) == -1 )
-            continue;
-        shell_process_char( c );
+        switch( shell_read_line(0) )
+        {
+        case 0:  /* empty line */
+            break;
+        case -1:  /* Ctrl-C */
+            shell_write_str("\r\n");
+            break;
+        default:  /* commands */
+            //shell_printf("len=%d %s\n", strlen(cb.cmdline), cb.cmdline );
+            shell_process_command();
+        }
+        shell_write_str( shell_get_prompt() );
     }
 }
 

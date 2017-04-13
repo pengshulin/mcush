@@ -28,6 +28,10 @@ void halt(const char *message)
 }
 #endif
 
+int _open( const char *name, int flag, int m )
+{
+    return -1;
+}
 
 size_t _read( int fd, void *buf, size_t len )
 {

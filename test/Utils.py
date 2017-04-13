@@ -1,7 +1,7 @@
 # coding: utf8
 __doc__ = 'utilities'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
-from os import system
+from os import system, remove
 from sys import platform, stdout
 from binascii import hexlify
 from random import randint
@@ -16,6 +16,7 @@ import Env
 MAX_LINE_LEN = 80
 
 def writeTitle( title='', mark='=' ):
+    title = unicode(title)
     line = title.join( '  ' ) if title.strip() else ''
     marks = mark + mark
     while len(line) < MAX_LINE_LEN:
@@ -131,4 +132,23 @@ def i2s( val ):
     s = create_string_buffer(sizeof(int_val))
     memmove( pointer(s), pointer(ival), sizeof(int_val) )
     return s.raw
+
+
+def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True ):
+    if Env.platform != 'linux2':
+        print 'must run under linux'
+        return 
+    # prepare source file with specified modules merged
+    src = open(pyin,'r').read()
+    for m in merged_modules:
+        pattern = 'from %s import *'% m
+        replace = open('%s.py'% m,'r').read()
+        src = src.replace( pattern, replace )
+    if tmpfile is None:
+        tmpfile = Env.TEST_WR
+    open(tmpfile,'w+').write(src)
+    # obfuscate
+    system( 'pyobfuscate %s > %s'% (tmpfile, pyout) )
+    if remove_tmp:
+        remove(tmpfile) 
  

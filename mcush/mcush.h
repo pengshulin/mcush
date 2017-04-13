@@ -10,7 +10,6 @@
 #include "task.h"
 #include "queue.h"
 #include "hal.h"
-#include "mcush_config.h"
 #include "shell.h"
 #include "mcush_opt.h"
 #include "mcush_freertos_api.h"
@@ -20,9 +19,6 @@
 #define MCUSH_VERSION_MINOR    0
 #define MCUSH_VERSION_STRING   "1.0"
 
-#ifndef MCUSH_STACK_SIZE
-#define MCUSH_STACK_SIZE  (2*1024)
-#endif
 
 /* task priority
  * 6 -- highest (timer task)
@@ -34,19 +30,23 @@
  * 0 -- lowest (idle task)
  */
 #ifndef MCUSH_PRIORITY
-#define MCUSH_PRIORITY  (3)  
+    #define MCUSH_PRIORITY  (3)  
+#endif
+
+#ifndef MCUSH_STACK_SIZE
+    #define MCUSH_STACK_SIZE  (2*1024 / sizeof(portSTACK_TYPE))
 #endif
 
 #ifndef MCUSH_QUEUE_SIZE
-#define MCUSH_QUEUE_SIZE  (64)
+    #define MCUSH_QUEUE_SIZE  (64)
 #endif
 
 
 
 #ifdef DEBUG
-extern void halt(const char *message);
+    extern void halt(const char *message);
 #else
-  #define halt(message)  while(1)
+    #define halt(message)  while(1)
 #endif
 
 

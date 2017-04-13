@@ -1,6 +1,6 @@
 define init
 
-file DemoBlinkErrorNumber_dbg.elf
+file DemoLua_dbg.elf
 # STM32L152RB
 #    # IROM 128k
 #    mem 0x08000000 0x08020000 ro 32 cache
@@ -40,8 +40,8 @@ end
 define connect
 shell killall -q st-util
 shell sleep 0.5 
-#target remote localhost:4242
-target remote localhost:3333
+target remote localhost:4242
+#target remote localhost:3333
 #target extended-remote localhost:4242
 #set remote hardware-watchpoint-limit 6
 #set remote hardware-breakpoint-limit 6

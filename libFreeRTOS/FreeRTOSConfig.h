@@ -126,33 +126,38 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelayUntil			1
 #define INCLUDE_vTaskDelay				1
 
-#ifndef __NVIC_PRIO_BITS
-    #define __NVIC_PRIO_BITS  4
+#ifdef CORTEX_M0
+    /* nothing to do */
+#else
+    #ifndef __NVIC_PRIO_BITS
+        #define __NVIC_PRIO_BITS  4
+    #endif
+    
+    #define configPRIO_BITS  __NVIC_PRIO_BITS 
+    #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY   ((1<<configPRIO_BITS)-1)
+    
+    #define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	5
+    
+    #if configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY  >= configLIBRARY_LOWEST_INTERRUPT_PRIORITY
+        #error "configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY too large"
+    #endif
+    
+    #define PRIO_MIN   configLIBRARY_LOWEST_INTERRUPT_PRIORITY
+    #define PRIO_MAX   configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
+    
+    
+    /* Interrupt priorities used by the kernel port layer itself.  These are generic
+    to all Cortex-M ports, and do not rely on any particular library functions. */
+    #define configKERNEL_INTERRUPT_PRIORITY 		( configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
+    /* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
+    See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
+    #define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
+    	
 #endif
 
-#define configPRIO_BITS  __NVIC_PRIO_BITS 
-#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY   ((1<<configPRIO_BITS)-1)
 
-#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY	5
-
-#if configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY  >= configLIBRARY_LOWEST_INTERRUPT_PRIORITY
-    #error "configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY too large"
-#endif
-
-#define PRIO_MIN   configLIBRARY_LOWEST_INTERRUPT_PRIORITY
-#define PRIO_MAX   configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
-
-
-/* Interrupt priorities used by the kernel port layer itself.  These are generic
-to all Cortex-M ports, and do not rely on any particular library functions. */
-#define configKERNEL_INTERRUPT_PRIORITY 		( configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
-/* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
-See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
-	
 
 #define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); for( ;; ); } 
-
 
 #define vPortSVCHandler SVC_Handler
 #define xPortPendSVHandler PendSV_Handler

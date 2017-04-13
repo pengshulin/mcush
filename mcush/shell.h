@@ -2,10 +2,15 @@
 #ifndef _SHELL_H_
 #define _SHELL_H_
 
-
-#define SHELL_CMDLINE_LEN    128
-#define SHELL_ARGV_LEN       20
-#define SHELL_CMD_TABLE_LEN  4
+#ifndef SHELL_CMDLINE_LEN
+    #define SHELL_CMDLINE_LEN    128
+#endif
+#ifndef SHELL_ARGV_LEN
+    #define SHELL_ARGV_LEN       20
+#endif
+#ifndef SHELL_CMD_TABLE_LEN
+    #define SHELL_CMD_TABLE_LEN  4
+#endif
 
 #define STOP_AT_INVALID_ARGUMENT    {  \
         shell_write_str( "invalid arg: " ); \
@@ -45,6 +50,7 @@ int  shell_print_help( void );
 void shell_set_errno( int errno );
 int  shell_get_errno( void );
 int  shell_read_char( char *c );
+int  shell_read_line( char *c );
 void shell_write_char( char c );
 void shell_write_str( const char *str );
 void shell_write_line( const char *str );

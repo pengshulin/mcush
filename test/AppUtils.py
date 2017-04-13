@@ -58,7 +58,7 @@ class Task():
         self.manual_stop = False
 
     def target( self, args ):
-        pass
+        raise NotImplementedError
 
     def waitStop( self, timeout ):
         try:
@@ -130,4 +130,27 @@ class Task():
             self.p.terminate()
         self.info( _getStr('STOPPED') )
         self.end()
+
+    def pause( self, prompt ):
+        # clear queue
+        while True:
+            try:
+                self.control_queue.get( block=False )
+            except Empty:
+                break
+        self.queue.put( ('pause', prompt) )
+        try:
+            ret = self.control_queue.get( block=True, timeout=None )
+            if ret == 'continue':
+                return True 
+        except Empty:
+            pass
+        return False
+
+    def halt( self ):
+        self.queue.put( ('halt', None) )
+ 
+    def done( self ):
+        self.queue.put( ('done', None) )
+
 

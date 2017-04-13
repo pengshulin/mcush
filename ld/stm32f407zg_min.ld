@@ -2,7 +2,7 @@
 
 
 /* user heap size used by LIBC */
-USER_HEAP_SIZE = 60K;
+USER_HEAP_SIZE = 100K;
 
 /* main stack size used by ISR */
 USER_STACK_SIZE = 2K;
