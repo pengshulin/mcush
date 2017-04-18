@@ -3,7 +3,7 @@
 #define _SHELL_H_
 
 #ifndef SHELL_CMDLINE_LEN
-    #define SHELL_CMDLINE_LEN    128
+    #define SHELL_CMDLINE_LEN    64
 #endif
 #ifndef SHELL_CMDLINE_HISTORY_LEN
     #define SHELL_CMDLINE_HISTORY_LEN    SHELL_CMDLINE_LEN
@@ -12,13 +12,13 @@
     #define SHELL_ARGV_LEN       20
 #endif
 #ifndef SHELL_CMD_TABLE_LEN
-    #define SHELL_CMD_TABLE_LEN  4
+    #define SHELL_CMD_TABLE_LEN  3
 #endif
 
 #define STOP_AT_INVALID_ARGUMENT    {  \
         shell_write_str( "invalid arg: " ); \
         shell_write_line( opt.value ); \
-        mcush_opt_usage_fprint(stdout, argv[0], opt_spec ); \
+        mcush_opt_usage_print( argv[0], opt_spec ); \
         return -1; }
 
 
@@ -33,13 +33,13 @@ typedef struct _shell_cmd {
 
 typedef struct _shell_control_block_t {
     int errnum;
-    int argc;
     char *argv[SHELL_ARGV_LEN];
+    uint8_t argc;
+    uint8_t cmdline_len;
+    uint8_t cmdline_cursor;
+    uint8_t history_index;
     char cmdline[SHELL_CMDLINE_LEN+1];
     char cmdline_history[SHELL_CMDLINE_HISTORY_LEN+1];
-    int cmdline_len;
-    int cmdline_cursor;
-    int history_index;
     const char *(*prompt_hook)(void);
     const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
 } shell_control_block_t;

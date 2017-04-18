@@ -1,5 +1,25 @@
 from Arm.Stm32 import *
 
+#env = Stm32f030xx()
+#haldir='stm32f030xx'
+#env.setLinkfile( '/ld/stm32f030xx_min.ld' )
+#port = 'ARM_CM0'
+
+#env = Stm32f1md()
+#haldir='stm32f103ze_redbull'
+#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+#port = 'ARM_CM3'
+
+#env = Stm32f1md()
+#haldir='stm32f103xb'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#port = 'ARM_CM3'
+
+#env = Stm32f1md()
+#haldir='stm32f103xb_pyeasycontrol'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.appendDriver(STM32_USB_FS_Driver())
+#port = 'ARM_CM3'
 
 env = Stm32f407xx()
 haldir='stm32f407zg_eu'
@@ -18,11 +38,8 @@ if env.DEBUG:
 else:
     env.appendCompilerFlag(['-Os', '-Werror'] )
     DEFINES = ['NDEBUG']
-   
-DEFINES += ['MCUSH_STACK_SIZE=10240'] 
-#DEFINES += ['LUA_32BITS'] 
+ 
 env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
-
 
 env.appendPath([
     '.',
@@ -31,8 +48,6 @@ env.appendPath([
     '/libFreeRTOS/portable/GCC/%s'% port,
     '/mcush',
     '/hal%s'% haldir,
-    '/liblua',
-    #'/liblua',
 ])
 
 
@@ -43,8 +58,6 @@ env.appendGlobSource([
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
-    '/liblua/*.c',
-    #'/liblua/*.c',
 ])
 
 

@@ -19,8 +19,8 @@ else:
     env.appendCompilerFlag(['-Os', '-Werror'] )
     DEFINES = ['NDEBUG']
    
-DEFINES += ['MCUSH_STACK_SIZE=10240'] 
-#DEFINES += ['LUA_32BITS'] 
+#DEFINES += ['MCUSH_STACK_SIZE=40000'] 
+DEFINES += ['ARM_MATH_CM4'] 
 env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
 
 
@@ -31,8 +31,7 @@ env.appendPath([
     '/libFreeRTOS/portable/GCC/%s'% port,
     '/mcush',
     '/hal%s'% haldir,
-    '/liblua',
-    #'/liblua',
+    '/CMSIS/Lib/GCC',
 ])
 
 
@@ -43,9 +42,11 @@ env.appendGlobSource([
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
-    '/liblua/*.c',
-    #'/liblua/*.c',
 ])
+
+env.appendLibPath( ['/CMSIS/Lib/GCC'] )
+#env.appendLib( ['arm_cortexM4lf_math'] )
+env.appendLib( ['arm_cortexM4l_math'] )
 
 
 env.makeApp()

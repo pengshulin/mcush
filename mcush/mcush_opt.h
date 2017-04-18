@@ -1,6 +1,7 @@
+/* mcush uses adopt (renamed as mcush_opt here) library 
+ * to parse command arguments, it's small and efficient
+ * MCUSH designed by Peng Shulin, all rights reserved. */
 /*
- * adopt library is use and renamed as mcush_opt
- *
  * Copyright (c), Edward Thomson <ethomson@edwardthomson.com>
  * All rights reserved.
  *
@@ -148,8 +149,7 @@ int mcush_opt_parser_next(
  * @param specs The specifications allowed by the command
  * @return 0 on success, -1 on failure
  */
-int mcush_opt_usage_fprint(
-	FILE *file,
+int mcush_opt_usage_print(
 	const char *command,
 	const mcush_opt_spec specs[]);
 

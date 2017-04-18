@@ -16,9 +16,10 @@ FEATURES
   * low memory requirement, suitable for some tiny chips
   * prompt hook function for customize
   * serial line loop back, can be disabled 
+  * history command list
   * may port to different architectures, but currently it runs on CORTEX-M only
 * NOT SUPPORT:
-  * lineedit features require multi-bytes (such as array keys, shell colors...) not supported, only support simple features that require single-byte (such as BACKSPACE, Ctrl-A/B/C/D/E/F/P/N)
+  * lineedit features require multi-bytes (such as array keys, shell colors...) not supported, only support simple features that require single-byte (such as BACKSPACE, Ctrl-A/B/C/D/E/F/K/N/P)
   
 
 ROADMAP

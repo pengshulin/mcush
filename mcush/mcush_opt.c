@@ -1,3 +1,6 @@
+/* mcush uses adopt (renamed as mcush_opt here) library 
+ * to parse command arguments, it's small and efficient
+ * MCUSH designed by Peng Shulin, all rights reserved. */
 /*
  * Copyright (c), Edward Thomson <ethomson@edwardthomson.com>
  * All rights reserved.
@@ -5,26 +8,15 @@
  * This file is part of adopt, distributed under the MIT license.
  * For full terms and conditions, see the included LICENSE file.
  */
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
 
 #include "mcush_opt.h"
+#include "shell.h"
 
-#ifdef _WIN32
-# include <Windows.h>
-#else
-# include <fcntl.h>
-//# include <sys/ioctl.h>
-#endif
-
-#ifdef _MSC_VER
-# define INLINE(type) static __inline type
-#else
 # define INLINE(type) static inline type
-#endif
 
 INLINE(const mcush_opt_spec *) spec_byname(
 	mcush_opt_parser *parser, const char *name, size_t namelen)
@@ -178,15 +170,14 @@ int mcush_opt_parser_next(mcush_opt *opt, mcush_opt_parser *parser)
 	return 1;
 }
 
-int mcush_opt_usage_fprint(
-	FILE *file,
+int mcush_opt_usage_print(
 	const char *command,
 	const mcush_opt_spec specs[])
 {
 	const mcush_opt_spec *spec;
 	int error;
 
-	if ((error = fprintf(file, "usage: %s", command)) < 0)
+	if ((error = shell_printf( "usage: %s", command)) < 0)
 		goto done;
 
 	for (spec = specs; spec->type; ++spec) {
@@ -196,35 +187,35 @@ int mcush_opt_usage_fprint(
 		if (spec->usage & MCUSH_OPT_USAGE_HIDDEN)
 			continue;
 
-		if ((error = fprintf(file, " ")) < 0)
+		if ((error = shell_printf(" ")) < 0)
 			goto done;
 
 		if (spec->type == MCUSH_OPT_VALUE && value_required && spec->alias)
-			error = fprintf(file, "[-%c <%s>]", spec->alias, spec->value);
+			error = shell_printf("[-%c <%s>]", spec->alias, spec->value);
 		else if (spec->type == MCUSH_OPT_VALUE && value_required)
-			error = fprintf(file, "[--%s=<%s>]", spec->name, spec->value);
+			error = shell_printf("[--%s=<%s>]", spec->name, spec->value);
 		else if (spec->type == MCUSH_OPT_VALUE)
-			error = fprintf(file, "[--%s[=<%s>]]", spec->name, spec->value);
+			error = shell_printf("[--%s[=<%s>]]", spec->name, spec->value);
 		else if (spec->type == MCUSH_OPT_ARG && required)
-			error = fprintf(file, "<%s>", spec->name);
+			error = shell_printf("<%s>", spec->name);
 		else if (spec->type == MCUSH_OPT_ARG)
-			error = fprintf(file, "[<%s>]", spec->name);
+			error = shell_printf("[<%s>]", spec->name);
 		else if (spec->type == MCUSH_OPT_ARGS && required)
-			error = fprintf(file, "<%s...>", spec->name);
+			error = shell_printf("<%s...>", spec->name);
 		else if (spec->type == MCUSH_OPT_ARGS)
-			error = fprintf(file, "[<%s...>]", spec->name);
+			error = shell_printf("[<%s...>]", spec->name);
 		else if (spec->type == MCUSH_OPT_LITERAL)
-			error = fprintf(file, "--");
+			error = shell_printf("--");
 		else if (spec->alias)
-			error = fprintf(file, "[-%c]", spec->alias);
+			error = shell_printf("[-%c]", spec->alias);
 		else
-			error = fprintf(file, "[--%s]", spec->name);
+			error = shell_printf("[--%s]", spec->name);
 
 		if (error < 0)
 			goto done;
 	}
 
-	error = fprintf(file, "\n");
+	error = shell_printf("\n");
 
 done:
 	error = (error < 0) ? -1 : 0;

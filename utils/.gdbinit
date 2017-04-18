@@ -1,6 +1,6 @@
 define init
 
-file DemoLua_dbg.elf
+file dbg.elf
 # STM32L152RB
 #    # IROM 128k
 #    mem 0x08000000 0x08020000 ro 32 cache

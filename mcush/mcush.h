@@ -16,8 +16,8 @@
 
 
 #define MCUSH_VERSION_MAJOR    1
-#define MCUSH_VERSION_MINOR    0
-#define MCUSH_VERSION_STRING   "1.0"
+#define MCUSH_VERSION_MINOR    1
+#define MCUSH_VERSION_STRING   "1.1"
 
 
 /* task priority
@@ -34,13 +34,25 @@
 #endif
 
 #ifndef MCUSH_STACK_SIZE
-    #define MCUSH_STACK_SIZE  (2*1024 / sizeof(portSTACK_TYPE))
+    #define MCUSH_STACK_SIZE  (8*1024 / sizeof(portSTACK_TYPE))
 #endif
 
 #ifndef MCUSH_QUEUE_SIZE
     #define MCUSH_QUEUE_SIZE  (64)
 #endif
 
+#ifndef MCUSH_FREERTOS_PEEK_API
+    #define MCUSH_FREERTOS_PEEK_API   1
+#endif
+
+    
+#if ! MCUSH_FREERTOS_PEEK_API
+    #define mcushTaskAddToRegistered( a ) 
+    #ifdef USE_CMD_SYSTEM
+        #undef USE_CMD_SYSTEM
+    #endif
+    #define USE_CMD_SYSTEM  0
+#endif
 
 
 #ifdef DEBUG

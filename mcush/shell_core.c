@@ -320,6 +320,21 @@ static int shell_process_char( char c )
                 shell_driver_write_char( '\b' );
         }
     }
+    else if( c == 0x0B )  /* Ctrl-K, kill remaining */
+    {
+        if( cb.cmdline_cursor < cb.cmdline_len )
+        {
+            cb.cmdline[cb.cmdline_cursor] = 0;
+            for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
+                shell_driver_write_char( ' ' );
+            for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
+                shell_driver_write_char( '\b' );
+            cb.cmdline_len = cb.cmdline_cursor;
+        }
+    }
+    else if( c == 0x0C )  /* Ctrl-L, update, ignore */
+    {
+    }
     else if( c == 0 )  /* NULL, ignore */
     {
     }

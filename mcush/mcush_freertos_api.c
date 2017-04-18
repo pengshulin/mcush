@@ -1,6 +1,4 @@
-/* patched api for mcush 
- * Peng Shulin <trees_peng@163.com> 2017
- */
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <string.h>
 #include <stdint.h>
 #include "mcush_freertos_api.h"

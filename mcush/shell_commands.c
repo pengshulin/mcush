@@ -808,7 +808,7 @@ int cmd_uptime( int argc, char *argv[] )
 #endif
 
 
-#if USE_CMD_UPTIME
+#if USE_CMD_SYSTEM
 int cmd_system( int argc, char *argv[] )
 {
     QueueHandle_t xQueue;
