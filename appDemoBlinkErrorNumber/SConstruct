@@ -12,8 +12,8 @@ from Arm.Stm32 import *
 
 env = Stm32f1md()
 haldir='stm32f103xb'
-env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 port = 'ARM_CM3'
 
 #env = Stm32f1md()
@@ -33,34 +33,25 @@ port = 'ARM_CM3'
 #port = 'ARM_CM7'
 
 
-if env.DEBUG:
-    env.appendCompilerFlag(['-g', '-O0'] )
-    DEFINES = ['DEBUG']
-else:
-    env.appendCompilerFlag(['-Os', '-Werror'] )
-    DEFINES = ['NDEBUG']
-    
 # disable some commands
-DEFINES += [
-'USE_CMD_HELP=0',
-'USE_CMD_SCPI_IDN=0',
-'USE_CMD_SCPI_RST=0',
-'USE_CMD_RESET=0',
-'USE_CMD_GPIO=0',
-'USE_CMD_LED=0',
-'USE_CMD_DUMP=0',
-'USE_CMD_WRITE=0',
-'USE_CMD_MFILL=0',
-'USE_CMD_WAIT=0',
-'USE_CMD_WDG=0',
-'USE_CMD_UPTIME=0',
-'USE_CMD_SYSTEM=0',
-'MCUSH_FREERTOS_PEEK_API=0',
-'configTOTAL_HEAP_SIZE=1024',
-] 
-env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
+env.appendDefineFlags( [
+    #'USE_CMD_HELP=0',
+    #'USE_CMD_SCPI_IDN=0',
+    #'USE_CMD_SCPI_RST=0',
+    #'USE_CMD_RESET=0',
+    #'USE_CMD_GPIO=0',
+    #'USE_CMD_LED=0',
+    #'USE_CMD_DUMP=0',
+    #'USE_CMD_WRITE=0',
+    #'USE_CMD_MFILL=0',
+    #'USE_CMD_WAIT=0',
+    #'USE_CMD_WDG=0',
+    #'USE_CMD_UPTIME=0',
+    #'USE_CMD_SYSTEM=0',
+    #'MCUSH_FREERTOS_PEEK_API=0',
+    'configTOTAL_HEAP_SIZE=1024',
+    ] ) 
 
-#env.appendLinkFlag(['-Wl,-nostdlib'] )
 
 env.appendPath([
     '.',

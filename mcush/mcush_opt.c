@@ -177,7 +177,7 @@ int mcush_opt_usage_print(
 	const mcush_opt_spec *spec;
 	int error;
 
-	if ((error = shell_printf( "usage: %s", command)) < 0)
+	if ((error = shell_printf("usage: %s", command)) < 0)
 		goto done;
 
 	for (spec = specs; spec->type; ++spec) {

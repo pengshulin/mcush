@@ -49,11 +49,11 @@ void USART1_IRQHandler(void)
         USART_ClearITPendingBit( USART1, USART_IT_RXNE );
     }   
 
-    if( USART_GetITStatus( USART1, USART_IT_ORE_RX ) == SET )
+    if( USART_GetITStatus( USART1, USART_IT_ORE ) == SET )
     {
         USART_ReceiveData( USART1 );
         //USART_ClearFlag( USART1, USART_FLAG_ORE );    
-        USART_ClearITPendingBit( USART1, USART_IT_ORE_RX );
+        USART_ClearITPendingBit( USART1, USART_IT_ORE );
     }
 
     portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
@@ -76,7 +76,7 @@ int hal_uart_init(uint32_t baudrate)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     USART_InitTypeDef USART_InitStructure;
-    NVIC_InitTypeDef NVIC_InitStructure;
+    //NVIC_InitTypeDef NVIC_InitStructure;
 
     hal_queue_uart_rx = xQueueCreate( QUEUE_UART_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
     hal_queue_uart_tx = xQueueCreate( QUEUE_UART_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
@@ -86,26 +86,25 @@ int hal_uart_init(uint32_t baudrate)
     vQueueAddToRegistry( hal_queue_uart_rx, "RxQ" );
     vQueueAddToRegistry( hal_queue_uart_tx, "TxQ" );
  
-    USART_ClearFlag( USART1, USART_FLAG_CTS | USART_FLAG_LBD | USART_FLAG_TC | USART_FLAG_RXNE );	
-    USART_ITConfig( USART1, USART_IT_CTS | USART_IT_LBD | USART_IT_TXE | USART_IT_TC | \
+    USART_ClearFlag( USART1, USART_FLAG_CTS | USART_FLAG_TC | USART_FLAG_RXNE );	
+    USART_ITConfig( USART1, USART_IT_TXE | USART_IT_TC | \
                   USART_IT_RXNE | USART_IT_IDLE | USART_IT_PE | USART_IT_ERR, DISABLE );
  
     /* Enable GPIO clock */
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
     /* Enable UART clock */
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    __HAL_RCC_USART1_CLK_ENABLE();
 
     /* Configure USART Rx/Tx as alternate function push-pull */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = GPIO_PIN_9;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+    GPIO_InitStructure.Pin = GPIO_PIN_10;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
       
     /* Connect PXx to USARTx TXD */
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_USART1);
@@ -127,11 +126,12 @@ int hal_uart_init(uint32_t baudrate)
     USART_ITConfig( USART1, USART_IT_RXNE, ENABLE );
 
     /* Interrupt Enable */  
-    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init( &NVIC_InitStructure );
+    //NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+    //NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 10;
+    //NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    //NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    //NVIC_Init( &NVIC_InitStructure );
+    HAL_NVIC_EnableIRQ( USART1_IRQn );
 
     return 1;
 }

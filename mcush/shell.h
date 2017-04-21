@@ -3,7 +3,7 @@
 #define _SHELL_H_
 
 #ifndef SHELL_CMDLINE_LEN
-    #define SHELL_CMDLINE_LEN    64
+    #define SHELL_CMDLINE_LEN    128
 #endif
 #ifndef SHELL_CMDLINE_HISTORY_LEN
     #define SHELL_CMDLINE_HISTORY_LEN    SHELL_CMDLINE_LEN

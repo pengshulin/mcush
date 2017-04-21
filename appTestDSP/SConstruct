@@ -12,16 +12,7 @@ port = 'ARM_CM4F'
 #port = 'ARM_CM7'
 
 
-if env.DEBUG:
-    env.appendCompilerFlag(['-g', '-O0'] )
-    DEFINES = ['DEBUG']
-else:
-    env.appendCompilerFlag(['-Os', '-Werror'] )
-    DEFINES = ['NDEBUG']
-   
-#DEFINES += ['MCUSH_STACK_SIZE=40000'] 
-DEFINES += ['ARM_MATH_CM4'] 
-env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
+env.appendDefineFlags(['MCUSH_STACK_SIZE=40000'])
 
 
 env.appendPath([
@@ -44,10 +35,10 @@ env.appendGlobSource([
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
 ])
 
-env.appendLibPath( ['/CMSIS/Lib/GCC'] )
-#env.appendLib( ['arm_cortexM4lf_math'] )
-env.appendLib( ['arm_cortexM4l_math'] )
 
+env.appendDriver( CMSIS_DSP_Driver(env._MCPU, fpu=True, source=True) )
+#env.appendDriver( CMSIS_DSP_Driver(env._MCPU, fpu=True, source=False) )
+
+env.appendLib(['m'])  # NOTE: add math lib after arm lib
 
 env.makeApp()
-

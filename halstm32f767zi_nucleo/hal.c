@@ -29,7 +29,7 @@ void hal_rcc_init(void)
     //RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_SYSCFG , ENABLE);
 
     /* NVIC_PriorityGroup_4: 4 bits for pre-emption priority, 0 bits for subpriority */
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+    //NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 }
 
 

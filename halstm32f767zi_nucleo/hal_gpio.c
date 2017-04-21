@@ -1,26 +1,25 @@
 #include "hal.h"
 
-const char gpio_start='a', gpio_stop='g';
+const char gpio_start='a', gpio_stop='i';
 
-GPIO_TypeDef *ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG };
+GPIO_TypeDef *ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI };
 
 
 
-static void _set_dir( int port, int bits, GPIOMode_TypeDef mode, int pull )
+static void _set_dir( int port, int bits, uint32_t mode, uint32_t pull )
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     int i;
         
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Mode = mode;
-    GPIO_InitStructure.GPIO_PuPd = pull;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.Mode = mode;
+    GPIO_InitStructure.Pull = pull;
+    GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
     for( i=0; i<32; i++ )
     {
         if( bits & (1<<i) )
         { 
-            GPIO_InitStructure.GPIO_Pin = 1<<i;
-            GPIO_Init(ports[port], &GPIO_InitStructure);
+            GPIO_InitStructure.Pin = 1<<i;
+            HAL_GPIO_Init(ports[port], &GPIO_InitStructure);
         }
     }
 }
@@ -34,55 +33,56 @@ int hal_gpio_get_port_num(void)
 
 void hal_gpio_init(void)
 {
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOB, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOC, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOD, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOE, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOF, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOG, ENABLE);
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    __HAL_RCC_GPIOG_CLK_ENABLE();
+    __HAL_RCC_GPIOI_CLK_ENABLE();
 }
 
 
 void hal_gpio_set_input(int port, int bits)
 {
-    _set_dir( port, bits, GPIO_Mode_IN, GPIO_PuPd_UP );
+    _set_dir( port, bits, GPIO_MODE_INPUT, GPIO_PULLUP );
 }
 
 
 void hal_gpio_set_input_pull(int port, int bits, int pull)
 {
-    _set_dir( port, bits, GPIO_Mode_IN, pull ? GPIO_PuPd_UP : GPIO_PuPd_DOWN );
+    _set_dir( port, bits, GPIO_MODE_INPUT, pull ? GPIO_PULLUP : GPIO_PULLDOWN );
 }
 
 
 void hal_gpio_set_output(int port, int bits)
 {
-    _set_dir( port, bits, GPIO_Mode_OUT, 0 );
+    _set_dir( port, bits, GPIO_MODE_OUTPUT_PP, 0 );
 }
 
 
 void hal_gpio_set(int port, int bits)
 {
-    GPIO_SetBits(ports[port], bits);
+    HAL_GPIO_WritePin(ports[port], bits, GPIO_PIN_SET);
 }
 
 
 void hal_gpio_clr(int port, int bits)
 {
-    GPIO_ResetBits(ports[port], bits);
+    HAL_GPIO_WritePin(ports[port], bits, GPIO_PIN_RESET);
 }
 
 
 void hal_gpio_toggle(int port, int bits)
 {
-    GPIO_Write(ports[port], GPIO_ReadInputData(ports[port]) ^ bits);
+    HAL_GPIO_TogglePin(ports[port], bits);
 }
 
 
 int hal_gpio_get(int port, int bits)
 {
-    return GPIO_ReadInputData(ports[port]) & bits;
+    return HAL_GPIO_ReadPin(ports[port], bits);
 }
 
 

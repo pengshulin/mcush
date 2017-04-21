@@ -13,18 +13,6 @@ env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 #env.setLinkfile( '/ld/stm32f407zg_min.ld' )
 
 
-if env.DEBUG:
-    env.appendCompilerFlag(['-g', '-O0'] )
-    DEFINES = ['DEBUG', 'DEBUG_HALT_MESSAGE']
-else:
-    env.appendCompilerFlag(['-Os'] )
-    DEFINES = ['NDEBUG']
-    
-#env.appendCompilerFlag(['-Werror'])
-
-env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
-
-
 env.appendPath([
     '.',
     '/libFreeRTOS',

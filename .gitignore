@@ -12,6 +12,7 @@
 *.log
 *.old
 *.del
+*.lst
 
 .sconsign.dblite
 tags

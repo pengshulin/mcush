@@ -74,6 +74,9 @@ static shell_cmd_t cmd_tab[] = {
 
 int main(void)
 { 
+    float a,b,c;
+    a=3.0;b=4.0;c=a*b;
+
     mcush_init();
     shell_add_cmd_table( cmd_tab );
     mcush_start();

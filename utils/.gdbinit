@@ -1,6 +1,8 @@
 define init
+python dbg_file=None
+python import glob; dbg_file=glob.glob('*_dbg.elf')[0]
+python if dbg_file: gdb.execute('file %s'% dbg_file)
 
-file dbg.elf
 # STM32L152RB
 #    # IROM 128k
 #    mem 0x08000000 0x08020000 ro 32 cache

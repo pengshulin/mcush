@@ -1,5 +1,10 @@
 from Arm.Stm32 import *
 
+#env = Stm32f030xx()
+#haldir='stm32f030xx'
+#env.setLinkfile( '/ld/stm32f030xx_min.ld' )
+#port = 'ARM_CM0'
+
 #env = Stm32f1md()
 #haldir='stm32f103ze_redbull'
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
@@ -7,8 +12,7 @@ from Arm.Stm32 import *
 
 #env = Stm32f1md()
 #haldir='stm32f103xb'
-#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-##env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 #port = 'ARM_CM3'
 
 #env = Stm32f1md()
@@ -27,8 +31,8 @@ port = 'ARM_CM4F'
 #env.setLinkfile( '/ld/stm32f767zi_min.ld' )
 #port = 'ARM_CM7'
 
-env.appendOptimizeFlags()
 
+env.appendOptimizeFlags()
 
 env.appendPath([
     '.',
@@ -45,7 +49,7 @@ env.appendGlobSource([
     '/mcush/*.c',
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
-    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
+    '/libFreeRTOS/portable/MemMang/heap_3.c',
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
 ])
 

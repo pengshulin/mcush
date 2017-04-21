@@ -31,15 +31,7 @@ port = 'ARM_CM4F'
 #env.setLinkfile( '/ld/stm32f767zi_min.ld' )
 #port = 'ARM_CM7'
 
-
-if env.DEBUG:
-    env.appendCompilerFlag(['-g', '-O0'] )
-    DEFINES = ['DEBUG']
-else:
-    env.appendCompilerFlag(['-Os', '-Werror'] )
-    DEFINES = ['NDEBUG']
- 
-env.appendCompilerFlag(['-D%s'% d for d in DEFINES])
+env.appendOptimizeFlags()
 
 env.appendPath([
     '.',
