@@ -50,7 +50,7 @@ int  shell_init( const shell_cmd_t *cmd_table );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
-int  shell_print_help( void );
+int  shell_print_help( const char *cmd );
 void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
 int  shell_read_char( char *c );

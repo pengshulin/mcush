@@ -9,27 +9,20 @@
 #define LUA_PROMPT2     ">> "
 
 /*
-** lua_readline defines how to show a prompt and then read a line from
-** the standard input.
-** lua_saveline defines how to "save" a read line in a "history".
-** lua_freeline defines how to free a line read by lua_readline.
-*/
-#if !defined(lua_readline)	/* { */
-
+ * lua_readline defines how to show a prompt and then read a line from the standard input.
+ * lua_saveline defines how to "save" a read line in a "history".
+ * lua_freeline defines how to free a line read by lua_readline.
+ */
 #define lua_readline(L,b,p)  ((void)L, shell_write_str(p), shell_read_line(b)!=-1)
 #define lua_saveline(L,line) { (void)L; (void)line; }
 #define lua_freeline(L,b)    { (void)L; (void)b; }
-
-
-#endif				/* } */
 
 const char *progname = "lua";
 
 
 
 /*
-** Prints an error message, adding the program name in front of it
-** (if present)
+** Prints an error message, adding the program name in front of it (if present)
 */
 static void l_message (const char *pname, const char *msg) {
   if (pname) printf("%s: ", pname);
@@ -254,11 +247,12 @@ static void doREPL (lua_State *L) {
   progname = oldprogname;
 }
 
-static void print_version (void) {
-  lua_writestring(LUA_COPYRIGHT, strlen(LUA_COPYRIGHT));
-  lua_writeline();
-}
+//static void print_version (void) {
+//  lua_writestring(LUA_COPYRIGHT, strlen(LUA_COPYRIGHT));
+//  lua_writeline();
+//}
 
+extern int luaopen_ledlib(lua_State *L);
 int lua_main (int argc, char **argv)
 {
     //l_message("lua", "welcome !!!\n");
@@ -268,7 +262,13 @@ int lua_main (int argc, char **argv)
       return -1;
     }
     luaL_openlibs(L);
-    print_version();
+   
+    /* append led lib */ 
+    luaL_requiref(L, "led", luaopen_ledlib, 1 );
+    lua_pop(L, 1);
+    //luaopen_ledlib(L);
+
+    //print_version();
     //dostring(L,"print('hello')","Test_lua");
     //dofile(L, NULL);  /* executes stdin as a file */
     doREPL(L);

@@ -1,5 +1,9 @@
 from Arm.Stm32 import *
 
+#env = Stm32f1md()
+#haldir='stm32f103xb'
+#env.setLinkfile( '/ld/stm32f103xc_min.ld' )
+#port = 'ARM_CM3'
 
 env = Stm32f407xx()
 haldir='stm32f407zg_eu'

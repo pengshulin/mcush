@@ -1,4 +1,4 @@
-/* deault link command */
+/* deault link scripts */
 
 USER_STACK_ADDR = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
 

@@ -136,12 +136,9 @@ shell_cmd_t CMD_TAB[] = {
 int cmd_help( int argc, char *argv[] )
 {
     if( argc > 1 )
-    {
-        shell_write_line("no arguments needed");
-        return -1;
-    }
-
-    return shell_print_help();
+        return shell_print_help(argv[1]);
+    else
+        return shell_print_help(0);
 }
 #endif
 
@@ -149,11 +146,7 @@ int cmd_help( int argc, char *argv[] )
 #if USE_CMD_SCPI_IDN
 int cmd_scpi_idn( int argc, char *argv[] )
 {
-    shell_write_str( "mcush" );
-    shell_write_str( "," );
-    shell_write_str( MCUSH_VERSION_STRING );
-    shell_write_str( "\r\n" );
-
+    shell_write_str( "mcush," MCUSH_VERSION_STRING "\r\n" );
     return 0;
 }
 #endif

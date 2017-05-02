@@ -29,6 +29,7 @@ ROADMAP
 * use USB virtual com port driver provided by ST
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme...)
 * add file system support (FatFS/spiffs...)
+* add file utils (ls,cp,rm,cat,...) for file system
 * add bootloader and upgrade support
 
 

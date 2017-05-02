@@ -19,7 +19,7 @@ caddr_t _sbrk(int incr) {
 }
 
  
-#if DEBUG
+#ifdef DEBUG
 volatile char *halt_message = 0;
 void halt(const char *message)
 {

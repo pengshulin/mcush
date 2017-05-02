@@ -91,7 +91,7 @@ static shell_cmd_t cmd_tab[] = {
 #define PIN_D6   GPIO_Pin_6
 #define PIN_D7   GPIO_Pin_7
 #define PIN_DALL (PIN_D0 | PIN_D1 | PIN_D2 | PIN_D3 | PIN_D4 | PIN_D5 | PIN_D6 | PIN_D7)
-#define INV_RS
+//#define INV_RS
 void hal_lcd1602_dat_mode(int output)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -108,18 +108,53 @@ void hal_lcd1602_init(void)
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Pin = PIN_RW | PIN_E | PIN_RS;
     GPIO_Init(PORT_CTL, &GPIO_InitStructure);
-    GPIO_ResetBits(PORT_CTL, PIN_RW | PIN_RS);
-    GPIO_SetBits(PORT_CTL, PIN_E);
+    GPIO_ResetBits(PORT_CTL, PIN_RW | PIN_RS | PIN_E);
 
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_Pin = PIN_DALL;
     GPIO_Init(PORT_DAT, &GPIO_InitStructure);
 }
 
-    
+ 
+int hal_lcd1602_read(int command_mode)
+{
+    int val;
+    GPIO_SetBits(PORT_CTL, PIN_RW);
+#ifdef INV_RS
+    if( command_mode )
+        GPIO_SetBits(PORT_CTL, PIN_RS);
+    else
+        GPIO_ResetBits(PORT_CTL, PIN_RS);
+#else
+    if( command_mode )
+        GPIO_ResetBits(PORT_CTL, PIN_RS);
+    else
+        GPIO_SetBits(PORT_CTL, PIN_RS);
+#endif
+    if( cb.dat_output )
+    {
+        hal_lcd1602_dat_mode( 0 );
+        cb.dat_output = 0;
+    }
+    GPIO_SetBits(PORT_CTL, PIN_E);
+ 
+    val = GPIO_ReadInputData(PORT_DAT) & PIN_DALL; 
+    GPIO_ResetBits(PORT_CTL, PIN_E);
+    return val;
+}   
+
+
+void hal_lcd1602_wait_for_rdy(void)
+{
+    while( hal_lcd1602_read(1) & 0x80 )
+        vTaskDelay(1);
+}
+
+
 void hal_lcd1602_write(int command_mode, int val)
 {
-    GPIO_SetBits(PORT_CTL, PIN_E);
+    hal_lcd1602_wait_for_rdy();
+
     GPIO_ResetBits(PORT_CTL, PIN_RW);
 #ifdef INV_RS
     if( command_mode )
@@ -138,39 +173,16 @@ void hal_lcd1602_write(int command_mode, int val)
         cb.dat_output = 1;
     }
    
+    GPIO_SetBits(PORT_CTL, PIN_E);
+
     GPIO_SetBits(PORT_DAT, val & PIN_DALL); 
     GPIO_ResetBits(PORT_DAT, (~val) & PIN_DALL); 
+    vTaskDelay(1);
 
     GPIO_ResetBits(PORT_CTL, PIN_E);
 }
 
 
-int hal_lcd1602_read(int command_mode)
-{
-    int val;
-    GPIO_SetBits(PORT_CTL, PIN_E);
-    GPIO_SetBits(PORT_CTL, PIN_RW);
-#ifdef INV_RS
-    if( command_mode )
-        GPIO_SetBits(PORT_CTL, PIN_RS);
-    else
-        GPIO_ResetBits(PORT_CTL, PIN_RS);
-#else
-    if( command_mode )
-        GPIO_ResetBits(PORT_CTL, PIN_RS);
-    else
-        GPIO_SetBits(PORT_CTL, PIN_RS);
-#endif
-    if( cb.dat_output )
-    {
-        hal_lcd1602_dat_mode( 0 );
-        cb.dat_output = 0;
-    }
- 
-    GPIO_ResetBits(PORT_CTL, PIN_E);
-    val = GPIO_ReadInputData(PORT_DAT) & PIN_DALL; 
-    return val;
-}
 
 void hal_lcd1602_write_str( uint8_t x, uint8_t y, char *buf )
 {
@@ -180,6 +192,7 @@ void hal_lcd1602_write_str( uint8_t x, uint8_t y, char *buf )
         hal_lcd1602_write( 0, *buf++ );
     }
 }
+
 
 void task_disp_lcd1602_entry(void *p)
 {
@@ -194,11 +207,12 @@ void task_disp_lcd1602_entry(void *p)
     hal_lcd1602_write( 1, 0x01 );  /* clear disp */
     hal_lcd1602_write( 1, 0x02 );  /* cursor back */
     hal_lcd1602_write( 1, 0x07 );  /* ID=1 S=1 */
-    hal_lcd1602_write( 1, 0x0F );  /* disp on */
-    hal_lcd1602_write( 1, 0x2C );  /* DL=0,N=1,F=1 */
-    hal_lcd1602_write_str( 0, 0, "Hello world!" );
+    hal_lcd1602_write( 1, 0x0F );  /* D=1 C=1 B=1 */
+    hal_lcd1602_write( 1, 0x2C );  /* DL=0 N=1 F=1 */
+
     while( 1 )
     {
+        hal_lcd1602_write_str( 0, 0, "Hello world!" );
         shell_printf("%02X\n", hal_lcd1602_read(1));
         vTaskDelay(1000*configTICK_RATE_HZ/1000);
     }

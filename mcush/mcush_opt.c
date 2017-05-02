@@ -16,7 +16,7 @@
 #include "mcush_opt.h"
 #include "shell.h"
 
-# define INLINE(type) static inline type
+#define INLINE(type) static inline type
 
 INLINE(const mcush_opt_spec *) spec_byname(
 	mcush_opt_parser *parser, const char *name, size_t namelen)

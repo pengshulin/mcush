@@ -10,17 +10,17 @@ from Arm.Stm32 import *
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
 #port = 'ARM_CM3'
 
-env = Stm32f1md()
-haldir='stm32f103xb'
-#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-port = 'ARM_CM3'
-
 #env = Stm32f1md()
-#haldir='stm32f103xb_pyeasycontrol'
+#haldir='stm32f103xb'
+##env.setLinkfile( '/ld/stm32f103x8_min.ld' )
 #env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#env.appendDriver(STM32_USB_FS_Driver())
 #port = 'ARM_CM3'
+
+env = Stm32f1md()
+haldir='stm32f103xb_pyeasycontrol'
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env.appendDriver(STM32_USB_FS_Driver())
+port = 'ARM_CM3'
 
 #env = Stm32f407xx()
 #haldir='stm32f407zg_eu'
@@ -49,7 +49,7 @@ env.appendDefineFlags( [
     #'USE_CMD_UPTIME=0',
     #'USE_CMD_SYSTEM=0',
     #'MCUSH_FREERTOS_PEEK_API=0',
-    'configTOTAL_HEAP_SIZE=1024',
+    #'configTOTAL_HEAP_SIZE=1024',
     ] ) 
 
 
@@ -70,9 +70,9 @@ env.appendGlobSource([
     '/hal%s/*.c'% haldir,
     #'/libprintf2/*.c',
     '/libFreeRTOS/*.c',
-    '/libFreeRTOS/portable/MemMang/heap_1.c',  # simple malloc, not free
+    #'/libFreeRTOS/portable/MemMang/heap_1.c',  # simple malloc, not free
     #'/libFreeRTOS/portable/MemMang/heap_2.c',  # simple malloc, with free, not combine
-    #'/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
+    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
 ])
 

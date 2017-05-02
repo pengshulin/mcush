@@ -1,4 +1,5 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -423,7 +424,7 @@ int shell_process_command(void)
 }
 
  
-int shell_print_help( void )
+int shell_print_help( const char *cmd )
 {
     int i, j;
 
@@ -431,6 +432,9 @@ int shell_print_help( void )
     {
         for( j=0; cb.cmd_table[i][j].name; j++ )
         {
+            if( cmd && (strcmp(cmd, cb.cmd_table[i][j].name) != 0) && \
+                       (strcmp(cmd, cb.cmd_table[i][j].sname) != 0) ) 
+                continue;
             shell_write_str( cb.cmd_table[i][j].name );
             shell_write_str( "  " );
             shell_write_line( cb.cmd_table[i][j].help );
