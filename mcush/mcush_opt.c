@@ -8,6 +8,7 @@
  * This file is part of adopt, distributed under the MIT license.
  * For full terms and conditions, see the included LICENSE file.
  */
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
