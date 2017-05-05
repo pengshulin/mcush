@@ -5,6 +5,11 @@ from Arm.Stm32 import *
 #env.setLinkfile( '/ld/stm32f103xc_min.ld' )
 #port = 'ARM_CM3'
 
+#env = Stm32f1hd()
+#haldir='stm32f103ze_redbull'
+#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+#port = 'ARM_CM3'
+
 env = Stm32f407xx()
 haldir='stm32f407zg_eu'
 env.setLinkfile( '/ld/stm32f407zg_min.ld' )
@@ -41,7 +46,6 @@ env.appendGlobSource([
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
     '/liblua/*.c',
 ])
-
 env.appendLib(['m'])
 env.makeApp()
 

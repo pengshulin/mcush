@@ -56,7 +56,7 @@ int shell_printf( char *fmt, ... )
 {
     va_list ap;
     int n;
-    char buf[128];
+    char buf[256];
 
     va_start( ap, fmt );
     n = vsprintf( buf, fmt, ap );
