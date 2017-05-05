@@ -341,6 +341,8 @@ static int shell_process_char( char c )
     }
     else if( cb.cmdline_len < SHELL_CMDLINE_LEN )  /* new char */
     {
+        if( c == '\t')  /* convert TAB to space */
+            c = ' ';
         if( cb.cmdline_cursor == cb.cmdline_len )  /* append */
         {
             cb.cmdline[cb.cmdline_len++] = c;
