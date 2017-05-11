@@ -4,7 +4,7 @@
 extern int lua_main (int argc, char **argv);
 
 static shell_cmd_t cmd_tab[] = {
-{   0, "lua", lua_main, 
+{   "l", "lua", lua_main, 
     "run lua interpreter",
     "lua <fname>"  },
 {   0,  0,  0,  0  } };

@@ -35,7 +35,7 @@
 #endif
 
 #ifndef MCUSH_STACK_SIZE
-    #define MCUSH_STACK_SIZE  (8*1024 / sizeof(portSTACK_TYPE))
+    #define MCUSH_STACK_SIZE  (2*1024)
 #endif
 
 #ifndef MCUSH_QUEUE_SIZE
