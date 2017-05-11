@@ -4,32 +4,39 @@
 #include "lauxlib.h"
 #include "string.h"
 
+typedef void (*led_f)(int);
+
+static int _led_process( lua_State *L, led_f f )
+{
+    int i=lua_gettop(L), j;
+    //shell_printf( "gettop: %d\n", i );
+    if( i )
+    {
+        do
+        {
+            j=luaL_checkinteger(L, i);
+            //shell_printf( "checkinteger(%d)->%d\n", i, j );
+            (*f)(j);
+        }while(--i);
+    }
+    else
+        (*f)(0);
+    return 0;
+}
+
 static int lua_led_on(lua_State *L)
 {
-    lua_Integer n = luaL_checkinteger(L, 1);
-    hal_led_set(n);
-    lua_pushnil(L);
-    return 1;
+    return _led_process( L, hal_led_set );
 }
 
 static int lua_led_off(lua_State *L)
 {
-    lua_Integer n;
-    //if( lua_isnil(L) )
-    //    n = 0;
-    //else
-        n = luaL_checkinteger(L, 1);
-    hal_led_clr(n);
-    lua_pushnil(L);
-    return 1;
+    return _led_process( L, hal_led_clr );
 }
 
 static int lua_led_toggle(lua_State *L)
 {
-    lua_Integer n = luaL_checkinteger(L, 1);
-    hal_led_toggle(n);
-    lua_pushnil(L);
-    return 1;
+    return _led_process( L, hal_led_toggle );
 }
 
 
