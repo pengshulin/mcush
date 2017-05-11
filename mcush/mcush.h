@@ -44,10 +44,7 @@
 
 #ifndef MCUSH_FREERTOS_PEEK_API
     #define MCUSH_FREERTOS_PEEK_API   1
-#endif
-
-    
-#if ! MCUSH_FREERTOS_PEEK_API
+#else
     #define mcushTaskAddToRegistered( a ) 
     #ifdef USE_CMD_SYSTEM
         #undef USE_CMD_SYSTEM

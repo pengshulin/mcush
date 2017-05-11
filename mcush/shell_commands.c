@@ -96,12 +96,12 @@ shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_DUMP
 {   "x",  "dump",  cmd_dump, 
     "dump memory",
-    "dump -a <address> [-l <length>] [-w 1|2|4]" },
+    "dump -b <address> [-l <length>] [-w 1|2|4]" },
 #endif
 #if USE_CMD_WRITE
 {   "w",  "write",  cmd_write, 
     "write memory",
-    "write -a <address> [-w 1|2|4] dat1 dat2 ..." },
+    "write -b <address> [-w 1|2|4] dat1 dat2 ..." },
 #endif
 #if USE_CMD_MFILL
 {   0,  "mfill",  cmd_mfill, 
@@ -664,7 +664,7 @@ int cmd_mfill( int argc, char *argv[] )
             }
             else if( strcmp( opt.spec->name, "width" ) == 0 )
                 width = atoi(opt.value);
-       }
+        }
         else
             STOP_AT_INVALID_ARGUMENT  
     }

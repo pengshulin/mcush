@@ -24,9 +24,11 @@ const char *progname = "lua";
 /*
 ** Prints an error message, adding the program name in front of it (if present)
 */
-static void l_message (const char *pname, const char *msg) {
-  if (pname) printf("%s: ", pname);
-  printf("%s\n", msg);
+static void l_message (const char *pname, const char *msg)
+{
+    if (pname)
+          shell_printf("%s: ", pname);
+    shell_write_line(msg);
 }
 
 /*
