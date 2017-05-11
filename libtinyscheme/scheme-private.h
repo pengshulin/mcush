@@ -67,9 +67,12 @@ func_dealloc free;
 int retcode;
 int tracing;
 
-
-#define CELL_SEGSIZE    5000  /* # of cells in one segment */
-#define CELL_NSEGMENT   10    /* # of segments for cells */
+#ifndef CELL_SEGSIZE
+    #define CELL_SEGSIZE    5000  /* # of cells in one segment */
+#endif
+#ifndef CELL_NSEGMENT
+    #define CELL_NSEGMENT   10    /* # of segments for cells */
+#endif
 char *alloc_seg[CELL_NSEGMENT];
 pointer cell_seg[CELL_NSEGMENT];
 int     last_cell_seg;

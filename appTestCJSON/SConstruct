@@ -1,0 +1,42 @@
+from Arm.Stm32 import *
+
+env = Stm32f1hd()
+haldir='stm32f103ze_redbull'
+env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+port = 'ARM_CM3'
+
+
+#env = Stm32f407xx()
+#haldir='stm32f407zg_eu'
+#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+#port = 'ARM_CM4F'
+
+
+#env.appendDefineFlags(['MCUSH_STACK_SIZE=40000'])
+
+
+env.appendPath([
+    '.',
+    '/libFreeRTOS',
+    '/libFreeRTOS/include',
+    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/mcush',
+    '/libcjson',
+    '/hal%s'% haldir,
+    '/CMSIS/Lib/GCC',
+])
+
+
+env.appendGlobSource([
+    '*.c',
+    '/mcush/*.c',
+    '/libcjson/cJSON.c',
+    '/hal%s/*.c'% haldir,
+    '/libFreeRTOS/*.c',
+    '/libFreeRTOS/portable/MemMang/heap_3.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
+])
+
+
+env.appendLib(['m'])
+env.makeApp()

@@ -13,6 +13,7 @@
 #include "shell.h"
 #include "mcush_opt.h"
 #include "mcush_freertos_api.h"
+#include "mcush_vfs.h"
 
 
 #define MCUSH_VERSION_MAJOR    1
