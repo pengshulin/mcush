@@ -4,7 +4,9 @@
 
 #include "FreeRTOSConfig.h"
 
-#define MCUSH_TASK_REGISTRY_SIZE  10
+#ifndef MCUSH_TASK_REGISTRY_SIZE
+    #define MCUSH_TASK_REGISTRY_SIZE  10
+#endif
 
 
 typedef struct {

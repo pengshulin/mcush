@@ -7,7 +7,8 @@ port = 'ARM_CM4F'
 
 
 env.appendDefineFlags( [
-    'MCUSH_STACK_SIZE=10240',
+    #'MCUSH_STACK_SIZE=10240',
+    'MCUSH_TASK_REGISTRY_SIZE=20',
     ] ) 
 
 

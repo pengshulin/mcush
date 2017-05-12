@@ -810,7 +810,7 @@ int cmd_system( int argc, char *argv[] )
     mcush_kern_info_t kinfo;
     const char *name=0, *filter_name=0;
     int i;
-    char buf[32];
+    char buf[256];
 
     if( argc < 2 )
         goto usage_error;
@@ -866,6 +866,13 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "SuspendedTaskList:    0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
 #endif
     }
+#if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
+    else if( strcmp( argv[1], "trace" ) == 0 )
+    {
+        vTaskList( buf );
+        shell_write_str( buf ); 
+    }
+#endif
     else
         goto usage_error;
     return 0;
@@ -874,6 +881,9 @@ usage_error:
     shell_write_line( "system t|task <task_name>" );
     shell_write_line( "system q|queue <queue_name>" );
     shell_write_line( "system k|kern" );
+#if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
+    shell_write_line( "system trace" );
+#endif
     return -1;
 }
 #endif

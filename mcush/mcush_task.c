@@ -23,7 +23,9 @@ void mcush_init(void)
     if( !shell_init( &CMD_TAB[0] ) )
         halt("shell init");
 
-    xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE), NULL, MCUSH_PRIORITY, &task_mcush);
+    xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", 
+                MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
+                NULL, MCUSH_PRIORITY, &task_mcush);
     if( !task_mcush )
         halt("mcush task create");
     mcushTaskAddToRegistered(task_mcush);
