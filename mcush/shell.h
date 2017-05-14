@@ -53,6 +53,7 @@ int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
 int  shell_print_help( const char *cmd );
 void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
+char *shell_get_buf( void );
 int  shell_read_char( char *c );
 int  shell_read_line( char *c );
 void shell_write_char( char c );

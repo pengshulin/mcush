@@ -21,7 +21,7 @@ port = 'ARM_CM3'
 #port = 'ARM_CM7'
 
 env.appendDefineFlags([
-    #'MCUSH_STACK_SIZE=10240',
+    'MCUSH_STACK_SIZE=10240',
     #'LUA_32BITS'
     ])
 

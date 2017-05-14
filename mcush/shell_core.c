@@ -121,6 +121,12 @@ void shell_set_prompt_hook( const char *(*hook)(void) )
 }
 
 
+char *shell_get_buf( void )
+{
+    return cb.cmdline;
+}
+
+
 static int shell_split_cmdline_into_argvs( char *cmd_line )
 {
     char *p = cmd_line;
@@ -247,6 +253,11 @@ static int shell_process_char( char c )
         cb.history_index = 0;
         return -1;
     }
+    else if( c == 0x1A )  /* Ctrl-Z, end of input */
+    {
+        cb.cmdline[cb.cmdline_cursor] = 0;
+        return -2;
+    }
     else if( (c == 0x10) || (c == 0x0E) )  /* Ctrl-P/N, previous/next history */
     {
         p = 0;
@@ -369,6 +380,7 @@ static int shell_process_char( char c )
 int shell_read_line( char *buf )
 {
     char c;
+    int s;
     cb.cmdline_len = 0;
     cb.cmdline_cursor = 0;
     if( buf )
@@ -377,7 +389,8 @@ int shell_read_line( char *buf )
     {
         if( shell_driver_read_char(&c) == -1 )
             continue;
-        switch( shell_process_char(c) )
+        s = shell_process_char(c);
+        switch( s ) 
         {
         case 1:  /* end of line */
             cb.cmdline[cb.cmdline_len] = 0;
@@ -387,7 +400,9 @@ int shell_read_line( char *buf )
                 strcpy( buf, cb.cmdline );
             return cb.cmdline_len;
         case -1:  /* Ctrl-C */
-            return -1;
+        case -2:  /* Ctrl-Z, end of input */
+            shell_write_str("\r\n");
+            return s;
         }
     }
 }
@@ -467,8 +482,9 @@ void shell_run( void )
         {
         case 0:  /* empty line */
             break;
+        case -2:  /* Ctrl-Z, end of input */
         case -1:  /* Ctrl-C */
-            shell_write_str("\r\n");
+            //shell_write_str("\r\n");
             break;
         default:  /* commands */
             shell_process_command();

@@ -6,6 +6,7 @@
 
 
 
+
 /* Used by some code below as an example datatype. */
 struct record
 {
@@ -238,11 +239,97 @@ static int create_objects(void)
     return 0;
 }
 
+
+void parse_and_print( const char *in )
+{
+    char *p;
+    cJSON *root=cJSON_Parse(in);
+    if( !root )
+    {
+        shell_write_line("Failed to parser input line");
+        return;
+    }
+
+    p = cJSON_Print( root );
+    if( !p )
+    {
+        shell_write_line("Failed to print cjson object");
+        return;
+    }
+
+    shell_write_line(p);
+    cJSON_Delete(root);
+    free(p); 
+}
+
+
+
+
+int cmd_cjson_parse( int argc, char *argv[] )
+{
+    char *buf1=0, *buf2=shell_get_buf(), *p;
+    int len1=0, len2=0;
+
+    while( 1 )
+    {
+        switch( shell_read_line(0) )
+        {
+        case 0:  /* empty line */
+        case -2:  /* Ctrl-Z, end of input */
+            if( buf1 && len1 )
+            {
+                //shell_printf("buf1 @ %08X, len=%d\n", buf1, len1 );
+                //shell_write_line(buf1);
+                parse_and_print( buf1 );
+            }
+            goto ret;
+        case -1:  /* Ctrl-C, stop */
+            goto ret;
+        default:  /* normal line */
+            len2 = strlen(buf2);
+            len1 += len2;
+            if( !buf1 )
+            {
+                buf1 = malloc(len2+1);
+                if( !buf1 )
+                    goto alloc_err;
+                strcpy( buf1, buf2 );
+            }
+            else
+            {
+                p = realloc( buf1, len1 );
+                if( !p )
+                    goto alloc_err;
+                buf1 = p; 
+                strcat( buf1, buf2 );
+            }
+            //shell_printf("buf1 @ %08X, len=%d\n", buf1, len1 );
+            //shell_write_line(buf1);
+            break;
+        }
+    }
+
+ret:
+    if( buf1 )
+        free(buf1);
+    return 0;
+alloc_err:
+    shell_write_line("failed to allocate memory");
+    if( buf1 )
+        free(buf1);
+    return 1;
+}
+
+
+
+
+
     
-/* test  */
 int cmd_cjson( int argc, char *argv[] )
 {
     shell_printf("Version: %s\n", cJSON_Version());
+
+    parse_and_print( "{\"abc\":1.234321, \"xxx\": 123, \"yyy\":\"hello\", \"zzz\":[1.2,3.4,5.3]}" );
 
     return create_objects();
     
@@ -255,6 +342,9 @@ static shell_cmd_t cmd_tab[] = {
 {   0, "cjson", cmd_cjson, 
     "cjson test",
     "cjson"  },
+{   0, "parse", cmd_cjson_parse, 
+    "cjson test, multi-line input",
+    "parse"  },
 {   0,  0,  0,  0  } };
 
 int main(void)
