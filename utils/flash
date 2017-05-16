@@ -13,7 +13,7 @@ else
 fi
 
 echo "st-flash" write $target 
-killall -q st-util 
+killall -q st-util openocd
 st-flash write $target 0x08000000 2>&1
 
 

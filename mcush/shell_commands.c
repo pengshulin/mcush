@@ -811,6 +811,7 @@ int cmd_system( int argc, char *argv[] )
     const char *name=0, *filter_name=0;
     int i;
     char buf[256];
+    char *p;
 
     if( argc < 2 )
         goto usage_error;
@@ -866,6 +867,17 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "SuspendedTaskList:    0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
 #endif
     }
+    else if( strcmp( argv[1], "heap" ) == 0 )
+    {
+        extern char *heap_end, _sheap, _eheap;
+        shell_printf( "S:0x%08X\nC:0x%08X\nE:0x%08X\n", &_sheap, heap_end, &_eheap ); 
+    }
+    else if( strcmp( argv[1], "stack" ) == 0 )
+    {
+        extern char _sstack, _estack;
+        for( p=&_sstack, i=0; p<&_estack && (*p == 0xA5); p++, i++ );
+        shell_printf( "S:0x%08X\nE:0x%08X\nfree:%d\n", &_sstack, &_estack, i );
+    }
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
     else if( strcmp( argv[1], "trace" ) == 0 )
     {
@@ -881,6 +893,8 @@ usage_error:
     shell_write_line( "system t|task <task_name>" );
     shell_write_line( "system q|queue <queue_name>" );
     shell_write_line( "system k|kern" );
+    shell_write_line( "system heap" );
+    shell_write_line( "system stack" );
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
     shell_write_line( "system trace" );
 #endif

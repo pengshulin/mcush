@@ -278,8 +278,8 @@ int cmd_cjson_parse( int argc, char *argv[] )
         case -2:  /* Ctrl-Z, end of input */
             if( buf1 && len1 )
             {
-                //shell_printf("buf1 @ %08X, len=%d\n", buf1, len1 );
-                //shell_write_line(buf1);
+                shell_printf("buf1 @ %08X, len=%d\n", buf1, len1 );
+                shell_write_line(buf1);
                 parse_and_print( buf1 );
             }
             goto ret;

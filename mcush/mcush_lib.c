@@ -2,9 +2,10 @@
 #include "mcush.h"
 #include <sys/types.h>
 
+    
+char *heap_end;
 caddr_t _sbrk(int incr) {
     extern char _sheap, _eheap;
-    static char *heap_end;
     char *prev_heap_end;
     
     if (heap_end == NULL) {
