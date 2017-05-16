@@ -4,8 +4,7 @@
 #include "mcush.h"
 #include "cJSON.h"
 
-
-
+#define ALLOC_SIZE_INC  512
 
 /* Used by some code below as an example datatype. */
 struct record
@@ -268,42 +267,41 @@ void parse_and_print( const char *in )
 int cmd_cjson_parse( int argc, char *argv[] )
 {
     char *buf1=0, *buf2=shell_get_buf(), *p;
-    int len1=0, len2=0;
+    int len=0, alloc_size=ALLOC_SIZE_INC;
+    
 
+    buf1 = malloc(ALLOC_SIZE_INC);
+    if( !buf1 )
+        goto alloc_err;
+    *buf1 = 0;
     while( 1 )
     {
         switch( shell_read_line(0) )
         {
         case 0:  /* empty line */
         case -2:  /* Ctrl-Z, end of input */
-            if( buf1 && len1 )
+            if( len )
             {
-                shell_printf("buf1 @ %08X, len=%d\n", buf1, len1 );
-                shell_write_line(buf1);
+                //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
+                //shell_write_line(buf1);
                 parse_and_print( buf1 );
             }
             goto ret;
         case -1:  /* Ctrl-C, stop */
             goto ret;
         default:  /* normal line */
-            len2 = strlen(buf2);
-            len1 += len2;
-            if( !buf1 )
+            len += strlen(buf2);
+            if( len >= alloc_size )
             {
-                buf1 = malloc(len2+1);
-                if( !buf1 )
-                    goto alloc_err;
-                strcpy( buf1, buf2 );
-            }
-            else
-            {
-                p = realloc( buf1, len1 );
+                while( alloc_size < len+1 )
+                    alloc_size += ALLOC_SIZE_INC;
+                p = realloc( buf1, len );
                 if( !p )
                     goto alloc_err;
                 buf1 = p; 
-                strcat( buf1, buf2 );
             }
-            //shell_printf("buf1 @ %08X, len=%d\n", buf1, len1 );
+            strcat( buf1, buf2 );
+            //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
             //shell_write_line(buf1);
             break;
         }
