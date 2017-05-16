@@ -1,15 +1,15 @@
 from Arm.Stm32 import *
 
-#env = Stm32f1hd()
-#haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
-#port = 'ARM_CM3'
+env = Stm32f1hd()
+haldir='stm32f103ze_redbull'
+env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+port = 'ARM_CM3'
 
 
-env = Stm32f407xx()
-haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-port = 'ARM_CM4F'
+#env = Stm32f407xx()
+#haldir='stm32f407zg_eu'
+#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+#port = 'ARM_CM4F'
 
 
 env.appendDefineFlags(['MCUSH_STACK_SIZE=10000'])
