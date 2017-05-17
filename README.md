@@ -36,10 +36,11 @@ ROADMAP
 ENVIRONMENT
 ===========
 * arm-none-eabi-gcc, newlibc, arm-none-eabi-gdb
-* STLink v2 + st-flash(flasher) + st-util(gdb server)
-  <https://github.com/texane/stlink>
 * scons + personal MCU build scripts
   <https://github.com/pengshulin/site_scons>
+* STLink v2 + st-flash(flasher) + st-util(gdb server)
+  <https://github.com/texane/stlink>
+* openocd
 * develope and test on Debian/Ubuntu machines
 
 

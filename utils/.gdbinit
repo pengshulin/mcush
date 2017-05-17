@@ -56,7 +56,7 @@ mem 0xe0000000 0x100000000 rw 32 nocache
 end
 
 define connect
-shell killall -q st-util
+shell killall -q st-util openocd
 shell sleep 0.5 
 # st-util gdbserver port 4242
 #target remote localhost:4242  

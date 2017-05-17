@@ -1,6 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include "shell.h"
@@ -377,7 +378,7 @@ static int shell_process_char( char c )
 }
 
                 
-int shell_read_line( char *buf )
+int shell_read_line( char *buf, const char *prompt )
 {
     char c;
     int s;
@@ -385,6 +386,10 @@ int shell_read_line( char *buf )
     cb.cmdline_cursor = 0;
     if( buf )
         *buf = 0;
+    if( prompt )
+        shell_write_str( prompt );
+    else
+        shell_write_str( SHELL_INPUT_SUB_PROMPT ); 
     while( 1 )
     {
         if( shell_driver_read_char(&c) == -1 )
@@ -478,7 +483,7 @@ void shell_run( void )
     
     while( 1 )
     {
-        switch( shell_read_line(0) )
+        switch( shell_read_line(0, "") )
         {
         case 0:  /* empty line */
             break;
@@ -491,6 +496,60 @@ void shell_run( void )
         }
         shell_write_str( shell_get_prompt() );
     }
+}
+
+
+char *shell_read_multi_lines( const char *prompt )
+{
+    char *buf1=0, *buf2=shell_get_buf(), *p;
+    int len=0, alloc_size=SHELL_READ_LINES_ALLOC_SIZE_INC;
+
+    buf1 = malloc(SHELL_READ_LINES_ALLOC_SIZE_INC);
+    if( !buf1 )
+        goto alloc_err;
+    *buf1 = 0;
+    while( 1 )
+    {
+        switch( shell_read_line(0, prompt) )
+        {
+        case 0:  /* empty line */
+        case -2:  /* Ctrl-Z, end of input */
+            if( len )
+            {
+                //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
+                //shell_write_line(buf1);
+                return buf1;
+            }
+            goto abort;
+        case -1:  /* Ctrl-C, stop */
+            goto abort;
+        default:  /* normal line */
+            len += strlen(buf2);
+            if( len >= alloc_size )
+            {
+                while( alloc_size < len+1 )
+                    alloc_size += SHELL_READ_LINES_ALLOC_SIZE_INC;
+                p = realloc( buf1, len );
+                if( !p )
+                    goto alloc_err;
+                buf1 = p; 
+            }
+            strcat( buf1, buf2 );
+            //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
+            //shell_write_line(buf1);
+            break;
+        }
+    }
+
+abort:
+    if( buf1 )
+        free(buf1);
+    return 0;
+alloc_err:
+    shell_write_line("failed to allocate memory");
+    if( buf1 )
+        free(buf1);
+    return 0;
 }
 
 

@@ -14,6 +14,13 @@
 #ifndef SHELL_CMD_TABLE_LEN
     #define SHELL_CMD_TABLE_LEN  3
 #endif
+#ifndef SHELL_READ_LINES_ALLOC_SIZE_INC
+    #define SHELL_READ_LINES_ALLOC_SIZE_INC  512
+#endif
+#ifndef SHELL_INPUT_SUB_PROMPT
+    #define SHELL_INPUT_SUB_PROMPT  ">"
+#endif
+
 
 #define STOP_AT_INVALID_ARGUMENT    {  \
         shell_write_str( "invalid arg: " ); \
@@ -55,7 +62,8 @@ void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
 char *shell_get_buf( void );
 int  shell_read_char( char *c );
-int  shell_read_line( char *c );
+int  shell_read_line( char *c, const char *prompt );
+char *shell_read_multi_lines( const char *prompt );
 void shell_write_char( char c );
 void shell_write_str( const char *str );
 void shell_write_line( const char *str );
@@ -63,7 +71,6 @@ void shell_write_int( int i );
 void shell_write_float( float f );
 void shell_write_hex( int x );
 int  shell_printf( char *fmt, ... );
-
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );

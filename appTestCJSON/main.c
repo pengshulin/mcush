@@ -4,7 +4,6 @@
 #include "mcush.h"
 #include "cJSON.h"
 
-#define ALLOC_SIZE_INC  512
 
 /* Used by some code below as an example datatype. */
 struct record
@@ -266,56 +265,13 @@ void parse_and_print( const char *in )
 
 int cmd_cjson_parse( int argc, char *argv[] )
 {
-    char *buf1=0, *buf2=shell_get_buf(), *p;
-    int len=0, alloc_size=ALLOC_SIZE_INC;
-    
-
-    buf1 = malloc(ALLOC_SIZE_INC);
-    if( !buf1 )
-        goto alloc_err;
-    *buf1 = 0;
-    while( 1 )
+    char *buf = shell_read_multi_lines(0);
+    if( buf )
     {
-        switch( shell_read_line(0) )
-        {
-        case 0:  /* empty line */
-        case -2:  /* Ctrl-Z, end of input */
-            if( len )
-            {
-                //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
-                //shell_write_line(buf1);
-                parse_and_print( buf1 );
-            }
-            goto ret;
-        case -1:  /* Ctrl-C, stop */
-            goto ret;
-        default:  /* normal line */
-            len += strlen(buf2);
-            if( len >= alloc_size )
-            {
-                while( alloc_size < len+1 )
-                    alloc_size += ALLOC_SIZE_INC;
-                p = realloc( buf1, len );
-                if( !p )
-                    goto alloc_err;
-                buf1 = p; 
-            }
-            strcat( buf1, buf2 );
-            //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
-            //shell_write_line(buf1);
-            break;
-        }
+        parse_and_print(buf);
+        free(buf);
     }
-
-ret:
-    if( buf1 )
-        free(buf1);
     return 0;
-alloc_err:
-    shell_write_line("failed to allocate memory");
-    if( buf1 )
-        free(buf1);
-    return 1;
 }
 
 
