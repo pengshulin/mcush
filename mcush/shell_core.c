@@ -75,6 +75,12 @@ void shell_write_line( const char *str )
 }
 
 
+int shell_eval_int( const char *str, int *i )
+{
+    return sscanf(str, "%i", i) == 1 ? 1 : 0;
+}
+
+
 void shell_set_errnum( int errnum )
 {
     cb.errnum = errnum;
@@ -476,12 +482,12 @@ int shell_print_help( const char *cmd, int show_hidden )
             }
             if( !show_hidden && (cb.cmd_table[i][j].flag == CMD_HIDDEN) )
                 continue;
+            shell_write_str( cb.cmd_table[i][j].name );
             if( cb.cmd_table[i][j].sname )
             {
+                shell_write_char( '/' );
                 shell_write_char( cb.cmd_table[i][j].sname );
-                shell_write_str( "|" );
             }
-            shell_write_str( cb.cmd_table[i][j].name );
             shell_write_str( "  " );
             shell_write_line( cb.cmd_table[i][j].description );
             shell_write_str( "  " );

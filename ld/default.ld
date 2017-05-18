@@ -18,6 +18,7 @@ SECTIONS
     .text :
     {
         . = ALIGN(4);
+        _text = .;
         
         *(.text)                   /* remaining code */
         *(.text.*)                 /* remaining code */
@@ -92,33 +93,27 @@ SECTIONS
     } >SRAM
     
 
-    /* This is the uninitialized data section */
+    /* uninitialized data section */
     .bss :
     {
         . = ALIGN(4);
-        /* This is used by the startup in order to initialize the .bss secion */
         _sbss = .;
-        
         *(.bss)
         *(.bss.*)
         *(COMMON)
-        
         . = ALIGN(4);
-        /* This is used by the startup in order to initialize the .bss secion */
         _ebss = . ;
     } >SRAM
     
     PROVIDE ( __bss_start__ = _sbss );
     PROVIDE ( __bss_end__ = _ebss );
     
-    /* This is the user heap section used by LIBC */ 
+    /* user heap section used by LIBC */ 
     .userheap :
     {
         . = ALIGN(4);
         _sheap = . ;
-        
         . = . + USER_HEAP_SIZE ;
-        
         . = ALIGN(4);
         _eheap = . ;
     } >SRAM
@@ -131,9 +126,7 @@ SECTIONS
     {
         . = ALIGN(4);
         _sstack = .;
-
         . = . + USER_STACK_SIZE ;
-
         . = ALIGN(4);
         _estack = .;
     } >SRAM 

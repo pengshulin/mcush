@@ -455,12 +455,12 @@ int cmd_dump( int argc, char *argv[] )
         {
             if( strcmp( opt.spec->name, "addr" ) == 0 )
             {
-                if( 1 != sscanf(opt.value, "%x", (unsigned int*)&addr) )
+                if( ! shell_eval_int(opt.value, (int*)&addr) )
                     addr = (void*)-1;
             }
             else if( strcmp( opt.spec->name, "length" ) == 0 )
             {
-                if( 1 != sscanf(opt.value, "%i", (int*)&length) )
+                if( ! shell_eval_int(opt.value, (int*)&length) )
                     length = 16;
             }
             else if( strcmp( opt.spec->name, "width" ) == 0 )
