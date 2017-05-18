@@ -4,9 +4,9 @@
 extern int picolisp_main (int argc, char **argv);
 
 static shell_cmd_t cmd_tab[] = {
-{   "pil", "picolisp", picolisp_main, 
+{   0, 0, "picolisp", picolisp_main, 
     "run picolisp interpreter",
-    "pil <fname>"  },
+    "picolisp <fname>"  },
 {   0,  0,  0,  0  } };
 
 

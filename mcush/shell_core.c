@@ -162,10 +162,16 @@ static int shell_search_command( int index, char *name )
         return -1;
     for( i=0; ct->name; i++, ct++ )
     {
-        if( strcmp( name, ct->name ) == 0 )
-            return i;
-        if( ct->sname && (strcmp( name, ct->sname ) == 0) )
-            return i;
+        if( strlen(name) > 1 )
+        {
+            if( strcmp( name, ct->name ) == 0 )
+                return i;
+        }
+        else
+        {
+            if( *name == ct->sname )
+                return i;
+        }
     }
     return -1;
 }
@@ -446,7 +452,7 @@ int shell_process_command(void)
 }
 
  
-int shell_print_help( const char *cmd )
+int shell_print_help( const char *cmd, int show_hidden )
 {
     int i, j;
 
@@ -454,12 +460,30 @@ int shell_print_help( const char *cmd )
     {
         for( j=0; cb.cmd_table[i][j].name; j++ )
         {
-            if( cmd && (strcmp(cmd, cb.cmd_table[i][j].name) != 0) && \
-                       (strcmp(cmd, cb.cmd_table[i][j].sname) != 0) ) 
+            if( cmd && *cmd )
+            {
+                if( strlen(cmd) > 1 )
+                {
+                    if( strcmp(cmd, cb.cmd_table[i][j].name) != 0 )
+                        continue;
+                }
+                else
+                {
+                    if( (strcmp(cmd, cb.cmd_table[i][j].name) != 0) || \
+                        (*cmd != cb.cmd_table[i][j].sname) )
+                        continue;
+                }
+            }
+            if( !show_hidden && (cb.cmd_table[i][j].flag == CMD_HIDDEN) )
                 continue;
+            if( cb.cmd_table[i][j].sname )
+            {
+                shell_write_char( cb.cmd_table[i][j].sname );
+                shell_write_str( "|" );
+            }
             shell_write_str( cb.cmd_table[i][j].name );
             shell_write_str( "  " );
-            shell_write_line( cb.cmd_table[i][j].help );
+            shell_write_line( cb.cmd_table[i][j].description );
             shell_write_str( "  " );
             shell_write_line( cb.cmd_table[i][j].usage );
         }

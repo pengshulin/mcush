@@ -36,7 +36,7 @@ int cmd_1wire( int argc, char *argv[] )
 }
 
 static shell_cmd_t cmd_tab[] = {
-{   0 , "1wire",  cmd_1wire, 
+{   0,  '1', "1wire",  cmd_1wire, 
     "control 1wire bus",
     "1wire command"  },
 {   0,  0,  0,  0  } };

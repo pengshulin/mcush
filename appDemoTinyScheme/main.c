@@ -4,7 +4,7 @@
 extern int tinyscheme_main (int argc, char **argv);
 
 static shell_cmd_t cmd_tab[] = {
-{   "ts", "tinyscheme", tinyscheme_main, 
+{   0, 't', "ts", tinyscheme_main, 
     "run tinyscheme interpreter",
     "ts <fname>"  },
 {   0,  0,  0,  0  } };

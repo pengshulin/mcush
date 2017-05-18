@@ -64,81 +64,98 @@ int cmd_system( int argc, char *argv[] );
 
 shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_HELP
-{   "?", "help",  cmd_help, 
+{   0,  '?',  "help",  cmd_help, 
     "display command list",
-    "help"  },
+    "help [-a]"  },
 #endif
 #if USE_CMD_SCPI_IDN
-{   "",  "*idn?", cmd_scpi_idn,
+{   0,  0,  "*idn?", cmd_scpi_idn,
     "show device info",
     "*idn?" },
 #endif
 #if USE_CMD_SCPI_RST
-{   "",  "*rst",  cmd_scpi_rst, 
+{   0,  0,  "*rst",  cmd_scpi_rst, 
     "reset device",
     "*rst" },
 #endif
 #if USE_CMD_RESET
-{   "r",  "reset",  cmd_reset, 
+{   CMD_HIDDEN, 'r',  "reset",  cmd_reset, 
     "reset CPU core",
     "reset" },
 #endif
-#if USE_CMD_GPIO
-{   "p",  "gpio",  cmd_gpio, 
-    "control gpio",
-    "gpio -p <port.bit> -i <val> -o <val> -s <val> -c <val> -t <val> -l" },
-#endif
-#if USE_CMD_LED
-{   "",  "led",  cmd_led, 
-    "control led",
-    "led -s|c|t -i <idx>" },
-#endif
 #if USE_CMD_DUMP
-{   "x",  "dump",  cmd_dump, 
+{   CMD_HIDDEN,  'x',  "dump",  cmd_dump, 
     "dump memory",
     "dump -b <address> [-l <length>] [-w 1|2|4]" },
 #endif
 #if USE_CMD_WRITE
-{   "w",  "write",  cmd_write, 
+{   CMD_HIDDEN,  'w',  "write",  cmd_write, 
     "write memory",
     "write -b <address> [-w 1|2|4] dat1 dat2 ..." },
 #endif
 #if USE_CMD_MFILL
-{   0,  "mfill",  cmd_mfill, 
+{   CMD_HIDDEN,  0,  "mfill",  cmd_mfill, 
     "fill memory",
     "mfill -b <address> [-l <length>] [-w 1|2|4] [-p <pattern>]" },
 #endif
 #if USE_CMD_WAIT
-{   0,  "wait",  cmd_wait, 
-    "wait in milliseconds",
+{   CMD_HIDDEN,  0,  "wait",  cmd_wait, 
+    "sleep milliseconds",
     "wait <ms>" },
 #endif
 #if USE_CMD_WDG
-{   0,  "wdg",  cmd_wdg, 
+{   CMD_HIDDEN,  0,  "wdg",  cmd_wdg, 
     "watchdog",
     "wdg enable|disable|clear|reset" },
 #endif
 #if USE_CMD_UPTIME
-{   0,  "uptime",  cmd_uptime, 
+{   CMD_HIDDEN,  0,  "uptime",  cmd_uptime, 
     "show how long mcu has been running",
     "uptime" },
 #endif
 #if USE_CMD_SYSTEM
-{   "sys",  "system",  cmd_system, 
+{   CMD_HIDDEN,  0,  "sys",  cmd_system, 
     "show system info",
-    "sys" },
+    "sys t|q|k" },
 #endif
-{   0,  0,  0,  0  } };
+#if USE_CMD_GPIO
+{   0,  0,  "gpio",  cmd_gpio, 
+    "control gpio",
+    "gpio -p <port.bit> -i <val> -o <val> -s <val> -c <val> -t <val> -l" },
+#endif
+#if USE_CMD_LED
+{   0,  0,  "led",  cmd_led, 
+    "control led",
+    "led -s|c|t -i <idx>" },
+#endif
+{   CMD_END  } };
 
 
 
 #if USE_CMD_HELP
 int cmd_help( int argc, char *argv[] )
 {
-    if( argc > 1 )
-        return shell_print_help(argv[1]);
-    else
-        return shell_print_help(0);
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "all", 'a', 0, "show hidden commands", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    int show_hidden=0;
+ 
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "all" ) == 0 )
+                show_hidden = 1;
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    return shell_print_help(0, show_hidden);
 }
 #endif
 
@@ -890,13 +907,13 @@ int cmd_system( int argc, char *argv[] )
     return 0;
 
 usage_error:
-    shell_write_line( "system t|task <task_name>" );
-    shell_write_line( "system q|queue <queue_name>" );
-    shell_write_line( "system k|kern" );
-    shell_write_line( "system heap" );
-    shell_write_line( "system stack" );
+    shell_write_line( "sys t|task <task_name>" );
+    shell_write_line( "sys q|queue <queue_name>" );
+    shell_write_line( "sys k|kern" );
+    shell_write_line( "sys heap" );
+    shell_write_line( "sys stack" );
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
-    shell_write_line( "system trace" );
+    shell_write_line( "sys trace" );
 #endif
     return -1;
 }

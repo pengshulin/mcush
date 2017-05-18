@@ -7,9 +7,9 @@ extern int lua_main (int argc, char **argv);
 
 #ifdef USE_LUA
 static shell_cmd_t cmd_tab[] = {
-{   "l", "lua", lua_main, 
+{   0, 'l', "lua", lua_main, 
     "run lua interpreter",
-    "lua <fname>"  },
+    "lua [fname]"  },
 {   0,  0,  0,  0  } };
 #endif
 

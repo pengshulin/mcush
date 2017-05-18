@@ -100,10 +100,10 @@ channel_error:
 }
 
 static shell_cmd_t cmd_tab[] = {
-{   "a", "adc",  cmd_adc, 
+{   0,  'a',  "adc",  cmd_adc, 
     "adc control",
     "adc <--index=[channel_index]>"  },
-{   0,  0,  0,  0  } };
+{   0,  0,  0,  0,  0,  0 } };
 
 
 #define DELAY  10

@@ -28,12 +28,18 @@
         mcush_opt_usage_print( argv[0], opt_spec ); \
         return -1; }
 
+enum {
+CMD_NORMAL=0,
+CMD_HIDDEN,
+CMD_END,
+};
 
 typedef struct _shell_cmd {
-    const char *sname;
+    uint8_t flag;
+    char sname;
     const char *name;
     int (*cmd)(int argc, char *argv[]);
-    const char *help;
+    const char *description;
     const char *usage;
 } shell_cmd_t;
 
@@ -57,7 +63,7 @@ int  shell_init( const shell_cmd_t *cmd_table );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
-int  shell_print_help( const char *cmd );
+int  shell_print_help( const char *cmd, int show_hidden );
 void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
 char *shell_get_buf( void );

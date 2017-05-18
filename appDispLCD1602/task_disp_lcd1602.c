@@ -71,7 +71,7 @@ int cmd_disp( int argc, char *argv[] )
 }
 
 static shell_cmd_t cmd_tab[] = {
-{   0, "disp",  cmd_disp, 
+{   0,  0, "disp",  cmd_disp, 
     "display on lcd1602",
     "disp <new val>"  },
 {   0,  0,  0,  0  } };
