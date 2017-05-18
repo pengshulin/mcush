@@ -292,14 +292,14 @@ int cmd_cjson( int argc, char *argv[] )
 
 
 
-static shell_cmd_t cmd_tab[] = {
-{   0, "cjson", cmd_cjson, 
-    "cjson test",
+const shell_cmd_t cmd_tab[] = {
+{   0,  'c', "cjson", cmd_cjson, 
+    "cjson test, create and print",
     "cjson"  },
-{   0, "parse", cmd_cjson_parse, 
+{   0,  'p', "parse", cmd_cjson_parse, 
     "cjson test, multi-line input",
     "parse"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 int main(void)
 { 

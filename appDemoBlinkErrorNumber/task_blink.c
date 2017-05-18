@@ -33,7 +33,7 @@ int cmd_error( int argc, char *argv[] )
         return -1; 
 }
 
-static shell_cmd_t cmd_tab[] = {
+const shell_cmd_t cmd_tab[] = {
 {   0, 'e', "error",  cmd_error, 
     "set error number",
     "error <number>"  },

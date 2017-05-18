@@ -62,7 +62,7 @@ int cmd_system( int argc, char *argv[] );
 
 
 
-shell_cmd_t CMD_TAB[] = {
+const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_HELP
 {   0,  '?',  "help",  cmd_help, 
     "display command list",
