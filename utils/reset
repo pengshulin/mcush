@@ -1,7 +1,0 @@
-#!/bin/sh
-
-echo "st-flash reset"
-killall -q st-util openocd
-st-flash reset 
-
-

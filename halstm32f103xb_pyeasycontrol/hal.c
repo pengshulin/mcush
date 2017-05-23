@@ -7,6 +7,7 @@
 
 const unsigned int baudrate=9600;
 
+extern void hal_power_set(int enable);
 
 void hal_delay_ms(uint32_t ms)
 {
@@ -48,8 +49,10 @@ int hal_init(void)
     hal_debug_init();
     hal_gpio_init();
     hal_led_init();
+    hal_power_set(1);
     if( !hal_uart_init(baudrate) )
         return 0;
+
     Set_System();
     Set_USBClock();
     USB_Interrupts_Config();

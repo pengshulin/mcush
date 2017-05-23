@@ -82,10 +82,10 @@ int cmd_trig( int argc, char *argv[] )
 }
 
 static shell_cmd_t cmd_tab[] = {
-{   "t", "trig",  cmd_trig, 
+{   0,  't',  "trig",  cmd_trig, 
     "trigger control",
     "trig -c info|start|stop|set_width|set_delay|set_counter -v setting_value"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 
 #define PORT  2

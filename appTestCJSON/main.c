@@ -39,7 +39,7 @@ static int print_preallocated(cJSON *root)
     if (buf == NULL)
     {
         shell_printf("Failed to allocate memory.\n");
-        halt();//exit(1);
+        halt("alloc failed");
     }
 
     /* create buffer to fail */
@@ -48,7 +48,7 @@ static int print_preallocated(cJSON *root)
     if (buf_fail == NULL)
     {
         shell_printf("Failed to allocate memory.\n");
-        exit(1);
+        halt("alloc failed");
     }
 
     /* Print to buffer */
@@ -181,7 +181,7 @@ static int create_objects(void)
 
     if (print_preallocated(root) != 0) {
         cJSON_Delete(root);
-        exit(EXIT_FAILURE);
+        halt("alloc failed");
     }
     cJSON_Delete(root);
 

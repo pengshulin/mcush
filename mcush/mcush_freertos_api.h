@@ -10,12 +10,12 @@
 
 
 typedef struct {
-	uint32_t uxCurrentNumberOfTasks;
-	uint32_t uxTickCount;
-	uint32_t uxTopReadyPriority;
-	uint32_t uxSchedulerRunning;
-	uint32_t uxPendedTicks;
-	uint32_t uxNumOfOverflows;
+    uint32_t uxCurrentNumberOfTasks;
+    uint32_t uxTickCount;
+    uint32_t uxTopReadyPriority;
+    uint32_t uxSchedulerRunning;
+    uint32_t uxPendedTicks;
+    uint32_t uxNumOfOverflows;
 
     void *pxCurrentTCB;
     void *pxReadyTaskLists[configMAX_PRIORITIES];
@@ -34,10 +34,10 @@ typedef struct {
 typedef struct {
     int8_t *pcHead;
     int8_t *pcTail;
-	int8_t *pcWriteTo;
-	uint32_t uxMessagesWaiting;
-	uint32_t uxLength;
-	uint32_t uxItemSize;
+    int8_t *pcWriteTo;
+    uint32_t uxMessagesWaiting;
+    uint32_t uxLength;
+    uint32_t uxItemSize;
 } mcush_queue_info_t;
 
 typedef struct {

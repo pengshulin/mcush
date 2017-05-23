@@ -1,13 +1,13 @@
 #include "mcush.h"
 #include "arm_math.h"
+
 #define FFTLEN  4096
 int __errno;
-
-    
 //float buf1[FFTLEN];
 //float buf2[FFTLEN];
-float buf1[FFTLEN] __attribute__((section(".ccm")));
-float buf2[FFTLEN] __attribute__((section(".ccm")));
+float buf1[FFTLEN] __attribute__((section(".ccmsram")));
+float buf2[FFTLEN] __attribute__((section(".ccmsram")));
+
 /* test fft */
 int cmd_fft( int argc, char *argv[] )
 {

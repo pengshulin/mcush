@@ -13,10 +13,10 @@ INCLUDE default.ld
 
 SECTIONS
 {
-    .ccm (NOLOAD):
+    .ccmsram (NOLOAD):
     {
         . = ALIGN(4);
-        *(.ccm)
+        *(.ccmsram)
         . = ALIGN(4);
     } >CCMSRAM
 }

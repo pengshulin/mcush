@@ -1,0 +1,28 @@
+from Arm.Lpc import *
+
+env = Lpc4337(startup_driver=False, cmsis_inc=False)
+env.setLinkfile( '/ld/lpc4337_m4_min.ld' )
+
+env.appendDefineFlags( [
+    '__USE_CMSIS',
+    '__VFP_FP__',
+    '__FPU_PRESENT',
+    'ARM_MATH_CM4',
+] )
+
+env.appendPath([
+    #'inc',
+    '/NXP/lpcopen/lpc_chip_43xx/inc/',
+    '/NXP/lpcopen/lpc_board_nxp_lpcxpresso_4337/inc/',
+])
+
+
+env.appendGlobSource([
+    'stub.c',
+    'src/*.c',
+    '/NXP/lpcopen/lpc_chip_43xx/src/*.c',
+    '/NXP/lpcopen/lpc_board_nxp_lpcxpresso_4337/src/*.c',
+])
+
+env.makeApp()
+

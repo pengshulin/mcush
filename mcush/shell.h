@@ -77,7 +77,7 @@ void shell_write_int( int i );
 void shell_write_float( float f );
 void shell_write_hex( int x );
 int  shell_printf( char *fmt, ... );
-int shell_eval_int( const char *str, int *i );
+int  shell_eval_int( const char *str, int *i );
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );

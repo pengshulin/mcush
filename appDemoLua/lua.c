@@ -13,7 +13,7 @@
  * lua_saveline defines how to "save" a read line in a "history".
  * lua_freeline defines how to free a line read by lua_readline.
  */
-#define lua_readline(L,b,p)  ((void)L, shell_write_str(p), shell_read_line(b)!=-1)
+#define lua_readline(L,b,p)  ((void)L, shell_write_str(p), shell_read_line(b, "")!=-1)
 #define lua_saveline(L,line) { (void)L; (void)line; }
 #define lua_freeline(L,b)    { (void)L; (void)b; }
 

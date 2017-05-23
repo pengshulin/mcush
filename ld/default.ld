@@ -8,7 +8,7 @@ SECTIONS
     {
         . = ALIGN(4);
         _sisr_vector = .;
-        KEEP(*(.isr_vector))            /* Startup code */
+        KEEP(*(.isr_vector))
         . = ALIGN(4);
         _eisr_vector = .;
     } >FLASH
@@ -22,10 +22,15 @@ SECTIONS
         . = ALIGN(4);
         _etext = . ;
     } >FLASH
+
+    /* TODO: as the length of the duplicated .data section is hard to calculate, 
+       put my extra flash data before it */
     
-    /* read-write data are appended/copied to the end of flash */
     . = ALIGN(4);
-    _sidata = .;  /* copy from here at startup */
+    _sidata = .;
+    /* read-write .data are duplicated here and copied to sram at startup */
+
+    /* END OF FLASH */
 
     .data : AT ( _sidata )
     {
