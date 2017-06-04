@@ -1,3 +1,6 @@
+# arm-none-eabi-gdb debug utility
+# designed by PengShulin <trees_peng@163.com>
+
 python 
 chip='stm32l152rb'
 chip='stm32f407zg'
@@ -13,7 +16,77 @@ try:
 except: 
     dbg_file=None
     print "not debug file found."
+    
+class dump_array(gdb.Command):
+    fname = '/dev/shm/float_array'
+    def __init__ (self):
+        super (dump_array, self).__init__ ("dump_array", gdb.COMMAND_USER)
+
+    def invoke (self, arg, from_tty):
+        args = arg.split()
+        try:
+            var = args[0]
+        except:
+            print 'error varname parms'
+            return
+        try:
+            size = int(args[1])
+        except IndexError:
+            size = None  # not assigned
+        except:
+            print 'error size parms'
+            return
+        f = open(self.fname, 'w+')
+        print 'dump %s...'% var
+        v = gdb.parse_and_eval(var)
+        #print v 
+        if size is None:
+            # now check the actual size
+            _t, _s = str(v.type).split()
+            assert _t == 'float'
+            size = int(_s[1:-1])
+            assert size > 0
+            #print 'size=%d'% size
+        for i in range(size):
+            f.write( '%s\n'% v[i] )
+        f.close()
+dump_array()
+
+
+class sptk_watch(gdb.Command):
+    def __init__ (self):
+        super (sptk_watch, self).__init__ ("sptk_watch", gdb.COMMAND_USER)
+
+    def invoke (self, arg, from_tty):
+        args = arg.split()
+        if len(args) < 2:
+            print 'error parms'
+            return 
+        var = args[0]
+        location = ' '.join(args[1:])
+        print var, '@', location
+        existing=False
+        bps = gdb.breakpoints()
+        if bps:
+            for b in bps:
+                b.enabled = False
+                if b.location == location:
+                    existing = True
+                    bp = b
+        if existing:
+            bp.enabled = True
+        else:
+            gdb.Breakpoint(location) 
+        while True:
+            gdb.execute( 'c' )
+            gdb.execute( 'dump_array %s'% var )
+            open('/dev/shm/sptk_dsp.fifo','a').write('update\n')
+
+sptk_watch()
+
 end
+
+######################################################################
 
 define init_regs
 python
@@ -60,6 +133,7 @@ chip_mem_configs = {
 'lpc4337': [
 [ 0x1A000000, 0x1A080000, 'ro', 32, True,   'FLASH A', ],
 [ 0x1B000000, 0x1B080000, 'ro', 32, True,   'FLASH B', ],
+[ 0x20040000, 0x20044000, 'ro', 32, True,   'EEPROM', ],
 [ 0x10000000, 0x10008000, 'rw', 32, False,  'SRAM', ],
 [ 0x10080000, 0x1008A000, 'rw', 32, False,  '', ],
 [ 0x20000000, 0x20010000, 'rw', 32, False,  '', ],
@@ -74,24 +148,27 @@ if chip in chip_mem_configs.keys():
         cmd = 'mem 0x%08X 0x%08X %s %d %s'% (saddr, eaddr, mode, bits, 'cache' if cached else 'nocache')
         #print cmd
         gdb.execute(cmd)
-        
 else:
     print 'warning: no chip memory config found'
 end
 end
 
+define update_sptk_dsp
+echo update sptk_dsp_app
+python open('/dev/shm/sptk_dsp.fifo','a').write('update\n')
+end
 
 define connect
 shell killall -q st-util 
-#shell killall -q openocd
+shell killall -q openocd
 shell sleep 0.5 
 # gdbserver port:
 #   4242 - st-util
 #   3333 - openocd
 #target remote localhost:4242  
 target remote localhost:3333
-monitor reset halt
-monitor halt
+#monitor reset halt
+#monitor halt
 end
 
 
@@ -108,11 +185,8 @@ define program
 python 
 if dbg_file:
     f = os.path.abspath(dbg_file)
-    print "erase..."
-    gdb.execute('monitor flash erase_sector 0 0 last')
-    print "erase done"
     print "program %s..."% f
-    gdb.execute('monitor flash write_image erase %s'% f)
+    gdb.execute('program %s'% f)
     print "program done"
 end
 end
@@ -123,39 +197,39 @@ end
 
 define reset
 monitor halt
+monitor reset init
 monitor reset halt
-monitor halt
 end
 
 define run2main
-monitor reset halt
-monitor halt
 tbreak main 
 continue
 end
-
-define reset2main
-reset
-run2main
 
 define loopstep
 set verbose off
 set confirm off
 while (1)
-step
+    step
 end
 end
 
+
+alias sw = sptk_watch
+
+source .gdbextra
+
+######################################################################
+set pagination off
 
 init_regs
 load_file
 connect
 #program
+reset
 
-set pagination off
-#source .syslog.py
-#source .utils.py
+    
+run2main
 
-#run2main
 
 

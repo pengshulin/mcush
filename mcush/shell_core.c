@@ -554,17 +554,18 @@ char *shell_read_multi_lines( const char *prompt )
         case -1:  /* Ctrl-C, stop */
             goto abort;
         default:  /* normal line */
-            len += strlen(buf2);
-            if( len >= alloc_size )
+            len += strlen(buf2) + 1;
+            if( (len+1) >= alloc_size )
             {
-                while( alloc_size < len+1 )
+                while( (len+1) > alloc_size )
                     alloc_size += SHELL_READ_LINES_ALLOC_SIZE_INC;
-                p = realloc( buf1, len );
+                p = realloc( buf1, alloc_size );
                 if( !p )
                     goto alloc_err;
                 buf1 = p; 
             }
             strcat( buf1, buf2 );
+            strcat( buf1, "\n" );
             //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
             //shell_write_line(buf1);
             break;

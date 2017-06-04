@@ -180,6 +180,12 @@ class SerialInstrument:
                 contents.append( newline )
                 self.logger.debug( newline )
                 return contents
+
+    def serialOutput( self, cmd ):
+        self.assertIsOpen() 
+        self.ser.flushInput()
+        self.ser.write( cmd + self.DEFAULT_TERMINATOR_WRITE )
+        self.ser.flush()
    
     def writeCommand( self, cmd ):
         '''write command and wait for prompts'''
@@ -360,7 +366,32 @@ class SerialInstrument:
         '''fill memory with specific pattern'''
         cmd = 'mfill -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
         self.writeCommand( cmd )
-         
+ 
+    def testMem( self, addr, pattern, width, length ):
+        '''test filled memory with specific pattern'''
+        cmd = 'mfill -t -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
+        try:
+            self.writeCommand( cmd )
+            return True
+        except CommandExecuteError:
+            return False
+        
+    def malloc( self, length ):
+        cmd = 'mapi -m -l %d'% length
+        ret = self.writeCommand(cmd)
+        addr = eval(ret[0])
+        return addr
+
+    def realloc( self, addr, length ):
+        cmd = 'mapi -r -b %d -l %d'% (addr, length)
+        ret = self.writeCommand(cmd)
+        addr = eval(ret[0])
+        return addr
+
+    def free( self, addr ):
+        cmd = 'mapi -f -b %d'% addr
+        self.writeCommand( cmd )
+ 
     def readMem( self, addr, length=1, compact_mode=False, retry=None ):
         '''get memory'''
         cmd = 'x -b 0x%X -l %d'% ( addr, length )

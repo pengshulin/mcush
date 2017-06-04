@@ -40,6 +40,9 @@
 #ifndef USE_CMD_SYSTEM
     #define USE_CMD_SYSTEM  1
 #endif
+#ifndef USE_CMD_MAPI
+    #define USE_CMD_MAPI  1
+#endif
 
 
 
@@ -57,6 +60,7 @@ int cmd_wait( int argc, char *argv[] );
 int cmd_wdg( int argc, char *argv[] );
 int cmd_uptime( int argc, char *argv[] );
 int cmd_system( int argc, char *argv[] );
+int cmd_mapi( int argc, char *argv[] );
 
 
 
@@ -95,8 +99,13 @@ const shell_cmd_t CMD_TAB[] = {
 #endif
 #if USE_CMD_MFILL
 {   CMD_HIDDEN,  0,  "mfill",  cmd_mfill, 
-    "fill memory",
-    "mfill -b <address> [-l <length>] [-w 1|2|4] [-p <pattern>]" },
+    "fill and test memory",
+    "mfill -b <address> [-l <length>] [-w 1|2|4] [-p <pattern>] -t" },
+#endif
+#if USE_CMD_MAPI
+{   CMD_HIDDEN,  0,  "mapi",  cmd_mapi,
+    "memory api",
+    "mapi -m|-r|-f [-b <address>] [-l <length>]" },
 #endif
 #if USE_CMD_WAIT
 {   CMD_HIDDEN,  0,  "wait",  cmd_wait, 
@@ -651,12 +660,14 @@ int cmd_mfill( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, "length", 'l', "length", "memory length", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_VALUE, "width", 'w', "bus width", "bus width 1|2|4, 1 for default", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_VALUE, "pattern", 'p', "pattern", "data to be written", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "test", 't', 0, "test mode", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     void *addr=(void*)-1;
     int length=-1;
     int pattern=-1;
     int width=1;
     int count=0;
+    int test_mode=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
@@ -681,6 +692,8 @@ int cmd_mfill( int argc, char *argv[] )
             }
             else if( strcmp( opt.spec->name, "width" ) == 0 )
                 width = atoi(opt.value);
+            else if( strcmp( opt.spec->name, "test" ) == 0 )
+                test_mode = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -715,21 +728,41 @@ int cmd_mfill( int argc, char *argv[] )
         switch(width)
         {
         case 1:
-            *(char*)addr = (char)pattern;
+            if( test_mode )
+            {
+                if( *(char*)addr != (char)pattern )
+                    goto test_failed;
+            }
+            else
+                *(char*)addr = (char)pattern;
             addr = (void*)(((int)addr) + 1 );
             break;
         case 2:
-            *(short*)addr = (short)pattern;
+            if( test_mode )
+            {
+                if( *(short*)addr != (short)pattern )
+                    goto test_failed;
+            }
+            else 
+                *(short*)addr = (short)pattern;
             addr = (void*)(((int)addr) + 2 );
             break;
         case 4:
-            *(int*)addr = (int)pattern;
+            if( test_mode )
+            {
+                if( *(int*)addr != (int)pattern )
+                    goto test_failed;
+            }
+            else
+                *(int*)addr = (int)pattern;
             addr = (void*)(((int)addr) + 4 );
             break;
         }
         count += width;
     }
     return 0;
+test_failed:
+    return 1;
 }
 #endif
 
@@ -915,6 +948,90 @@ usage_error:
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
     shell_write_line( "sys trace" );
 #endif
+    return -1;
+}
+#endif
+
+
+#if USE_CMD_MAPI
+int cmd_mapi( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "malloc", 'm', 0, "allocate new memory", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "realloc", 'r', 0, "re-allocate memory", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "free", 'f', 0, "free memory", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "addr", 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "length", 'l', "length", "memory length", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    void *addr=(void*)-1;
+    int length=-1;
+    uint8_t malloc_set=0, realloc_set=0, free_set=0;
+    
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "addr" ) == 0 )
+            {
+                if( 1 != sscanf(opt.value, "%i", (int*)&addr) )
+                    addr = (void*)-1; 
+            }
+            else if( strcmp( opt.spec->name, "length" ) == 0 )
+            {
+                if( 1 != sscanf(opt.value, "%i", (int*)&length) )
+                    length = -1; 
+            }
+            else if( strcmp( opt.spec->name, "malloc" ) == 0 )
+                malloc_set = 1;
+            else if( strcmp( opt.spec->name, "realloc" ) == 0 )
+                realloc_set = 1;
+            else if( strcmp( opt.spec->name, "free" ) == 0 )
+                free_set = 1;
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( malloc_set || realloc_set )
+    {
+        if( free_set )
+            goto usage_error;
+        if( (length==-1) || (length==0) )
+        {
+            shell_write_line( "length error" );
+            return -1;
+        }
+        if( realloc_set )
+        {
+            if( !addr || ((int)addr == -1) ) 
+            {
+                shell_write_line( "addr error" );
+                return -1;
+            }
+            addr = realloc( addr, length );
+        }
+        else
+        {
+            addr = malloc( length );
+        }
+        shell_printf( "0x%08X\n", (unsigned int)addr );
+    }
+    else if( free_set )
+    {
+        if( (int)addr == -1 )
+        {
+            shell_write_line( "addr not set" );
+            return -1;
+        }
+        free( addr );
+    }
+    return 0;
+usage_error:
+    shell_write_line( "mapi -m|-r|-f [--address=addr] [--length=len]" );
     return -1;
 }
 #endif

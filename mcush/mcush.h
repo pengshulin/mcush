@@ -76,6 +76,13 @@ extern void mcush_init(void);
 extern void mcush_start(void);
 extern TaskHandle_t task_mcush;
 
+/* libs */
+uint32_t reverse_32_bits(uint32_t v);
+uint16_t reverse_16_bits(uint16_t v);
+uint8_t reverse_8_bits(uint8_t v);
+uint32_t calc_checksum(void *p, uint32_t len);
+
+
 #endif
 
 
