@@ -39,6 +39,12 @@
 #endif
 #ifndef USE_CMD_SYSTEM
     #define USE_CMD_SYSTEM  1
+    #ifndef USE_CMD_SYSTEM_HEAP
+        #define USE_CMD_SYSTEM_HEAP  0
+    #endif
+    #ifndef USE_CMD_SYSTEM_STACK
+        #define USE_CMD_SYSTEM_STACK  1
+    #endif
 #endif
 #ifndef USE_CMD_MAPI
     #define USE_CMD_MAPI  1
@@ -917,17 +923,21 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "SuspendedTaskList:    0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
 #endif
     }
+#if USE_CMD_SYSTEM_HEAP
     else if( strcmp( argv[1], "heap" ) == 0 )
     {
         extern char *heap_end, _sheap, _eheap;
         shell_printf( "S:0x%08X\nC:0x%08X\nE:0x%08X\n", &_sheap, heap_end, &_eheap ); 
     }
+#endif
+#if USE_CMD_SYSTEM_STACK
     else if( strcmp( argv[1], "stack" ) == 0 )
     {
         extern char _sstack, _estack;
         for( p=&_sstack, i=0; p<&_estack && (*p == 0xA5); p++, i++ );
         shell_printf( "S:0x%08X\nE:0x%08X\nfree:%d\n", &_sstack, &_estack, i );
     }
+#endif
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
     else if( strcmp( argv[1], "trace" ) == 0 )
     {
@@ -943,8 +953,12 @@ usage_error:
     shell_write_line( "sys t|task <task_name>" );
     shell_write_line( "sys q|queue <queue_name>" );
     shell_write_line( "sys k|kern" );
+#if USE_CMD_SYSTEM_HEAP
     shell_write_line( "sys heap" );
+#endif
+#if USE_CMD_SYSTEM_STACK
     shell_write_line( "sys stack" );
+#endif
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
     shell_write_line( "sys trace" );
 #endif
@@ -961,6 +975,7 @@ int cmd_mapi( int argc, char *argv[] )
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, "test", 't', 0, "test heap memory", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "fill", 0, 0, "fill heap memory", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "info", 'i', 0, "print mallinfo", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "malloc", 'm', 0, "allocate new memory", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "realloc", 'r', 0, "re-allocate memory", MCUSH_OPT_USAGE_REQUIRED },
@@ -970,7 +985,7 @@ int cmd_mapi( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     void *addr=(void*)-1;
     int length=-1;
-    uint8_t malloc_set=0, realloc_set=0, free_set=0, test_mode=0, info_set=0;
+    uint8_t malloc_set=0, realloc_set=0, free_set=0, test_mode=0, info_set=0, fill_mode=0;
     void *mlist=0;
     int *p;
     int i,j,k;
@@ -1000,6 +1015,8 @@ int cmd_mapi( int argc, char *argv[] )
                 free_set = 1;
             else if( strcmp( opt.spec->name, "test" ) == 0 )
                 test_mode = 1;
+            else if( strcmp( opt.spec->name, "fill" ) == 0 )
+                fill_mode = 1;
             else if( strcmp( opt.spec->name, "info" ) == 0 )
                 info_set = 1;
         }
@@ -1010,17 +1027,19 @@ int cmd_mapi( int argc, char *argv[] )
     if( info_set )
         goto print_mallinfo;
 
-#define MAPI_MLIST_LEN  256
+#define MAPI_MLIST_LEN  64
 #define MAPI_TEST_MALLOC_SIZE  32768
-    if( test_mode )
+    if( test_mode || fill_mode )
     {
         mlist = malloc( 4*MAPI_MLIST_LEN );
         if( ! mlist )
             return 1;
+        shell_printf( "[L] 0x%08X %d\n", (unsigned int)mlist, 4*MAPI_MLIST_LEN );
         memset( mlist, 0, 4*MAPI_MLIST_LEN );
         p = (int*)mlist;
-        j = MAPI_TEST_MALLOC_SIZE;
-        k = 0;
+        //j = MAPI_TEST_MALLOC_SIZE;
+        j = mallinfo().arena / 2;
+        k = 4*MAPI_MLIST_LEN;
         i = 0;
         while( i < MAPI_MLIST_LEN )
         {
@@ -1028,7 +1047,7 @@ int cmd_mapi( int argc, char *argv[] )
             if( *p )
             {
                 k += j;
-                shell_printf( "[%d]0x%08X %d\n", i+1, (unsigned int)*p, j );
+                shell_printf( "[%d] 0x%08X %d\n", i+1, (unsigned int)*p, j );
                 p++;
                 i++;
             }
@@ -1041,12 +1060,15 @@ int cmd_mapi( int argc, char *argv[] )
         } 
         shell_printf( "Total: %d\n", k );
         p = (int*)mlist;
-        for( i=0; i<MAPI_MLIST_LEN; i++, p++ )
+        if( !fill_mode )
         {
-            if( *p )
-                free((void*)*p);
+            for( i=0; i<MAPI_MLIST_LEN; i++, p++ )
+            {
+                if( *p )
+                    free((void*)*p);
+            }
+            free( mlist );
         }
-        free( mlist );
         return 0;
     }
 
@@ -1096,7 +1118,7 @@ print_mallinfo:
 
     return 0;
 usage_error:
-    shell_write_line( "mapi -m|-r|-f [--address=addr] [--length=len]" );
+    shell_write_line( "mapi --test|--fill|-m|-r|-f [--address=addr] [--length=len]" );
     return -1;
 }
 #endif
