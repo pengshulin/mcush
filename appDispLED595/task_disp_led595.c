@@ -363,7 +363,7 @@ static shell_cmd_t cmd_tab[] = {
 {   0,  0, "disp",  cmd_disp, 
     "display on led595",
     "disp <new val>"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 /* temporarily test */
 #define PORT GPIOG

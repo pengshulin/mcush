@@ -61,8 +61,10 @@ class SerialInstrument:
     DEFAULT_TERMINATOR_RESET = '\x03'  # Ctrl-C
     DEFAULT_TIMEOUT = 5
     DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
+    DEFAULT_PROMPTS_MULTILINE = re_compile( '>' )
     DEFAULT_IDN = None
     DEFAULT_RESET_RETRY = 10
+    DEFAULT_LINE_LIMIT = 128
     
 
     def __init__( self, port=None, baudrate=None, rtscts=False, connect=True ):
@@ -383,13 +385,13 @@ class SerialInstrument:
         return addr
 
     def realloc( self, addr, length ):
-        cmd = 'mapi -r -b %d -l %d'% (addr, length)
+        cmd = 'mapi -r -b 0x%08X -l %d'% (addr, length)
         ret = self.writeCommand(cmd)
         addr = eval(ret[0])
         return addr
 
     def free( self, addr ):
-        cmd = 'mapi -f -b %d'% addr
+        cmd = 'mapi -f -b 0x%08X'% addr
         self.writeCommand( cmd )
  
     def readMem( self, addr, length=1, compact_mode=False, retry=None ):

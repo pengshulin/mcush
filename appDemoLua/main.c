@@ -6,11 +6,11 @@
 extern int lua_main (int argc, char **argv);
 
 #ifdef USE_LUA
-static shell_cmd_t cmd_tab[] = {
+static const shell_cmd_t cmd_tab[] = {
 {   0, 'l', "lua", lua_main, 
     "run lua interpreter",
     "lua [fname]"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 #endif
 
 

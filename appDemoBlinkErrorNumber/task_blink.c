@@ -37,7 +37,7 @@ const shell_cmd_t cmd_tab[] = {
 {   0, 'e', "error",  cmd_error, 
     "set error number",
     "error <number>"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 
 

@@ -954,11 +954,14 @@ usage_error:
 
 
 #if USE_CMD_MAPI
+#include <malloc.h>
 int cmd_mapi( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "test", 't', 0, "test heap memory", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "info", 'i', 0, "print mallinfo", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "malloc", 'm', 0, "allocate new memory", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "realloc", 'r', 0, "re-allocate memory", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "free", 'f', 0, "free memory", MCUSH_OPT_USAGE_REQUIRED },
@@ -967,7 +970,11 @@ int cmd_mapi( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     void *addr=(void*)-1;
     int length=-1;
-    uint8_t malloc_set=0, realloc_set=0, free_set=0;
+    uint8_t malloc_set=0, realloc_set=0, free_set=0, test_mode=0, info_set=0;
+    void *mlist=0;
+    int *p;
+    int i,j,k;
+    struct mallinfo info;
     
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
@@ -991,9 +998,56 @@ int cmd_mapi( int argc, char *argv[] )
                 realloc_set = 1;
             else if( strcmp( opt.spec->name, "free" ) == 0 )
                 free_set = 1;
+            else if( strcmp( opt.spec->name, "test" ) == 0 )
+                test_mode = 1;
+            else if( strcmp( opt.spec->name, "info" ) == 0 )
+                info_set = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( info_set )
+        goto print_mallinfo;
+
+#define MAPI_MLIST_LEN  256
+#define MAPI_TEST_MALLOC_SIZE  32768
+    if( test_mode )
+    {
+        mlist = malloc( 4*MAPI_MLIST_LEN );
+        if( ! mlist )
+            return 1;
+        memset( mlist, 0, 4*MAPI_MLIST_LEN );
+        p = (int*)mlist;
+        j = MAPI_TEST_MALLOC_SIZE;
+        k = 0;
+        i = 0;
+        while( i < MAPI_MLIST_LEN )
+        {
+            *p = (int)malloc( j );
+            if( *p )
+            {
+                k += j;
+                shell_printf( "[%d]0x%08X %d\n", i+1, (unsigned int)*p, j );
+                p++;
+                i++;
+            }
+            else
+            {
+                j /= 2;
+                if( !j )
+                    break;
+            }
+        } 
+        shell_printf( "Total: %d\n", k );
+        p = (int*)mlist;
+        for( i=0; i<MAPI_MLIST_LEN; i++, p++ )
+        {
+            if( *p )
+                free((void*)*p);
+        }
+        free( mlist );
+        return 0;
     }
 
     if( malloc_set || realloc_set )
@@ -1029,6 +1083,19 @@ int cmd_mapi( int argc, char *argv[] )
         }
         free( addr );
     }
+    else
+    {
+print_mallinfo:
+        info = mallinfo();
+        shell_printf( "arena:     %d\n", info.arena );    /* total space allocated from system */
+        shell_printf( "ordblks:   %d\n", info.ordblks );  /* number of non-inuse chunks */
+        //shell_printf( "hblks:     %d\n", info.hblks );    /* number of mmapped regions */
+        //shell_printf( "hblkhd:    %d\n", info.hblkhd );   /* total space in mmapped regions */
+        shell_printf( "uordblks:  %d\n", info.uordblks ); /* total allocated space */
+        shell_printf( "fordblks:  %d\n", info.fordblks ); /* total non-inuse space */
+        shell_printf( "keepcost:  %d\n", info.keepcost ); /* top-most, releasable (via malloc_trim) space */
+    }
+
     return 0;
 usage_error:
     shell_write_line( "mapi -m|-r|-f [--address=addr] [--length=len]" );

@@ -99,11 +99,11 @@ channel_error:
 
 }
 
-static shell_cmd_t cmd_tab[] = {
+static const shell_cmd_t cmd_tab[] = {
 {   0,  'a',  "adc",  cmd_adc, 
     "adc control",
-    "adc <--index=[channel_index]>"  },
-{   0,  0,  0,  0,  0,  0 } };
+    "adc [-l] [-i channel_index]"  },
+{   CMD_END } };
 
 
 #define DELAY  10

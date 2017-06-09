@@ -2,11 +2,17 @@
 # designed by PengShulin <trees_peng@163.com>
 
 python 
-chip='stm32l152rb'
-chip='stm32f407zg'
-chip='stm32f103rb'
-chip='stm32f103ze'
-chip='lpc4337'
+import os
+CHIP=os.getenv("CHIP")
+if CHIP is None:
+    chip='stm32l152rb'
+    chip='stm32f103ze'
+    chip='stm32f103rb'
+    chip='stm32f407zg'
+    chip='lpc4337'
+else:
+    chip = CHIP
+print 'set chip as %s'% chip
 
 import glob
 import os, os.path

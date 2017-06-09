@@ -50,7 +50,7 @@ def main(argv=None):
                 mem.remove(em)
                 mem.append(m)
                 realloc_counter += 1
-                info( 'remalloc %d 0x%08X -> %d 0x%08X'% (msize[em], em, size, m) )
+                info( 'realloc %d 0x%08X -> %d 0x%08X'% (msize[em], em, size, m) )
                 s.fillMem( m, pat, 1, size )
                 mfill[m] = pat 
                 msize[m] = size
