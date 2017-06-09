@@ -1087,13 +1087,11 @@ int cmd_mapi( int argc, char *argv[] )
     {
 print_mallinfo:
         info = mallinfo();
-        shell_printf( "arena:     %d\n", info.arena );    /* total space allocated from system */
-        shell_printf( "ordblks:   %d\n", info.ordblks );  /* number of non-inuse chunks */
-        //shell_printf( "hblks:     %d\n", info.hblks );    /* number of mmapped regions */
-        //shell_printf( "hblkhd:    %d\n", info.hblkhd );   /* total space in mmapped regions */
-        shell_printf( "uordblks:  %d\n", info.uordblks ); /* total allocated space */
-        shell_printf( "fordblks:  %d\n", info.fordblks ); /* total non-inuse space */
-        shell_printf( "keepcost:  %d\n", info.keepcost ); /* top-most, releasable (via malloc_trim) space */
+        shell_printf( "arena:    %d\n", info.arena );    /* total space allocated from system */
+        shell_printf( "ordblks:  %d\n", info.ordblks );  /* number of non-inuse chunks */
+        shell_printf( "uordblks: %d\n", info.uordblks ); /* total allocated space */
+        shell_printf( "fordblks: %d\n", info.fordblks ); /* total non-inuse space */
+        shell_printf( "keepcost: %d\n", info.keepcost ); /* top-most, releasable (via malloc_trim) space */
     }
 
     return 0;
