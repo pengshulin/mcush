@@ -1,12 +1,35 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 
+extern shell_cmd_t CMD_TAB[];
+
+#if defined(MCUSH_NON_OS)
+event_t event_mcush = EVT_INIT;
+
+void task_mcush_entry(void)
+{
+    if( event_mcush & EVT_INIT )
+    {
+        if( !hal_init() )
+            halt("hal init");
+        if( !shell_init( &CMD_TAB[0] ) )
+            halt("shell init");
+        shell_write_str("\r\n");
+        shell_write_str( shell_get_prompt() );
+        event_mcush &= ~EVT_INIT;
+    }
+    else if( event_mcush & EVT_MCUSH_CHAR )
+    {
+        event_mcush &= ~EVT_MCUSH_LINE;
+        shell_proc_event_char();
+    }
+}
+#else
 
 TaskHandle_t  task_mcush;
 //QueueHandle_t queue_mcush;
 static uint8_t mcush_inited = 0;
 
-extern shell_cmd_t CMD_TAB[];
 
 
 void mcush_init(void)
@@ -38,6 +61,7 @@ void mcush_start(void)
     if( !mcush_inited )
         mcush_init();
     vTaskStartScheduler();
-    halt("mcush_stopped");
+    halt("stopped");
 }
 
+#endif

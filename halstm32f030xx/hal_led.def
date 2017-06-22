@@ -1,5 +1,5 @@
 #define LED_REV
 const uint8_t led_num = 1;
-GPIO_TypeDef *led_ports[] = { GPIOB };
-uint16_t led_pins[] = { GPIO_Pin_1 };
+const GPIO_TypeDef * const led_ports[] = { GPIOB };
+const uint16_t led_pins[] = { GPIO_Pin_1 };
 

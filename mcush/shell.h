@@ -20,18 +20,38 @@
 #ifndef SHELL_INPUT_SUB_PROMPT
     #define SHELL_INPUT_SUB_PROMPT  ">"
 #endif
-
+#ifndef SHELL_IGNORE_LEADING_SPACE
+    #define SHELL_IGNORE_LEADING_SPACE  1
+#endif
+#ifndef USE_SHELL_PRINTF
+    #define USE_SHELL_PRINTF  1
+#endif
+#ifndef USE_SHELL_PRINTF2
+    #define USE_SHELL_PRINTF2  1
+#endif
+#ifndef USE_SHELL_EVAL
+    #define USE_SHELL_EVAL  1
+#endif
+#ifndef USE_SHELL_EVAL_SSCANF
+    #define USE_SHELL_EVAL_SSCANF  0
+#endif
 
 #define STOP_AT_INVALID_ARGUMENT    {  \
+    if( opt.value && strcmp(opt.value, "--help")==0 ) { \
+        mcush_opt_usage_print( argv[0], opt_spec ); \
+        return 0;  }  \
+    else  {  \
         shell_write_str( "invalid arg: " ); \
         shell_write_line( opt.value ); \
         mcush_opt_usage_print( argv[0], opt_spec ); \
-        return -1; }
+        return -1; }  } 
+        
+        
 
 enum {
-CMD_NORMAL=0,
-CMD_HIDDEN,
-CMD_END,
+    CMD_NORMAL=0,
+    CMD_HIDDEN,
+    CMD_END,
 };
 
 typedef struct _shell_cmd {
@@ -78,6 +98,10 @@ void shell_write_float( float f );
 void shell_write_hex( int x );
 int  shell_printf( char *fmt, ... );
 int  shell_eval_int( const char *str, int *i );
+const char *shell_get_prompt( void );
+#if defined(MCUSH_NON_OS)
+void shell_proc_event_char(void);
+#endif
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <limits.h>
 #include "shell.h"
 
 
@@ -29,30 +30,15 @@ void shell_write_str( const char *str )
 }
 
 
-void shell_write_int( int i )
+void shell_write_line( const char *str )
 {
-    char buf[32];
-    sprintf( buf, "%d", i );
-    shell_write_str( (const char*)buf ); 
+    if( str )
+        shell_driver_write( (const char*)str, strlen(str) );
+    shell_driver_write( "\r\n", 2 );
 }
 
 
-void shell_write_float( float f )
-{
-    char buf[32];
-    sprintf( buf, "%f", f );
-    shell_write_str( (const char*)buf ); 
-}
-
-
-void shell_write_hex( int x )
-{
-    char buf[32];
-    sprintf( buf, "0x%08x", x );
-    shell_write_str( (const char*)buf ); 
-}
-
-
+#if USE_SHELL_PRINTF
 int shell_printf( char *fmt, ... )
 {
     va_list ap;
@@ -67,18 +53,48 @@ int shell_printf( char *fmt, ... )
 }
 
 
-void shell_write_line( const char *str )
+void shell_write_int( int i )
 {
-    if( str )
-        shell_driver_write( (const char*)str, strlen(str) );
-    shell_driver_write( "\r\n", 2 );
+    shell_printf( "%d", i );
 }
 
 
+void shell_write_float( float f )
+{
+    shell_printf( "%f", f );
+}
+
+
+void shell_write_hex( int x )
+{
+    shell_printf( "0x%08x", x );
+}
+#endif
+
+
+#if USE_SHELL_EVAL
 int shell_eval_int( const char *str, int *i )
 {
+#if USE_SHELL_EVAL_SSCANF
     return sscanf(str, "%i", i) == 1 ? 1 : 0;
+#else
+    long int r;
+    char *p;
+    if( !str )
+        return 0;
+    r = strtol( str, &p, 0 );
+    //if( (r == LONG_MAX) || (r == LONG_MIN) )
+    //    return 0;
+    //else
+    if( !p )
+        return 0;
+    if( *p ) 
+        return 0;
+    *i = r;
+    return 1;
+#endif
 }
+#endif
 
 
 void shell_set_errnum( int errnum )
@@ -109,7 +125,7 @@ int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 }
 
 
-static const char *shell_get_prompt( void )
+const char *shell_get_prompt( void )
 {
     if( cb.prompt_hook )
         return (*cb.prompt_hook)();
@@ -141,8 +157,6 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
     cb.argc = 0;
     while( *p && ((*p == ' ') || (*p == '\t')) )
         p++;
-    if( !*p )
-        return cb.argc;
     while( (cb.argc < SHELL_ARGV_LEN) && *p )
     {
         cb.argv[cb.argc++] = p;
@@ -160,22 +174,23 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
 }
 
 
-static int shell_search_command( int index, char *name )
+static int shell_search_command( int cmdtab_index, char *cmd_name )
 {
-    int i=0;
-    const shell_cmd_t *ct = cb.cmd_table[index];
+    const shell_cmd_t *ct = cb.cmd_table[cmdtab_index];
+    int i;
+
     if( !ct )
         return -1;
     for( i=0; ct->name; i++, ct++ )
     {
-        if( strlen(name) > 1 )
+        if( strlen(cmd_name) > 1 )
         {
-            if( strcmp( name, ct->name ) == 0 )
+            if( strcmp( cmd_name, ct->name ) == 0 )
                 return i;
         }
         else
         {
-            if( *name == ct->sname )
+            if( *cmd_name == ct->sname )
                 return i;
         }
     }
@@ -183,9 +198,10 @@ static int shell_search_command( int index, char *name )
 }
 
 
-static void shell_add_cmd_to_history(void)
+static void shell_add_cmd_to_history( void )
 {
     char *p1, *p2;
+
     if( cb.cmdline_len == 0 )
         return;
     if( cb.cmdline_len > SHELL_CMDLINE_HISTORY_LEN )
@@ -202,9 +218,10 @@ static void shell_add_cmd_to_history(void)
 }
 
 
-static char *shell_get_history(int index)
+static char *shell_get_history( int index )
 {
     char *p = cb.cmdline_history;
+
     while( index > 1 )
     {
         while(*p++);  /* move to next item */
@@ -230,9 +247,11 @@ static int shell_process_char( char c )
     else if( c == '\r' )  /* ignored */
     {
     }
+#if SHELL_IGNORE_LEADING_SPACE
     else if( (cb.cmdline_len == 0) && ((c == ' ') || (c == '\t')) )  /* ignore */
     {
     }
+#endif
     else if( (c == '\b') || (c == 0x7F) )  /* backspace, DEL */
     {
         if( cb.cmdline_len && cb.cmdline_cursor )
@@ -387,48 +406,14 @@ static int shell_process_char( char c )
         }
     }
     return 0;
-}
-
-                
-int shell_read_line( char *buf, const char *prompt )
-{
-    char c;
-    int s;
-    cb.cmdline_len = 0;
-    cb.cmdline_cursor = 0;
-    if( buf )
-        *buf = 0;
-    if( prompt )
-        shell_write_str( prompt );
-    else
-        shell_write_str( SHELL_INPUT_SUB_PROMPT ); 
-    while( 1 )
-    {
-        if( shell_driver_read_char(&c) == -1 )
-            continue;
-        s = shell_process_char(c);
-        switch( s ) 
-        {
-        case 1:  /* end of line */
-            cb.cmdline[cb.cmdline_len] = 0;
-            if( cb.cmdline_len )
-                shell_add_cmd_to_history();
-            if( buf )
-                strcpy( buf, cb.cmdline );
-            return cb.cmdline_len;
-        case -1:  /* Ctrl-C */
-        case -2:  /* Ctrl-Z, end of input */
-            shell_write_str("\r\n");
-            return s;
-        }
-    }
-}
+}            
 
 
-int shell_process_command(void)
+static int shell_process_command( void )
 {
     int (*cmd)(int argc, char *argv[]);
     int i, j;
+
     if( shell_split_cmdline_into_argvs( cb.cmdline ) )
     {
         for( j = 0; j < SHELL_CMD_TABLE_LEN; j++ )
@@ -506,25 +491,73 @@ int shell_init( const shell_cmd_t *cmd_table )
 }
 
 
-void shell_run( void )
+
+
+#if defined(MCUSH_NON_OS)
+#include "mcush_event.h"
+#include "shell.h"
+extern event_t event_mcush;
+
+void shell_proc_event_char(void)
 {
-    shell_write_str("\r\n");
-    shell_write_str( shell_get_prompt() );
+    char c;
+    if( shell_driver_read_char(&c) == -1 )
+        return;
     
-    while( 1 )
+    switch( shell_process_char(c) ) 
     {
-        switch( shell_read_line(0, "") )
+    case 1:  /* end of line */
+        cb.cmdline[cb.cmdline_len] = 0;
+        if( cb.cmdline_len )
         {
-        case 0:  /* empty line */
-            break;
-        case -2:  /* Ctrl-Z, end of input */
-        case -1:  /* Ctrl-C */
-            //shell_write_str("\r\n");
-            break;
-        default:  /* commands */
+            shell_add_cmd_to_history();
             shell_process_command();
         }
         shell_write_str( shell_get_prompt() );
+        break;
+    case -1:  /* Ctrl-C */
+    case -2:  /* Ctrl-Z, end of input */
+        shell_write_str("\r\n");
+        shell_write_str( shell_get_prompt() );
+        break;
+    }
+}
+
+#else
+
+ 
+int shell_read_line( char *buf, const char *prompt )
+{
+    char c;
+    int r;
+
+    cb.cmdline_len = 0;
+    cb.cmdline_cursor = 0;
+    if( buf )
+        *buf = 0;
+    if( prompt )
+        shell_write_str( prompt );
+    else
+        shell_write_str( SHELL_INPUT_SUB_PROMPT ); 
+    while( 1 )
+    {
+        if( shell_driver_read_char(&c) == -1 )
+            continue;
+        r = shell_process_char(c);
+        switch( r ) 
+        {
+        case 1:  /* end of line */
+            cb.cmdline[cb.cmdline_len] = 0;
+            if( cb.cmdline_len )
+                shell_add_cmd_to_history();
+            if( buf )
+                strcpy( buf, cb.cmdline );
+            return cb.cmdline_len;
+        case -1:  /* Ctrl-C */
+        case -2:  /* Ctrl-Z, end of input */
+            shell_write_str("\r\n");
+            return r;
+        }
     }
 }
 
@@ -545,11 +578,7 @@ char *shell_read_multi_lines( const char *prompt )
         case 0:  /* empty line */
         case -2:  /* Ctrl-Z, end of input */
             if( len )
-            {
-                //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
-                //shell_write_line(buf1);
                 return buf1;
-            }
             goto abort;
         case -1:  /* Ctrl-C, stop */
             goto abort;
@@ -566,8 +595,6 @@ char *shell_read_multi_lines( const char *prompt )
             }
             strcat( buf1, buf2 );
             strcat( buf1, "\n" );
-            //shell_printf("buf1 @ %08X, len=%d\n", buf1, len );
-            //shell_write_line(buf1);
             break;
         }
     }
@@ -577,10 +604,35 @@ abort:
         free(buf1);
     return 0;
 alloc_err:
-    shell_write_line("failed to allocate memory");
+    shell_write_line("malloc failed");
     if( buf1 )
         free(buf1);
     return 0;
 }
 
+
+void shell_run( void )
+{
+    shell_write_str("\r\n");
+    shell_write_str( shell_get_prompt() );
+    
+    while( 1 )
+    {
+        switch( shell_read_line(0, "") )
+        {
+        case 0:  /* empty line */
+            break;
+        case -2:  /* Ctrl-Z, end of input */
+        case -1:  /* Ctrl-C */
+            break;
+        default:  /* commands */
+            shell_process_command();
+        }
+        shell_write_str( shell_get_prompt() );
+    }
+}
+
+
+
+#endif
 

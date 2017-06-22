@@ -3,14 +3,9 @@
 #include <stdint.h>
 #include "stm32f7xx.h"
 #include "stm32f7xx_hal_conf.h"
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "semphr.h"
-
 
 
 void hal_debug_init(void);
-
 
 void hal_led_init(void);
 int hal_led_get_num(void);
@@ -38,8 +33,6 @@ int hal_gpio_get(int port, int bits);
 int hal_uart_init(uint32_t baudrate);
 void hal_uart_enable(uint8_t enable);
 void hal_uart_reset(void);
-signed portBASE_TYPE hal_uart_putc( char c, TickType_t xBlockTime );
-signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime );
 
 void hal_wdg_init(void);
 int hal_wdg_is_enable(void);

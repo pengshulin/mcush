@@ -11,6 +11,7 @@ from ctypes import c_float, c_double, c_void_p
 from ctypes import create_string_buffer
 from ctypes import sizeof, Structure, POINTER, pointer, byref, memmove
 import Env
+import json
 
 
 MAX_LINE_LEN = 80
@@ -151,4 +152,20 @@ def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True )
     system( 'pyobfuscate %s > %s'% (tmpfile, pyout) )
     if remove_tmp:
         remove(tmpfile) 
- 
+
+def compact_cjson_str(obj):
+    LINE_LIMIT = 128
+    cfg = list(json.dumps(obj,separators=(',',':')))
+    lst = []
+    while cfg:
+        if len(cfg) <= LINE_LIMIT:
+            lst.append(''.join(cfg))
+            break
+        p = LINE_LIMIT - 1
+        while cfg[p] != ',':
+            p -= 1
+        lst.append(''.join(cfg[:p+1]))
+        cfg = cfg[p+1:]
+    #print lst 
+    return lst
+

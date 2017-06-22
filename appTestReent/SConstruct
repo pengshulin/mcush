@@ -14,7 +14,6 @@ env.appendDefineFlags( [
 
 env.appendPath([
     '.',
-    #'/libprintf2',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
     '/libFreeRTOS/portable/GCC/%s'% port,
@@ -27,7 +26,6 @@ env.appendGlobSource([
     '*.c',
     '/mcush/*.c',
     '/hal%s/*.c'% haldir,
-    #'/libprintf2/*.c',
     '/libFreeRTOS/*.c',
     #'/libFreeRTOS/portable/MemMang/heap_1.c',  # simple malloc, not free
     #'/libFreeRTOS/portable/MemMang/heap_2.c',  # simple malloc, with free, not combine

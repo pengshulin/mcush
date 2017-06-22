@@ -98,6 +98,12 @@ define init_regs
 python
 chip_mem_configs = {
 
+'stm32f030f4': [
+[ 0x08000000, 0x08004000, 'ro', 32, True,  'IROM 16k' ],
+[ 0x20000000, 0x20001000, 'rw', 32, False, 'IRAM 4k' ],
+],
+
+
 'stm32l152rb': [
 [ 0x08000000, 0x08020000, 'ro', 32, True,  'IROM 128k' ],
 [ 0x20000000, 0x20004000, 'rw', 32, False, 'IRAM 16k' ],

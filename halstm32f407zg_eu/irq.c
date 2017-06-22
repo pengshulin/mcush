@@ -3,7 +3,7 @@
 
 void EXTI0_IRQHandler(void)
 {
-    EXTI_ClearITPendingBit(EXTI_Line0);
+    //EXTI_ClearITPendingBit(EXTI_Line0);
 }
 
 void RTC_WKUP_IRQHandler (void)

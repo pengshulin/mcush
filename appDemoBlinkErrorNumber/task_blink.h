@@ -6,6 +6,12 @@
 #define TASK_BLINK_QUEUE_SIZE  (4)
 
 extern void task_blink_init(void);
+#if !defined(MCUSH_NON_OS)
+extern void task_blink_entry(void *p);
+#else
+extern void task_blink_entry(void);
+#endif
+
 
 #endif
 

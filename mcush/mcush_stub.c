@@ -27,6 +27,7 @@ caddr_t _sbrk(int incr) {
 
  
 #ifdef DEBUG
+#include "hal.h"
 volatile char *halt_message = 0;
 void halt(const char *message)
 {
@@ -82,7 +83,7 @@ int _isatty( int fd )
 
 void _exit(int status)
 {
-    halt("EXIT");
+    halt("exit");
     while(1);
 }
 

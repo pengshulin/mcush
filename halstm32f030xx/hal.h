@@ -3,9 +3,6 @@
 #include <stdint.h>
 #include "stm32f0xx.h"
 #include "stm32f0xx_conf.h"
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "semphr.h"
 
 
 
@@ -39,8 +36,6 @@ int hal_gpio_get(int port, int bits);
 int hal_uart_init(uint32_t baudrate);
 void hal_uart_enable(uint8_t enable);
 void hal_uart_reset(void);
-signed portBASE_TYPE hal_uart_putc( char c, TickType_t xBlockTime );
-signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime );
 
 
 void hal_wdg_init(void);
@@ -52,6 +47,10 @@ void hal_wdg_clear(void);
 
 
 int hal_init(void);
+
+void init_sys_tick(void);
+unsigned int get_sys_tick_count(void);
+
 
 #endif
 

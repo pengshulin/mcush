@@ -12,8 +12,8 @@ void hal_led_init(void)
     for( i=0; i<led_num; i++ )
     {
         GPIO_InitStructure.GPIO_Pin = led_pins[i];
-        GPIO_Init(led_ports[i], &GPIO_InitStructure);
-        GPIO_SetBits(led_ports[i], led_pins[i]);
+        GPIO_Init((GPIO_TypeDef *)led_ports[i], &GPIO_InitStructure);
+        GPIO_SetBits((GPIO_TypeDef *)led_ports[i], led_pins[i]);
     }
 }
 
@@ -24,23 +24,23 @@ int hal_led_get_num(void)
 
 void hal_led_set(int index)
 {
-    GPIO_ResetBits(led_ports[index], led_pins[index]);
+    GPIO_ResetBits((GPIO_TypeDef *)led_ports[index], led_pins[index]);
 }
 
 void hal_led_clr(int index)
 {
-    GPIO_SetBits(led_ports[index], led_pins[index]);
+    GPIO_SetBits((GPIO_TypeDef *)led_ports[index], led_pins[index]);
 }
 
 void hal_led_toggle(int index)
 {
-    GPIO_WriteBit(led_ports[index], led_pins[index], \
-            GPIO_ReadOutputDataBit(led_ports[index], led_pins[index]) ? 0 : 1);
+    GPIO_WriteBit((GPIO_TypeDef *)led_ports[index], led_pins[index], \
+            GPIO_ReadOutputDataBit((GPIO_TypeDef *)led_ports[index], led_pins[index]) ? 0 : 1);
 }
 
 int hal_led_get(int index)
 {
-    return GPIO_ReadOutputDataBit(led_ports[index], led_pins[index]) ? 0 : 1;
+    return GPIO_ReadOutputDataBit((GPIO_TypeDef *)led_ports[index], led_pins[index]) ? 0 : 1;
 }
 
 

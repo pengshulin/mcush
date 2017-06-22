@@ -1,25 +1,37 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef _MCUSH_H_
-#define _MCUSH_H_
+#ifndef __MCUSH_H__
+#define __MCUSH_H__
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
+#if defined(MCUSH_NON_OS)
+  #include "mcush_event.h"
+#else
+  #include "FreeRTOS.h"
+  #include "task.h"
+  #include "queue.h"
+  #include "mcush_freertos_api.h"
+#endif
 #include "hal.h"
 #include "shell.h"
+#include "mcush_ver.h"
 #include "mcush_opt.h"
-#include "mcush_freertos_api.h"
 #include "mcush_vfs.h"
+#include "mcush_lib.h"
 
 
-#define MCUSH_VERSION_MAJOR    1
-#define MCUSH_VERSION_MINOR    1
-#define MCUSH_VERSION_STRING   "1.1"
+#if defined(MCUSH_NON_OS)
 
+#ifndef configTICK_RATE_HZ
+    #define configTICK_RATE_HZ  250
+#endif
+
+void task_mcush_entry(void);
+unsigned int get_sys_tick_count(void);
+
+#else
 
 /* task priority
  * 6 -- highest (timer task)
@@ -52,6 +64,12 @@
     #define USE_CMD_SYSTEM  0
 #endif
 
+extern void mcush_init(void);
+extern void mcush_start(void);
+extern TaskHandle_t task_mcush;
+#endif
+
+
 
 #ifdef DEBUG
     extern void halt(const char *message);
@@ -61,26 +79,6 @@
 
 
 
-typedef struct {
-    uint8_t type;
-    uint8_t val;
-} mcush_message_t;
-
-#define MCUSH_MESSAGE_TYPE_CHAR   0
-#define MCUSH_MESSAGE_TYPE_RESET  1
-#define MCUSH_MESSAGE_TYPE_ECHO   2
-#define MCUSH_MESSAGE_TYPE_BAUD   3
-
-
-extern void mcush_init(void);
-extern void mcush_start(void);
-extern TaskHandle_t task_mcush;
-
-/* libs */
-uint32_t reverse_32_bits(uint32_t v);
-uint16_t reverse_16_bits(uint16_t v);
-uint8_t reverse_8_bits(uint8_t v);
-uint32_t calc_checksum(void *p, uint32_t len);
 
 
 #endif

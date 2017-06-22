@@ -976,6 +976,26 @@ int sprintf(char *str, const char *format, ...)
 
 
 
+int vsprintf(char *str, const char *format, va_list ap)
+{
+    #if USE_OSTREAM
+        pb_ostream_t oStream = pb_ostream_from_buffer((uint8_t *)str, UINT_MAX);
+    #endif
+
+    return print(
+        #if USE_OSTREAM
+            &oStream,
+        #else
+            &str,
+        #endif
+        PRINTF2_FLAGS_NONE,
+        UINT_MAX,
+        format,
+        ap );
+}
+
+
+
 //****************************************************************************
 #ifdef TEST_PRINTF
 int testPrintf (void)

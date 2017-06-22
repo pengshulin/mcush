@@ -2,7 +2,7 @@
 
 const char gpio_start='a', gpio_stop='g';
 
-GPIO_TypeDef *ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG };
+const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG };
 
 
 
@@ -20,7 +20,7 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode, int pull )
         if( bits & (1<<i) )
         { 
             GPIO_InitStructure.GPIO_Pin = 1<<i;
-            GPIO_Init(ports[port], &GPIO_InitStructure);
+            GPIO_Init((GPIO_TypeDef *)ports[port], &GPIO_InitStructure);
         }
     }
 }
@@ -64,25 +64,25 @@ void hal_gpio_set_output(int port, int bits)
 
 void hal_gpio_set(int port, int bits)
 {
-    GPIO_SetBits(ports[port], bits);
+    GPIO_SetBits((GPIO_TypeDef *)ports[port], bits);
 }
 
 
 void hal_gpio_clr(int port, int bits)
 {
-    GPIO_ResetBits(ports[port], bits);
+    GPIO_ResetBits((GPIO_TypeDef *)ports[port], bits);
 }
 
 
 void hal_gpio_toggle(int port, int bits)
 {
-    GPIO_Write(ports[port], GPIO_ReadInputData(ports[port]) ^ bits);
+    GPIO_Write((GPIO_TypeDef *)ports[port], GPIO_ReadInputData((GPIO_TypeDef *)ports[port]) ^ bits);
 }
 
 
 int hal_gpio_get(int port, int bits)
 {
-    return GPIO_ReadInputData(ports[port]) & bits;
+    return GPIO_ReadInputData((GPIO_TypeDef *)ports[port]) & bits;
 }
 
 

@@ -14,8 +14,8 @@ int cmd_trig( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "command", 'c', "command name", "execute commands", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "val", 'v', "value parameter", "setting value", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "command", 'c', "command name", "info|start|stop|set_width|set_delay|set_counter", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "val", 'v', "value", "setting value", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_NONE } };
     char *command=0;
     int val=-1;
@@ -32,8 +32,8 @@ int cmd_trig( int argc, char *argv[] )
             }
             else if( strcmp( opt.spec->name, "val" ) == 0 )
             {
-                if( opt.value )
-                    val = atol(opt.value);
+                if( ! shell_eval_int(opt.value, (int*)&val) )
+                    val = -1;
             }
         }
         else
@@ -42,7 +42,7 @@ int cmd_trig( int argc, char *argv[] )
 
     if( !command || strcmp( command, "info") == 0 )
     {
-        shell_printf( "%s  width_ms:%i  delay_ms:%i  counter:%d\n", 
+        shell_printf( "%s  width_ms:%d  delay_ms:%d  counter:%d\n", 
                         trig_running ? "RUNNING" : "STOPPED",
                         trig_width_ms, trig_delay_ms, trig_counter );
     }
@@ -74,17 +74,15 @@ int cmd_trig( int argc, char *argv[] )
             trig_running = 0;
     }
     else
-    {
-        shell_printf( "invalid command\n" );
-        return -1;
-    }
+        STOP_AT_INVALID_ARGUMENT  
+    
     return 0;
 }
 
 static shell_cmd_t cmd_tab[] = {
 {   0,  't',  "trig",  cmd_trig, 
     "trigger control",
-    "trig -c info|start|stop|set_width|set_delay|set_counter -v setting_value"  },
+    "trig -c <command> -v <value>"  },
 {   CMD_END  } };
 
 
