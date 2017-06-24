@@ -4,6 +4,11 @@
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"
 
+#define UNIQUE_ID0  0x1FFF7A10
+#define UNIQUE_ID1  0x1FFF7A14
+#define UNIQUE_ID2  0x1FFF7A18
+
+
 void hal_debug_init(void);
 
 void hal_led_init(void);
@@ -43,6 +48,8 @@ int hal_init(void);
 
 void init_sys_tick(void);
 unsigned int get_sys_tick_count(void);
+
+int hal_get_serial_number( char *buf );
 
 #endif
 

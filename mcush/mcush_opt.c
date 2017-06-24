@@ -236,9 +236,10 @@ int mcush_opt_usage_print(
             error = shell_printf(" -%c              ", spec->alias);
         if (error < 0)
             goto done;
-        error = shell_printf("%s\n", spec->help);
-        if (error < 0)
-            goto done;
+        if( spec->help )
+            shell_write_line(spec->help);
+        else
+            shell_write_str( "\n" );
     }
 
 done:

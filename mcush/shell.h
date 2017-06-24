@@ -12,7 +12,7 @@
     #define SHELL_ARGV_LEN       20
 #endif
 #ifndef SHELL_CMD_TABLE_LEN
-    #define SHELL_CMD_TABLE_LEN  3
+    #define SHELL_CMD_TABLE_LEN  4
 #endif
 #ifndef SHELL_READ_LINES_ALLOC_SIZE_INC
     #define SHELL_READ_LINES_ALLOC_SIZE_INC  512
@@ -34,6 +34,9 @@
 #endif
 #ifndef USE_SHELL_EVAL_SSCANF
     #define USE_SHELL_EVAL_SSCANF  0
+#endif
+#ifndef SHELL_QUOTE_PARSE_ENALBE
+    #define SHELL_QUOTE_PARSE_ENABLE   1
 #endif
 
 #define STOP_AT_INVALID_ARGUMENT    {  \

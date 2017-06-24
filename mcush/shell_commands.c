@@ -1,5 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
+#include "hal.h"
 
 #ifndef USE_CMD_HELP
     #define USE_CMD_HELP  1
@@ -183,7 +184,13 @@ int cmd_help( int argc, char *argv[] )
 int cmd_scpi_idn( int argc, char *argv[] )
 {
     /* *idn? command ignore all arguments */
-    shell_write_str( "mcush," MCUSH_VERSION_STRING "\r\n" );
+    char buf[64];
+
+    shell_write_line( "mcush," MCUSH_VERSION_STRING );
+    buf[0] = 0;
+    if( hal_get_serial_number(buf) && strlen(buf) )
+        shell_write_line( buf );
+
     return 0;
 }
 #endif

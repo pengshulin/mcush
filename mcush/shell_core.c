@@ -150,27 +150,105 @@ char *shell_get_buf( void )
 }
 
 
+#define IS_SPACE( c )            (((c)==' ')||((c)=='\t'))
+#define IS_NOT_SPACE( c )        (((c)!=' ')&&((c)!='\t'))
+#define IS_START_QUOTE( c )      (((c)=='\'')||((c)=='\"'))
+#define IS_NOT_START_QUOTE( c )  (((c)!='\'')&&((c)!='\"'))
+#define IS_END_QUOTE( c )        ((c)==quote_char)
+#define IS_NOT_END_QUOTE( c )    ((c)!=quote_char)
+
 static int shell_split_cmdline_into_argvs( char *cmd_line )
 {
+#if SHELL_QUOTE_PARSE_ENABLE
+    char *p = cmd_line, *p2;
+    char quote_char;
+    int quote_mode=0;
+
+    cb.argc = 0;
+    while( *p && IS_SPACE(*p) )
+        p++;
+    if( IS_START_QUOTE(*p) )
+    {
+        quote_char = *p++;
+        quote_mode = 1;
+    } 
+    while( (cb.argc < SHELL_ARGV_LEN) && *p )
+    {
+        cb.argv[cb.argc++] = p;
+        if( quote_mode )
+        {
+            while( *p && IS_NOT_END_QUOTE(*p) )
+                p++;
+            if( !*p )
+                break;
+            else
+            {
+                *p++ = 0; 
+                quote_mode = 0;
+            }
+        }
+        else
+        {
+            while( *p && IS_NOT_SPACE(*p) && IS_NOT_START_QUOTE(*p) )
+                p++;
+            if( !*p )
+                break;
+            else if( IS_SPACE(*p) )
+                *p++ = 0;
+            else
+            {
+                quote_char = *p;
+                p2 = p++;
+                while( p2 > cb.argv[cb.argc-1] )
+                {
+                    *p2 = *(p2-1);
+                    p2--;
+                }
+                cb.argv[cb.argc-1] += 1;
+                quote_mode = 1;
+                while( *p && IS_NOT_END_QUOTE(*p) )
+                    p++;
+                if( !*p )
+                    break;
+                else
+                {
+                    *p++ = 0;
+                    quote_mode = 0;
+                }
+            }
+        }
+        while( *p && IS_SPACE(*p) )
+            p++;
+        if( !*p )
+            break;
+        if( IS_START_QUOTE(*p) )
+        {
+            quote_char = *p++;
+            quote_mode = 1;
+        }
+    }
+    return cb.argc; 
+#else
     char *p = cmd_line;
 
     cb.argc = 0;
-    while( *p && ((*p == ' ') || (*p == '\t')) )
+    while( *p && IS_SPACE(*p) )
         p++;
     while( (cb.argc < SHELL_ARGV_LEN) && *p )
     {
         cb.argv[cb.argc++] = p;
-        while( *p && ((*p != ' ') && (*p != '\t')) )
+        while( *p && IS_NOT_SPACE(*p) )
             p++;
         if( !*p )
             break;
         *p++ = 0;
-        while( *p && ((*p == ' ') || (*p == '\t')) )
+        while( *p && IS_SPACE(*p) )
             p++;
         if( !*p )
             break;
     }
     return cb.argc; 
+#endif
 }
 
 

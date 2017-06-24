@@ -26,6 +26,14 @@ class Mcush( Instrument.SerialInstrument ):
             assert isinstance(new, int)
             self.writeCommand( 'error %d'% new )
 
+    
+    def disp( self, integer=None, buf=None ):
+        if integer is not None:
+            cmd = 'disp -i %d'% integer
+        elif buf is not None:
+            cmd = 'disp -- "%s"'% buf
+        self.writeCommand(cmd)
+
 
 
 if __name__ == '__main__':

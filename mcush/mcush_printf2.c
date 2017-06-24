@@ -79,8 +79,6 @@
 #define FLOAT_OR_DOUBLE double
 #endif
 
-#define TEST_NON_EMBEDDED 0
-
 //lint -e534  Ignoring return value of function 
 //lint -e539  Did not expect positive indentation from line ...
 //lint -e525  Negative indentation from line ...
@@ -523,78 +521,6 @@ static int print (
 }
 
 //****************************************************************************
-//  assuming sizeof(void *) == sizeof(int)
-//  This function is not valid in embedded projects which don't
-//  have a meaningful stdout device.
-//****************************************************************************
-#ifdef TEST_PRINTF
-#ifdef TEST_EXPECTED_OUTPUT
-#define termf(format, ...) printf( format, ##__VA_ARGS__ )
-#elif defined TEST_EMBEDDED
-int termf (const char *format, ...)
-{
-    const int MAX_LENGTH = 200;
-    char s[MAX_LENGTH];
-    va_list vargs;
-    va_start(vargs,format);
-    int result = stringfnv (s, MAX_LENGTH, format, vargs);
-    va_end(vargs);
-    LOG_STRING(s);
-    return result;
-}
-#else
-int termf (const char *format, ...)
-{
-    va_list vargs;
-    va_start(vargs,format);
-    int result = print (0, PRINTF2_FLAGS_NONE, UINT_MAX, format, vargs);
-    va_end(vargs);
-    return result;
-}  //lint !e715
-#endif
-#endif
-
-//****************************************************************************
-//  assuming sizeof(void *) == sizeof(int)
-//  This function is not valid in embedded projects which don't
-//  have a meaningful stdout device.
-//****************************************************************************
-#ifdef TEST_PRINTF
-#ifdef TEST_EXPECTED_OUTPUT
-#define termfn(max_len, format, ...) \
-  { \
-    const int MAX_LENGTH = 200; \
-    char s[MAX_LENGTH]; \
-    assert(max_len<MAX_LENGTH); \
-    snprintf(s, max_len, format, ##__VA_ARGS__ ); \
-    printf( "%s", s ); \
-  } 
-#elif defined TEST_EMBEDDED
-int termfn (uint max_len, const char *format, ...)
-{
-    const int MAX_LENGTH = 200;
-    char s[MAX_LENGTH];
-    assert(max_len<MAX_LENGTH);
-    va_list vargs;
-    va_start(vargs,format);
-    int result = stringfnv (s, max_len, format, vargs);
-    va_end(vargs);
-    LOG_STRING(s);
-    return result;
-}
-#else
-int termfn(uint max_len, const char *format, ...)
-{
-    va_list vargs;
-    va_start(vargs,format);
-    int result = print (0, PRINTF2_FLAGS_NONE, max_len, format, vargs);
-    va_end(vargs);
-    return result;
-}  //lint !e715
-#endif
-#endif
-
-//****************************************************************************
 int stringff (char *out, unsigned int flags, const char *format, ...)
 {
     va_list vargs;
@@ -727,8 +653,6 @@ int vsprintf(char *str, const char *format, va_list ap)
         format,
         ap );
 }
-
-
 
 
 #endif

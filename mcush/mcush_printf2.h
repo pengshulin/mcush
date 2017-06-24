@@ -32,13 +32,11 @@ typedef enum {
     PRINTF2_FLAGS_NO_TRAILING_NULL = 0x0001,
 } printf2_flags_type;
 
-
 int stringff (char *out, unsigned int flags, const char *format, ...);
 int stringf (char *out, const char *format, ...);
 
 int stringffn(char *out,  unsigned int flags, unsigned int max_len, const char *format, ...);
 int stringfn(char *out, unsigned int max_len, const char *format, ...);
-
 
 int stringffnv(char *out, unsigned int flags, unsigned int max_len, const char *format, va_list vargs);
 int stringfnv(char *out, unsigned int max_len, const char *format, va_list vargs);

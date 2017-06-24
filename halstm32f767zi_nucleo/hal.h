@@ -5,6 +5,12 @@
 #include "stm32f7xx_hal_conf.h"
 
 
+#define UNIQUE_ID0  0x1FF0F420
+#define UNIQUE_ID1  0x1FF0F424
+#define UNIQUE_ID2  0x1FF0F428
+
+
+
 void hal_debug_init(void);
 
 void hal_led_init(void);
@@ -41,6 +47,7 @@ void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
 
+int hal_get_serial_number( char *buf );
 
 int hal_init(void);
 

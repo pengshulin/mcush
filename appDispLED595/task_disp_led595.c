@@ -1,14 +1,69 @@
 #include "mcush.h"
 #include "task_disp_led595.h"
 
+/* temporarily test */
+//#define PORT GPIOG
+//#define DAT  GPIO_Pin_8
+//#define SCK  GPIO_Pin_9
+//#define RCK  GPIO_Pin_10
+#define PORT GPIOC
+#define DAT  GPIO_Pin_0
+#define SCK  GPIO_Pin_1
+#define RCK  GPIO_Pin_2
+void hal_led595_init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Pin = DAT;
+    GPIO_Init(PORT, &GPIO_InitStructure);
+    GPIO_SetBits(PORT, DAT);
+    GPIO_InitStructure.GPIO_Pin = SCK;
+    GPIO_Init(PORT, &GPIO_InitStructure);
+    GPIO_SetBits(PORT, SCK);
+    GPIO_InitStructure.GPIO_Pin = RCK;
+    GPIO_Init(PORT, &GPIO_InitStructure);
+    GPIO_SetBits(PORT, RCK);
+}
+
+void hal_led595_update_single(char bits)
+{
+    int i;
+    for( i=0; i<8; i++ )
+    {
+        if( bits & (1<<(7-i)) )
+            GPIO_SetBits(PORT, DAT);
+        else
+            GPIO_ResetBits(PORT, DAT);
+        GPIO_ResetBits(PORT, SCK);
+        GPIO_SetBits(PORT, SCK);
+    }
+}
+
+void hal_led595_update(char ctl_digit, char ctl_val)
+{
+    hal_led595_update_single(ctl_digit); 
+    hal_led595_update_single(ctl_val); 
+    GPIO_ResetBits(PORT, RCK);
+    GPIO_SetBits(PORT, RCK);
+}
+
+
+
+
+
+
 TaskHandle_t  task_disp_led595;
 QueueHandle_t queue_disp_led595;
 
-#define MAX_DIGITS  16
 
-const int disp_digits=8;
-char disp_buf[MAX_DIGITS];
 int disp_update_ms=3;
+const int disp_digits=8;
+char disp_buf[32];
+char disp_ascii_buf[8+1];
+unsigned int disp_point_buf;
+
 
 
 /* 
@@ -227,19 +282,19 @@ const char CHR_CONV_TAB[] =
     /* 96 x60 '`' */
     0,
     /* 97 x61 'a' */
-    0,
+    SA + SB + SC + SE + SF + SG,
     /* 98 x62 'b' */
-    0,
+    SF + SE + SD + SC + SG,
     /* 99 x63 'c' */
-    SG + SE + SD,
+    SA + SF + SE + SD,
     /* 100 x64 'd' */
     SG + SE + SD + SC + SB,
     /* 101 x65 'e' */
-    0,
+    SA + SF + SG + SE + SD,
     /* 102 x66 'f' */
-    0,
+    SA + SF + SG + SE,
     /* 103 x67 'g' */
-    0,
+    SA + SF + SE + SD + SC,
     /* 104 x68 'h' */
     SF + SE + SG + SC,
     /* 105 x69 'i' */
@@ -291,6 +346,31 @@ const char CHR_CONV_TAB[] =
 };
 
 
+int update_disp_buf(char *buf)
+{
+    int i=0;
+    strcpy( disp_buf, buf );
+    disp_point_buf = 0;
+    memset( disp_ascii_buf, ' ', disp_digits );
+    while( *buf && (i<disp_digits) )
+    {
+        if( !*buf )
+            break;
+        else if( *buf != '.' )
+        {
+            disp_ascii_buf[i] = *buf++;
+            if( *buf != '.' )
+                i++;
+        }
+        else
+        {
+            disp_point_buf |= 1<<i;
+            i++;
+            buf++;
+        }
+    }
+    return 1;
+}
 
 
 int cmd_disp( int argc, char *argv[] )
@@ -299,14 +379,14 @@ int cmd_disp( int argc, char *argv[] )
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, "update", 'u', "update", "update period in ms", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "int", 'i', "int", "disp an integer", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_LITERAL },
-        { MCUSH_OPT_ARG, "data", 0, "data", "new data buffer", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "int", 'i', "integer", "disp an integer", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_LITERAL, 0, 0, 0, 0, MCUSH_OPT_USAGE_HIDDEN },
+        { MCUSH_OPT_ARG, "data", 0, 0, "new data buffer", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     int update_ms=-1;
     int integer=-1;
     int has_data=0;
-    char fmt_buf[8];
+    char fmt_buf[8], buf[32];
 
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -339,18 +419,14 @@ int cmd_disp( int argc, char *argv[] )
     if( integer != -1 )
     {
         sprintf( fmt_buf, "%%%dd", disp_digits );
-        snprintf( disp_buf, disp_digits+1, fmt_buf, integer );
-        disp_buf[disp_digits] = 0;
+        sprintf( buf, fmt_buf, integer );
+        update_disp_buf( buf );
         return 0;
     }
 
     if( has_data )
     {
-        while( parser.idx < argc )
-        {
-            shell_write_line( argv[parser.idx] );
-            parser.idx++;
-        }
+        update_disp_buf( argv[parser.idx] );
     }
     else
     {
@@ -365,48 +441,7 @@ static shell_cmd_t cmd_tab[] = {
     "disp <new val>"  },
 {   CMD_END  } };
 
-/* temporarily test */
-#define PORT GPIOG
-#define DAT  GPIO_Pin_8
-#define SCK  GPIO_Pin_9
-#define RCK  GPIO_Pin_10
-void hal_led595_init(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Pin = DAT;
-    GPIO_Init(PORT, &GPIO_InitStructure);
-    GPIO_SetBits(PORT, DAT);
-    GPIO_InitStructure.GPIO_Pin = SCK;
-    GPIO_Init(PORT, &GPIO_InitStructure);
-    GPIO_SetBits(PORT, SCK);
-    GPIO_InitStructure.GPIO_Pin = RCK;
-    GPIO_Init(PORT, &GPIO_InitStructure);
-    GPIO_SetBits(PORT, RCK);
-}
 
-void hal_led595_update_single(char bits)
-{
-    int i;
-    for( i=0; i<8; i++ )
-    {
-        if( bits & (1<<(7-i)) )
-            GPIO_SetBits(PORT, DAT);
-        else
-            GPIO_ResetBits(PORT, DAT);
-        GPIO_ResetBits(PORT, SCK);
-        GPIO_SetBits(PORT, SCK);
-    }
-}
-
-void hal_led595_update(char ctl_digit, char ctl_val)
-{
-    hal_led595_update_single(ctl_digit); 
-    hal_led595_update_single(ctl_val); 
-    GPIO_ResetBits(PORT, RCK);
-    GPIO_SetBits(PORT, RCK);
-}
 
 
 void task_disp_led595_entry(void *p)
@@ -415,17 +450,20 @@ void task_disp_led595_entry(void *p)
     char c;
     shell_add_cmd_table( cmd_tab );
 
-    strcpy( disp_buf, "12345678" );
+    update_disp_buf("12345678" );
+
     hal_led595_init();
     while( 1 )
     {
         for( i=0; i<disp_digits; i++ )
         {
-            hal_led_toggle(0);
-            c = disp_buf[i];
+            //hal_led_toggle(0);
+            c = disp_ascii_buf[i];
             if( c & 0x80 )
                 c = ' ';
             c = CHR_CONV_TAB[(int)c];
+            if( disp_point_buf & (1<<i) )
+                c |= SH;
             //if( !c )   /* skip empty */
             //    continue;
             hal_led595_update(1<<i, ~c);

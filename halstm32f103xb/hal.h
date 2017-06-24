@@ -4,6 +4,10 @@
 #include "stm32f10x.h"
 #include "stm32f10x_conf.h"
 
+#define UNIQUE_ID0  0x1FFFF7E8
+#define UNIQUE_ID1  0x1FFFF7EC
+#define UNIQUE_ID2  0x1FFFF7F0
+
 
 void hal_debug_init(void);
 
@@ -43,7 +47,11 @@ void hal_wdg_enable(void);
 void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
+void hal_beep_init( void );
+void hal_beep_on( int freq );
+void hal_beep_off( void );
 
+int hal_get_serial_number( char *buf );
 
 int hal_init(void);
 

@@ -53,5 +53,8 @@ env.appendGlobSource([
 ])
 
 env.appendDefineFlags( ['CONFIG_TICK_RATE_HZ=1000'] )
+
+env.appendLib( ['m'] )
+
 env.makeApp()
 

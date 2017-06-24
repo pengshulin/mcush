@@ -79,6 +79,19 @@ def regs_test( argv=None ):
     print hex(s.getReg('PORTA_ODR'))
     s.setReg('PORTA_ODR', 0x12345678)
 
+def beep( argv=None ):
+    freq, duration = None, None 
+    try:
+        freq = int(argv[1])
+        duration = float(argv[2])
+    except:
+        pass
+    Mcush().beep( freq, duration )
+
+def disp( argv=None ):
+    if len(argv) > 0:
+        Mcush().disp( buf=argv[0] )
+
 
 #############################################################################
 # MEMORY
@@ -118,6 +131,11 @@ def memory_read_loop( argv=None ):
         mem = s.readMem( 0x20000000, 20*1024 )
         #Utils.dumpMem( mem ) 
         count += 1
+
+
+
+
+
 
 
 #############################################################################
