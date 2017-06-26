@@ -499,7 +499,11 @@ int cmd_led( int argc, char *argv[] )
     }
     else if( (index < 0) || (index > (led_num-1)) )
     {
-        shell_printf( "index should between 0~%d\r\n", led_num-1 );
+        shell_write_str( "index: " );
+        if( led_num > 1 )
+            shell_printf( "0~%d\r\n", led_num-1 );
+        else
+            shell_write_line( "0" );
         return -1;
     }
  

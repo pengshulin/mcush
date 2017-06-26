@@ -154,28 +154,24 @@ char *shell_get_buf( void )
 #define IS_NOT_SPACE( c )        (((c)!=' ')&&((c)!='\t'))
 #define IS_START_QUOTE( c )      (((c)=='\'')||((c)=='\"'))
 #define IS_NOT_START_QUOTE( c )  (((c)!='\'')&&((c)!='\"'))
-#define IS_END_QUOTE( c )        ((c)==quote_char)
-#define IS_NOT_END_QUOTE( c )    ((c)!=quote_char)
+#define IS_END_QUOTE( c )        ((c)==quote)
+#define IS_NOT_END_QUOTE( c )    ((c)!=quote)
 
 static int shell_split_cmdline_into_argvs( char *cmd_line )
 {
 #if SHELL_QUOTE_PARSE_ENABLE
     char *p = cmd_line, *p2;
-    char quote_char;
-    int quote_mode=0;
+    char quote=0;
 
     cb.argc = 0;
     while( *p && IS_SPACE(*p) )
         p++;
     if( IS_START_QUOTE(*p) )
-    {
-        quote_char = *p++;
-        quote_mode = 1;
-    } 
+        quote = *p++;
     while( (cb.argc < SHELL_ARGV_LEN) && *p )
     {
         cb.argv[cb.argc++] = p;
-        if( quote_mode )
+        if( quote )
         {
             while( *p && IS_NOT_END_QUOTE(*p) )
                 p++;
@@ -184,7 +180,7 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
             else
             {
                 *p++ = 0; 
-                quote_mode = 0;
+                quote = 0;
             }
         }
         else
@@ -197,7 +193,7 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
                 *p++ = 0;
             else
             {
-                quote_char = *p;
+                quote = *p;
                 p2 = p++;
                 while( p2 > cb.argv[cb.argc-1] )
                 {
@@ -205,7 +201,6 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
                     p2--;
                 }
                 cb.argv[cb.argc-1] += 1;
-                quote_mode = 1;
                 while( *p && IS_NOT_END_QUOTE(*p) )
                     p++;
                 if( !*p )
@@ -213,7 +208,7 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
                 else
                 {
                     *p++ = 0;
-                    quote_mode = 0;
+                    quote = 0;
                 }
             }
         }
@@ -222,10 +217,7 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
         if( !*p )
             break;
         if( IS_START_QUOTE(*p) )
-        {
-            quote_char = *p++;
-            quote_mode = 1;
-        }
+            quote = *p++;
     }
     return cb.argc; 
 #else

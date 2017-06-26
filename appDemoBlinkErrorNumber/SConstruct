@@ -13,11 +13,11 @@ NON_OS = False
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
 #port = 'ARM_CM3'
 
-#env = Stm32f1hd()
-#haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
+env = Stm32f1hd()
+haldir='stm32f103ze_redbull'
+env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
 #env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
-#port = 'ARM_CM3'
+port = 'ARM_CM3'
 
 #env = Stm32f1md()
 #haldir='stm32f103xb'
@@ -32,15 +32,21 @@ NON_OS = False
 #env.appendDriver(STM32_USB_FS_Driver())
 #port = 'ARM_CM3'
 
+#env = Stm32f1md()
+#haldir='stm32f103x8_xtw'
+#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
+#env.appendDriver(STM32_USB_FS_Driver())
+#port = 'ARM_CM3'
+
 #env = Stm32f407xx()
 #haldir='stm32f407zg_eu'
 #env.setLinkfile( '/ld/stm32f407zg_min.ld' )
 #port = 'ARM_CM4F'
 
-env = Stm32f767xx()
-haldir='stm32f767zi_nucleo'
-env.setLinkfile( '/ld/stm32f767zi_min.ld' )
-port = 'ARM_CM7'
+#env = Stm32f767xx()
+#haldir='stm32f767zi_nucleo'
+#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
+#port = 'ARM_CM7'
 
 
 # disable some commands and reduce flash size
@@ -60,8 +66,12 @@ env.appendDefineFlags( [
     #'USE_CMD_SYSTEM=0',
     #'USE_CMD_MAPI=0',
     #'MCUSH_FREERTOS_PEEK_API=0',
+    #'configUSE_TIMERS=0',
+    #'configUSE_MUTEX=0',
+    #'configCHECK_FOR_STACK_OVERFLOW=0',
     #'configTOTAL_HEAP_SIZE=1024',
     #'MCUSH_STACK_SIZE=10240',
+    #'SHELL_QUOTE_PARSE_ENALBE=0',
     ] ) 
 
 if NON_OS:

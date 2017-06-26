@@ -64,6 +64,13 @@ unsigned int get_sys_tick_count(void);
     #define USE_CMD_SYSTEM  0
 #endif
 
+#ifndef MCUSH_VFS
+    #define MCUSH_VFS  0
+#endif
+
+
+
+
 extern void mcush_init(void);
 extern void mcush_start(void);
 extern TaskHandle_t task_mcush;

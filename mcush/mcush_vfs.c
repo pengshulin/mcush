@@ -4,6 +4,7 @@
 #include <string.h>
 #include "mcush.h"
 
+#if MCUSH_VFS
 
 mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];
 mcush_vfs_file_descriptor_t vfs_fd_tab[MCUSH_VFS_FILE_DESCRIPTOR_NUM];
@@ -110,5 +111,6 @@ const char *mcush_fbasename( const char *fname )
 }
 
 
+#endif
 
 

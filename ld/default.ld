@@ -21,16 +21,9 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
         _etext = . ;
+        . = ALIGN(4);
     } >FLASH
 
-    /* TODO: as the length of the duplicated .data section is hard to calculate, 
-       put my extra flash data before it */
-    
-    . = ALIGN(4);
-    _sidata = .;
-    /* read-write .data are duplicated here and copied to sram at startup */
-
-    /* END OF FLASH */
 
     .data : AT ( _sidata )
     {
@@ -39,8 +32,24 @@ SECTIONS
         *(.data*)
         . = ALIGN(4);
         _edata = . ;
-    } >SRAM
-    
+    } >SRAM 
+
+    .data_copy_in_flash :
+    {
+        _sidata = .;
+        . = _sidata + SIZEOF(.data);
+        _eidata = .;
+    } > FLASH
+
+    .flash_magic_code : AT(_eidata)
+    {
+        BYTE(109);  /* 'm' */
+        BYTE( 99);  /* 'c' */
+        BYTE(117);  /* 'u' */
+        BYTE(115);  /* 's' */
+        BYTE(104);  /* 'h' */
+    } > FLASH
+
     .bss :
     {
         . = ALIGN(4);

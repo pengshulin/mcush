@@ -318,7 +318,7 @@ const char CHR_CONV_TAB[] =
     /* 114 x72 'r' */
     SE + SG,
     /* 115 x73 's' */
-    0,
+    SA + SF + SG + SC + SD,
     /* 116 x74 't' */
     SF + SG + SE + SD,
     /* 117 x75 'u' */
@@ -378,10 +378,10 @@ int cmd_disp( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "update", 'u', "update", "update period in ms", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "int", 'i', "integer", "disp an integer", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "update", 'u', "update", "update period in ms", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "int", 'i', "integer", "disp an integer", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_LITERAL, 0, 0, 0, 0, MCUSH_OPT_USAGE_HIDDEN },
-        { MCUSH_OPT_ARG, "data", 0, 0, "new data buffer", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, "data", 0, 0, "new display buffer", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     int update_ms=-1;
     int integer=-1;
@@ -438,7 +438,7 @@ int cmd_disp( int argc, char *argv[] )
 static shell_cmd_t cmd_tab[] = {
 {   0,  0, "disp",  cmd_disp, 
     "display on led595",
-    "disp <new val>"  },
+    "disp <new display>"  },
 {   CMD_END  } };
 
 
