@@ -13,6 +13,16 @@ static shell_control_block_t cb;
 
 int shell_read_char( char *c )
 {
+    if( cb.script )
+    {
+        if( *cb.script )
+        {
+            *c = *cb.script++;
+            return *c;
+        }
+        else
+            cb.script = 0;
+    }
     return shell_driver_read_char( c );
 }
 
@@ -23,18 +33,26 @@ void shell_write_char( char c )
 }
 
  
+void shell_write( const char *buf, int len )
+{
+    shell_driver_write( (const char*)buf, len ); 
+}
+
+
 void shell_write_str( const char *str )
 {
     if( str )
-        shell_driver_write( (const char*)str, strlen(str) ); 
+        shell_write( str, strlen(str) ); 
 }
 
 
 void shell_write_line( const char *str )
 {
     if( str )
-        shell_driver_write( (const char*)str, strlen(str) );
-    shell_driver_write( "\r\n", 2 );
+    {
+        shell_write( str, strlen(str) );
+        shell_write( "\r\n", 2 );
+    }
 }
 
 
@@ -47,7 +65,7 @@ int shell_printf( char *fmt, ... )
 
     va_start( ap, fmt );
     n = vsprintf( buf, fmt, ap );
-    shell_driver_write( buf, n );
+    shell_write( buf, n );
     va_end( ap );
     return n;
 }
@@ -76,24 +94,49 @@ void shell_write_hex( int x )
 int shell_eval_int( const char *str, int *i )
 {
 #if USE_SHELL_EVAL_SSCANF
-    return sscanf(str, "%i", i) == 1 ? 1 : 0;
+    return sscanf(str, "%i", i) ? 1 : 0;
 #else
     long int r;
     char *p;
     if( !str )
         return 0;
     r = strtol( str, &p, 0 );
-    //if( (r == LONG_MAX) || (r == LONG_MIN) )
-    //    return 0;
-    //else
     if( !p )
         return 0;
+    while( (*p==' ') || (*p=='\t') )
+        p++;
     if( *p ) 
         return 0;
+    //if( (r == LONG_MAX) || (r == LONG_MIN) )
+    //    return 0;
     *i = r;
     return 1;
 #endif
 }
+
+
+int shell_eval_float( const char *str, float *f )
+{
+#if USE_SHELL_EVAL_SSCANF
+    return sscanf(str, "%f", f) ? 1 : 0;
+#else
+    float r;
+    char *p;
+    if( !str )
+        return 0;
+    r = strtof( str, &p );
+    if( !p )
+        return 0;
+    while( (*p==' ') || (*p=='\t') )
+        p++;
+    if( *p ) 
+        return 0;
+    *f = r;
+    return 1;
+#endif
+}
+
+
 #endif
 
 
@@ -311,7 +354,7 @@ static int shell_process_char( char c )
     if( c == '\n' )
     {
         cb.errnum = 0;
-        shell_driver_write_char( '\n' );
+        shell_write_char( '\n' );
         return 1;
     }
     else if( c == '\r' )  /* ignored */
@@ -338,11 +381,11 @@ static int shell_process_char( char c )
                     cb.cmdline[i-1] = cb.cmdline[i];
                 cb.cmdline[--cb.cmdline_len] = 0;
                 cb.cmdline_cursor--;
-                shell_driver_write_char( '\b' );
+                shell_write_char( '\b' );
                 shell_write_str( &cb.cmdline[cb.cmdline_cursor] );
-                shell_driver_write_char( ' ' );
+                shell_write_char( ' ' );
                 for( i=cb.cmdline_len+1; i>cb.cmdline_cursor; i-- )
-                    shell_driver_write_char( '\b' );
+                    shell_write_char( '\b' );
             }
         }
     }
@@ -399,25 +442,25 @@ static int shell_process_char( char c )
     {
         while( cb.cmdline_cursor )
         {
-            shell_driver_write_char( '\b' );
+            shell_write_char( '\b' );
             cb.cmdline_cursor--;
         }
     }
     else if( c == 0x05 )  /* Ctrl-E, end */
     {
         while( cb.cmdline_cursor < cb.cmdline_len )
-            shell_driver_write_char( cb.cmdline[cb.cmdline_cursor++] );
+            shell_write_char( cb.cmdline[cb.cmdline_cursor++] );
     }
     else if( c == 0x06 )  /* Ctrl-F, right */
     {
         if( cb.cmdline_cursor < cb.cmdline_len )
-            shell_driver_write_char( cb.cmdline[cb.cmdline_cursor++] );
+            shell_write_char( cb.cmdline[cb.cmdline_cursor++] );
     }
     else if( c == 0x02 )  /* Ctrl-B, left */
     {
         if( cb.cmdline_cursor )
         {
-            shell_driver_write_char( '\b' );
+            shell_write_char( '\b' );
             cb.cmdline_cursor--;
         }
     }
@@ -429,9 +472,9 @@ static int shell_process_char( char c )
                 cb.cmdline[i] = cb.cmdline[i+1];
             cb.cmdline[--cb.cmdline_len] = 0;
             shell_write_str( &cb.cmdline[cb.cmdline_cursor] );
-            shell_driver_write_char( ' ' );
+            shell_write_char( ' ' );
             for( i=cb.cmdline_len+1; i>cb.cmdline_cursor; i-- )
-                shell_driver_write_char( '\b' );
+                shell_write_char( '\b' );
         }
     }
     else if( c == 0x0B )  /* Ctrl-K, kill remaining */
@@ -440,9 +483,9 @@ static int shell_process_char( char c )
         {
             cb.cmdline[cb.cmdline_cursor] = 0;
             for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
-                shell_driver_write_char( ' ' );
+                shell_write_char( ' ' );
             for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
-                shell_driver_write_char( '\b' );
+                shell_write_char( '\b' );
             cb.cmdline_len = cb.cmdline_cursor;
         }
     }
@@ -461,7 +504,7 @@ static int shell_process_char( char c )
             cb.cmdline[cb.cmdline_len++] = c;
             cb.cmdline[cb.cmdline_len] = 0;
             cb.cmdline_cursor++;
-            shell_driver_write_char( c );
+            shell_write_char( c );
         }
         else  /* insert */
         {
@@ -472,7 +515,7 @@ static int shell_process_char( char c )
             cb.cmdline[cb.cmdline_cursor++] = c;
             shell_write_str( &cb.cmdline[cb.cmdline_cursor-1] );
             for( i=cb.cmdline_len; i>cb.cmdline_cursor; i-- )
-                shell_driver_write_char( '\b' );
+                shell_write_char( '\b' );
         }
     }
     return 0;
@@ -553,10 +596,11 @@ int shell_print_help( const char *cmd, int show_hidden )
 }
 
 
-int shell_init( const shell_cmd_t *cmd_table )
+int shell_init( const shell_cmd_t *cmd_table, const char *init_script )
 {
     memset( &cb, 0, sizeof(shell_control_block_t) );
     cb.cmd_table[0] = cmd_table;
+    cb.script = init_script;
     return shell_driver_init();
 }
 
@@ -571,7 +615,7 @@ extern event_t event_mcush;
 void shell_proc_event_char(void)
 {
     char c;
-    if( shell_driver_read_char(&c) == -1 )
+    if( shell_read_char(&c) == -1 )
         return;
     
     switch( shell_process_char(c) ) 
@@ -611,7 +655,7 @@ int shell_read_line( char *buf, const char *prompt )
         shell_write_str( SHELL_INPUT_SUB_PROMPT ); 
     while( 1 )
     {
-        if( shell_driver_read_char(&c) == -1 )
+        if( shell_read_char(&c) == -1 )
             continue;
         r = shell_process_char(c);
         switch( r ) 

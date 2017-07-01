@@ -32,6 +32,9 @@
 #ifndef USE_CMD_WAIT
     #define USE_CMD_WAIT  1
 #endif
+#ifndef USE_CMD_ECHO
+    #define USE_CMD_ECHO  1
+#endif
 #ifndef USE_CMD_WDG
     #define USE_CMD_WDG  1
 #endif
@@ -50,6 +53,13 @@
 #ifndef USE_CMD_MAPI
     #define USE_CMD_MAPI  1
 #endif
+#ifndef USE_CMD_BEEP
+    #define USE_CMD_BEEP  0
+#endif
+#ifndef USE_CMD_SGPIO
+    #define USE_CMD_SGPIO  0
+#endif
+
 
 
 #if defined(MCUSH_NON_OS)
@@ -68,10 +78,13 @@ int cmd_dump( int argc, char *argv[] );
 int cmd_write( int argc, char *argv[] );
 int cmd_mfill( int argc, char *argv[] );
 int cmd_wait( int argc, char *argv[] );
+int cmd_echo( int argc, char *argv[] );
 int cmd_wdg( int argc, char *argv[] );
 int cmd_uptime( int argc, char *argv[] );
 int cmd_system( int argc, char *argv[] );
 int cmd_mapi( int argc, char *argv[] );
+int cmd_beep( int argc, char *argv[] );
+int cmd_sgpio( int argc, char *argv[] );
 
 
 
@@ -123,6 +136,11 @@ const shell_cmd_t CMD_TAB[] = {
     "sleep ms",
     "wait <ms>" },
 #endif
+#if USE_CMD_ECHO
+{   CMD_HIDDEN,  0,  "echo",  cmd_echo, 
+    "print args",
+    "echo <args>" },
+#endif
 #if USE_CMD_WDG
 {   CMD_HIDDEN,  0,  "wdg",  cmd_wdg, 
     "watchdog",
@@ -141,12 +159,22 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_GPIO
 {   0,  0,  "gpio",  cmd_gpio, 
     "control gpio",
-    "gpio -p <port.bit> -i <val> -o <val> -s <val> -c <val> -t <val> -l" },
+    "gpio -p <port.bit> [-i <val>] [-o <val>] [-s <val>] [-c <val>] [-t <val>] [-l]" },
+#endif
+#if USE_CMD_SGPIO
+{   0,  0,  "sgpio",  cmd_sgpio, 
+    "control sgpio",
+    "sgpio -p <port> -o <val> -i <val> -f <val> [-l] [--start|stop]" },
 #endif
 #if USE_CMD_LED
 {   0,  0,  "led",  cmd_led, 
     "control led",
-    "led -s|c|t -i <idx>" },
+    "led [-s|c|t] -i <idx>" },
+#endif
+#if USE_CMD_BEEP
+{   0,  'b',  "beep",  cmd_beep, 
+    "beep control",
+    "beep [-f <freq>] [<ms>]"  },
 #endif
 {   CMD_END  } };
 
@@ -289,10 +317,7 @@ int cmd_gpio( int argc, char *argv[] )
             else if( strcmp( opt.spec->name, "loop" ) == 0 )
                 loop=1;
             else if( strcmp( opt.spec->name, "loop_delay" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&loop_delay) )
-                    loop_delay = -1;
-            }
+                shell_eval_int(opt.value, (int*)&loop_delay);
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -454,10 +479,7 @@ int cmd_led( int argc, char *argv[] )
             else if( strcmp( opt.spec->name, "toggle" ) == 0 )
                 cmd = 2;
             else if( strcmp( opt.spec->name, "index" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&index) )
-                    index = -1;
-            }
+                shell_eval_int(opt.value, (int*)&index);
             else if( strcmp( opt.spec->name, "led_num" ) == 0 )
             {
                 shell_printf( "%d\n", led_num );
@@ -547,20 +569,11 @@ int cmd_dump( int argc, char *argv[] )
         if( opt.spec )
         {
             if( strcmp( opt.spec->name, "addr" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&addr) )
-                    addr = (void*)-1;
-            }
+                shell_eval_int(opt.value, (int*)&addr);
             else if( strcmp( opt.spec->name, "length" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&length) )
-                    length = 16;
-            }
+                shell_eval_int(opt.value, (int*)&length);
             else if( strcmp( opt.spec->name, "width" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&width) )
-                    width = 1;
-            }
+                shell_eval_int(opt.value, (int*)&width);
             else if( strcmp( opt.spec->name, "ascii" ) == 0 )
                 ascii_mode = 1;
             else if( strcmp( opt.spec->name, "compact" ) == 0 )
@@ -681,15 +694,9 @@ int cmd_write( int argc, char *argv[] )
         if( opt.spec )
         {
             if( strcmp( opt.spec->name, "addr" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&addr) )
-                    addr = (void*)-1;
-            }
+                shell_eval_int(opt.value, (int*)&addr);
             else if( strcmp( opt.spec->name, "width" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&width) )
-                    width = 1;
-            }
+                shell_eval_int(opt.value, (int*)&width);
             else if( strcmp( opt.spec->name, "data" ) == 0 )
                 break;
         }
@@ -765,25 +772,13 @@ int cmd_mfill( int argc, char *argv[] )
         if( opt.spec )
         {
             if( strcmp( opt.spec->name, "addr" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&addr) )
-                    addr = (void*)-1;
-            }
+                shell_eval_int(opt.value, (int*)&addr);
             else if( strcmp( opt.spec->name, "pattern" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&pattern) )
-                    pattern = -1; 
-            }
+                shell_eval_int(opt.value, (int*)&pattern);
             else if( strcmp( opt.spec->name, "length" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&length) )
-                    length = -1; 
-            }
+                shell_eval_int(opt.value, (int*)&length);
             else if( strcmp( opt.spec->name, "width" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&width) )
-                    width = 1;
-            }
+                shell_eval_int(opt.value, (int*)&width);
             else if( strcmp( opt.spec->name, "test" ) == 0 )
                 test_mode = 1;
         }
@@ -875,10 +870,7 @@ int cmd_wait( int argc, char *argv[] )
         if( opt.spec )
         {
             if( strcmp( opt.spec->name, "time" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&ms) )
-                    ms = 1000;
-            }
+                shell_eval_int(opt.value, (int*)&ms);
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -889,6 +881,24 @@ int cmd_wait( int argc, char *argv[] )
 #else 
     vTaskDelay( ms * configTICK_RATE_HZ / 1000  );
 #endif
+    return 0;
+}
+#endif
+
+
+#if USE_CMD_ECHO
+int cmd_echo( int argc, char *argv[] )
+{
+    int i;
+
+    for( i=1; i<argc; i++ )
+    {
+        shell_write_str( argv[i] );
+        if( (i+1) < argc )
+            shell_write_str( " " );
+        else
+            shell_write_str( "\n" );
+    }
     return 0;
 }
 #endif
@@ -1128,15 +1138,9 @@ int cmd_mapi( int argc, char *argv[] )
         if( opt.spec )
         {
             if( strcmp( opt.spec->name, "addr" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&addr) )
-                    addr = (void*)-1;
-            }
+                shell_eval_int(opt.value, (int*)&addr);
             else if( strcmp( opt.spec->name, "length" ) == 0 )
-            {
-                if( ! shell_eval_int(opt.value, (int*)&length) )
-                    length = -1; 
-            }
+                shell_eval_int(opt.value, (int*)&length);
             else if( strcmp( opt.spec->name, "malloc" ) == 0 )
                 malloc_set = 1;
             else if( strcmp( opt.spec->name, "realloc" ) == 0 )
@@ -1253,5 +1257,203 @@ usage_error:
 }
 #endif
 
+
+#if USE_CMD_BEEP
+int cmd_beep( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "freq", 'f', "frequency", "range 20~10000 (default 4000)", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_ARG, "ms", 0, 0, "duration (default 50ms)", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    int freq=-1, ms=-1;
+
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "freq" ) == 0 )
+                shell_eval_int(opt.value, (int*)&freq);
+            else if( strcmp( opt.spec->name, "ms" ) == 0 )
+                shell_eval_int(opt.value, (int*)&ms);
+        }
+        else
+             STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( freq == -1 )
+        freq = 4000;
+    if( ms == -1 )
+        ms = 50;
+
+    if( !( (freq >= 20) && (freq <= 10000) ) )
+        STOP_AT_INVALID_ARGUMENT  
+    if( !( (ms > 0) && (ms <= 10000) ) )
+        STOP_AT_INVALID_ARGUMENT  
+   
+    hal_beep_on( freq );
+    vTaskDelay(ms*configTICK_RATE_HZ/1000);
+    hal_beep_off();
+    
+    return 0;
+}
+#endif
+
+
+#if USE_CMD_SGPIO
+int cmd_sgpio( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "port", 'p', "port_index", "index from 0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "output", 'o', "output_mode", "set output mode mask", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "input", 'i', "input_mode", "set input mode mask", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "input_len", 0, "input_buf_len", "length of input buffer", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "freq", 'f', "frequency", "1~1000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "loop", 'l', 0, "loop mode", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "start", 'r', 0, "run", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "stop", 's', 0, "stop", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "info", 0, 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    int port=-1, loop=0, output=-1, input=-1, freq=-1, buf_len=0, input_len=0;
+    float freq_val=SGPIO_FREQ_DEF;
+    char start=0, stop=0, info=0;
+    void *buf_in=0, *buf_out=0;
+    sgpio_cfg_t *cfg;
+    uint16_t *p, r;
+    char *p2, *p3;
+
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "port" ) == 0 )
+                shell_eval_int(opt.value, (int*)&port);
+            else if( strcmp( opt.spec->name, "freq" ) == 0 )
+            {
+                if( shell_eval_float(opt.value, (float*)&freq_val) )
+                    freq = 1;
+            }
+            else if( strcmp( opt.spec->name, "loop" ) == 0 )
+                loop = 1;
+            else if( strcmp( opt.spec->name, "output" ) == 0 )
+                shell_eval_int(opt.value, (int*)&output);
+            else if( strcmp( opt.spec->name, "input" ) == 0 )
+                shell_eval_int(opt.value, (int*)&input);
+            else if( strcmp( opt.spec->name, "start" ) == 0 )
+                start = 1;
+            else if( strcmp( opt.spec->name, "stop" ) == 0 )
+                stop = 1;
+            else if( strcmp( opt.spec->name, "info" ) == 0 )
+                info = 1;
+            else if( strcmp( opt.spec->name, "input_len" ) == 0 )
+                shell_eval_int(opt.value, (int*)&input_len);
+ 
+        }
+        else
+             STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( start && stop )
+        STOP_AT_INVALID_ARGUMENT
+
+    if( info )
+    {
+        cfg = hal_sgpio_info();
+        if( cfg->inited )
+        {
+            shell_printf( "%s  port:%d  out:0x%04x  in:0x%04x  loop:%c  freq:%.1f\n", 
+                cfg->run ? "RUN" : "STOP",
+                cfg->port, cfg->output_mode, cfg->input_mode, cfg->loop_mode?'1':'0', cfg->freq );
+            shell_printf( "buf_out:0x%08x  buf_in:0x%08X  len:%d\n", 
+                cfg->buf_out, cfg->buf_in, cfg->buf_len );
+        } 
+        else
+            shell_write_line( "not initialized" );
+        return 0;
+    }
+
+    if( start )
+        return hal_sgpio_start() ? 0 : 1;
+    else if( stop )
+    {
+        hal_sgpio_stop();
+        return 0;
+    }
+
+    if( port == -1 )
+    {
+        shell_write_line( "port not set" );
+        return -1;
+    }
+   
+    if( output == -1 )
+        output = 0;
+    if( input == -1 )
+        input = 0;
+    
+    if( !output && !input )
+    {
+        shell_write_line( "out/in not set" );
+        return -1;
+    }
+
+    if( !( (freq_val >= SGPIO_FREQ_MIN) && (freq_val <= SGPIO_FREQ_MAX) ) )
+    {
+        shell_write_line( "freq range err" );
+        return -1;
+    }
+   
+    if( output )
+    { 
+        buf_out = shell_read_multi_lines(0);
+        if( ! buf_out )
+            return 1;
+        buf_len = 0;
+        p = (uint16_t*)buf_out;
+        p2 = (char*)buf_out;
+        while( *p2 )
+        {
+            r = strtol( p2, &p3, 0 );
+            if( !p3 || !*p3 || (p2==p3) )
+                break;
+            while( *p3 && ((*p3==' ')||(*p3=='\t')||(*p3=='\r')||(*p3=='\n')) )
+                p3++;
+            p2 = p3;
+            *p++ = r;
+            buf_len += 1;
+        }
+        if( !buf_len )
+        {
+            free( buf_out );
+            return 1;
+        }
+        p2 = (char*)realloc( buf_out, buf_len * 2 );
+        if( p2 )
+            buf_out = (uint16_t*)p2;
+    }
+    
+    if( input )
+    {
+        if( !output )
+        {
+            if( input_len )
+                buf_len = input_len;
+            else
+            {
+                shell_write_line( "input buf len err" );
+                return -1;
+            }
+        }
+        buf_in = malloc( buf_len * 2 );
+    }
+
+    return hal_sgpio_setup( loop, port, output, input, buf_out, buf_in, buf_len, freq_val ) ? 0 : 1;
+}
+#endif
 
 

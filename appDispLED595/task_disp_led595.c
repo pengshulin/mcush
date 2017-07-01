@@ -373,6 +373,28 @@ int update_disp_buf(char *buf)
 }
 
 
+int disp_int( int integer )
+{
+    char fmt_buf[8], buf[32];
+
+    sprintf( fmt_buf, "%%%dd", disp_digits );
+    sprintf( buf, fmt_buf, integer );
+    update_disp_buf( buf );
+    return 1;
+}
+
+
+int disp_float( float val )
+{
+    char buf[32];
+
+    sprintf( buf, "%f", val );
+    update_disp_buf( buf );
+    return 1;
+}
+
+
+
 int cmd_disp( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -386,7 +408,7 @@ int cmd_disp( int argc, char *argv[] )
     int update_ms=-1;
     int integer=-1;
     int has_data=0;
-    char fmt_buf[8], buf[32];
+    //char fmt_buf[8], buf[32];
 
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -418,9 +440,7 @@ int cmd_disp( int argc, char *argv[] )
 
     if( integer != -1 )
     {
-        sprintf( fmt_buf, "%%%dd", disp_digits );
-        sprintf( buf, fmt_buf, integer );
-        update_disp_buf( buf );
+        disp_int( integer );
         return 0;
     }
 

@@ -1,24 +1,22 @@
 #include "hal.h"
 
-const char gpio_start='a', gpio_stop='g';
-
+const uint8_t port_num = 7;
 const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG };
-
 
 
 static void _set_dir( int port, int bits, GPIOMode_TypeDef mode )
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef init;
     int i;
         
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Mode = mode;
+    GPIO_StructInit(&init);
+    init.GPIO_Mode = mode;
     for( i=0; i<32; i++ )
     {
         if( bits & (1<<i) )
         { 
-            GPIO_InitStructure.GPIO_Pin = 1<<i;
-            GPIO_Init((GPIO_TypeDef*)ports[port], &GPIO_InitStructure);
+            init.GPIO_Pin = 1<<i;
+            GPIO_Init((GPIO_TypeDef*)ports[port], &init);
         }
     }
 }
@@ -26,7 +24,7 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode )
 
 int hal_gpio_get_port_num(void)
 {
-    return gpio_stop - gpio_start + 1;
+    return port_num;
 }
 
 

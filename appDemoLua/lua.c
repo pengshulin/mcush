@@ -1,8 +1,7 @@
+#include "mcush.h"
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
-#include "string.h"
-#include "mcush.h"
 
 #define LUA_MAXINPUT    512
 #define LUA_PROMPT      "> "

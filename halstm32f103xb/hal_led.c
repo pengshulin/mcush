@@ -4,15 +4,15 @@
 
 void hal_led_init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef init;
     int i;
 
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    init.GPIO_Mode = GPIO_Mode_Out_PP;
+    init.GPIO_Speed = GPIO_Speed_50MHz;
     for( i=0; i<led_num; i++ )
     {
-        GPIO_InitStructure.GPIO_Pin = led_pins[i];
-        GPIO_Init((GPIO_TypeDef*)led_ports[i], &GPIO_InitStructure);
+        init.GPIO_Pin = led_pins[i];
+        GPIO_Init((GPIO_TypeDef*)led_ports[i], &init);
 #if defined(LED_REV)
         GPIO_SetBits((GPIO_TypeDef*)led_ports[i], led_pins[i]);
 #else

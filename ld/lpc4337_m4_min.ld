@@ -28,6 +28,12 @@ SECTIONS
         _eisr_vector = .;
     } >FLASH
  
+    .signature :
+    {
+        KEEP(*(.mcush_signature))
+        KEEP(*(.signature))
+    } > FLASH
+
     .global_section_table :
     {
         __section_table_start = .;
@@ -55,13 +61,6 @@ SECTIONS
         _etext = . ;
     } >FLASH
 
-
-    . = ALIGN(4);
-    _sidata = .;
-    /* read-write .data are duplicated here and copied to sram at startup */
-
-    /* END OF FLASH */
-
     .data : AT ( _sidata )
     {
         . = ALIGN(4);
@@ -71,6 +70,13 @@ SECTIONS
         _edata = . ;
     } >SRAM
     
+    .data_copy_in_flash :
+    {
+        _sidata = .;
+        . = _sidata + SIZEOF(.data);
+        _eidata = .;
+    } > FLASH
+
     .bss :
     {
         . = ALIGN(4);

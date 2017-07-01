@@ -35,7 +35,7 @@
 #ifndef USE_SHELL_EVAL_SSCANF
     #define USE_SHELL_EVAL_SSCANF  0
 #endif
-#ifndef SHELL_QUOTE_PARSE_ENALBE
+#ifndef SHELL_QUOTE_PARSE_ENABLE
     #define SHELL_QUOTE_PARSE_ENABLE   1
 #endif
 
@@ -48,8 +48,9 @@
         shell_write_line( opt.value ); \
         mcush_opt_usage_print( argv[0], opt_spec ); \
         return -1; }  } 
-        
-        
+
+
+
 
 enum {
     CMD_NORMAL=0,
@@ -78,11 +79,12 @@ typedef struct _shell_control_block_t {
     char cmdline_history[SHELL_CMDLINE_HISTORY_LEN+1];
     const char *(*prompt_hook)(void);
     const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
+    const char *script;
 } shell_control_block_t;
 
 
 /* APIs */
-int  shell_init( const shell_cmd_t *cmd_table );
+int  shell_init( const shell_cmd_t *cmd_table, const char *init_script );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
@@ -101,6 +103,7 @@ void shell_write_float( float f );
 void shell_write_hex( int x );
 int  shell_printf( char *fmt, ... );
 int  shell_eval_int( const char *str, int *i );
+int  shell_eval_float( const char *str, float *f );
 const char *shell_get_prompt( void );
 #if defined(MCUSH_NON_OS)
 void shell_proc_event_char(void);

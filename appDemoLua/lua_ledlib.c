@@ -2,7 +2,6 @@
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
-#include "string.h"
 
 typedef void (*led_f)(int);
 

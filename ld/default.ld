@@ -7,13 +7,25 @@ SECTIONS
     .isr_vector :
     {
         . = ALIGN(4);
-        _sisr_vector = .;
+        _sisr_vector = . ;
         KEEP(*(.isr_vector))
-        . = ALIGN(4);
-        _eisr_vector = .;
-    } >FLASH
+        _eisr_vector = . ;
+    } > FLASH
  
-    .text :
+    .signature :
+    {
+        KEEP(*(.mcush_signature))
+        KEEP(*(.signature))
+    } > FLASH
+
+    .init_script :
+    {
+        _isdata = . ;
+        KEEP(*(.init_script))
+        BYTE(0);
+    } > FLASH
+
+   .text :
     {
         . = ALIGN(4);
         _text = . ;
@@ -21,9 +33,9 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
         _etext = . ;
-        . = ALIGN(4);
-    } >FLASH
+    } > FLASH
 
+    _sidata = . ;
 
     .data : AT ( _sidata )
     {
@@ -32,33 +44,17 @@ SECTIONS
         *(.data*)
         . = ALIGN(4);
         _edata = . ;
-    } >SRAM 
-
-    .data_copy_in_flash :
-    {
-        _sidata = .;
-        . = _sidata + SIZEOF(.data);
-        _eidata = .;
-    } > FLASH
-
-    .flash_magic_code : AT(_eidata)
-    {
-        BYTE(109);  /* 'm' */
-        BYTE( 99);  /* 'c' */
-        BYTE(117);  /* 'u' */
-        BYTE(115);  /* 's' */
-        BYTE(104);  /* 'h' */
-    } > FLASH
+    } > SRAM 
 
     .bss :
     {
         . = ALIGN(4);
-        _sbss = .;
+        _sbss = . ;
         *(.bss*)
         *(COMMON)
         . = ALIGN(4);
         _ebss = . ;
-    } >SRAM
+    } > SRAM
     
     .userheap :
     {
@@ -67,22 +63,29 @@ SECTIONS
         . = . + USER_HEAP_SIZE ;
         . = ALIGN(4);
         _eheap = . ;
-    } >SRAM
+    } > SRAM
 
     .userstack (USER_STACK_ADDR) :
     {
         . = ALIGN(4);
-        _sstack = .;
+        _sstack = . ;
         . = . + USER_STACK_SIZE ;
         . = ALIGN(4);
-        _estack = .;
-    } >SRAM 
+        _estack = . ;
+    } > SRAM 
 
     /DISCARD/ :
     {
         libc.a ( * )
         libm.a ( * )
         libgcc.a ( * )
+        *(.ARM.exidx)
+        *(.glue*)
+        *(.init)
+        *(.fini)
     }
 
 }
+
+ASSERT( _sidata + SIZEOF(.data) <= ORIGIN(FLASH) + LENGTH(FLASH), "flash full" )
+

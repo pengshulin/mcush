@@ -51,6 +51,7 @@ int hal_init(void)
     hal_led_init();
     hal_power_set(1);
     hal_beep_init();
+    hal_sgpio_init();
     if( !hal_uart_init(baudrate) )
         return 0;
 

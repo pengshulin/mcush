@@ -13,11 +13,11 @@ NON_OS = False
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
 #port = 'ARM_CM3'
 
-env = Stm32f1hd()
-haldir='stm32f103ze_redbull'
-env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
-#env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
-port = 'ARM_CM3'
+#env = Stm32f1hd()
+#haldir='stm32f103ze_redbull'
+#env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
+##env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
+#port = 'ARM_CM3'
 
 #env = Stm32f1md()
 #haldir='stm32f103xb'
@@ -25,12 +25,12 @@ port = 'ARM_CM3'
 #env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 #port = 'ARM_CM3'
 
-#env = Stm32f1md()
-#haldir='stm32f103xb_pyeasycontrol'
-##env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#env.appendDriver(STM32_USB_FS_Driver())
-#port = 'ARM_CM3'
+env = Stm32f1md()
+haldir='stm32f103xb_pyeasycontrol'
+#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env.appendDriver(STM32_USB_FS_Driver())
+port = 'ARM_CM3'
 
 #env = Stm32f1md()
 #haldir='stm32f103x8_xtw'
@@ -69,7 +69,7 @@ env.appendDefineFlags( [
     #'configUSE_TIMERS=0',
     #'configUSE_MUTEX=0',
     #'configCHECK_FOR_STACK_OVERFLOW=0',
-    #'configTOTAL_HEAP_SIZE=1024',
+    #'configTOTAL_HEAP_SIZE=10240',
     #'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     ] ) 
@@ -106,5 +106,6 @@ if not NON_OS:
 
 
 #env.appendCompilerFlag(['-std=gnu90'])
+#env.appendLinkFlag(['--specs=nano.specs'])
 env.makeApp()
 

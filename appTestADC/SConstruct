@@ -5,10 +5,16 @@ from Arm.Stm32 import *
 #env.setLinkfile( '/ld/stm32f103xe_min.ld' )
 #port = 'ARM_CM3'
 
-env = Stm32f1md()
-haldir='stm32f103xb'
-env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env = Stm32f1hd()
+haldir='stm32f103ze_redbull'
+env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
+#env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
 port = 'ARM_CM3'
+
+#env = Stm32f1md()
+#haldir='stm32f103xb'
+#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#port = 'ARM_CM3'
 
 
 env.appendPath([

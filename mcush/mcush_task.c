@@ -2,6 +2,11 @@
 #include "mcush.h"
 
 extern shell_cmd_t CMD_TAB[];
+extern char _isdata;
+
+__attribute__((section(".mcush_signature")))
+static const char mcush_signature[] = "<MCUSH designed by pengshulin>";
+
 
 #if defined(MCUSH_NON_OS)
 event_t event_mcush = EVT_INIT;
@@ -12,7 +17,7 @@ void task_mcush_entry(void)
     {
         if( !hal_init() )
             halt("hal init");
-        if( !shell_init( &CMD_TAB[0] ) )
+        if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
             halt("shell init");
         shell_write_str("\r\n");
         shell_write_str( shell_get_prompt() );
@@ -43,7 +48,7 @@ void mcush_init(void)
     //queue_mcush = xQueueCreate(MCUSH_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(mcush_message_t));
     //if( !queue_mcush )
     //    halt("mcush queue create");
-    if( !shell_init( &CMD_TAB[0] ) )
+    if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
         halt("shell init");
 
     xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", 
