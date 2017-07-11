@@ -1,7 +1,6 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 #include <stdint.h>
-
 #include "stm32f10x.h"
 #include "stm32f10x_conf.h"
 
@@ -51,6 +50,3 @@ int hal_init(void);
 #include "hal_platform.h"
 
 #endif
-
-
-

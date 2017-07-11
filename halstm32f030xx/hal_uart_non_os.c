@@ -92,9 +92,9 @@ int hal_uart_init(uint32_t baudrate)
     GPIO_Init(GPIOA, &GPIO_InitStructure);
       
     /* Connect PXx to USARTx TXD */
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_0);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_1);
     /* Connect PXx to USARTx RXD */
-    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_0);
+    GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_1);
   
     /* USART configuration */
     USART_InitStructure.USART_BaudRate = baudrate;

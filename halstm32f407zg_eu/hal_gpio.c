@@ -1,8 +1,7 @@
 #include "hal.h"
 
-const char gpio_start='a', gpio_stop='g';
-
-const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG };
+const uint8_t port_num = 11;
+const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI, GPIOJ, GPIOK };
 
 
 
@@ -28,7 +27,7 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode, int pull )
 
 int hal_gpio_get_port_num(void)
 {
-    return gpio_stop - gpio_start + 1;
+    return port_num;
 }
 
 
@@ -41,6 +40,8 @@ void hal_gpio_init(void)
     RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOE, ENABLE);
     RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOF, ENABLE);
     RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOG, ENABLE);
+    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOH, ENABLE);
+    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOI, ENABLE);
 }
 
 

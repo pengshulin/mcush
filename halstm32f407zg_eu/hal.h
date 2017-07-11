@@ -51,6 +51,10 @@ unsigned int get_sys_tick_count(void);
 
 int hal_get_serial_number( char *buf );
 
+
+
+#include "hal_platform.h"
+
 #endif
 
 

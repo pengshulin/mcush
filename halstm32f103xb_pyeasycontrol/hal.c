@@ -54,12 +54,6 @@ int hal_init(void)
     hal_sgpio_init();
     if( !hal_uart_init(baudrate) )
         return 0;
-
-    Set_System();
-    Set_USBClock();
-    USB_Interrupts_Config();
-    USB_Init();
-  
     return 1;
 }
 

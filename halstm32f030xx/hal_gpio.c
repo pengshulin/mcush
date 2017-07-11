@@ -1,7 +1,6 @@
 #include "hal.h"
 
-const char gpio_start='a', gpio_stop='f';
-
+const uint8_t port_num = 6;
 const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF };
 
 
@@ -26,7 +25,7 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode )
 
 int hal_gpio_get_port_num(void)
 {
-    return gpio_stop - gpio_start + 1;
+    return port_num;
 }
 
 

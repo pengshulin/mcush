@@ -96,11 +96,11 @@ int shell_eval_int( const char *str, int *i )
 #if USE_SHELL_EVAL_SSCANF
     return sscanf(str, "%i", i) ? 1 : 0;
 #else
-    long int r;
+    long long int r;
     char *p;
     if( !str )
         return 0;
-    r = strtol( str, &p, 0 );
+    r = strtoll( str, &p, 0 );
     if( !p )
         return 0;
     while( (*p==' ') || (*p=='\t') )
@@ -721,6 +721,48 @@ alloc_err:
     shell_write_line("malloc failed");
     if( buf1 )
         free(buf1);
+    return 0;
+}
+
+
+int shell_make_16bits_data_buffer( void **pbuf, int *len )
+{
+    void *buf=0;
+    int buf_len;
+    uint16_t *p, r;
+    char *p2, *p3;
+
+    buf = shell_read_multi_lines(0);
+    if( ! buf )
+        return 0;
+    buf_len = 0;
+    p = (uint16_t*)buf;
+    p2 = (char*)buf;
+    while( *p2 )
+    {
+        r = strtol( p2, &p3, 0 );
+        if( !p3 || !*p3 )
+            break;
+        if( p2==p3 )
+            goto fail;
+        while( *p3 && ((*p3==' ')||(*p3==',')||(*p3=='\t')||(*p3=='\r')||(*p3=='\n')) )
+            p3++;
+        //if( *p3 && !(*p3>='0' && *p3<='9') )
+        //    goto fail;
+        p2 = p3;
+        *p++ = r;
+        buf_len += 1;
+    }
+    if( !buf_len )
+        goto fail;
+    p2 = (char*)realloc( buf, buf_len * 2 );
+    if( p2 )
+        buf = (uint16_t*)p2;
+    *pbuf = buf;
+    *len = buf_len;
+    return 1;
+fail:
+    free( buf );
     return 0;
 }
 

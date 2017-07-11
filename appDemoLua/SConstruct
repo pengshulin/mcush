@@ -22,7 +22,8 @@ port = 'ARM_CM3'
 
 env.appendDefineFlags([
     'MCUSH_STACK_SIZE=10240',
-    #'LUA_32BITS'
+    #'LUA_32BITS',
+    'USE_SHELL_PRINTF2=0',
     ])
 
 
@@ -46,6 +47,6 @@ env.appendGlobSource([
     '/libFreeRTOS/portable/GCC/%s/port.c'% port,
     '/liblua/*.c',
 ])
-env.appendLib(['m'])
+
 env.makeApp()
 

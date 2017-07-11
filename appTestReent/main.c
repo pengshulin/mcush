@@ -2,24 +2,32 @@
 #include "semphr.h"
 
 
+#define USE_LOCK
+
 int running=1;
 SemaphoreHandle_t *lock;
 
 void task_test_entry(void *p)
 {
     int id=(int)p;
+    char buf[128];
     while( 1 )
     {
         if( running )
         {
+            sprintf( buf, "task_%d", id );
             if(lock)
             {
+#if defined(USE_LOCK)
                 xSemaphoreTake( lock, portMAX_DELAY );
-                shell_printf("task%d\n", id ); 
+#endif
+                shell_write_line( buf ); 
+#if defined(USE_LOCK)
                 xSemaphoreGive( lock );
+#endif
             }
             else
-                shell_printf("task%d\n", id ); 
+                shell_write_line( buf ); 
             taskYIELD();
             //vTaskDelay( 1 );
             //vTaskDelay(10*configTICK_RATE_HZ/1000);
@@ -42,13 +50,13 @@ int cmd_run( int argc, char *argv[] )
 }
 
 static shell_cmd_t cmd_tab[] = {
-{   "s", "stop",  cmd_stop, 
+{   0, 's', "stop",  cmd_stop, 
     "stop",
     "stop"  },
-{   "r", "run",  cmd_run, 
+{   0, 'r', "run",  cmd_run, 
     "run",
     "run"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 
 

@@ -65,6 +65,7 @@ env.appendDefineFlags( [
     #'USE_CMD_UPTIME=0',
     #'USE_CMD_SYSTEM=0',
     #'USE_CMD_MAPI=0',
+    #'USE_CMD_MKBUF=0',
     #'MCUSH_FREERTOS_PEEK_API=0',
     #'configUSE_TIMERS=0',
     #'configUSE_MUTEX=0',
@@ -72,6 +73,7 @@ env.appendDefineFlags( [
     #'configTOTAL_HEAP_SIZE=10240',
     #'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
+    #'USE_SHELL_EVAL_SSCANF=1',
     ] ) 
 
 if NON_OS:

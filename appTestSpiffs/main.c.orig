@@ -1,0 +1,114 @@
+#include "mcush.h"
+#include "task_blink.h"
+#include "spi_flash.h"
+
+typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
+
+/* Private define ------------------------------------------------------------*/
+#define  FLASH_WRITE_ADDRESS      0x700000
+#define  FLASH_READ_ADDRESS       FLASH_WRITE_ADDRESS
+#define  FLASH_SECTOR_TO_ERASE    FLASH_WRITE_ADDRESS
+
+#define  BufferSize (countof(Tx_Buffer)-1)
+
+/* Private macro -------------------------------------------------------------*/
+#define countof(a) (sizeof(a) / sizeof(*(a)))
+
+/* Private variables ---------------------------------------------------------*/
+uint8_t Tx_Buffer[] = "STM32F4xx SPI Firmware Library Example: communication with an M25P SPI FLASH";
+uint8_t  Rx_Buffer[BufferSize];
+__IO uint8_t Index = 0x0;
+volatile TestStatus TransferStatus1 = FAILED, TransferStatus2 = PASSED;
+__IO uint32_t FlashID = 0;
+
+/* Private functions ---------------------------------------------------------*/
+TestStatus Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength);
+
+
+/**
+  * @brief  Compares two buffers.
+  * @param  pBuffer1, pBuffer2: buffers to be compared.
+  * @param  BufferLength: buffer's length
+  * @retval PASSED: pBuffer1 identical to pBuffer2
+  *         FAILED: pBuffer1 differs from pBuffer2
+  */
+TestStatus Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength)
+{
+  while (BufferLength--)
+  {
+    if (*pBuffer1 != *pBuffer2)
+    {
+      return FAILED;
+    }
+
+    pBuffer1++;
+    pBuffer2++;
+  }
+
+  return PASSED;
+}
+
+int main(void)
+{
+    mcush_init();
+    task_blink_init();
+    //shell_add_cmd_table( cmd_tab );
+    mcush_start();
+    while(1);
+
+  /* Initialize the SPI FLASH driver */
+  sFLASH_Init();
+
+  /* Get SPI Flash ID */
+  FlashID = sFLASH_ReadID();
+  
+  /* Check the SPI Flash ID */
+  if (FlashID == sFLASH_M25P64_ID)
+  {
+    /* OK: Turn on LD1 */
+    hal_led_set(0);
+    /* Perform a write in the Flash followed by a read of the written data */
+    /* Erase SPI FLASH Sector to write on */
+    sFLASH_EraseSector(FLASH_SECTOR_TO_ERASE);
+
+    /* Write Tx_Buffer data to SPI FLASH memory */
+    sFLASH_WriteBuffer(Tx_Buffer, FLASH_WRITE_ADDRESS, BufferSize);
+
+    /* Read data from SPI FLASH memory */
+    sFLASH_ReadBuffer(Rx_Buffer, FLASH_READ_ADDRESS, BufferSize);
+
+    /* Check the correctness of written dada */
+    TransferStatus1 = Buffercmp(Tx_Buffer, Rx_Buffer, BufferSize);
+    /* TransferStatus1 = PASSED, if the transmitted and received data by SPI1
+       are the same */
+    /* TransferStatus1 = FAILED, if the transmitted and received data by SPI1
+       are different */
+
+    /* Perform an erase in the Flash followed by a read of the written data */
+    /* Erase SPI FLASH Sector to write on */
+    sFLASH_EraseSector(FLASH_SECTOR_TO_ERASE);
+
+    /* Read data from SPI FLASH memory */
+    sFLASH_ReadBuffer(Rx_Buffer, FLASH_READ_ADDRESS, BufferSize);
+
+    /* Check the correctness of erasing operation dada */
+    for (Index = 0; Index < BufferSize; Index++)
+    {
+      if (Rx_Buffer[Index] != 0xFF)
+      {
+        TransferStatus2 = FAILED;
+      }
+    }
+    /* TransferStatus2 = PASSED, if the specified sector part is erased */
+    /* TransferStatus2 = FAILED, if the specified sector part is not well erased */
+  }
+  else
+  {
+    /* Error: Turn on LD2 */
+    //STM_EVAL_LEDOn(LED2);
+    hal_led_set( 1 );
+  }
+  
+
+}
+

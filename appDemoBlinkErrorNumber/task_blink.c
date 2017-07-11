@@ -56,7 +56,7 @@ failed:
     return 1;
 }
 
-const shell_cmd_t cmd_tab[] = {
+const shell_cmd_t cmd_tab_blink[] = {
 {   0, 'e', "error",  cmd_error, 
     "set error number",
     "error <number>"  },
@@ -65,47 +65,37 @@ const shell_cmd_t cmd_tab[] = {
 
 #if !defined(MCUSH_NON_OS)
 
-#define BLINK_ERROR_DELAY_A  200 
-#define BLINK_ERROR_DELAY_B  500 
-#define BLINK_ERROR_DELAY_C  2000 
+#define DELAY_A   200*configTICK_RATE_HZ/1000
+#define DELAY_B   500*configTICK_RATE_HZ/1000
+#define DELAY_C  2000*configTICK_RATE_HZ/1000
+#define DELAY_D  1000*configTICK_RATE_HZ/1000
+
+void blink_digit( int digit, int delay_a, int delay_b )
+{
+    int i;
+
+    if( digit )
+    {
+        for( i=digit; i; i-- )
+        {
+            hal_led_set(errled);
+            if( delay_a )
+                vTaskDelay(delay_a);
+            hal_led_clr(errled);
+            if( delay_a )
+                vTaskDelay(delay_a);
+        }
+        if( delay_b )
+            vTaskDelay(delay_b);
+    }
+}
+
+
 void blink_errorno(void)
 {
-    int a,b,c,i;
-    a = (_errno % 1000) / 100;
-    b = (_errno % 100) / 10;
-    c = _errno % 10;
-
-    if( a )
-    {
-        for( i=a; i; i-- )
-        {
-            hal_led_set(errled);
-            vTaskDelay(BLINK_ERROR_DELAY_A*configTICK_RATE_HZ/1000);
-            hal_led_clr(errled);
-            vTaskDelay(BLINK_ERROR_DELAY_A*configTICK_RATE_HZ/1000);
-        }
-        vTaskDelay(BLINK_ERROR_DELAY_B*configTICK_RATE_HZ/1000);
-    }
-
-    if( b )
-    {
-        for( i=b; i; i-- )
-        {
-            hal_led_set(errled);
-            vTaskDelay(BLINK_ERROR_DELAY_A*configTICK_RATE_HZ/1000);
-            hal_led_clr(errled);
-            vTaskDelay(BLINK_ERROR_DELAY_A*configTICK_RATE_HZ/1000);
-        }
-        vTaskDelay(BLINK_ERROR_DELAY_B*configTICK_RATE_HZ/1000);
-    }
-
-    for( i=c; i; i-- )
-    {
-        hal_led_set(errled);
-        vTaskDelay(BLINK_ERROR_DELAY_A*configTICK_RATE_HZ/1000);
-        hal_led_clr(errled);
-        vTaskDelay(BLINK_ERROR_DELAY_A*configTICK_RATE_HZ/1000);
-    }
+    blink_digit( (_errno % 1000)/100, DELAY_A, DELAY_B );
+    blink_digit( (_errno % 100)/10, DELAY_A, DELAY_B );
+    blink_digit( _errno % 10, DELAY_A, 0 );
 }
 
 
@@ -114,19 +104,19 @@ TaskHandle_t  task_blink;
 
 void task_blink_entry(void *p)
 {
-    shell_add_cmd_table( cmd_tab );
-
     while( 1 )
     {
         if( _errno )
         {
-            blink_errorno();
-            vTaskDelay(2000*configTICK_RATE_HZ/1000);
+            blink_digit( (_errno % 1000)/100, DELAY_A, DELAY_B );
+            blink_digit( (_errno % 100)/10, DELAY_A, DELAY_B );
+            blink_digit( _errno % 10, DELAY_A, 0 );
+            vTaskDelay( DELAY_C );
         }
         else
         {
             hal_led_toggle(0);
-            vTaskDelay(1000*configTICK_RATE_HZ/1000);
+            vTaskDelay( DELAY_D );
         }
     }
 }
@@ -134,6 +124,7 @@ void task_blink_entry(void *p)
 
 void task_blink_init(void)
 {
+    shell_add_cmd_table( cmd_tab_blink );
     xTaskCreate(task_blink_entry, (const char *)"blinkT", 
                 TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
                 NULL, TASK_BLINK_PRIORITY, &task_blink);
@@ -152,7 +143,7 @@ void task_blink_entry(void)
 {
     if( event_blink & EVT_INIT )
     {
-        shell_add_cmd_table( cmd_tab );
+        shell_add_cmd_table( cmd_tab_blink );
         event_blink &= ~EVT_INIT;
     }
     else if( event_blink & EVT_TIMER )

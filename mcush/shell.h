@@ -96,6 +96,7 @@ int  shell_read_char( char *c );
 int  shell_read_line( char *c, const char *prompt );
 char *shell_read_multi_lines( const char *prompt );
 void shell_write_char( char c );
+void shell_write( const char *buf, int len );
 void shell_write_str( const char *str );
 void shell_write_line( const char *str );
 void shell_write_int( int i );
@@ -108,6 +109,7 @@ const char *shell_get_prompt( void );
 #if defined(MCUSH_NON_OS)
 void shell_proc_event_char(void);
 #endif
+int shell_make_16bits_data_buffer( void **pbuf, int *len );
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );

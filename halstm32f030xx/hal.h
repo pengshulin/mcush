@@ -4,6 +4,10 @@
 #include "stm32f0xx.h"
 #include "stm32f0xx_conf.h"
 
+#define UNIQUE_ID0  0x1FFFF7E8
+#define UNIQUE_ID1  0x1FFFF7EC
+#define UNIQUE_ID2  0x1FFFF7F0
+
 
 
 void hal_debug_init(void);
@@ -45,14 +49,13 @@ void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
 
+int hal_get_serial_number( char *buf );
 
 int hal_init(void);
 
 void init_sys_tick(void);
 unsigned int get_sys_tick_count(void);
 
+#include "hal_platform.h"
 
 #endif
-
-
-

@@ -35,6 +35,9 @@
 #ifndef USE_CMD_ECHO
     #define USE_CMD_ECHO  1
 #endif
+#ifndef USE_CMD_MKBUF
+    #define USE_CMD_MKBUF  1
+#endif
 #ifndef USE_CMD_WDG
     #define USE_CMD_WDG  1
 #endif
@@ -85,6 +88,7 @@ int cmd_system( int argc, char *argv[] );
 int cmd_mapi( int argc, char *argv[] );
 int cmd_beep( int argc, char *argv[] );
 int cmd_sgpio( int argc, char *argv[] );
+int cmd_mkbuf( int argc, char *argv[] );
 
 
 
@@ -140,6 +144,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   CMD_HIDDEN,  0,  "echo",  cmd_echo, 
     "print args",
     "echo <args>" },
+#endif
+#if USE_CMD_MKBUF
+{   CMD_HIDDEN,  0,  "mkbuf",  cmd_mkbuf, 
+    "make data buffer",
+    "mkbuf" },
 #endif
 #if USE_CMD_WDG
 {   CMD_HIDDEN,  0,  "wdg",  cmd_wdg, 
@@ -1302,6 +1311,42 @@ int cmd_beep( int argc, char *argv[] )
 #endif
 
 
+#if USE_CMD_MKBUF
+int cmd_mkbuf( int argc, char *argv[] )
+{
+    void *buf;
+    int buf_len;
+    //mcush_opt_parser parser;
+    //mcush_opt opt;
+    //const mcush_opt_spec opt_spec[] = {
+    //    { MCUSH_OPT_NONE } };
+
+    //mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    //while( mcush_opt_parser_next( &opt, &parser ) )
+    //{
+    //    if( opt.spec )
+    //    {
+    //        if( strcmp( opt.spec->name, "port" ) == 0 )
+    //            shell_eval_int(opt.value, (int*)&port);
+    //        else if( strcmp( opt.spec->name, "freq" ) == 0 )
+    //        {
+    //            if( shell_eval_float(opt.value, (float*)&freq_val) )
+    //                freq = 1;
+    //        }
+    //    }
+    //    else
+    //         STOP_AT_INVALID_ARGUMENT  
+    //}
+
+    if( !shell_make_16bits_data_buffer( &buf, &buf_len ) )
+        return 1;
+                
+    shell_printf( "0x%08X  %d\n", buf, buf_len );
+    return 0;
+}
+#endif
+
+
 #if USE_CMD_SGPIO
 int cmd_sgpio( int argc, char *argv[] )
 {
@@ -1323,8 +1368,6 @@ int cmd_sgpio( int argc, char *argv[] )
     char start=0, stop=0, info=0;
     void *buf_in=0, *buf_out=0;
     sgpio_cfg_t *cfg;
-    uint16_t *p, r;
-    char *p2, *p3;
 
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -1410,31 +1453,8 @@ int cmd_sgpio( int argc, char *argv[] )
    
     if( output )
     { 
-        buf_out = shell_read_multi_lines(0);
-        if( ! buf_out )
+        if( !shell_make_16bits_data_buffer( &buf_out, &buf_len ) )
             return 1;
-        buf_len = 0;
-        p = (uint16_t*)buf_out;
-        p2 = (char*)buf_out;
-        while( *p2 )
-        {
-            r = strtol( p2, &p3, 0 );
-            if( !p3 || !*p3 || (p2==p3) )
-                break;
-            while( *p3 && ((*p3==' ')||(*p3=='\t')||(*p3=='\r')||(*p3=='\n')) )
-                p3++;
-            p2 = p3;
-            *p++ = r;
-            buf_len += 1;
-        }
-        if( !buf_len )
-        {
-            free( buf_out );
-            return 1;
-        }
-        p2 = (char*)realloc( buf_out, buf_len * 2 );
-        if( p2 )
-            buf_out = (uint16_t*)p2;
     }
     
     if( input )

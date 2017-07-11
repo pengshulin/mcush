@@ -12,6 +12,7 @@ extern void task_blink_entry(void *p);
 extern void task_blink_entry(void);
 #endif
 
+int set_errno(int new);
 
 #endif
 

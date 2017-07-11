@@ -101,6 +101,7 @@ chip_mem_configs = {
 'stm32f030f4': [
 [ 0x08000000, 0x08004000, 'ro', 32, True,  'IROM 16k' ],
 [ 0x20000000, 0x20001000, 'rw', 32, False, 'IRAM 4k' ],
+[ 0x40000000, 0x60000000, 'rw', 32, False, 'PERIPHERALS', ],
 ],
 
 
@@ -109,11 +110,13 @@ chip_mem_configs = {
 [ 0x20000000, 0x20004000, 'rw', 32, False, 'IRAM 16k' ],
 [ 0x22000000, 0x24000000, 'rw', 32, False, '' ],
 [ 0x08080000, 0x08080FFF, 'rw', 8,  False, 'EEPROM 4k' ],
+[ 0x40000000, 0x60000000, 'rw', 32, False, 'PERIPHERALS', ],
 ],
 
 'stm32f103rb': [
 [ 0x08000000, 0x08020000, 'ro', 32, True,  'FLASH 128k' ],
 [ 0x20000000, 0x20005000, 'rw', 32, False, 'SRAM 20k' ],
+[ 0x40000000, 0x60000000, 'rw', 32, False, 'PERIPHERALS', ],
 ],
 
 'stm32f103ze': [
@@ -140,6 +143,7 @@ chip_mem_configs = {
 [ 0x64000000, 0x68000000, 'rw', 16, False, 'FSMC/bank2', ],
 [ 0x68000000, 0x6C000000, 'rw', 16, False, 'FSMC/bank3', ],
 [ 0x6C000000, 0x70000000, 'rw', 16, False, 'FSMC/bank4', ],
+[ 0x40000000, 0x60000000, 'rw', 32, False, 'PERIPHERALS', ],
 ],
 
 'lpc4337': [

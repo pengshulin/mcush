@@ -66,6 +66,7 @@
 //lint -esym(766, stdio.h)
 
 #include <stdint.h>
+#include <stdio.h>
 #include "shell.h"
 #if USE_SHELL_PRINTF2
 #include "mcush_printf2.h"
@@ -627,18 +628,11 @@ int snprintf(char *str, size_t maxLen, const char *format, ...)
 int sprintf(char *str, const char *format, ...)
 {
     va_list vargs;
+    int charCnt;
+
     va_start(vargs,format);
-
-    int charCnt = print(
-                        &str,
-                        PRINTF2_FLAGS_NONE,
-                        UINT_MAX,
-                        format,
-                        vargs
-    );
-
+    charCnt = print( &str, PRINTF2_FLAGS_NONE, UINT_MAX, format, vargs);
     va_end(vargs);
-
     return charCnt;
 }
 
@@ -646,13 +640,9 @@ int sprintf(char *str, const char *format, ...)
 /* called by shell_printf, replace the standard lib */
 int vsprintf(char *str, const char *format, va_list ap)
 {
-    return print(
-        &str,
-        PRINTF2_FLAGS_NONE,
-        UINT_MAX,
-        format,
-        ap );
+    return print( &str, PRINTF2_FLAGS_NONE, UINT_MAX, format, ap );
 }
+
 
 
 #endif
