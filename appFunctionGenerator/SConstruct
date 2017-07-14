@@ -14,7 +14,6 @@ env.appendDefineFlags( [
 
 env.appendPath([
     '.',
-    '/libspiffs',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
     '/libFreeRTOS/portable/GCC/%s'% port,
@@ -26,7 +25,6 @@ env.appendPath([
 env.appendGlobSource([
     '*.c',
     '/mcush/*.c',
-    '/libspiffs/*.c',
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',

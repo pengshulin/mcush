@@ -597,13 +597,13 @@ s32_t SPIFFS_lseek(spiffs *fs, spiffs_file fh, s32_t offs, int whence) {
     break;
   }
 
-  if ((offs > fileSize)) {
+  if (offs > fileSize) {
     fd->fdoffset = fileSize;
     res = SPIFFS_ERR_END_OF_OBJECT;
   }
   SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
 
-  spiffs_span_ix data_spix = offs / SPIFFS_DATA_PAGE_SIZE(fs);
+  spiffs_span_ix data_spix = (offs > 0 ? (offs-1) : 0) / SPIFFS_DATA_PAGE_SIZE(fs);
   spiffs_span_ix objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
   if (fd->cursor_objix_spix != objix_spix) {
     spiffs_page_ix pix;
@@ -1391,15 +1391,15 @@ s32_t SPIFFS_vis(spiffs *fs) {
   } // per block
 
   spiffs_printf("era_cnt_max: "_SPIPRIi"\n", fs->max_erase_count);
-  spiffs_printf("last_errno:  "_SPIPRIi"\n", fs->err_code);
-  spiffs_printf("blocks:      "_SPIPRIi"\n", fs->block_count);
-  spiffs_printf("free_blocks: "_SPIPRIi"\n", fs->free_blocks);
-  spiffs_printf("page_alloc:  "_SPIPRIi"\n", fs->stats_p_allocated);
-  spiffs_printf("page_delet:  "_SPIPRIi"\n", fs->stats_p_deleted);
+  spiffs_printf("last_errno:  "_SPIPRIi"\n", (int)fs->err_code);
+  spiffs_printf("blocks:      "_SPIPRIi"\n", (int)fs->block_count);
+  spiffs_printf("free_blocks: "_SPIPRIi"\n", (int)fs->free_blocks);
+  spiffs_printf("page_alloc:  "_SPIPRIi"\n", (int)fs->stats_p_allocated);
+  spiffs_printf("page_delet:  "_SPIPRIi"\n", (int)fs->stats_p_deleted);
   SPIFFS_UNLOCK(fs);
   u32_t total, used;
   SPIFFS_info(fs, &total, &used);
-  spiffs_printf("used:        "_SPIPRIi" of "_SPIPRIi"\n", used, total);
+  spiffs_printf("used:        "_SPIPRIi" of "_SPIPRIi"\n", (int)used, (int)total);
   return res;
 }
 #endif

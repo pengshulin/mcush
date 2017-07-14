@@ -1,1 +1,1 @@
-../appDemoBlinkErrorNumber/task_blink.c
+../appBlinkErrorNumber/task_blink.c

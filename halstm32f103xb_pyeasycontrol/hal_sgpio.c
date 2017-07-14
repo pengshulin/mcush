@@ -90,6 +90,8 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
 	dma.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
 	dma.DMA_Priority = DMA_Priority_Medium;
 	dma.DMA_M2M = DMA_M2M_Disable;
+            
+    DMA_ClearITPendingBit( DMA_IT_TC );
 	
     // output
 	if( output_mode && buf_out )
@@ -99,6 +101,8 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
 	    dma.DMA_DIR = DMA_DIR_PeripheralDST;
 	    dma.DMA_BufferSize = sgpio_cfg.buf_len;
 	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
+        if( ! sgpio_cfg.loop_mode  )
+            DMA_ITConfig( DMA1_Channel2, DMA_IT_TC, ENABLE );
 	    DMA_Init( DMA1_Channel2, &dma );
 	    DMA_Cmd( DMA1_Channel2, ENABLE );
     }
@@ -111,6 +115,8 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
 	    dma.DMA_DIR = DMA_DIR_PeripheralSRC;
 	    dma.DMA_BufferSize = buf_len;
 	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
+        if( ! sgpio_cfg.loop_mode  )
+            DMA_ITConfig( DMA1_Channel3, DMA_IT_TC, ENABLE );
         DMA_Init( DMA1_Channel3, &dma );
 	    DMA_Cmd( DMA1_Channel3, ENABLE );
     }
@@ -177,5 +183,25 @@ sgpio_cfg_t *hal_sgpio_info( void )
 {
     return &sgpio_cfg;
 }
+
+void isr_stop(void)
+{
+    sgpio_cfg.run = 0;
+    DMA_ITConfig( DMA1_Channel2, DMA_IT_TC, DISABLE );
+    DMA_ITConfig( DMA1_Channel3, DMA_IT_TC, DISABLE );
+}
+
+void DMA1_Channel2_IRQHandler(void)
+{
+    isr_stop();
+}
+
+
+void DMA1_Channel3_IRQHandler(void)
+{
+    isr_stop();
+}
+
+
 
 #endif
