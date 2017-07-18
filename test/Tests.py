@@ -31,12 +31,17 @@ def gpio_set_high( argv=None ):
         ms = int(argv[1])
     except:
         ms = 100
+    try:
+        set_back = Env.getenv_bool(argv[2])
+    except:
+        set_back = True
     s = Mcush()
     s.gpio( port_pin, o=True )
     s.gpio( port_pin, s=True )
     if ms:
         time.sleep( ms/1000.0 )
-    s.gpio( port_pin, c=True )
+    if set_back:
+        s.gpio( port_pin, c=True )
 
 
 #############################################################################

@@ -32,6 +32,7 @@ env.appendOptimizeFlags()
 
 env.appendPath([
     '.',
+    'common',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
     '/libFreeRTOS/portable/GCC/%s'% port,
@@ -42,6 +43,7 @@ env.appendPath([
 
 env.appendGlobSource([
     '*.c',
+    'common/*.c',
     '/mcush/*.c',
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
