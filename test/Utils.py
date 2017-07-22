@@ -115,7 +115,7 @@ def s2f( val ):
     return fval.val
  
 def s2i( val ):
-    ifval = int_val()
+    ival = int_val()
     s = create_string_buffer(val)
     memmove( pointer(ival), pointer(s), sizeof(int_val) )
     return ival.val

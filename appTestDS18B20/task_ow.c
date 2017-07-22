@@ -1,41 +1,11 @@
 #include "mcush.h"
-#include "mcush.h"
-#include "owhal.h"
+#include "hal_ow.h"
 #include "ds18b20.h"
 #include "task_ow.h"
 
-
-TaskHandle_t  task_ow;
 extern device_t devices[NUM_DEVICES];
 
-void hal_ow_init(void)
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    /* Enable the GPIO Clock for OW */
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-
-    /* Configure the GPIO pin for OW */
-    GPIO_InitStructure.GPIO_Pin = (1 << OW_PIN);
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_Init(OW_GPIO, &GPIO_InitStructure);
-}
-
-
-void task_ow_entry(void *p)
-{
-    ds18b20_init();
-    while (1)
-    {
-        taskENTER_CRITICAL();
-        ds18b20_work();
-        taskEXIT_CRITICAL();
-    }
-}
-
+TaskHandle_t task_ow;
 
 
 int cmd_ow( int argc, char *argv[] )
@@ -101,6 +71,21 @@ const shell_cmd_t cmd_tab_ow[] = {
     "1wire",
     "ow [-l]" },
 {   CMD_END  } };
+
+
+void task_ow_entry(void *p)
+{
+    ds18b20_init();
+    while (1)
+    {
+        taskENTER_CRITICAL();
+        hal_led_set(1);
+        ds18b20_work();
+        hal_led_clr(1);
+        taskEXIT_CRITICAL();
+        vTaskDelay( 500*configTICK_RATE_HZ/1000 );
+    }
+}
 
 
 void task_ow_init(void)

@@ -7,6 +7,9 @@ uint16_t reverse_16_bits(uint16_t v);
 uint8_t reverse_8_bits(uint8_t v);
 uint32_t calc_checksum(void *p, uint32_t len);
 
+void test_delay_us(void);
+void test_delay_ms(void);
+
 
 #endif
 

@@ -1,6 +1,8 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 #include <stdint.h>
+#define HSE_VALUE  8000000
+
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"
 
@@ -18,6 +20,7 @@ void hal_led_clr(int index);
 void hal_led_toggle(int index);
 int hal_led_get(int index);
 
+void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
 
 void hal_reset(void);

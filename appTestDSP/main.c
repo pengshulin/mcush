@@ -1,4 +1,5 @@
 #include "mcush.h"
+#include "task_blink.h"
 #include "arm_math.h"
 
 #define FFTLEN  4096
@@ -70,10 +71,10 @@ int cmd_fft( int argc, char *argv[] )
 
 
 static shell_cmd_t cmd_tab[] = {
-{   0, "fft", cmd_fft, 
+{   0, 0, "fft", cmd_fft, 
     "fft test",
     "fft"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 int main(void)
 { 
@@ -81,6 +82,7 @@ int main(void)
     a=3.0;b=4.0;c=a*b;
 
     mcush_init();
+    task_blink_init();
     shell_add_cmd_table( cmd_tab );
     mcush_start();
     while(1);

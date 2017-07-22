@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.ui.externaltools.launchGroup"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE" value="${none}"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="${project_loc}\..\..\tools\openocd-0.6.1\bin\openocd-0.6.1.exe"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-f board\stm32f4discovery.cfg  -c init -c &quot;reset halt&quot; -c &quot;sleep 100&quot; -c &quot;wait_halt 2&quot; -c &quot;flash write_image erase .out/ds18b20_rom.hex&quot; -c &quot;sleep 100&quot; -c &quot;verify_image .out/ds18b20_rom.hex&quot; -c &quot;reset run&quot; -c shutdown"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${project_loc}"/>
+</launchConfiguration>

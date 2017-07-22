@@ -5,6 +5,7 @@ env = Stm32f407xx()
 haldir='stm32f407zg_eu'
 env.setLinkfile( '/ld/stm32f407zg_min.ld' )
 port = 'ARM_CM4F'
+env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
 #env = Stm32f767xx()
 #haldir='stm32f767zi_nucleo'

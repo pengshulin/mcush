@@ -19,6 +19,7 @@ void hal_led_clr(int index);
 void hal_led_toggle(int index);
 int hal_led_get(int index);
 
+void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
 
 void hal_reset(void);
@@ -46,6 +47,7 @@ void hal_wdg_clear(void);
 int hal_get_serial_number( char *buf );
 
 int hal_init(void);
+
 
 #include "hal_platform.h"
 

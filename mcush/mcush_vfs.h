@@ -53,7 +53,7 @@ typedef struct {
 
 int mcush_fmount( const char *mount_point, mcush_vfs_driver_t *driver );
 int mcush_fumount( const char *mount_point );
-int mcush_finfo( const char *name, int *total, int *used ); 
+int mcush_finfo( const char *mount_point, int *total, int *used ); 
 int mcush_fsize( const char *fname );
 int mcush_fsearch( const char *fname );
 int mcush_fremove( const char *fname );

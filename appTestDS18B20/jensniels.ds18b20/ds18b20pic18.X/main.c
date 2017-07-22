@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Jens Nielsen
+ * Copyright (c) 2013, Jens Nielsen
  * All rights reserved.
 
  * Redistribution and use in source and binary forms, with or without
@@ -25,57 +25,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef OWHAL_H
-#define OWHAL_H
+#include "../common/ds18b20.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <p18f45k20.h>
 
-#include "stm32f4xx.h"
+#include "owhal.h"
 
-#define OW_GPIO GPIOA
-#define OW_PIN 2
+#pragma config FOSC = INTIO67
+#pragma config WDTEN = OFF, LVP = OFF, MCLRE = OFF
 
-/* the ow hal needs to define the following macros */
-
-/* todo: add disabling of interrupts in ownet */
-
- 
-/**
- * OW_OUTPUT - set one-wire gpio pin to output
- * OW_INPUT - set one-wire gpio pin to input
- */
-#define OW_OUTPUT() ( OW_GPIO->MODER = ( ( OW_GPIO->MODER & ~( 3 << (2*OW_PIN) ) ) | ( 0x1 << (2*OW_PIN) ) ) )
-#define OW_INPUT() ( OW_GPIO->MODER = ( OW_GPIO->MODER & ~( 3 << (2*OW_PIN) ) ) )
-
-/**
- * OW_HIGH - drive one-wire gpio pin high
- * OW_LOW - drive one-wire gpio pin low
- */
-#define OW_HIGH() ( OW_GPIO->BSRRL = 1 << OW_PIN )
-#define OW_LOW() ( OW_GPIO->BSRRH = 1 << OW_PIN )
-
-/**
- * OW_READ - read state of one-wire gpio pin
- */
-#define OW_READ() ( ( OW_GPIO->IDR >> OW_PIN ) & 1 )
-
-/**
- * A microsecond delay function. Exact precision is not crucial.
- */
-static inline __attribute__((always_inline))
-void __delay_us(uint32_t us)
+void main()
 {
-    /* calculate number of loop iterations */
-    /* 168 MHz clock, 3 cycles per loop iteration, minus some overhead */
-    //us = ((us * (168 / 3)) - 1);
-    //asm volatile("mov r0, %[cycles]\n"
-    //             "1:\n"
-    //             "subs r0,r0,#1\n"
-    //             "bne 1b" :: [cycles] "r" (us) : "r0", "cc" );
-    while( us-- )
+    /* speed up clock */
+    OSCCONbits.IRCF = 7;
+
+    /* turn on a led to show life sign */
+    TRISD = 0;
+    LATD = 1;
+
+    /* enable digital input */
+    ANSEL = 0;
+
+    ds18b20_init();
+
+    while ( 1 )
     {
-        __NOP(); __NOP();
-        __NOP(); __NOP();
-        __NOP(); __NOP();
+        ds18b20_work();
     }
 }
-
-#endif

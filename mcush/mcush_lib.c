@@ -104,3 +104,24 @@ uint32_t calc_checksum(void *p, uint32_t len)
 
 
 
+void test_delay_us(void)
+{
+    int i;
+    while(1)
+    {
+        hal_led_toggle(0);
+        for( i=1000; i; i-- )
+            hal_delay_us(1000);
+    }
+}
+
+
+void test_delay_ms(void)
+{
+    while(1)
+    {
+        hal_led_toggle(0);
+        hal_delay_ms(1000);
+    }
+}
+

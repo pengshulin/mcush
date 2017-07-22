@@ -11,28 +11,25 @@ from Arm.Stm32 import *
 ##env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 #port = 'ARM_CM3'
 
-#env = Stm32f1md()
-#haldir='stm32f103xb_pyeasycontrol'
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#env.appendDriver(STM32_USB_FS_Driver())
-#port = 'ARM_CM3'
+env = Stm32f1md()
+haldir='stm32f103xb_pyeasycontrol'
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env.appendDriver(STM32_USB_FS_Driver())
+port = 'ARM_CM3'
 
-env = Stm32f407xx()
-haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-port = 'ARM_CM4F'
+#env = Stm32f407xx()
+#haldir='stm32f407zg_eu'
+#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+#port = 'ARM_CM4F'
+#env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
-#env = Stm32f767xx()
-#haldir='stm32f767zi_nucleo'
-#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
-#port = 'ARM_CM7'
 
 env.appendOptimizeFlags()
 
 
 env.appendPath([
     '.',
-    'common',
+    '/libow',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
     '/libFreeRTOS/portable/GCC/%s'% port,
@@ -43,7 +40,7 @@ env.appendPath([
 
 env.appendGlobSource([
     '*.c',
-    'common/*.c',
+    '/libow/*.c',
     '/mcush/*.c',
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',

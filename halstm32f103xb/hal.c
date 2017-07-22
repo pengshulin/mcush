@@ -14,14 +14,6 @@ void hal_delay_ms(uint32_t ms)
     }
 }
 
-void test_hal_delay_ms(void)
-{
-    while(1)
-    {
-        hal_delay_ms(1000);
-    }
-}
-
 
 void hal_rcc_init(void)
 {  
