@@ -1,0 +1,8 @@
+from glob import glob
+from VEnvironment import VEnvironment
+
+env = VEnvironment()
+
+for f in glob('*.md'): 
+    env.makeMDPDF( f )
+
