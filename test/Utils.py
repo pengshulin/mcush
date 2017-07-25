@@ -6,12 +6,14 @@ from sys import platform, stdout
 from binascii import hexlify
 from random import randint
 from subprocess import Popen, PIPE
-from ctypes import c_int, c_uint, c_long, c_ulong, c_int64, c_uint64
-from ctypes import c_float, c_double, c_void_p
-from ctypes import create_string_buffer
-from ctypes import sizeof, Structure, POINTER, pointer, byref, memmove
-import Env
+#from ctypes import c_int, c_uint, c_long, c_ulong, c_int64, c_uint64
+#from ctypes import c_float, c_double, c_void_p
+#from ctypes import create_string_buffer
+#from ctypes import sizeof, Structure, POINTER, pointer, byref, memmove
+from struct import pack, unpack
+from time import strftime, localtime
 import json
+import Env
 
 
 MAX_LINE_LEN = 80
@@ -90,49 +92,73 @@ def espeak( contents ):
     if Env.platform == 'linux2':
         system( 'espeak %s'% contents )
 
-class int_val(Structure):
-    _fields_ = [("val", c_uint)]
+#class int_val(Structure):
+#    _fields_ = [("val", c_uint)]
+#
+#class float_val(Structure):
+#    _fields_ = [("val", c_float)]
 
-class float_val(Structure):
-    _fields_ = [("val", c_float)]
 
 def i2f( val ):
-    ival, fval = int_val(), float_val()
-    ival.val = val
-    memmove( pointer(fval), pointer(ival), sizeof(float_val) )
-    return fval.val
- 
+    return unpack('f', pack('i', val)) [0]
+
+def I2f( val ):
+    return unpack('f', pack('I', val)) [0]
+
 def f2i( val ):
-    ival, fval = int_val(), float_val()
-    fval.val = val
-    memmove( pointer(ival), pointer(fval), sizeof(int_val) )
-    return ival.val
+    return unpack('i', pack('f', val)) [0]
+ 
+def f2I( val ):
+    return unpack('I', pack('f', val)) [0]
  
 def s2f( val ):
-    fval = float_val()
-    s = create_string_buffer(val)
-    memmove( pointer(fval), pointer(s), sizeof(float_val) )
-    return fval.val
+    return unpack('f', val) [0]
+
+def s2h( val ):
+    return unpack('h', val) [0]
+ 
+def s2H( val ):
+    return unpack('H', val) [0]
  
 def s2i( val ):
-    ival = int_val()
-    s = create_string_buffer(val)
-    memmove( pointer(ival), pointer(s), sizeof(int_val) )
-    return ival.val
+    return unpack('i', val) [0]
+ 
+def s2I( val ):
+    return unpack('I', val) [0]
+ 
+def s2q( val ):
+    return unpack('q', val) [0]
+ 
+def s2Q( val ):
+    return unpack('Q', val) [0]
     
 def f2s( val ):
-    fval = float_val()
-    fval.val = val
-    s = create_string_buffer(sizeof(float_val))
-    memmove( pointer(s), pointer(fval), sizeof(float_val) )
-    return s.raw
- 
+    return pack('f', val)
+
 def i2s( val ):
-    ival = int_val()
-    ival.val = val
-    s = create_string_buffer(sizeof(int_val))
-    memmove( pointer(s), pointer(ival), sizeof(int_val) )
-    return s.raw
+    return pack('i', val)
+
+def I2s( val ):
+    return pack('I', val)
+
+def h2s( val ):
+    return pack('h', val)
+
+def H2s( val ):
+    return pack('H', val)
+
+def q2s( val ):
+    return pack('q', val)
+
+def Q2s( val ):
+    return pack('Q', val)
+
+
+def I2t( val, format=None ):
+    if format is None:
+        format = '%y-%m-%d %H:%M:%S'
+    return strftime(format, localtime(val))
+
 
 
 def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True ):

@@ -224,7 +224,7 @@ int cmd_fgen( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "freq", 'f', 0, "freq 100~16000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "freq", 'f', 0, "freq 100~50000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "channel2", '2', 0, "set to channel 2", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_VALUE, "mode", 'm', 0, "sine|triangle|random|impulse|sawtooth|half_sine|envelope|shock|custom_NNN", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "info", 'i', 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
