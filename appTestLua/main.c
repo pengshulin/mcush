@@ -1,4 +1,5 @@
 #include "mcush.h"
+#include "task_blink.h"
 
 #define USE_LUA
 
@@ -17,6 +18,7 @@ static const shell_cmd_t cmd_tab[] = {
 int main(void)
 { 
     mcush_init();
+    task_blink_init();
 #ifdef USE_LUA
     shell_add_cmd_table( cmd_tab );
 #endif

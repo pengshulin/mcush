@@ -25,12 +25,12 @@ NON_OS = False
 #env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 #port = 'ARM_CM3'
 
-#env = Stm32f1md()
-#haldir='stm32f103xb_pyeasycontrol'
-##env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#env.appendDriver(STM32_USB_FS_Driver())
-#port = 'ARM_CM3'
+env = Stm32f1md()
+haldir='stm32f103xb_pyeasycontrol'
+#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env.appendDriver(STM32_USB_FS_Driver())
+port = 'ARM_CM3'
 
 #env = Stm32f1md()
 #haldir='stm32f103x8_xtw'
@@ -38,11 +38,11 @@ NON_OS = False
 #env.appendDriver(STM32_USB_FS_Driver())
 #port = 'ARM_CM3'
 
-env = Stm32f407xx()
-haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-port = 'ARM_CM4F'
-env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
+#env = Stm32f407xx()
+#haldir='stm32f407zg_eu'
+#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+#port = 'ARM_CM4F'
+#env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
  
 
 #env = Stm32f767xx()

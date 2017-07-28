@@ -128,7 +128,7 @@ class SerialInstrument:
         '''dynamically modify the prompts'''
         self.prompts = prompts
 
-    def connect( self ):
+    def connect( self, check_idn=True ):
         '''connect'''
         if self.ser.isOpen():
             return
@@ -144,7 +144,8 @@ class SerialInstrument:
             self.ser.write( self.DEFAULT_TERMINATOR_RESET )
             self.ser.flush()
             self.readUntilPrompts()
-            self.scpiIdn()
+            if check_idn:
+                self.scpiIdn()
         except serial.SerialException, e:
             raise UnknownSerialError( str(e) )
         #except Exception, e:
@@ -248,6 +249,7 @@ class SerialInstrument:
         self.logger.info( 'IDN:%s', str(self.idn) )
         if not self.DEFAULT_IDN.match( self.idn ):
             raise Exception, "IDN not match"
+        return self.idn
 
     def reset( self, delay=None ):
         '''reset command'''

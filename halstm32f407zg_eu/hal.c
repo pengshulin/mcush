@@ -64,10 +64,8 @@ void hal_rcc_init(void)
         RCC_PCLK2Config(RCC_HCLK_Div2);
         RCC_PLLConfig(RCC_PLLSource_HSE, 8, 336, 2, 7);   /* 8M / 8 * 336 / 2 = 168M */
         RCC_PLLCmd(ENABLE);
-        while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) { }
+        while( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) { }
      
-        /* Configure Flash prefetch, Instruction cache, Data cache and wait state */  
-        //FLASH->ACR = FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;  
         FLASH_SetLatency(FLASH_Latency_5);
         FLASH_PrefetchBufferCmd(ENABLE);
         FLASH_InstructionCacheCmd(ENABLE);
@@ -75,11 +73,8 @@ void hal_rcc_init(void)
         //FLASH_InstructionCacheReset();
         //FLASH_DataCacheReset();
 
-        /* Select the main PLL as system clock source */  
         RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
-  
-        /* Wait till the main PLL is used as system clock source */  
-        while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL) { }  
+        while( RCC_GetSYSCLKSource() != RCC_CFGR_SWS_PLL ) { }
     }
 
     SystemCoreClockUpdate();
