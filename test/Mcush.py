@@ -40,7 +40,7 @@ class Mcush( Instrument.SerialInstrument ):
             if times <= 1:
                 break
             times -= 1
-            sleep( duration )
+            time.sleep( duration )
     
     def disp( self, integer=None, buf=None ):
         if integer is not None:
