@@ -473,19 +473,6 @@ class SerialInstrument:
         ret = self.writeCommand('sys q')
         return ret
 
-    def beep( self, freq=None, duration=0.05, times=1 ):
-        cmd = 'beep'
-        if freq:
-            cmd += ' -f %d'% freq
-        if duration:
-            cmd += ' %d'% (int(duration*1000))
-        while times:
-            self.writeCommand(cmd)
-            if times <= 1:
-                break
-            times -= 1
-            sleep( duration )
-
  
 class SerialInstrumentTest( SerialInstrument ):
     '''for test'''

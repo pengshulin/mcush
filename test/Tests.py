@@ -137,6 +137,17 @@ def memory_read_loop( argv=None ):
         #Utils.dumpMem( mem ) 
         count += 1
 
+def memory_read_speed_test( argv=None ):
+    s = Mcush()
+    SIZE = 20*1024
+    while True:
+        t0 = time.time()
+        mem = s.readMem( 0x20000000, SIZE, compact_mode=Env.COMPACT_MODE )
+        t1 = time.time()
+        speed = len(mem)/(t1-t0)
+        print 'read %d bytes, %.3f kB/s'% (SIZE, speed/1000.0)
+
+
 
 
 

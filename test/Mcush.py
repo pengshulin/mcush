@@ -17,8 +17,11 @@ class Mcush( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'MCUSH'
     DEFAULT_IDN = re.compile( 'mcush,([0-9]+\.[0-9]+.*)' )
 
-    def errno( self, new=None ):
+    def errno( self, new=None, stop=False ):
         '''set/get error number'''
+        if stop:
+            self.writeCommand( 'error -s' )
+            return 
         if new is None: 
             ret = self.writeCommand( 'error' )
             return int(ret[0].strip())
@@ -26,6 +29,18 @@ class Mcush( Instrument.SerialInstrument ):
             assert isinstance(new, int)
             self.writeCommand( 'error %d'% new )
 
+    def beep( self, freq=None, duration=0.05, times=1 ):
+        cmd = 'beep'
+        if freq:
+            cmd += ' -f %d'% freq
+        if duration:
+            cmd += ' %d'% (int(duration*1000))
+        while times:
+            self.writeCommand(cmd)
+            if times <= 1:
+                break
+            times -= 1
+            sleep( duration )
     
     def disp( self, integer=None, buf=None ):
         if integer is not None:
