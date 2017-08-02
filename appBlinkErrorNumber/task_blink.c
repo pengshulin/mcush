@@ -78,7 +78,7 @@ const shell_cmd_t cmd_tab_blink[] = {
 #define DELAY_A   200*configTICK_RATE_HZ/1000  /* on for 1~9 */
 #define DELAY_B   500*configTICK_RATE_HZ/1000  /* off for 1~9 */
 #define DELAY_C  1000*configTICK_RATE_HZ/1000  /* on for 0 */
-#define DELAY_D  2000*configTICK_RATE_HZ/1000  /* delay cycle */
+#define DELAY_D  1000*configTICK_RATE_HZ/1000  /* delay cycle */
 
 void blink_digit( int digit )
 {
@@ -104,7 +104,6 @@ void blink_digit( int digit )
         hal_led_clr(ERR_LED);
 
     }
-    vTaskDelay(DELAY_B);
 }
 
 
@@ -137,6 +136,8 @@ void task_blink_entry(void *p)
                     continue;
                 blink_digit( digit );
                 skip = 0;
+                if( pos != 1 )
+                    vTaskDelay(DELAY_C);
             }
         }
         vTaskDelay( DELAY_D );
