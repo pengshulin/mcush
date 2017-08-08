@@ -147,6 +147,12 @@ def h2s( val ):
 def H2s( val ):
     return pack('H', val)
 
+def b2s( val ):
+    return pack('b', val)
+
+def B2s( val ):
+    return pack('B', val)
+
 def q2s( val ):
     return pack('q', val)
 

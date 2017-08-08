@@ -1,9 +1,7 @@
 #include <math.h>
 #include "hal.h"
 #include "hw_config.h"
-#include "usb_lib.h"
-#include "usb_desc.h"
-#include "usb_pwr.h"
+
 
 const unsigned int baudrate=9600;
 

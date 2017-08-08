@@ -1,5 +1,9 @@
 #include "mcush.h"
 #include "hw_config.h"
+#include "usb_lib.h"
+#include "usb_desc.h"
+#include "usb_pwr.h"
+
 
 #if !defined(MCUSH_NON_OS)
 
@@ -43,13 +47,18 @@ void hal_uart_enable(uint8_t enable)
 {
 }
 
+
 int hal_uart_init(uint32_t baudrate)
 {
     hal_queue_uart_rx = xQueueCreate( QUEUE_UART_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
     hal_queue_uart_tx = xQueueCreate( QUEUE_UART_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
     if( !hal_queue_uart_rx || !hal_queue_uart_tx )
         return 0;
- 
+
+    Set_System();
+    Set_USBClock();
+    USB_Interrupts_Config();
+    USB_Init();
     return 1;
 }
 
@@ -65,10 +74,12 @@ void shell_driver_reset( void )
     hal_uart_reset();
 }
 
+
 int  shell_driver_read( char *buffer, int len )
 {
     return 0;  /* not supported */
 }
+
 
 int  shell_driver_read_char( char *c )
 {
@@ -78,6 +89,7 @@ int  shell_driver_read_char( char *c )
         return (int)c;
 }
 
+
 int  shell_driver_read_char_blocked( char *c, int block_time )
 {
     if( hal_uart_getc( c, block_time ) == pdFAIL )
@@ -86,10 +98,12 @@ int  shell_driver_read_char_blocked( char *c, int block_time )
         return (int)c;
 }
 
+
 int  shell_driver_read_is_empty( void )
 {
     return 1;
 }
+
 
 int  shell_driver_write( const char *buffer, int len )
 {
@@ -103,6 +117,7 @@ int  shell_driver_write( const char *buffer, int len )
     }
     return written;
 }
+
 
 void shell_driver_write_char( char c )
 {

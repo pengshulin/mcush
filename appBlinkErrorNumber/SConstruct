@@ -27,7 +27,6 @@ NON_OS = False
 
 env = Stm32f1md()
 haldir='stm32f103xb_pyeasycontrol'
-#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDriver(STM32_USB_FS_Driver())
 port = 'ARM_CM3'

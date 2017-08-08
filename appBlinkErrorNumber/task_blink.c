@@ -18,8 +18,8 @@ int cmd_error( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "stop", 's', 0, "stop blink", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_ARG, "errno", 0, 0, "error number from 0 to 999", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "stop", 's', 0, "stop", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, "errno", 0, 0, "0~100000000", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     int new = -1;
     uint8_t stop=0;
@@ -58,18 +58,18 @@ int cmd_error( int argc, char *argv[] )
     }
     
     if( (new < 0) || (new > 100000000) )
-        goto failed;
+    {
+        shell_write_line( "out of range" );
+        return 1;
+    }
     set_errno(new);
     return 0;
-failed:
-    shell_write_line( "range 0~100000000" );
-    return 1;
 }
 
 const shell_cmd_t cmd_tab_blink[] = {
 {   0, 'e', "error",  cmd_error, 
     "set error number",
-    "error -s <number>"  },
+    "error -s <num>"  },
 {   CMD_END  } };
 
 
@@ -102,7 +102,6 @@ void blink_digit( int digit )
         hal_led_set(ERR_LED);
         vTaskDelay(DELAY_C);
         hal_led_clr(ERR_LED);
-
     }
 }
 
@@ -119,7 +118,7 @@ void task_blink_entry(void *p)
         i = _errno;
         if( i < 0 )
         {
-            taskYIELD();
+            vTaskDelay( DELAY_D );
             continue;
         }
         if( i == 0 )
@@ -137,7 +136,7 @@ void task_blink_entry(void *p)
                 blink_digit( digit );
                 skip = 0;
                 if( pos != 1 )
-                    vTaskDelay(DELAY_C);
+                    vTaskDelay(DELAY_B);
             }
         }
         vTaskDelay( DELAY_D );
