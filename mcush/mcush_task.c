@@ -35,8 +35,6 @@ TaskHandle_t  task_mcush;
 //QueueHandle_t queue_mcush;
 static uint8_t mcush_inited = 0;
 
-
-
 void mcush_init(void)
 {
     if( mcush_inited )
@@ -48,6 +46,7 @@ void mcush_init(void)
     //queue_mcush = xQueueCreate(MCUSH_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(mcush_message_t));
     //if( !queue_mcush )
     //    halt("mcush queue create");
+
     if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
         halt("shell init");
 

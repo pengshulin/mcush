@@ -8,6 +8,9 @@ typedef uint16_t u16_t;
 typedef int32_t s32_t;
 typedef uint32_t u32_t;
 #include "shell.h"
-#define SPIFFS_DBG(...) shell_printf(__VA_ARGS__)
+#include "FreeRTOS.h"
+#include "task.h"
+
+#define SPIFFS_DBG(...) {if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED) shell_printf(__VA_ARGS__);}
 
 #endif

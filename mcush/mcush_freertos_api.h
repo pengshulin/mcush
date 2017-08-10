@@ -4,6 +4,10 @@
 
 #include "FreeRTOSConfig.h"
 
+#ifndef MCUSH_FREERTOS_PEEK_API
+    #define MCUSH_FREERTOS_PEEK_API  1
+#endif
+
 #ifndef MCUSH_TASK_REGISTRY_SIZE
     #define MCUSH_TASK_REGISTRY_SIZE  10
 #endif

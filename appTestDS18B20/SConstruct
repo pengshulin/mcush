@@ -1,27 +1,11 @@
-from Arm.Stm32 import *
+from VEnvironment import *
 
-#env = Stm32f1md()
 #haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
-#port = 'ARM_CM3'
-
-#env = Stm32f1md()
-#haldir='stm32f103xb'
-#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-##env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#port = 'ARM_CM3'
-
-env = Stm32f1md()
-haldir='stm32f103xb_pyeasycontrol'
-env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-env.appendDriver(STM32_USB_FS_Driver())
-port = 'ARM_CM3'
-
+haldir='stm32f103rb_pyeasycontrol'
 #env = Stm32f407xx()
-#haldir='stm32f407zg_eu'
-#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-#port = 'ARM_CM4F'
-#env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
+
+config = loadHalConfig( haldir )
+env = config.env
 
 
 env.appendOptimizeFlags()
@@ -32,7 +16,7 @@ env.appendPath([
     '/libow',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
     '/mcush',
     '/hal%s'% haldir,
 ])
@@ -45,7 +29,7 @@ env.appendGlobSource([
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 

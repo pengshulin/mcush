@@ -1,54 +1,21 @@
-from Arm.Stm32 import *
+from VEnvironment import *
 
-NON_OS = True
-NON_OS = False
+NON_OS = getBoolEnv("NON_OS")
 
-#env = Stm32f030xx()
-#haldir='stm32f030xx'
-#env.setLinkfile( '/ld/stm32f030x4_min.ld' )
-#port = 'ARM_CM0'
+haldir = getenv('HALDIR', None)
+if haldir is None:
+    #haldir='stm32f030xx'
+    #haldir='stm32f103xb'
+    #haldir='stm32f103ze_redbull'
+    #haldir='stm32f103rb_pyeasycontrol'
+    #haldir='stm32f103c8_xtw'
+    #haldir='stm32f103cb_tiny_controller'
+    haldir='stm32f407zg_eu'
+    #haldir='stm32f767zi_nucleo'
 
-#env = Stm32f1hd()
-#haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
-#port = 'ARM_CM3'
 
-#env = Stm32f1hd()
-#haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
-##env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
-#port = 'ARM_CM3'
-
-#env = Stm32f1md()
-#haldir='stm32f103xb'
-##env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#port = 'ARM_CM3'
-
-env = Stm32f1md()
-haldir='stm32f103xb_pyeasycontrol'
-env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-env.appendDriver(STM32_USB_FS_Driver())
-port = 'ARM_CM3'
-
-#env = Stm32f1md()
-#haldir='stm32f103x8_xtw'
-#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-#env.appendDriver(STM32_USB_FS_Driver())
-#port = 'ARM_CM3'
-
-#env = Stm32f407xx()
-#haldir='stm32f407zg_eu'
-#env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-#port = 'ARM_CM4F'
-#env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
- 
-
-#env = Stm32f767xx()
-#haldir='stm32f767zi_nucleo'
-#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
-#port = 'ARM_CM7'
-
+config = loadHalConfig( haldir )
+env = config.env
 
 # disable some commands and reduce flash size
 env.appendDefineFlags( [
@@ -85,7 +52,7 @@ env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
     '/mcush',
     '/hal%s'% haldir,
 ])
@@ -103,7 +70,7 @@ if not NON_OS:
         #'/libFreeRTOS/portable/MemMang/heap_1.c',  # simple malloc, no free
         #'/libFreeRTOS/portable/MemMang/heap_2.c',  # simple malloc, with free, no combine
         '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-        '/libFreeRTOS/portable/GCC/%s/port.c'% port,
+        '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
         ])
 
 

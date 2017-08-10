@@ -56,7 +56,9 @@ unsigned int get_sys_tick_count(void);
 
 #ifndef MCUSH_FREERTOS_PEEK_API
     #define MCUSH_FREERTOS_PEEK_API   1
-#else
+#endif
+
+#if ! MCUSH_FREERTOS_PEEK_API
     #define mcushTaskAddToRegistered( a ) 
     #ifdef USE_CMD_SYSTEM
         #undef USE_CMD_SYSTEM

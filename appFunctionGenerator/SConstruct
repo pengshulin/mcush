@@ -1,11 +1,8 @@
-from Arm.Stm32 import *
+from VEnvironment import *
 
-env = Stm32f407xx()
 haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-port = 'ARM_CM4F'
-env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
-
+config = loadHalConfig( haldir )
+env = config.env
 
 # disable some commands and reduce flash size
 env.appendDefineFlags( [
@@ -17,7 +14,7 @@ env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
     '/mcush',
     '/hal%s'% haldir,
 ])
@@ -29,7 +26,7 @@ env.appendGlobSource([
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',
-    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 

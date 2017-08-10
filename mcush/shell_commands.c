@@ -62,6 +62,17 @@
 #ifndef USE_CMD_SGPIO
     #define USE_CMD_SGPIO  0
 #endif
+#ifndef USE_CMD_POWER
+    #define USE_CMD_POWER  0
+#endif
+#ifndef USE_CMD_SPIFS
+    #ifdef USE_SPIFFS
+        #define USE_CMD_SPIFFS  1
+    #else
+        #define USE_CMD_SPIFFS  0
+    #endif
+#endif
+
 
 
 
@@ -89,7 +100,14 @@ int cmd_mapi( int argc, char *argv[] );
 int cmd_beep( int argc, char *argv[] );
 int cmd_sgpio( int argc, char *argv[] );
 int cmd_mkbuf( int argc, char *argv[] );
+int cmd_power( int argc, char *argv[] );
 
+int cmd_spiffs( int argc, char *argv[] );
+int cmd_cat( int argc, char *argv[] );
+int cmd_rm( int argc, char *argv[] );
+int cmd_rename( int argc, char *argv[] );
+int cmd_copy( int argc, char *argv[] );
+int cmd_list( int argc, char *argv[] );
 
 
 
@@ -180,11 +198,38 @@ const shell_cmd_t CMD_TAB[] = {
     "control led",
     "led [-s|c|t] -i <idx>" },
 #endif
+#if USE_CMD_POWER
+{   0, 0,  "power",  cmd_power, 
+    "set power",
+    "power [on|off]" },
+#endif
 #if USE_CMD_BEEP
 {   0,  'b',  "beep",  cmd_beep, 
     "beep control",
     "beep [-f <freq>] [<ms>]"  },
 #endif
+
+#if USE_CMD_SPIFFS
+{   0, 's', "spiffs",  cmd_spiffs, 
+    "spiffs test",
+    "spiffs"  },
+{   0, 0, "cat",  cmd_cat, 
+    "print file contents",
+    "cat <pathname>"  },
+{   0, 0, "rm",  cmd_rm, 
+    "remove file",
+    "rm <pathname>"  },
+{   0, 0, "rename",  cmd_rename, 
+    "rename file",
+    "rename <old_pathname> <new>"  },
+{   0, 0, "cp",  cmd_copy, 
+    "copy file",
+    "cp <src> <dst>"  },
+{   0, 'l', "ls",  cmd_list, 
+    "list files",
+    "ls"  },
+#endif
+
 {   CMD_END  } };
 
 
@@ -1464,6 +1509,401 @@ int cmd_sgpio( int argc, char *argv[] )
     }
 
     return hal_sgpio_setup( loop, port, output, input, buf_out, buf_in, buf_len, freq_val ) ? 0 : 1;
+}
+#endif
+
+
+#if USE_CMD_POWER
+int cmd_power( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "val", 0, 0, "0|1|on|off", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    int set=-1;
+
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "val" ) == 0 )
+            {
+                set=1;
+                if( strcmp(opt.value, "0")==0 || strcmp(opt.value, "off")==0 )
+                    hal_power_set( 0 );
+                else if( strcmp(opt.value, "1")==0 || strcmp(opt.value, "on")==0 )
+                    hal_power_set( 1 );
+                else
+                {
+                    shell_write_line( "parm err" );
+                    return -1;
+                }
+            }
+        }
+        else
+             STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( set == -1 )
+    {
+        shell_write_line( hal_is_power_set() ? "on" : "off" );
+    } 
+    return 0;
+}
+#endif
+
+
+#if USE_CMD_SPIFFS
+#include "spi_flash.h"
+int cmd_spiffs( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "addr", 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "command", 'c', 0, "erase|read|write|mount|test|format|check|info", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char *cmd=0;
+    void *addr=(void*)-1;
+    char buf[256];
+    int i, j;
+    int len;
+    void *p;
+    int fd;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "addr" ) == 0 )
+                shell_eval_int(opt.value, (int*)&addr);
+            else if( strcmp( opt.spec->name, "command" ) == 0 )
+                cmd = (char*)opt.value;   
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !cmd )
+        return 1;
+
+    if( strcmp( cmd, "erase" ) == 0 )
+    {
+        sFLASH_EraseBulk();
+    }
+    else if( strcmp( cmd, "read" ) == 0 )
+    {
+        if( addr == (void*)-1 )
+            addr = 0;
+        sFLASH_ReadBuffer( (void*)buf, (int)addr, 256 );
+        for( i=0; i<16; i++ )
+        {
+            shell_printf( "%08X: ", (unsigned int)((int)addr+i*16) );
+            for( j=0; j<16; j++ )
+                shell_printf( "%02X ", *(unsigned char*)&buf[i*16+j] );
+            shell_write_str( " |" );
+            for( j=0; j<16; j++ )
+            {
+                if( isprint((int)(*(unsigned char*)&buf[i*16+j])) )
+                    shell_write_char(*(unsigned char*)&buf[i*16+j]);
+                else
+                    shell_write_char('.');
+            }
+            shell_write_char( '|' );
+            shell_write_str( "\r\n" );
+        }
+    } 
+    else if( strcmp( cmd, "write" ) == 0 )
+    {
+        if( addr == (void*)-1 )
+            addr = 0;
+        if( shell_make_16bits_data_buffer( &p, &len ) ) 
+        {
+            len *= 2;
+            sFLASH_WritePage( (uint8_t*)p, (int)addr, len > 256 ? 256 : len );
+            free( p );
+        }
+        else
+            return 1;
+    } 
+    else if( strcmp( cmd, "mount" ) == 0 )
+    {
+        if( ! hal_spiffs_mount() )
+            return 1;
+    }
+    else if( strcmp( cmd, "test" ) == 0 )
+    {
+        if( ! hal_spiffs_mounted() )
+            goto not_mounted;
+        fd = hal_spiffs_open( "test.dat", "rwa+" );
+        if( fd < 0 )
+            return 1;
+        strcpy( buf, "abcdefghijklmnopqrstuvwxyz\n" );
+        hal_spiffs_write( fd, buf, strlen(buf) );
+        strcpy( buf, "01234567890\n" );
+        hal_spiffs_write( fd, buf, strlen(buf) );
+        hal_spiffs_close( fd );
+    }
+    else if( strcmp( cmd, "format" ) == 0 )
+    {
+        if( ! hal_spiffs_mounted() )
+            goto not_mounted;
+        i = hal_spiffs_format();
+        return i ? 0 : 1;
+    }
+    else if( strcmp( cmd, "check" ) == 0 )
+    {
+        if( ! hal_spiffs_mounted() )
+            goto not_mounted;
+        i = hal_spiffs_check();
+        shell_printf( "%d\n", i );
+        return 0;
+    }
+    else if( strcmp( cmd, "info" ) == 0 )
+    {
+        if( ! hal_spiffs_mounted() )
+            goto not_mounted;
+        hal_spiffs_info( &i, &j );
+        shell_printf( "total: %d  used: %d\n", i, j );
+        return 0;
+    }
+
+
+
+    return 0;
+
+not_mounted:
+    shell_write_line( "not mounted" );
+    return 1;
+}
+
+
+int cmd_cat( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char *fname=0;
+    char buf[256];
+    int i;
+    int fd;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "file" ) == 0 )
+                fname = (char*)opt.value;   
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !fname )
+        return -1;
+        
+    fd = mcush_open( fname, "r" );
+    if( fd == 0 )
+        return 1;
+
+    while( 1 )
+    {    
+        i = mcush_read( fd, buf, 256 );
+        if( i==0 )
+            break;
+        shell_write( buf, i );
+        if( i<256 )
+        {
+            shell_write_str( "\n" );
+            break;
+        }
+    }
+    mcush_close(fd);
+    return 0;
+}
+
+
+int cmd_rm( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char *fname=0;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "file" ) == 0 )
+                fname = (char*)opt.value;   
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !fname )
+        return -1;
+        
+    return mcush_remove( fname ) ? 0 : 1;
+}
+
+
+int cmd_rename( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "file", 0, 0, "old -> new", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char *fname=0, *fname2=0;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "file" ) == 0 )
+            {
+                fname = (char*)opt.value;
+                if( parser.idx + 1 < argc )
+                    fname2 = argv[parser.idx+1];
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !fname || !fname2 )
+        return -1;
+
+    return mcush_rename( fname, fname2 ) ? 0 : 1;
+}
+
+
+int cmd_copy( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char *fname=0, *fname2=0;
+    char buf[256];
+    int i, j;
+    int fd, fd2;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "file" ) == 0 )
+            {
+                fname = (char*)opt.value;
+                if( parser.idx + 1 < argc )
+                    fname2 = argv[parser.idx+1];
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !fname || !fname2 )
+        return -1;
+    //if( strcmp(fname, fname2) == 0 )
+    //    return 0;
+       
+    fd = mcush_open( fname, "r" );
+    if( fd == 0 )
+        return 1;
+    fd2 = mcush_open( fname2, "w+" );
+    if( fd2 == 0 )
+    {
+        mcush_close( fd );
+        return 1;
+    }
+
+    while( 1 )
+    {    
+        i = mcush_read( fd, buf, 256 );
+        if( i==0 )
+            break;
+        j = mcush_write( fd2, buf, i );
+        if( i != j )
+            break;
+        if( i<256 )
+            break;
+    }
+
+    mcush_close( fd );
+    mcush_close( fd2 );
+    return 0;
+}
+
+void cb_print_file(const char *name, int size, int mode)
+{
+    shell_printf("%5d  %s\n", size, name );
+}
+
+extern mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];
+
+int cmd_list( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "path", 0, 0, "path name", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char *path=0;
+    char mount_point[16];
+    int i;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "path" ) == 0 )
+                path = (char*)opt.value;   
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( path && ! get_mount_point( path, mount_point ) )
+        return 1;
+    
+    for( i=0; i< MCUSH_VFS_VOLUME_NUM; i++ )
+    {
+        if( !vfs_vol_tab[i].mount_point )
+            continue;
+        if( !path || strcmp(vfs_vol_tab[i].mount_point, mount_point)==0 )
+        {
+            if( path )
+            {
+                strcpy( mount_point, path );
+            }
+            else
+            {
+                strcpy( mount_point, "/" );
+                strcat( mount_point, vfs_vol_tab[i].mount_point );
+            }
+            shell_printf("%s:\n", mount_point );
+            mcush_list( mount_point, cb_print_file );
+        }
+    }
+    return 0;
 }
 #endif
 

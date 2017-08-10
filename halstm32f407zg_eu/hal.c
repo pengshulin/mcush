@@ -1,7 +1,8 @@
 #include "mcush.h"
 
-
 const unsigned int baudrate=9600;
+
+extern mcush_vfs_driver_t hal_spiffs_driver;
 
 void hal_delay_us(uint32_t us)
 {
@@ -133,6 +134,7 @@ int hal_init(void)
     hal_led_init();
     if( !hal_uart_init(baudrate) )
         return 0;
+    mcush_mount( "s", &hal_spiffs_driver );
 #ifdef MCUSH_NON_OS
     init_sys_tick();
 #endif

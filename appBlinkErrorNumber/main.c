@@ -1,10 +1,8 @@
 #include "mcush.h"
 #include "task_blink.h"
 
-//#if USE_CMD_BEEP
-//__attribute__((section(".init_script")))
-//const char init_script[] = "beep\n";
-//#endif
+__attribute__((section(".init_script")))
+const char init_script[] = "";
 
 
 int main(void)

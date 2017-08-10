@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "mcush_freertos_api.h"
 
+#if MCUSH_FREERTOS_PEEK_API
 
 #ifdef INCLUDE_MCUSH_QUEUE_API
 int mcushGetQueueRegistered( int index, void **pxHandle, const char **pcQueueName )
@@ -39,6 +40,7 @@ int mcushGetQueueInfo( void *pxHandle, mcush_queue_info_t *info )
 
 
 #ifdef INCLUDE_MCUSH_TASK_API
+    
 TCB_t *mcush_task_registry[MCUSH_TASK_REGISTRY_SIZE];
 uint8_t mcush_task_registry_inited;
 
@@ -135,5 +137,9 @@ char *mcushGetTaskNamesFromTaskList( void *pxTlist, char *buf )
     }
     return buf;
 }
+
+
+
 #endif
 
+#endif
