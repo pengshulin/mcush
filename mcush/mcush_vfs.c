@@ -11,7 +11,7 @@ mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];
 mcush_vfs_file_descriptor_t vfs_fd_tab[MCUSH_VFS_FILE_DESCRIPTOR_NUM];
 
 
-int mcush_mount( const char *mount_point, mcush_vfs_driver_t *driver )
+int mcush_mount( const char *mount_point, const mcush_vfs_driver_t *driver )
 {
     int i;
     if( *mount_point == '/' )
@@ -108,14 +108,16 @@ mcush_vfs_volume_t *get_vol( const char *name )
     return 0; 
 }
 
+
 int mcush_info( const char *pathname, int *total, int *used )
 {
     mcush_vfs_volume_t *vol = get_vol(pathname);
     if( !vol )
         return 0;
-    vol->driver->errno = vol->driver->info( total, used );
-    return vol->driver->errno ? 0 : 1;
+    *vol->driver->errno = vol->driver->info( total, used );
+    return *vol->driver->errno ? 0 : 1;
 }
+
 
 int mcush_size( const char *pathname, int *size )
 {
@@ -125,14 +127,16 @@ int mcush_size( const char *pathname, int *size )
         return 0;
     if( !vol )
         return 0;
-    vol->driver->errno = vol->driver->size( file_name, size );
-    return vol->driver->errno ? 0 : 1;
+    *vol->driver->errno = vol->driver->size( file_name, size );
+    return *vol->driver->errno ? 0 : 1;
 }
+
 
 int mcush_search( const char *fname )
 {
     return 0;
 }
+
 
 int mcush_remove( const char *pathname )
 {
@@ -142,9 +146,10 @@ int mcush_remove( const char *pathname )
         return 0;
     if( ! vol )
         return 0;
-    vol->driver->errno = vol->driver->remove( file_name );
-    return vol->driver->errno ? 0 : 1;
+    *vol->driver->errno = vol->driver->remove( file_name );
+    return *vol->driver->errno ? 0 : 1;
 }
+
 
 int mcush_rename( const char *old_pathname, const char *new_name )
 {
@@ -154,9 +159,10 @@ int mcush_rename( const char *old_pathname, const char *new_name )
         return 0;
     if( ! vol )
         return 0;
-    vol->driver->errno = vol->driver->rename( file_name, new_name );
-    return vol->driver->errno ? 0 : 1;
+    *vol->driver->errno = vol->driver->rename( file_name, new_name );
+    return *vol->driver->errno ? 0 : 1;
 }
+
 
 int mcush_open( const char *pathname, const char *mode )
 {
@@ -179,17 +185,19 @@ int mcush_open( const char *pathname, const char *mode )
                 return i+1;
             }
         }
-        vol->driver->errno = MCUSH_VFS_RESOURCE_LIMIT;
+        *vol->driver->errno = MCUSH_VFS_RESOURCE_LIMIT;
     }
     else
-        vol->driver->errno = MCUSH_VFS_FAIL_TO_OPEN_FILE;
+        *vol->driver->errno = MCUSH_VFS_FAIL_TO_OPEN_FILE;
     return 0;
 }
+
 
 int mcush_seek( int fd, int offset, int where )
 {
     return 0;
 }
+
 
 int mcush_read( int fd, void *buf, int len )
 {
@@ -197,27 +205,31 @@ int mcush_read( int fd, void *buf, int len )
     return vfs_fd_tab[fd].driver->read( vfs_fd_tab[fd].handle, buf, len );
 }
 
+
 int mcush_write( int fd, void *buf, int len )
 {
     fd -= 1;
     return vfs_fd_tab[fd].driver->write( vfs_fd_tab[fd].handle, buf, len );
 }
 
+
 int mcush_flush( int fd )
 {
     fd -= 1;
-    vfs_fd_tab[fd].driver->errno = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
+    *vfs_fd_tab[fd].driver->errno = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
     return 1;
 }
+
 
 int mcush_close( int fd )
 {
     fd -= 1;
-    vfs_fd_tab[fd].driver->errno = vfs_fd_tab[fd].driver->close( vfs_fd_tab[fd].handle );
+    *vfs_fd_tab[fd].driver->errno = vfs_fd_tab[fd].driver->close( vfs_fd_tab[fd].handle );
     vfs_fd_tab[fd].driver = 0;
     vfs_fd_tab[fd].handle = 0;
     return 1;
 }
+
 
 int mcush_list( const char *path, void (*cb)(const char *name, int size, int mode) )
 {

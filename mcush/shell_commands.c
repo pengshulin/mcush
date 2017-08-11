@@ -44,15 +44,21 @@
 #ifndef USE_CMD_UPTIME
     #define USE_CMD_UPTIME  1
 #endif
+
 #ifndef USE_CMD_SYSTEM
     #define USE_CMD_SYSTEM  1
     #ifndef USE_CMD_SYSTEM_HEAP
-        #define USE_CMD_SYSTEM_HEAP  0
+        #define USE_CMD_SYSTEM_HEAP  1
     #endif
     #ifndef USE_CMD_SYSTEM_STACK
         #define USE_CMD_SYSTEM_STACK  1
     #endif
 #endif
+#if defined(MCUSH_NON_OS)
+    #undef USE_CMD_SYSTEM
+    #define USE_CMD_SYSTEM  0
+#endif
+
 #ifndef USE_CMD_MAPI
     #define USE_CMD_MAPI  1
 #endif
@@ -65,20 +71,55 @@
 #ifndef USE_CMD_POWER
     #define USE_CMD_POWER  0
 #endif
-#ifndef USE_CMD_SPIFS
-    #ifdef USE_SPIFFS
+
+#if MCUSH_SPIFFS
+    #ifndef USE_CMD_SPIFFS
         #define USE_CMD_SPIFFS  1
-    #else
-        #define USE_CMD_SPIFFS  0
     #endif
+#else
+    #ifdef USE_CMD_SPIFFS
+        #undef USE_CMD_SPIFFS
+    #endif
+    #define USE_CMD_SPIFFS  0
 #endif
 
-
-
-
-#if defined(MCUSH_NON_OS)
-    #undef USE_CMD_SYSTEM
-    #define USE_CMD_SYSTEM  0
+#if MCUSH_VFS
+    #ifndef USE_CMD_CAT
+        #define USE_CMD_CAT  1
+    #endif
+    #ifndef USE_CMD_RM
+        #define USE_CMD_RM  1
+    #endif
+    #ifndef USE_CMD_RENAME
+        #define USE_CMD_RENAME  1
+    #endif
+    #ifndef USE_CMD_CP
+        #define USE_CMD_CP  1
+    #endif
+    #ifndef USE_CMD_LS
+        #define USE_CMD_LS  1
+    #endif
+#else
+    #ifdef USE_CMD_CAT
+        #undef USE_CMD_CAT
+    #endif
+    #define USE_CMD_CAT  0
+    #ifdef USE_CMD_RM
+        #undef USE_CMD_RM
+    #endif
+    #define USE_CMD_RM  0
+    #ifdef USE_CMD_RENAME
+        #undef USE_CMD_RENAME
+    #endif
+    #define USE_CMD_RENAME  0
+    #ifdef USE_CMD_CP
+        #undef USE_CMD_CP
+    #endif
+    #define USE_CMD_CP  0
+    #ifdef USE_CMD_LS
+        #undef USE_CMD_LS
+    #endif
+    #define USE_CMD_LS  0
 #endif
 
 
@@ -208,23 +249,32 @@ const shell_cmd_t CMD_TAB[] = {
     "beep control",
     "beep [-f <freq>] [<ms>]"  },
 #endif
-
 #if USE_CMD_SPIFFS
 {   0, 's', "spiffs",  cmd_spiffs, 
     "spiffs test",
     "spiffs"  },
+#endif
+#if USE_CMD_CAT
 {   0, 0, "cat",  cmd_cat, 
     "print file contents",
     "cat <pathname>"  },
+#endif
+#if USE_CMD_RM
 {   0, 0, "rm",  cmd_rm, 
     "remove file",
     "rm <pathname>"  },
+#endif
+#if USE_CMD_RENAME
 {   0, 0, "rename",  cmd_rename, 
     "rename file",
     "rename <old_pathname> <new>"  },
+#endif
+#if USE_CMD_CP
 {   0, 0, "cp",  cmd_copy, 
     "copy file",
     "cp <src> <dst>"  },
+#endif
+#if USE_CMD_LS
 {   0, 'l', "ls",  cmd_list, 
     "list files",
     "ls"  },
@@ -1124,7 +1174,7 @@ int cmd_system( int argc, char *argv[] )
 #endif
     }
 #if USE_CMD_SYSTEM_HEAP
-    else if( strcmp( info, "heap" ) == 0 )
+    else if( strcmp( type, "heap" ) == 0 )
     {
         extern char *heap_end, _sheap, _eheap;
         shell_printf( "S:0x%08X\nC:0x%08X\nE:0x%08X\n", &_sheap, heap_end, &_eheap ); 
@@ -1556,6 +1606,7 @@ int cmd_power( int argc, char *argv[] )
 
 
 #if USE_CMD_SPIFFS
+#include "mcush_vfs_spiffs.h"
 #include "spi_flash.h"
 int cmd_spiffs( int argc, char *argv[] )
 {
@@ -1563,7 +1614,7 @@ int cmd_spiffs( int argc, char *argv[] )
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, "addr", 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "command", 'c', 0, "erase|read|write|mount|test|format|check|info", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "command", 'c', 0, "erase|read|write|mount|umount|test|format|check|info", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_NONE } };
     char *cmd=0;
     void *addr=(void*)-1;
@@ -1631,42 +1682,51 @@ int cmd_spiffs( int argc, char *argv[] )
     } 
     else if( strcmp( cmd, "mount" ) == 0 )
     {
-        if( ! hal_spiffs_mount() )
+        if( ! mcush_spiffs_mount() )
+            return 1;
+    }
+    else if( strcmp( cmd, "umount" ) == 0 )
+    {
+        if( ! mcush_spiffs_umount() )
             return 1;
     }
     else if( strcmp( cmd, "test" ) == 0 )
     {
-        if( ! hal_spiffs_mounted() )
+        if( ! mcush_spiffs_mounted() )
             goto not_mounted;
-        fd = hal_spiffs_open( "test.dat", "rwa+" );
+        fd = mcush_spiffs_open( "test.dat", "rwa+" );
         if( fd < 0 )
             return 1;
         strcpy( buf, "abcdefghijklmnopqrstuvwxyz\n" );
-        hal_spiffs_write( fd, buf, strlen(buf) );
+        mcush_spiffs_write( fd, buf, strlen(buf) );
         strcpy( buf, "01234567890\n" );
-        hal_spiffs_write( fd, buf, strlen(buf) );
-        hal_spiffs_close( fd );
+        mcush_spiffs_write( fd, buf, strlen(buf) );
+        mcush_spiffs_close( fd );
     }
     else if( strcmp( cmd, "format" ) == 0 )
     {
-        if( ! hal_spiffs_mounted() )
-            goto not_mounted;
-        i = hal_spiffs_format();
-        return i ? 0 : 1;
+        if( mcush_spiffs_mounted() )
+            mcush_spiffs_umount();
+        //    goto not_mounted;
+        i = mcush_spiffs_format();
+        if( i )
+            return 1;
+        else if( ! mcush_spiffs_mount() )
+            return 1;
     }
     else if( strcmp( cmd, "check" ) == 0 )
     {
-        if( ! hal_spiffs_mounted() )
+        if( ! mcush_spiffs_mounted() )
             goto not_mounted;
-        i = hal_spiffs_check();
+        i = mcush_spiffs_check();
         shell_printf( "%d\n", i );
         return 0;
     }
     else if( strcmp( cmd, "info" ) == 0 )
     {
-        if( ! hal_spiffs_mounted() )
+        if( ! mcush_spiffs_mounted() )
             goto not_mounted;
-        hal_spiffs_info( &i, &j );
+        mcush_spiffs_info( &i, &j );
         shell_printf( "total: %d  used: %d\n", i, j );
         return 0;
     }
@@ -1679,27 +1739,37 @@ not_mounted:
     shell_write_line( "not mounted" );
     return 1;
 }
+#endif
 
 
+#if USE_CMD_CAT
 int cmd_cat( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "write", 'w', 0, "write mode", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "append", 'a', 0, "append mode", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
-    char *fname=0;
+    uint8_t write=0, append=0;
+    char fname[32];
     char buf[256];
     int i;
     int fd;
+    void *input=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
         {
+            if( strcmp( opt.spec->name, "write" ) == 0 )
+                write = 1;
+            if( strcmp( opt.spec->name, "append" ) == 0 )
+                append = 1;
             if( strcmp( opt.spec->name, "file" ) == 0 )
-                fname = (char*)opt.value;   
+                strcpy( fname, (char*)opt.value );
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -1707,28 +1777,55 @@ int cmd_cat( int argc, char *argv[] )
 
     if( !fname )
         return -1;
+       
+    if( write || append )
+    {
+        input = shell_read_multi_lines(0);
+        if( !input )
+            return 0;
         
-    fd = mcush_open( fname, "r" );
-    if( fd == 0 )
-        return 1;
+        fd = mcush_open( fname, append ? "a+" : "w+" );
+        if( fd == 0 )
+            return 1;
 
-    while( 1 )
-    {    
-        i = mcush_read( fd, buf, 256 );
-        if( i==0 )
-            break;
-        shell_write( buf, i );
-        if( i<256 )
+        if( i = strlen(input) )
         {
-            shell_write_str( "\n" );
-            break;
-        }
+            if( i != mcush_write( fd, input, i ) )
+            {
+                free(input);
+                mcush_close(fd);
+                return 1;
+            }
+        } 
+        free(input);
+        mcush_close(fd);
     }
-    mcush_close(fd);
+    else
+    { 
+        fd = mcush_open( fname, "r" );
+        if( fd == 0 )
+            return 1;
+
+        while( 1 )
+        {    
+            i = mcush_read( fd, buf, 256 );
+            if( i==0 )
+                break;
+            shell_write( buf, i );
+            if( i<256 )
+            {
+                shell_write_str( "\n" );
+                break;
+            }
+        }
+        mcush_close(fd);
+    }
     return 0;
 }
+#endif
 
 
+#if USE_CMD_RM
 int cmd_rm( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -1755,8 +1852,10 @@ int cmd_rm( int argc, char *argv[] )
         
     return mcush_remove( fname ) ? 0 : 1;
 }
+#endif
 
 
+#if USE_CMD_RENAME
 int cmd_rename( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -1788,8 +1887,10 @@ int cmd_rename( int argc, char *argv[] )
 
     return mcush_rename( fname, fname2 ) ? 0 : 1;
 }
+#endif
 
 
+#if USE_CMD_CP
 int cmd_copy( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
@@ -1850,7 +1951,10 @@ int cmd_copy( int argc, char *argv[] )
     mcush_close( fd2 );
     return 0;
 }
+#endif
 
+
+#if USE_CMD_LS
 void cb_print_file(const char *name, int size, int mode)
 {
     shell_printf("%5d  %s\n", size, name );

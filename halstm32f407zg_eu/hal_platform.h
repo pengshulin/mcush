@@ -59,24 +59,7 @@ sgpio_cfg_t *hal_sgpio_info( void );
 #define sFLASH_CS_GPIO_PORT                  GPIOB
 #define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOB
 
-int hal_spiffs_mount( void );
-int hal_spiffs_mounted( void );
-int hal_spiffs_info( int *total, int *used );
-int hal_spiffs_format( void );
-int hal_spiffs_check( void );
-int hal_spiffs_remove( const char *path );
-int hal_spiffs_rename( const char *old, const char *newPath );
-int hal_spiffs_open( const char *path, const char *mode );
-int hal_spiffs_read( int fh, void *buf, int len );
-int hal_spiffs_seek( int fh, int offs, int where );
-int hal_spiffs_write( int fh, void *buf, int len );
-int hal_spiffs_flush( int fh );
-int hal_spiffs_close( int fh );
-spiffs_DIR *hal_spiffs_opendir( const char *name, spiffs_DIR *d );
-struct spiffs_dirent *hal_spiffs_readdir( spiffs_DIR *d, struct spiffs_dirent *e );
-int hal_spiffs_closedir( spiffs_DIR *d );
-int hal_spiffs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) );
-
 #include "mcush_vfs.h"
+#include "mcush_vfs_spiffs.h"
 
 #endif

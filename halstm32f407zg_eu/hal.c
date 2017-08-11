@@ -134,7 +134,6 @@ int hal_init(void)
     hal_led_init();
     if( !hal_uart_init(baudrate) )
         return 0;
-    mcush_mount( "s", &hal_spiffs_driver );
 #ifdef MCUSH_NON_OS
     init_sys_tick();
 #endif

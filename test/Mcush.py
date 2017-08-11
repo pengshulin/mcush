@@ -49,12 +49,64 @@ class Mcush( Instrument.SerialInstrument ):
             cmd = 'disp -- "%s"'% buf
         self.writeCommand(cmd)
 
+    def list( self, pathname='/s' ):
+        cmd = 'ls %s'% pathname
+        ret = self.writeCommand(cmd)
+        flist = []
+        path = ''
+        for l in ret:
+            if l.startswith('/'):
+                path = l.strip().rstrip(':')
+            else:
+                a, b = l.strip().split()
+                flist.append( (os.path.join(path, b), int(a)) )
+        return flist
+
+    def cat( self, pathname, write=False, append=False, buf='' ):
+        if write or append:
+            if append:
+                cmd = 'cat -a '
+            else:
+                cmd = 'cat -w '
+            cmd += pathname
+            self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
+            self.writeCommand( cmd )
+            for l in buf.splitlines():
+                self.writeCommand( l.rstrip() )
+            self.setPrompts()
+            self.writeCommand( '' )
+        else:
+            cmd = 'cat %s'% pathname
+            ret = self.writeCommand( cmd )
+            for l in ret:
+                print l
+
+    def remove( self, pathname ):
+        cmd = 'rm %s'% pathname
+        self.writeCommand( cmd )
+
+    def rename( self, old_pathname, new_name ):
+        cmd = 'rename %s %s'% (old_pathname, new_name)
+        self.writeCommand( cmd )
+
 
 
 if __name__ == '__main__':
     m = Mcush()
     print m.getModel(), m.getVersion()
-    while 1 :
-        print m.uptime()
+    #while 1 :
+    #    print m.uptime()
+    lst = m.list()
+    print lst
+    #for (f,_) in lst:
+    #    m.cat( f )
+    buf = open('/proc/misc','r').read()
+    while True:
+        for i in range(10):
+            print '/s/test.%d'% i
+            m.cat( '/s/test.%d'% i, append=True, buf=buf )
+        print m.list()
+            
+    
     m.disconnect()
 

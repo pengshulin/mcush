@@ -124,9 +124,13 @@ class SerialInstrument:
         '''set debug'''
         self.debug = debug
  
-    def setPrompts( self, prompts ):
+    def setPrompts( self, prompts=None ):
         '''dynamically modify the prompts'''
+        old_prompts = self.prompts
+        if prompts is None:
+            prompts = self.DEFAULT_PROMPTS
         self.prompts = prompts
+        return old_prompts
 
     def connect( self, check_idn=True ):
         '''connect'''
@@ -223,7 +227,7 @@ class SerialInstrument:
         '''assert command returned is valid'''
         if Env.NO_ECHO_CHECK:
             return
-        cmdret = ret[0].strip()
+        cmdret = ret[0]
         if cmd and cmd != cmdret:
             raise ResponseError('Command %s, but returned %s'% (cmd, cmdret))
 

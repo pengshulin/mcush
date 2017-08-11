@@ -50,6 +50,18 @@ void mcush_init(void)
     if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
         halt("shell init");
 
+#if MCUSH_ROMFS
+    mcush_mount( "r", &mcush_romfs_driver );
+#endif
+#if MCUSH_SPIFFS
+    mcush_mount( "s", &mcush_spiffs_driver );
+#endif
+#if MCUSH_FATFS
+    mcush_mount( "f", &mcush_fatfs_driver );
+#endif
+
+
+
     xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", 
                 MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
                 NULL, MCUSH_PRIORITY, &task_mcush);

@@ -21,7 +21,7 @@
     #define SHELL_INPUT_SUB_PROMPT  ">"
 #endif
 #ifndef SHELL_IGNORE_LEADING_SPACE
-    #define SHELL_IGNORE_LEADING_SPACE  1
+    #define SHELL_IGNORE_LEADING_SPACE  0
 #endif
 #ifndef USE_SHELL_PRINTF
     #define USE_SHELL_PRINTF  1

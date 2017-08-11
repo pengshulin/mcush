@@ -24,6 +24,7 @@ env.appendDefineFlags( [
     #'USE_CMD_SCPI_RST=0',
     #'USE_CMD_RESET=0',
     #'USE_CMD_GPIO=0',
+    #'USE_CMD_SGPIO=0',
     #'USE_CMD_LED=0',
     #'USE_CMD_DUMP=0',
     #'USE_CMD_WRITE=0',

@@ -70,6 +70,21 @@ unsigned int get_sys_tick_count(void);
     #define MCUSH_VFS  0
 #endif
 
+#if !MCUSH_VFS
+    #ifdef MCUSH_SPIFFS
+        #undef MCUSH_SPIFFS
+        #define MCUSH_SPIFFS  0
+    #endif
+    #ifdef MCUSH_FATFS
+        #undef MCUSH_FATFS
+        #define MCUSH_FATFS  0
+    #endif
+    #ifdef MCUSH_ROMFS
+        #undef MCUSH_ROMFS
+        #define MCUSH_ROMFS  0
+    #endif
+#endif
+
 
 
 
