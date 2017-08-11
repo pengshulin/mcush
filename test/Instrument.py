@@ -478,14 +478,5 @@ class SerialInstrument:
         return ret
 
  
-class SerialInstrumentTest( SerialInstrument ):
-    '''for test'''
-    def test( self ):
-        self.dumpMem( 0, 128 )
-
  
-if __name__ == '__main__':
-    TEST = SerialInstrumentTest()
-    TEST.test()
-    TEST.disconnect()
 

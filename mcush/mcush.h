@@ -20,6 +20,7 @@
 #include "mcush_opt.h"
 #include "mcush_vfs.h"
 #include "mcush_lib.h"
+#include "mcush_base64.h"
 
 
 #if defined(MCUSH_NON_OS)

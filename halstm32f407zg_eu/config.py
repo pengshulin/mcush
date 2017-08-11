@@ -5,6 +5,8 @@ env.setLinkfile( '/ld/stm32f407zg_min.ld' )
 port = 'ARM_CM4F'
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
+env.appendDefineFlags( [ 'MCUSH_STACK_SIZE=10240' ] )
+
 USE_VFS=False
 USE_VFS=True
 

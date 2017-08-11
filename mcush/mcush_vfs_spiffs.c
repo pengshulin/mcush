@@ -1,11 +1,7 @@
-#include <stdarg.h>
-#include "hal.h"
-#include "FreeRTOS.h"
-#include "task.h"
+/* MCUSH designed by Peng Shulin, all rights reserved. */
+#include "mcush.h"
 
 #if MCUSH_SPIFFS
-
-#include "mcush_vfs_spiffs.h"
 
 #define static
 
@@ -14,8 +10,6 @@ static spiffs _fs;
 static char _work_buf[2*SPIFLASH_CFG_LOG_PAGE_SZ];
 static char _fds[1024];
 static char _cache_buf[4096];
-
-
 
 
 int mcush_spiffs_mounted( void )
@@ -41,13 +35,12 @@ int mcush_spiffs_mount( void )
 
     hal_spiffs_flash_init();
     if( hal_spiffs_flash_read_id() != HAL_SPIFFS_CHIPID )
-    {
         return 0;
-    }
 
-    return (SPIFFS_OK == SPIFFS_mount( &_fs, &cfg, (u8_t*)_work_buf, (u8_t*)_fds, 
-                        sizeof(_fds), (void*)_cache_buf, sizeof(_cache_buf), 0 ) ) \
-            ? 1 : 0;
+     SPIFFS_mount( &_fs, &cfg, (u8_t*)_work_buf, (u8_t*)_fds, 
+                   sizeof(_fds), (void*)_cache_buf,
+                   sizeof(_cache_buf), 0 );
+    return SPIFFS_mounted(&_fs) ? 1 : 0;
 }
 
 
@@ -56,7 +49,7 @@ int mcush_spiffs_umount( void )
     if( !SPIFFS_mounted(&_fs) )
         return 1;
     SPIFFS_unmount( &_fs );
-    return 1;
+    return SPIFFS_mounted(&_fs) ? 1 : 0;
 }
 
 

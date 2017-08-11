@@ -13,6 +13,8 @@ from subprocess import Popen, PIPE
 import time
 import Env
 from Mcush import *
+import tempfile
+import base64
 
 def halt(message=None):
     print message
@@ -69,6 +71,11 @@ def led( argv=None ):
    
 #############################################################################
 # MISC
+def info( argv=None ):
+    m = Mcush()
+    print m.getModel(), m.getVersion()
+    m.disconnect()
+ 
 def reset( argv=None ):
     Mcush().reset()
 
@@ -96,6 +103,14 @@ def beep( argv=None ):
 def disp( argv=None ):
     if len(argv) > 0:
         Mcush().disp( buf=argv[0] )
+
+def uptime( argv=None ):
+    print Mcush().uptime()
+        
+def uptime_mon( argv=None ):
+    s = Mcush()
+    while True:
+        print s.uptime()
 
 
 #############################################################################
@@ -147,7 +162,58 @@ def memory_read_speed_test( argv=None ):
         speed = len(mem)/(t1-t0)
         print 'read %d bytes, %.3f kB/s'% (SIZE, speed/1000.0)
 
+#############################################################################
+# FILESYSTEM
+def spiffs_info( argv=None ):
+    print Mcush().spiffs( 'info' )
 
+def spiffs_format( argv=None ):
+    Mcush().spiffs( 'format' )
+
+def spiffs_ls( argv=None ):
+    for f, s in Mcush().list('/s'):
+        print '%s %s'% (f,s)
+
+def spiffs_remove( argv=None ):
+    f = argv[0]
+    if not f.startswith('/s/'):
+        f = os.path.join('/s', f)
+    Mcush().remove( f )
+ 
+def spiffs_removeall( argv=None ):
+    m = Mcush()
+    for f, s in m.list('/s'):
+        print 'remove %s'% f
+        m.remove( f )
+   
+def spiffs_loop_append( argv=None ):
+    buf = open('/proc/misc','r').read()
+    s = Mcush()
+    while True:
+        print s.list()
+        for i in range(10):
+            print '/s/test.%d'% i
+            s.cat( '/s/test.%d'% i, append=True, buf=buf )
+ 
+def spiffs_fill_small_files( argv=None ):
+    buf = open('/proc/misc','r').read()
+    s = Mcush()
+    print s.list()
+    while True:
+        f = tempfile.mktemp(prefix='test', dir='/s')
+        print f
+        s.cat( f, append=True, buf=buf )
+ 
+def spiffs_get( argv=None ):
+    if len(argv) < 1:
+        print 'syntax: spiffs_get <remote_pathname> [local_pathname]'
+        return
+    r = Mcush().cat( argv[0], b64=True )
+    r = base64.b64decode('\n'.join(r))
+    if len(argv) > 1:
+        open(argv[1], 'w+').write(r)
+    else:
+        print r
 
 
 

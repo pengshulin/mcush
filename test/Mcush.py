@@ -62,7 +62,7 @@ class Mcush( Instrument.SerialInstrument ):
                 flist.append( (os.path.join(path, b), int(a)) )
         return flist
 
-    def cat( self, pathname, write=False, append=False, buf='' ):
+    def cat( self, pathname, b64=False, write=False, append=False, buf='' ):
         if write or append:
             if append:
                 cmd = 'cat -a '
@@ -76,10 +76,14 @@ class Mcush( Instrument.SerialInstrument ):
             self.setPrompts()
             self.writeCommand( '' )
         else:
-            cmd = 'cat %s'% pathname
+            if b64:
+                cmd = 'cat -b %s'% pathname
+            else:
+                cmd = 'cat %s'% pathname
             ret = self.writeCommand( cmd )
-            for l in ret:
-                print l
+            #for l in ret:
+            #    print l
+            return ret
 
     def remove( self, pathname ):
         cmd = 'rm %s'% pathname
@@ -90,23 +94,11 @@ class Mcush( Instrument.SerialInstrument ):
         self.writeCommand( cmd )
 
 
+    def spiffs( self, command, value=None ):
+        cmd = 'spiffs -c %s'% command
+        if value is not None:
+            cmd += ' %s'% value
+        return self.writeCommand( cmd )
 
-if __name__ == '__main__':
-    m = Mcush()
-    print m.getModel(), m.getVersion()
-    #while 1 :
-    #    print m.uptime()
-    lst = m.list()
-    print lst
-    #for (f,_) in lst:
-    #    m.cat( f )
-    buf = open('/proc/misc','r').read()
-    while True:
-        for i in range(10):
-            print '/s/test.%d'% i
-            m.cat( '/s/test.%d'% i, append=True, buf=buf )
-        print m.list()
-            
-    
-    m.disconnect()
+
 

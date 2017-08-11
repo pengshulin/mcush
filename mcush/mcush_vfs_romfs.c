@@ -22,6 +22,12 @@ int mcush_romfs_info( int *total, int *used )
 }
 
 
+int mcush_romfs_format( void )
+{
+    return 0;
+}
+
+
 int mcush_romfs_check( void )
 {
     return 0;
@@ -73,12 +79,6 @@ int mcush_romfs_flush( int fh )
 int mcush_romfs_close( int fh )
 {
     return 1;
-}
-
-
-int mcush_romfs_format( void )
-{
-    return 0;
 }
 
 

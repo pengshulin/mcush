@@ -1743,22 +1743,29 @@ not_mounted:
 
 
 #if USE_CMD_CAT
+#define CAT_BUF_RAW  100
+#define CAT_BUF_B64  180
+#define CAT_BUF_LEN  (CAT_BUF_RAW+CAT_BUF_B64)
 int cmd_cat( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "b64", 'b', 0, "base 64 code", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "write", 'w', 0, "write mode", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "append", 'a', 0, "append mode", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
-    uint8_t write=0, append=0;
+    uint8_t write=0, append=0, b64=0;
     char fname[32];
-    char buf[256];
-    int i;
+    char buf[CAT_BUF_LEN];
+    int i, j;
     int fd;
     void *input=0;
+    base64_encodestate state;
+    char c;
 
+    fname[0] = 0;
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -1768,6 +1775,11 @@ int cmd_cat( int argc, char *argv[] )
                 write = 1;
             if( strcmp( opt.spec->name, "append" ) == 0 )
                 append = 1;
+            if( strcmp( opt.spec->name, "b64" ) == 0 )
+            {
+                b64 = 1;
+                base64_init_encodestate( &state );
+            }
             if( strcmp( opt.spec->name, "file" ) == 0 )
                 strcpy( fname, (char*)opt.value );
         }
@@ -1775,7 +1787,7 @@ int cmd_cat( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
-    if( !fname )
+    if( ! fname[0] )
         return -1;
        
     if( write || append )
@@ -1783,19 +1795,18 @@ int cmd_cat( int argc, char *argv[] )
         input = shell_read_multi_lines(0);
         if( !input )
             return 0;
+        i = strlen(input);
+        if( !i )
+            return 0;
         
         fd = mcush_open( fname, append ? "a+" : "w+" );
         if( fd == 0 )
             return 1;
-
-        if( i = strlen(input) )
+        if( i != mcush_write( fd, input, i ) )
         {
-            if( i != mcush_write( fd, input, i ) )
-            {
-                free(input);
-                mcush_close(fd);
-                return 1;
-            }
+            free(input);
+            mcush_close(fd);
+            return 1;
         } 
         free(input);
         mcush_close(fd);
@@ -1808,12 +1819,32 @@ int cmd_cat( int argc, char *argv[] )
 
         while( 1 )
         {    
-            i = mcush_read( fd, buf, 256 );
+            i = mcush_read( fd, buf, b64 ? CAT_BUF_RAW : CAT_BUF_LEN );
             if( i==0 )
                 break;
-            shell_write( buf, i );
-            if( i<256 )
+            if( b64 )
             {
+                j = base64_encode_block( buf, i, &buf[CAT_BUF_RAW], &state );
+                shell_write( buf + CAT_BUF_RAW, j );
+            }
+            else
+                shell_write( buf, i );
+            while( shell_driver_read_char_blocked(&c, 0) != -1 )
+            {
+                if( c == 0x03 ) /* Ctrl-C for stop */
+                {
+                    shell_write_char( '\n' );
+                    mcush_close(fd);
+                    return 0;
+                }
+            }
+            if( i < (b64 ? CAT_BUF_RAW : CAT_BUF_LEN) )
+            {
+                if( b64 )
+                {
+                    j = base64_encode_blockend( buf, &state );
+                    shell_write( buf, j );
+                }
                 shell_write_str( "\n" );
                 break;
             }
