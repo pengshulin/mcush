@@ -114,8 +114,7 @@ int mcush_info( const char *pathname, int *total, int *used )
     mcush_vfs_volume_t *vol = get_vol(pathname);
     if( !vol )
         return 0;
-    *vol->driver->errno = vol->driver->info( total, used );
-    return *vol->driver->errno ? 0 : 1;
+    return vol->driver->info( total, used );
 }
 
 
@@ -127,8 +126,7 @@ int mcush_size( const char *pathname, int *size )
         return 0;
     if( !vol )
         return 0;
-    *vol->driver->errno = vol->driver->size( file_name, size );
-    return *vol->driver->errno ? 0 : 1;
+    return vol->driver->size( file_name, size );
 }
 
 
@@ -146,8 +144,7 @@ int mcush_remove( const char *pathname )
         return 0;
     if( ! vol )
         return 0;
-    *vol->driver->errno = vol->driver->remove( file_name );
-    return *vol->driver->errno ? 0 : 1;
+    return vol->driver->remove( file_name );
 }
 
 
@@ -159,8 +156,7 @@ int mcush_rename( const char *old_pathname, const char *new_name )
         return 0;
     if( ! vol )
         return 0;
-    *vol->driver->errno = vol->driver->rename( file_name, new_name );
-    return *vol->driver->errno ? 0 : 1;
+    return vol->driver->rename( file_name, new_name );
 }
 
 

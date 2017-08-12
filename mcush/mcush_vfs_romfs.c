@@ -9,8 +9,8 @@
 const char file_copyright[] = "MCUSH designed by Peng Shulin, all rights reserved.";
 const char file_readme[] = "https://github.com/pengshulin/mcush";
 const romfs_file_t romfs_tab[] = {
-    { "copyright", file_copyright, sizeof(file_copyright) },
-    { "readme", file_readme, sizeof(file_readme) },
+    { "copyright", file_copyright, sizeof(file_copyright)-1 },
+    { "readme", file_readme, sizeof(file_readme)-1 },
     { 0 } };
 
 static romfs_file_desc_t _fds[ROMFS_FDS_NUM];
@@ -75,7 +75,7 @@ int mcush_romfs_open( const char *pathname, const char *mode )
                 {
                     _fds[i].file = f;
                     _fds[i].pos = 0;
-                    return i;
+                    return i+1;
                 }
                 f++;
             }
@@ -89,6 +89,7 @@ int mcush_romfs_read( int fh, void *buf, int len )
 {
     int i;
 
+    fh -= 1;
     if( !_fds[fh].file ) 
         return -1;
 
@@ -98,7 +99,7 @@ int mcush_romfs_read( int fh, void *buf, int len )
     if( i > len )
         i = len;
     if( i )
-        memcpy( buf, (const void*)&_fds[fh].file->contents[i], i ); 
+        memcpy( buf, (const void*)&_fds[fh].file->contents[_fds[fh].pos], i ); 
     return i;
 }
 
@@ -111,7 +112,24 @@ int mcush_romfs_write( int fh, void *buf, int len )
 
 int mcush_romfs_seek( int fh, int offs, int where )
 {
-    return 0;
+    int newpos;
+    fh -= 1;
+    if( !_fds[fh].file ) 
+        return -1;
+
+    if( where > 0 )
+        newpos = _fds[fh].pos + offs;
+    else if( where < 0 )
+        newpos = _fds[fh].file->len - offs;
+    else
+        newpos = offs;
+       
+    if( newpos < 0 )
+        return -1;
+    else if( newpos > _fds[fh].file->len )
+        return -1;
+    _fds[fh].pos = newpos;
+    return newpos;
 }
 
 
@@ -123,7 +141,7 @@ int mcush_romfs_flush( int fh )
 
 int mcush_romfs_close( int fh )
 {
-    _fds[fh].file = 0;
+    _fds[fh-1].file = 0;
     return 1;
 }
 
