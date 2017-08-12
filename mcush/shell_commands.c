@@ -99,6 +99,9 @@
     #ifndef USE_CMD_LS
         #define USE_CMD_LS  1
     #endif
+    #ifndef USE_CMD_LOAD
+        #define USE_CMD_LOAD  1
+    #endif
 #else
     #ifdef USE_CMD_CAT
         #undef USE_CMD_CAT
@@ -120,6 +123,10 @@
         #undef USE_CMD_LS
     #endif
     #define USE_CMD_LS  0
+    #ifdef USE_CMD_LOAD
+        #undef USE_CMD_LOAD
+    #endif
+    #define USE_CMD_LOAD  0
 #endif
 
 
@@ -149,6 +156,8 @@ int cmd_rm( int argc, char *argv[] );
 int cmd_rename( int argc, char *argv[] );
 int cmd_copy( int argc, char *argv[] );
 int cmd_list( int argc, char *argv[] );
+
+int cmd_load( int argc, char *argv[] );
 
 
 
@@ -278,6 +287,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 'l', "ls",  cmd_list, 
     "list files",
     "ls"  },
+#endif
+#if USE_CMD_LOAD
+{   0,  0,  "load",  cmd_load, 
+    "load script",
+    "load <pathname>" },
 #endif
 
 {   CMD_END  } };
@@ -2038,6 +2052,68 @@ int cmd_list( int argc, char *argv[] )
             mcush_list( mount_point, cb_print_file );
         }
     }
+    return 0;
+}
+#endif
+
+
+#if USE_CMD_LOAD
+int cmd_load( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    char fname[32];
+    int size;
+    int fd;
+    void *buf=0;
+    int i;
+
+    fname[0] = 0;
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "file" ) == 0 )
+                strcpy( fname, (char*)opt.value );
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( ! fname[0] )
+        return -1;
+
+    mcush_size( fname, &size );
+    if( !size )
+        return 0;
+
+    buf = malloc( size + 1 );
+    if( !buf )
+    {
+        shell_write_line( "load script err" );
+        return 1;
+    }
+
+    fd = mcush_open( fname, "r" );
+    if( fd == 0 )
+        return 1;
+    
+    i = mcush_read( fd, buf, size );   
+    mcush_close(fd);
+
+    if( i != size )
+    {
+        shell_write_line( "read script err" );
+        return 1;
+        free(buf);
+    }
+  
+    ((char*)buf)[i] = 0; 
+    shell_set_script( buf, 1 );
     return 0;
 }
 #endif

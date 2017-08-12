@@ -21,7 +21,14 @@ int shell_read_char( char *c )
             return *c;
         }
         else
+        {
             cb.script = 0;
+            if( cb.script_free )
+            {
+                free( (void*)cb.script_free );
+                cb.script_free = 0;
+            }
+        }
     }
     return shell_driver_read_char( c );
 }
@@ -604,6 +611,17 @@ int shell_init( const shell_cmd_t *cmd_table, const char *init_script )
     return shell_driver_init();
 }
 
+
+int shell_set_script( const char *script, int need_free )
+{
+    if( !script )
+        return 0;
+    cb.script = script;
+    if( cb.script_free )
+        free( (void*)cb.script_free );
+    cb.script_free = need_free ? script : 0;
+    return 1;
+}
 
 
 

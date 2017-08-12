@@ -80,6 +80,7 @@ typedef struct _shell_control_block_t {
     const char *(*prompt_hook)(void);
     const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
     const char *script;
+    const char *script_free;
 } shell_control_block_t;
 
 
@@ -89,6 +90,7 @@ void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
 int  shell_print_help( const char *cmd, int show_hidden );
+int shell_set_script( const char *script, int need_free );
 void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
 char *shell_get_buf( void );

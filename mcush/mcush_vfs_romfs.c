@@ -8,9 +8,11 @@
 
 const char file_copyright[] = "MCUSH designed by Peng Shulin, all rights reserved.";
 const char file_readme[] = "https://github.com/pengshulin/mcush";
+const char file_demo[] = "echo 'hello'\nled -t -i0\n";
 const romfs_file_t romfs_tab[] = {
     { "copyright", file_copyright, sizeof(file_copyright)-1 },
     { "readme", file_readme, sizeof(file_readme)-1 },
+    { "demo", file_demo, sizeof(file_demo)-1 },
     { 0 } };
 
 static romfs_file_desc_t _fds[ROMFS_FDS_NUM];
@@ -148,6 +150,16 @@ int mcush_romfs_close( int fh )
 
 int mcush_romfs_size( const char *name, int *size )
 {
+    const romfs_file_t *f = romfs_tab;
+    while( f->name )
+    {
+        if( strcmp(f->name, name) == 0 )
+        {
+            *size = f->len;
+            return 1;
+        }
+        f++;
+    }
     return 0;
 }
 
