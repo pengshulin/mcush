@@ -2,7 +2,6 @@
 #include "mcush.h"
 
 #if MCUSH_SPIFFS
-
 #define static
 
 

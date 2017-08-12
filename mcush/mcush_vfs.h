@@ -78,16 +78,17 @@ int get_file_name( const char *pathname, char *file_name );
 mcush_vfs_volume_t *get_vol( const char *name );
 const char *mcush_basename( const char *pathname );
 
-#if defined(MCUSH_SPIFFS) && MCUSH_SPIFFS
-#include "mcush_vfs_spiffs.h"
-#endif
 #if defined(MCUSH_ROMFS) && MCUSH_ROMFS
 #include "mcush_vfs_romfs.h"
 #endif
+
+#if defined(MCUSH_SPIFFS) && MCUSH_SPIFFS
+#include "mcush_vfs_spiffs.h"
+#endif
+
 #if defined(MCUSH_FATFS) && MCUSH_FATFS
 #include "mcush_vfs_fatfs.h"
 #endif
-
 
 
 #endif
