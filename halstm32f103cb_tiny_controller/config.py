@@ -5,11 +5,13 @@ env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDriver(STM32_USB_FS_Driver())
 port = 'ARM_CM3'
 
-USE_VFS=True
-USE_VFS=False
+env.appendDefineFlags( [ 'MCUSH_VFS=1', 'MCUSH_ROMFS=1' ] )
 
-if USE_VFS:
-    env.appendDefineFlags( [ 'MCUSH_VFS=1', 'MCUSH_SPIFFS=1' ] )
+USE_SPIFFS=True
+USE_SPIFFS=False
+
+if USE_SPIFFS:
+    env.appendDefineFlags( [ 'MCUSH_SPIFFS=1' ] )
     env.appendPath([ '/libspiffs' ])
     env.appendGlobSource([ '/libspiffs/*.c' ])
 

@@ -286,7 +286,7 @@ const char CHR_CONV_TAB[] =
     /* 98 x62 'b' */
     SF + SE + SD + SC + SG,
     /* 99 x63 'c' */
-    SA + SF + SE + SD,
+    SG + SE + SD,
     /* 100 x64 'd' */
     SG + SE + SD + SC + SB,
     /* 101 x65 'e' */

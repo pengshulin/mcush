@@ -75,6 +75,5 @@ int hal_is_power_set(void);
 #define sFLASH_CS_GPIO_PORT                  GPIOB
 #define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOB
 
-#include "mcush_vfs.h"
 
 #endif
