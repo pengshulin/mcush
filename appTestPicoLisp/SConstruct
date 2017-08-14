@@ -1,33 +1,25 @@
-from Arm.Stm32 import *
+from VEnvironment import *
 
-
-env = Stm32f407xx()
+#haldir='stm32f103ze_redbull'
 haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-port = 'ARM_CM4F'
 
-#env = Stm32f767xx()
-#haldir='stm32f767zi_nucleo'
-#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
-#port = 'ARM_CM7'
+config = loadHalConfig( haldir )
+env = config.env
 
 
-env.appendOptimizeFlags()
 env.appendDefineFlags([
     'MCUSH_STACK_SIZE=10240',
     ])
-
-  
 
 
 env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
     '/mcush',
     '/hal%s'% haldir,
-    '/libpicolisp',
+    #'/libpicolisp',
 ])
 
 
@@ -37,8 +29,8 @@ env.appendGlobSource([
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',
-    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
-    '/libpicolisp/*.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
+    #'/libpicolisp/*.c',
 ])
 
 

@@ -53,7 +53,7 @@ int cmd_adc( int argc, char *argv[] )
             else if( strcmp( opt.spec->name, "index" ) == 0 )
             {
                 if( opt.value )
-                    channel=atol(opt.value);
+                    shell_eval_int( opt.value, &channel ); 
             }
         }
         else
@@ -69,7 +69,7 @@ loop_start:
     {
         for( i=0; i<ADC_CHANNEL_NUM; i++ )
         {
-            shell_write_float( adc_value[i] );
+            shell_printf("%.2f", adc_value[i] );
             shell_write_char( i < (ADC_CHANNEL_NUM-1) ? ',' : '\n' );
         }
     }

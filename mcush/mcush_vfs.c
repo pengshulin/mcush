@@ -181,10 +181,10 @@ int mcush_open( const char *pathname, const char *mode )
                 return i+1+FD_RESERVED;
             }
         }
-        *vol->driver->errno = MCUSH_VFS_RESOURCE_LIMIT;
+        *vol->driver->err = MCUSH_VFS_RESOURCE_LIMIT;
     }
     else
-        *vol->driver->errno = MCUSH_VFS_FAIL_TO_OPEN_FILE;
+        *vol->driver->err = MCUSH_VFS_FAIL_TO_OPEN_FILE;
     return 0;
 }
 
@@ -239,7 +239,7 @@ int mcush_flush( int fd )
     fd -= 1+FD_RESERVED;
     if( fd < 0 )
         return 0;
-    *vfs_fd_tab[fd].driver->errno = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
+    *vfs_fd_tab[fd].driver->err = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
     return 1;
 }
 
@@ -249,7 +249,7 @@ int mcush_close( int fd )
     fd -= 1+FD_RESERVED;
     if( fd < 0 )
         return 1;
-    *vfs_fd_tab[fd].driver->errno = vfs_fd_tab[fd].driver->close( vfs_fd_tab[fd].handle );
+    *vfs_fd_tab[fd].driver->err = vfs_fd_tab[fd].driver->close( vfs_fd_tab[fd].handle );
     vfs_fd_tab[fd].driver = 0;
     vfs_fd_tab[fd].handle = 0;
     return 1;
@@ -303,7 +303,7 @@ int mcush_putc( int fd, char c )
 
 int mcush_puts( int fd, const char *buf )
 {
-    return mcush_write( fd, buf, strlen(buf) ); 
+    return mcush_write( fd, (void*)buf, strlen(buf) ); 
 }
 
 

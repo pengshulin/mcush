@@ -1,4 +1,5 @@
 #include "mcush.h"
+#include "task_blink.h"
 
 
 extern int picolisp_main (int argc, char **argv);
@@ -14,9 +15,10 @@ static shell_cmd_t cmd_tab[] = {
 int main(void)
 { 
     mcush_init();
+    task_blink_init();
     shell_add_cmd_table( cmd_tab );
     mcush_start();
     while(1);
 }
 
- 
+

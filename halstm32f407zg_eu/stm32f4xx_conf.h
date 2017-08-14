@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    Project/STM32F4xx_StdPeriph_Templates/stm32f4xx_conf.h  
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    04-August-2014
+  * @version V1.8.0
+  * @date    04-November-2016
   * @brief   Library configuration file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@
 #include "stm32f4xx_wwdg.h"
 #include "misc.h" /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
 
-#if defined (STM32F429_439xx)
+#if defined(STM32F429_439xx) || defined(STM32F446xx) || defined(STM32F469_479xx)
 #include "stm32f4xx_cryp.h"
 #include "stm32f4xx_hash.h"
 #include "stm32f4xx_rng.h"
@@ -62,9 +62,9 @@
 #include "stm32f4xx_fmc.h"
 #include "stm32f4xx_ltdc.h"
 #include "stm32f4xx_sai.h"
-#endif /* STM32F429_439xx */
+#endif /* STM32F429_439xx || STM32F446xx || STM32F469_479xx */
 
-#if defined (STM32F427_437xx)
+#if defined(STM32F427_437xx)
 #include "stm32f4xx_cryp.h"
 #include "stm32f4xx_hash.h"
 #include "stm32f4xx_rng.h"
@@ -76,7 +76,7 @@
 #include "stm32f4xx_sai.h"
 #endif /* STM32F427_437xx */
 
-#if defined (STM32F40_41xxx)
+#if defined(STM32F40_41xxx)
 #include "stm32f4xx_cryp.h"
 #include "stm32f4xx_hash.h"
 #include "stm32f4xx_rng.h"
@@ -86,9 +86,56 @@
 #include "stm32f4xx_fsmc.h"
 #endif /* STM32F40_41xxx */
 
-#if defined (STM32F411xE)
+#if defined(STM32F410xx)
+#include "stm32f4xx_rng.h"
+#include "stm32f4xx_dac.h"
+#endif /* STM32F410xx */
+
+#if defined(STM32F411xE)
 #include "stm32f4xx_flash_ramfunc.h"
 #endif /* STM32F411xE */
+
+#if defined(STM32F446xx) || defined(STM32F469_479xx)
+#include "stm32f4xx_qspi.h"
+#endif /* STM32F446xx || STM32F469_479xx */
+
+#if defined(STM32F410xx) || defined(STM32F446xx)
+#include "stm32f4xx_fmpi2c.h"
+#endif /* STM32F410xx || STM32F446xx */
+
+#if defined(STM32F446xx)
+#include "stm32f4xx_spdifrx.h"
+#include "stm32f4xx_cec.h"
+#endif /* STM32F446xx */
+
+#if defined(STM32F469_479xx)
+#include "stm32f4xx_dsi.h"
+#endif /* STM32F469_479xx */
+
+#if defined(STM32F410xx)
+#include "stm32f4xx_lptim.h"
+#endif /* STM32F410xx */
+
+#if defined(STM32F412xG)
+#include "stm32f4xx_rng.h"
+#include "stm32f4xx_can.h"
+#include "stm32f4xx_qspi.h"
+#include "stm32f4xx_rng.h"
+#include "stm32f4xx_fsmc.h"
+#include "stm32f4xx_dfsdm.h"
+#endif /* STM32F412xG */
+
+#if defined(STM32F413_423xx)
+#include "stm32f4xx_cryp.h"
+#include "stm32f4xx_fmpi2c.h"
+#include "stm32f4xx_rng.h"
+#include "stm32f4xx_can.h"
+#include "stm32f4xx_qspi.h"
+#include "stm32f4xx_rng.h"
+#include "stm32f4xx_fsmc.h"
+#include "stm32f4xx_dfsdm.h"
+#endif /* STM32F413_423xx */
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 

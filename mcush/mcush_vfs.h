@@ -25,7 +25,7 @@ typedef enum {
 } mcush_vfs_error_t;
 
 typedef struct {
-    int *errno;
+    int *err;
     int (*mount)( void );
     int (*umount)( void );
     int (*info)( int *total, int *used );

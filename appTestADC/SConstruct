@@ -1,27 +1,20 @@
-from Arm.Stm32 import *
+from VEnvironment import *
 
-#env = Stm32f1md()
 #haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
-#port = 'ARM_CM3'
+haldir='stm32f103rb_pyeasycontrol'
+#haldir='stm32f103cb_tiny_controller'
+#haldir='stm32f407zg_eu'
 
-env = Stm32f1hd()
-haldir='stm32f103ze_redbull'
-env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
-#env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
-port = 'ARM_CM3'
+config = loadHalConfig( haldir )
+env = config.env
 
-#env = Stm32f1md()
-#haldir='stm32f103xb'
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
-#port = 'ARM_CM3'
 
 
 env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
     '/mcush',
     '/hal%s'% haldir,
 ])
@@ -33,7 +26,7 @@ env.appendGlobSource([
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 env.makeApp()
