@@ -34,6 +34,21 @@ int shell_read_char( char *c )
 }
 
 
+int shell_read( char *buf, int len )
+{
+    int r=0;
+    while( len )
+    {
+        if( shell_read_char( buf ) == -1 )
+            break;
+        buf++;
+        r++; 
+        len--;
+    }
+    return r;
+}
+
+
 void shell_write_char( char c )
 {
     shell_driver_write_char( c );

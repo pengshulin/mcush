@@ -1,22 +1,20 @@
-from Arm.Stm32 import *
+from VEnvironment import *
 
-
-env = Stm32f407xx()
+#haldir='stm32f103ze_redbull'
 haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
-port = 'ARM_CM4F'
 
-#env = Stm32f767xx()
-#haldir='stm32f767zi_nucleo'
-#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
-#port = 'ARM_CM7'
-
-   
-env.appendOptimizeFlags()
+config = loadHalConfig( haldir )
+env = config.env
+  
 env.appendDefineFlags([
     'MCUSH_STACK_SIZE=10240',
-    'STANDALONE=1', 'USE_STRLWR=0', 
-    'CELL_SEGSIZE=500', 'CELL_NSEGMENT=1',
+    'VFS=1',
+    'VFS_ROMFS=1',
+    'STANDALONE=1',
+    'USE_STRLWR=0', 
+    'CELL_SEGSIZE=500',
+    'CELL_NSEGMENT=1',
+    'FIRST_CELLSEGS=1',
     ])
 
 
@@ -25,10 +23,9 @@ env.appendPath([
     '.',
     '/libFreeRTOS',
     '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% port,
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
     '/mcush',
     '/hal%s'% haldir,
-    '/libtinyscheme',
 ])
 
 
@@ -38,8 +35,7 @@ env.appendGlobSource([
     '/hal%s/*.c'% haldir,
     '/libFreeRTOS/*.c',
     '/libFreeRTOS/portable/MemMang/heap_3.c',
-    '/libFreeRTOS/portable/GCC/%s/port.c'% port,
-    '/libtinyscheme/*.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 

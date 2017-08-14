@@ -53,6 +53,7 @@ typedef struct {
 typedef struct {
     int handle;
     const mcush_vfs_driver_t *driver;
+    char unget_char;
 } mcush_vfs_file_descriptor_t;
 
 
@@ -71,6 +72,11 @@ int mcush_write( int fd, void *buf, int len );
 int mcush_flush( int fd );
 int mcush_close( int fd );
 int mcush_list( const char *pathname, void (*cb)(const char *name, int size, int mode) );
+int mcush_getc( int fd );
+int mcush_ungetc( int fd, char c );
+int mcush_putc( int fd, char c );
+int mcush_puts( int fd, const char *buf );
+int mcush_printf( int fd, const char *fmt, ... );
 
 
 int get_mount_point( const char *pathname, char *mount_point );

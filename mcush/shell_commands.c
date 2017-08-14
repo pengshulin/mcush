@@ -2002,7 +2002,7 @@ int cmd_copy( int argc, char *argv[] )
 #if USE_CMD_LS
 void cb_print_file(const char *name, int size, int mode)
 {
-    shell_printf("%5d  %s\n", size, name );
+    shell_printf(" %5d  %s\n", size, name );
 }
 
 extern mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];

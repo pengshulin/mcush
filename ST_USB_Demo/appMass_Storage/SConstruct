@@ -1,0 +1,13 @@
+from Arm import Stm32f1md, STM32_USB_FS_Driver, STM3210B_EVAL_Driver
+
+env = Stm32f1md()
+env.appendDriver(STM32_USB_FS_Driver())
+env.appendDriver(STM3210B_EVAL_Driver())
+env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.appendCompilerFlag( ['-g', '-O0'] )
+env.appendCompilerFlag( ['-Os'] )
+env.appendPath( ['.'] )
+env.appendPath( ['inc'] )
+env.appendGlobSource( ['src/*.c'], 'src/system_*.c' )
+env.makeApp()
+
