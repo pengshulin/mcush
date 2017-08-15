@@ -18,11 +18,11 @@
  * OW_INPUT - set one-wire gpio pin to input
  */
 #if OW_PIN > 7
-  #define OW_OUTPUT() ( OW_GPIO->CRH = ( ( OW_GPIO->CRH & ~( 3 << (2*(OW_PIN-8)) ) ) | ( 0x1 << (2*(OW_PIN-8)) ) ) )
-  #define OW_INPUT() ( OW_GPIO->CRH = ( OW_GPIO->CRH & ~( 3 << (2*(OW_PIN-8)) ) ) )
+  #define OW_OUTPUT() ( OW_GPIO->CRH = ( ( OW_GPIO->CRH & ~( 0xf << (4*(OW_PIN-8)) ) ) | ( 0x7 << (4*(OW_PIN-8)) ) ) )
+  #define OW_INPUT()  ( OW_GPIO->CRH = ( ( OW_GPIO->CRH & ~( 0xf << (4*(OW_PIN-8)) ) ) | ( 0x4 << (4*(OW_PIN-8)) ) ) )
 #else
-  #define OW_OUTPUT() ( OW_GPIO->CRL = ( ( OW_GPIO->CRL & ~( 3 << (2*OW_PIN) ) ) | ( 0x1 << (2*OW_PIN) ) ) )
-  #define OW_INPUT() ( OW_GPIO->CRL = ( OW_GPIO->CRL & ~( 3 << (2*OW_PIN) ) ) )
+  #define OW_OUTPUT() ( OW_GPIO->CRL = ( ( OW_GPIO->CRL & ~( 0xf << (4*OW_PIN) ) ) | ( 0x7 << (4*OW_PIN) ) ) )
+  #define OW_INPUT()  ( OW_GPIO->CRL = ( ( OW_GPIO->CRL & ~( 0xf << (4*OW_PIN) ) ) | ( 0x4 << (4*OW_PIN) ) ) )
 #endif
 
 /**
@@ -31,11 +31,15 @@
  */
 #define OW_HIGH() ( OW_GPIO->BSRR = 1 << OW_PIN )
 #define OW_LOW() ( OW_GPIO->BRR = 1 << OW_PIN )
+//#define OW_HIGH()  GPIO_SetBits(OW_GPIO, 1<<OW_PIN)  
+//#define OW_LOW()   GPIO_ResetBits(OW_GPIO, 1<<OW_PIN) 
+
 
 /**
  * OW_READ - read state of one-wire gpio pin
  */
 #define OW_READ() ( ( OW_GPIO->IDR >> OW_PIN ) & 1 )
+//#define OW_READ() GPIO_ReadInputDataBit(OW_GPIO, 1<<OW_PIN)?1:0
 
 #define __delay_us(us)  hal_delay_us((us))
 
