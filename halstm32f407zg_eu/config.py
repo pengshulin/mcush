@@ -7,8 +7,8 @@ env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
 env.appendDefineFlags( [ 'MCUSH_STACK_SIZE=10240' ] )
 
-USE_VFS=False
 USE_VFS=True
+USE_VFS=False
 
 if USE_VFS:
     env.appendDefineFlags( [ 'MCUSH_VFS=1', 'MCUSH_SPIFFS=1' ] )
