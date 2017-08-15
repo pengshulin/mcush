@@ -1,7 +1,7 @@
 from VEnvironment import *
 
-#haldir='stm32f103ze_redbull'
-haldir='stm32f103rb_pyeasycontrol'
+haldir='stm32f103ze_redbull'
+#haldir='stm32f103rb_pyeasycontrol'
 #env = Stm32f407xx()
 
 config = loadHalConfig( haldir )

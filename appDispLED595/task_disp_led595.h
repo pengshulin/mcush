@@ -7,5 +7,9 @@
 
 extern void task_disp_led595_init(void);
 
+int update_disp_buf(char *buf);
+int disp_int( int integer );
+int disp_float( float val );
+
 #endif
 

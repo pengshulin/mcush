@@ -4,15 +4,34 @@
 
 const unsigned int baudrate=9600;
 
+void hal_delay_us(uint32_t us)
+{
+    while( us-- )
+    {
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+    }
+}
+
 
 void hal_delay_ms(uint32_t ms)
 {
     volatile uint32_t a;
     while(ms--)
     {
-        for(a=1600; a; a--); 
+        for(a=6000; a; a--); 
     }
 }
+
+
 
 
 void hal_rcc_init(void)

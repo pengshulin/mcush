@@ -2,6 +2,7 @@
 #include "hal_ow.h"
 #include "ds18b20.h"
 #include "task_ow.h"
+#include "task_disp_led595.h"
 
 extern device_t devices[NUM_DEVICES];
 
@@ -88,6 +89,21 @@ void task_ow_entry(void *p)
 }
 
 
+void task_display_temperature_entry(void *p)
+{
+    char buf[16];
+    while (1)
+    {
+        if( devices[0].serial[0] )
+            sprintf( buf, "%.1fc", devices[0].ftemp );
+        else
+            strcpy( buf, "----" );
+        update_disp_buf( buf );
+        vTaskDelay( 1000*configTICK_RATE_HZ/1000 );
+    }
+}
+
+
 void task_ow_init(void)
 {
     hal_ow_init();
@@ -98,5 +114,7 @@ void task_ow_init(void)
     if( !task_ow )
         halt("create ow task");
     mcushTaskAddToRegistered((void*)task_ow);
+    xTaskCreate(task_display_temperature_entry, (const char *)"dispTprT", 
+                200, NULL, tskIDLE_PRIORITY, 0);
 }
 
