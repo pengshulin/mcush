@@ -33,10 +33,11 @@ void hal_sgpio_stop( void );
 int hal_sgpio_set_freq( float freq );
 sgpio_cfg_t *hal_sgpio_info( void );
 
-
+#ifndef USE_SPIFFS
 #define USE_SPIFFS  1
-#define HAL_SPIFFS_CHIPID  0xEF4017  // W25P64
 #include "spiffs.h"
+#endif
+#define HAL_SPIFFS_CHIPID  0xEF4017  // W25P64
 #define sFLASH_SPI                           SPI2
 #define sFLASH_SPI_CLK                       RCC_APB1Periph_SPI2
 #define sFLASH_SPI_CLK_INIT                  RCC_APB1PeriphClockCmd
@@ -61,5 +62,20 @@ sgpio_cfg_t *hal_sgpio_info( void );
 
 #include "mcush_vfs.h"
 #include "mcush_vfs_spiffs.h"
+
+#define  LCD_ROW_NUM    320
+#define  LCD_COL_NUM    240
+
+
+void hal_lcd_init(void);
+void hal_lcd_backlight(int on);
+void hal_lcd_clrscr(uint16_t backcolor);
+void hal_lcd_pixel(uint16_t x0, uint16_t y0, uint16_t color);
+void hal_lcd_rectangle(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint16_t color);
+void hal_lcd_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color);
+void hal_lcd_hline(uint8_t y, uint8_t x0, uint8_t x1, uint16_t color);
+void hal_lcd_vline(uint8_t x, uint8_t y0, uint8_t y1, uint16_t color);
+
+
 
 #endif

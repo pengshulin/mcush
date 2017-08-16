@@ -132,6 +132,7 @@ int hal_init(void)
     hal_gpio_init();
     hal_sgpio_init();
     hal_led_init();
+    hal_lcd_init();
     if( !hal_uart_init(baudrate) )
         return 0;
 #ifdef MCUSH_NON_OS
