@@ -1,0 +1,35 @@
+from VEnvironment import *
+from Arm.Stm32 import *
+
+haldir='stm32f407zg_eu'
+config = loadHalConfig( haldir )
+env = config.env
+
+env.appendDefineFlags( [
+    ] ) 
+
+env.appendPath([
+    '.',
+    '/libFreeRTOS',
+    '/libFreeRTOS/include',
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
+    '/mcush',
+    '/hal%s'% haldir,
+])
+
+
+env.appendGlobSource([
+    '*.c',
+    '/mcush/*.c',
+    '/hal%s/*.c'% haldir,
+])
+
+env.appendGlobSource([
+    '/libFreeRTOS/*.c',
+    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
+    ])
+
+#env.appendDriver(STemWin())
+env.makeApp()
+
