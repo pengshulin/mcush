@@ -1,6 +1,7 @@
 # coding: utf8
 __doc__ = 'utilities'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from os import system, remove
 from sys import platform, stdout
 from binascii import hexlify
@@ -77,6 +78,7 @@ def enumPorts():
     ports = []
     if platform == 'linux2':
         from glob import glob
+        ports += glob( '/dev/ttyACM*' )
         ports += glob( '/dev/ttyUSB*' )
     elif platform == 'win32':
         try:

@@ -1,6 +1,7 @@
 # coding: utf8
 __doc__ = 'basic environment'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from os import getenv
 from os.path import isdir, join
 from sys import platform

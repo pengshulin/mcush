@@ -1,7 +1,13 @@
 #include "mcush.h"
 #include "task_blink.h"
 
-#define ERR_LED  0
+#ifndef LED_NORMAL
+    #define LED_NORMAL  0
+#endif
+
+#ifndef LED_ERROR
+    #define LED_ERROR   LED_NORMAL
+#endif
 
 static int _errno = 0;
 
@@ -43,7 +49,7 @@ int cmd_error( int argc, char *argv[] )
 
     if( stop )
     {
-        hal_led_clr( ERR_LED );
+        hal_led_clr( LED_ERROR );
         set_errno(-1);
         return 0;
     }
@@ -80,7 +86,7 @@ const shell_cmd_t cmd_tab_blink[] = {
 #define DELAY_C  1000*configTICK_RATE_HZ/1000  /* on for 0 */
 #define DELAY_D  1000*configTICK_RATE_HZ/1000  /* delay cycle */
 
-void blink_digit( int digit )
+void blink_digit( int digit, int led )
 {
     int i;
 
@@ -91,17 +97,17 @@ void blink_digit( int digit )
     {
         for( i=digit; i; i-- )
         {
-            hal_led_set(ERR_LED);
+            hal_led_set(led);
             vTaskDelay(DELAY_A);
-            hal_led_clr(ERR_LED);
+            hal_led_clr(led);
             vTaskDelay(DELAY_A);
         }
     }
     else
     {
-        hal_led_set(ERR_LED);
+        hal_led_set(led);
         vTaskDelay(DELAY_C);
-        hal_led_clr(ERR_LED);
+        hal_led_clr(led);
     }
 }
 
@@ -122,7 +128,7 @@ void task_blink_entry(void *p)
             continue;
         }
         if( i == 0 )
-            blink_digit( 0 );
+            blink_digit( 0, LED_NORMAL );
         else
         {
             /* digit from 1 ~ 100000000 */
@@ -133,7 +139,7 @@ void task_blink_entry(void *p)
                 i *= 10;
                 if( skip && !digit && (pos != 1) )
                     continue;
-                blink_digit( digit );
+                blink_digit( digit, LED_ERROR );
                 skip = 0;
                 if( pos != 1 )
                     vTaskDelay(DELAY_B);

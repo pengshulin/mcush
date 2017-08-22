@@ -1,6 +1,7 @@
 # coding: utf8
 __doc__ = 'instrument class with basic port communication'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
 from time import sleep
 from binascii import unhexlify

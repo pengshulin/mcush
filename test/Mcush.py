@@ -2,6 +2,7 @@
 # coding:utf8
 __doc__ = 'mcush controller'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 import os
 import re
 import sys
@@ -101,4 +102,23 @@ class Mcush( Instrument.SerialInstrument ):
         return self.writeCommand( cmd )
 
 
-
+    def sgpio( self, port, pins, buf, freq=10, loop=True, start=True ):
+        self.writeCommand( 'sgpio --stop' )
+        cmd = 'sgpio -p%s -o0x%X -f%d'% (int(port), int(pins), int(freq))
+        if loop:
+            cmd += ' -l'
+        self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
+        self.writeCommand( cmd )
+        line = []
+        for item in buf:
+            line.append( item )
+            if len(line) > 20:
+                self.writeCommand( ' '.join([str(i) for i in line] ) )
+                line = []
+        self.writeCommand( ' '.join([str(i) for i in line]) )
+        self.setPrompts()
+        self.writeCommand( '' )
+        if start:
+            self.writeCommand( 'sgpio --start' )
+        
+                

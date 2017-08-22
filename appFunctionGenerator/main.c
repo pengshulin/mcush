@@ -27,8 +27,8 @@ typedef struct _fgen_cfg_t
 
 fgen_cfg_t cfg1={
     .freq = 2048000,
-    .buf = dat_shock_1024,
-    //.buf = dat_sine_1024,
+    //.buf = dat_shock_1024,
+    .buf = dat_sine_1024,
     .len = 1024,
     .need_free = 0,
 };
@@ -224,9 +224,9 @@ int cmd_fgen( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "freq", 'f', 0, "dma trig freq 100~50000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "freq", 'f', "trig_freq", "dma trig freq 100~50000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "channel2", '2', 0, "set to channel 2", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "mode", 'm', 0, "sine|triangle|random|impulse|sawtooth|half_sine|envelope|shock|custom_NNN", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "mode", 'm', "waveform_mode", "sine|triangle|random|impulse|sawtooth|half_sine|envelope|shock|custom_NNN", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "info", 'i', 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE }
     };

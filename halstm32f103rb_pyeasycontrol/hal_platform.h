@@ -2,6 +2,9 @@
 #define __HAL_PLATFORM_H__
 
 
+#define LED_NORMAL  0
+#define LED_ERROR   1
+
 #define HAL_LED_NUM   2
 #define HAL_LED_PORTS  {GPIOB, GPIOB}
 #define HAL_LED_PINS  {GPIO_Pin_0, GPIO_Pin_1}

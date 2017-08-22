@@ -2,6 +2,7 @@
 # coding: utf8
 __doc__ = 'test suites'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 import os
 import os.path
 from os import system, remove
@@ -155,12 +156,14 @@ def memory_read_loop( argv=None ):
 def memory_read_speed_test( argv=None ):
     s = Mcush()
     SIZE = 20*1024
+    count = 0
     while True:
         t0 = time.time()
         mem = s.readMem( 0x20000000, SIZE, compact_mode=Env.COMPACT_MODE )
         t1 = time.time()
         speed = len(mem)/(t1-t0)
-        print 'read %d bytes, %.3f kB/s'% (SIZE, speed/1000.0)
+        count += 1
+        print '[%d] read %d bytes, %.3f kB/s'% (count, SIZE, speed/1000.0)
 
 #############################################################################
 # FILESYSTEM

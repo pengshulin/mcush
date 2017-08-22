@@ -104,15 +104,25 @@ int  shell_driver_read_is_empty( void )
     return 1;
 }
 
+#define WRITE_RETRY         5
+#define WRITE_TIMEOUT_MS    1000
+#define WRITE_TIMEOUT_TICK  (WRITE_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 
 int  shell_driver_write( const char *buffer, int len )
 {
     int written=0;
+    int retry;
 
     while( written < len )
     {
-        while( hal_uart_putc( *(char*)((int)buffer + written) , portMAX_DELAY ) == pdFAIL )
+        retry = 0;
+        while( hal_uart_putc( *(char*)((int)buffer + written), WRITE_TIMEOUT_TICK ) == pdFAIL )
+        {
             vTaskDelay(1);
+            retry++;
+            if( retry >= WRITE_RETRY )
+                return written;
+        }
         written += 1;
     }
     return written;
@@ -121,8 +131,15 @@ int  shell_driver_write( const char *buffer, int len )
 
 void shell_driver_write_char( char c )
 {
-    while( hal_uart_putc( c, portMAX_DELAY ) == pdFAIL )
+    int retry;
+    
+    while( hal_uart_putc( c, WRITE_TIMEOUT_TICK ) == pdFAIL )
+    {
         vTaskDelay(1);
+        retry++;
+        if( retry >= WRITE_RETRY )
+            return;
+    }
 }
 
 #endif
