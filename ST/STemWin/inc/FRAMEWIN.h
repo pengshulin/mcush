@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : Frame window include
 --------------------END-OF-HEADER-------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef FRAMEWIN_H
 #define FRAMEWIN_H
 
@@ -147,47 +167,33 @@ void FRAMEWIN_Callback(WM_MESSAGE * pMsg);
 
 /*********************************************************************
 *
-*       Standard member functions
+*       Member functions: Set Properties
 *
 **********************************************************************
 */
-#define FRAMEWIN_EnableMemdev(hObj)  WM_EnableMemdev(hObj)
-#define FRAMEWIN_DisableMemdev(hObj) WM_DisableMemdev(hObj)
-#define FRAMEWIN_Delete(hObj)        WM_DeleteWindow(hObj)
-#define FRAMEWIN_Paint(hObj)         WM_Paint(hObj)
-#define FRAMEWIN_Invalidate(hObj)    WM_InvalidateWindow(hObj)
-
 WM_HWIN FRAMEWIN_AddButton     (FRAMEWIN_Handle hObj, int Flags, int Off, int Id);
 WM_HWIN FRAMEWIN_AddCloseButton(FRAMEWIN_Handle hObj, int Flags, int Off);
 WM_HWIN FRAMEWIN_AddMaxButton  (FRAMEWIN_Handle hObj, int Flags, int Off);
 void    FRAMEWIN_AddMenu       (FRAMEWIN_Handle hObj, WM_HWIN hMenu);
 WM_HWIN FRAMEWIN_AddMinButton  (FRAMEWIN_Handle hObj, int Flags, int Off);
-
 void    FRAMEWIN_Minimize      (FRAMEWIN_Handle hObj);
 void    FRAMEWIN_Maximize      (FRAMEWIN_Handle hObj);
 void    FRAMEWIN_Restore       (FRAMEWIN_Handle hObj);
-
-/*********************************************************************
-*
-*       Member functions: Set Properties
-*
-**********************************************************************
-*/
-void FRAMEWIN_SetActive      (FRAMEWIN_Handle hObj, int State);
-void FRAMEWIN_SetBarColor    (FRAMEWIN_Handle hObj, unsigned Index, GUI_COLOR Color);
-void FRAMEWIN_SetBorderSize  (FRAMEWIN_Handle hObj, unsigned Size);
-void FRAMEWIN_SetClientColor (FRAMEWIN_Handle hObj, GUI_COLOR Color);
-void FRAMEWIN_SetFont        (FRAMEWIN_Handle hObj, const GUI_FONT * pFont);
-void FRAMEWIN_SetMoveable    (FRAMEWIN_Handle hObj, int State);
-void FRAMEWIN_SetOwnerDraw   (FRAMEWIN_Handle hObj, WIDGET_DRAW_ITEM_FUNC * pfDrawItem);
-void FRAMEWIN_SetResizeable  (FRAMEWIN_Handle hObj, int State);
-void FRAMEWIN_SetText        (FRAMEWIN_Handle hObj, const char* s);
-void FRAMEWIN_SetTextAlign   (FRAMEWIN_Handle hObj, int Align);
-void FRAMEWIN_SetTextColor   (FRAMEWIN_Handle hObj, GUI_COLOR Color);
-void FRAMEWIN_SetTextColorEx (FRAMEWIN_Handle hObj, unsigned Index, GUI_COLOR Color);
-void FRAMEWIN_SetTitleVis    (FRAMEWIN_Handle hObj, int Show);
-int  FRAMEWIN_SetTitleHeight (FRAMEWIN_Handle hObj, int Height);
-int  FRAMEWIN_SetUserData    (FRAMEWIN_Handle hObj, const void * pSrc, int NumBytes);
+void    FRAMEWIN_SetActive     (FRAMEWIN_Handle hObj, int State);
+void    FRAMEWIN_SetBarColor   (FRAMEWIN_Handle hObj, unsigned Index, GUI_COLOR Color);
+void    FRAMEWIN_SetBorderSize (FRAMEWIN_Handle hObj, unsigned Size);
+void    FRAMEWIN_SetClientColor(FRAMEWIN_Handle hObj, GUI_COLOR Color);
+void    FRAMEWIN_SetFont       (FRAMEWIN_Handle hObj, const GUI_FONT * pFont);
+void    FRAMEWIN_SetMoveable   (FRAMEWIN_Handle hObj, int State);
+void    FRAMEWIN_SetOwnerDraw  (FRAMEWIN_Handle hObj, WIDGET_DRAW_ITEM_FUNC * pfDrawItem);
+void    FRAMEWIN_SetResizeable (FRAMEWIN_Handle hObj, int State);
+void    FRAMEWIN_SetText       (FRAMEWIN_Handle hObj, const char* s);
+void    FRAMEWIN_SetTextAlign  (FRAMEWIN_Handle hObj, int Align);
+void    FRAMEWIN_SetTextColor  (FRAMEWIN_Handle hObj, GUI_COLOR Color);
+void    FRAMEWIN_SetTextColorEx(FRAMEWIN_Handle hObj, unsigned Index, GUI_COLOR Color);
+void    FRAMEWIN_SetTitleVis   (FRAMEWIN_Handle hObj, int Show);
+int     FRAMEWIN_SetTitleHeight(FRAMEWIN_Handle hObj, int Height);
+int     FRAMEWIN_SetUserData   (FRAMEWIN_Handle hObj, const void * pSrc, int NumBytes);
 
 /*********************************************************************
 *
@@ -226,7 +232,7 @@ int       FRAMEWIN_IsMaximized    (FRAMEWIN_Handle hObj);
 
 /*********************************************************************
 *
-*       Global functions
+*       Managing default values
 *
 **********************************************************************
 */

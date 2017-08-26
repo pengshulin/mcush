@@ -24,6 +24,7 @@ from AppUtils import Task
 from Mcush import *
 from McushDebugDlg import *
 from re import compile as re_compile
+import base64
 
 
 (UpdateEvent, EVT_UPDATE) = wx.lib.newevent.NewEvent()
@@ -107,6 +108,16 @@ class ResetTask(MyTask):
         s.scpiRst()
         self.info( u"Done" )
 
+class RebootTask(MyTask):
+    def target( self, args ):
+        (port) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"reboot..." )
+        s.ser.write('reboot\n')
+        s.ser.flush()
+        self.info( u"Done" )
+
 
 class ExecuteScriptTask(MyTask):
     def target( self, args ):
@@ -117,6 +128,59 @@ class ExecuteScriptTask(MyTask):
         PORT = port
         exec( code )
         self.info( u"Done" )
+
+class QueryTask(MyTask):
+    def target( self, args ):
+        (port) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"querying..." )
+        try:
+            lst = s.list( )
+            self.queue.put( ('update_filelist', lst) )
+            self.info( u"Done" )
+        except:
+            lst = []
+            self.info( u"Failed to query file list", 'error' )
+
+class RemoveTask(MyTask):
+    def target( self, args ):
+        (port, fname) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"removing %s..."% fname )
+        try:
+            s.remove( fname )
+            self.info( "Done" )
+        except Instrument.CommandExecuteError, e:
+            self.info( "Failed to remove %s"% fname, 'error' )
+
+class RenameTask(MyTask):
+    def target( self, args ):
+        (port, oldname, newname) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"rename %s to %s..."% (oldname, newname) )
+        try:
+            s.rename( oldname, newname )
+            self.info( "Done" )
+        except Instrument.CommandExecuteError, e:
+            self.info( u"Failed to rename %s to %s..."% (oldname, newname), 'error' )
+
+class ViewTask(MyTask):
+    def target( self, args ):
+        (port, fname) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"download file %s..."% (fname) )
+        try:
+            r = s.cat( fname, b64=True )
+            r = base64.b64decode('\n'.join(r))
+            self.queue.put( ('view_file', r) )
+            self.info( "Done" )
+        except Instrument.CommandExecuteError, e:
+            self.info( u"Failed to download file %s"% (fname), 'error' )
+
 
 
 class MainFrame(MyFrame):
@@ -132,6 +196,8 @@ class MainFrame(MyFrame):
         #self.Bind(wx.EVT_TIMER, self.OnTimer)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(EVT_UPDATE, self.OnUpdate)
+                
+        self.tree_ctrl_fs.Bind(wx.EVT_LEFT_DCLICK, self.OnView)
             
         self.init_text_ctrl_script()
         self.loadConfig()
@@ -307,9 +373,34 @@ class MainFrame(MyFrame):
             self.button_test_port.Enable( not lock )
             self.button_run.Enable( not lock )
             self.button_reset.Enable( not lock )
+            self.button_query.Enable( not lock )
+            self.button_remove.Enable( not lock )
+            self.button_rename.Enable( not lock )
+            self.button_view.Enable( not lock )
             #self.notebook_1.Enable( not lock )
             self.button_stop.Show( lock )
             self.Layout()
+        elif event.cmd == 'update_filelist':
+            lst = event.val
+            self.tree_ctrl_fs.DeleteAllItems()
+            root = self.tree_ctrl_fs.AddRoot('/')
+            subroot = {}
+            for p, n, s in lst:
+                print p, n, s
+                if not subroot.has_key( p ):
+                    subroot[p] = self.tree_ctrl_fs.AppendItem(root, p)
+                if n is None:
+                    continue
+                item = self.tree_ctrl_fs.AppendItem(subroot[p], n + ' (%d)'%s)
+                self.tree_ctrl_fs.SetPyData(item, (p, n, s))
+            self.tree_ctrl_fs.ExpandAll()
+        elif event.cmd == 'view_file':
+            contents = event.val
+            print contents
+            dlg = MyViewFileDialog(self)
+            dlg.text_ctrl_data.SetValue( contents )
+            dlg.ShowModal()
+            
         event.Skip()
  
     def OnStop(self, event):
@@ -329,26 +420,6 @@ class MainFrame(MyFrame):
         port = self.combo_box_port.GetValue()
         if port:
             self.task = TestPortTask( (port), self.msgq )
-        event.Skip()
-
-    def OnConfigOpen(self, event):
-        dlg = wx.FileDialog( self, message="Choose config file", defaultDir=self.config_dir(), 
-                defaultFile='',
-                wildcard="Config file (*.conf)|*.conf", style=wx.OPEN )
-        if dlg.ShowModal() == wx.ID_OK:
-            self.text_ctrl_config.LoadFile( dlg.GetPath().strip() )
-        event.Skip()
-
-    def OnConfigSaveas(self, event):
-        dlg = wx.FileDialog( self, message="Choose config file", defaultDir=os.getcwd(), 
-                defaultFile='',
-                wildcard="Config file (*.conf)|*.conf", style=wx.SAVE )
-        if dlg.ShowModal() == wx.ID_OK:
-            open( dlg.GetPath().strip(), 'w+' ).write( self.text_ctrl_config.GetValue().encode('utf-8') )
-        event.Skip()
-
-    def OnConfigSave(self, event):
-        self.saveStepConfigFile()
         event.Skip()
 
     def OnMenuExit(self, event):
@@ -378,6 +449,14 @@ class MainFrame(MyFrame):
             self.info("port error", wx.ICON_ERROR)
             return
         self.task = ResetTask( (port), self.msgq )
+        event.Skip()
+
+    def OnReboot( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", wx.ICON_ERROR)
+            return
+        self.task = RebootTask( (port), self.msgq )
         event.Skip()
 
     def OnLoad( self, event ):
@@ -411,20 +490,87 @@ class MainFrame(MyFrame):
         event.Skip()
  
     def OnLoadFromFile( self, event ):
-        dlg = wx.FileDialog( self, message="Choose python script file", defaultDir=self.conf_dir(), 
+        dlg = wx.FileDialog( self, message="Choose python script file", defaultDir=self.config_dir, 
                 defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.OPEN )
         if dlg.ShowModal() == wx.ID_OK:
             self.text_ctrl_script.LoadFile( dlg.GetPath().strip() )
         event.Skip()
 
     def OnSaveAs( self, event ):
-        dlg = wx.FileDialog( self, message="Choose python script file", defaultDir=os.conf_dir(), 
+        dlg = wx.FileDialog( self, message="Choose python script file", defaultDir=self.config_dir, 
                 defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.SAVE )
         if dlg.ShowModal() == wx.ID_OK:
             open( dlg.GetPath().strip(), 'w+' ).write( self.text_ctrl_script.GetValue().encode('utf-8') )
         event.Skip()
  
+    def OnQuery( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", wx.ICON_ERROR)
+            return
+        self.task = QueryTask( (port), self.msgq )
+        event.Skip()
 
+    def OnSelectFileItem( self, event ):
+        try:
+            item = self.tree_ctrl_fs.GetFocusedItem()
+            p, n, s = self.tree_ctrl_fs.GetPyData( item )
+            self.info( "File %s, size %d"% (os.path.join(p,n), s) )
+        except:
+            self.info( "" )
+
+    def OnRemove( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", wx.ICON_ERROR)
+            return
+        try:
+            item = self.tree_ctrl_fs.GetFocusedItem()
+            p, n, s = self.tree_ctrl_fs.GetPyData( item )
+            fname = os.path.join(p,n)
+            self.task = RemoveTask( (port, fname), self.msgq )
+        except:
+            pass
+        event.Skip()
+
+    def OnRename( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", wx.ICON_ERROR)
+            return
+        try:
+            item = self.tree_ctrl_fs.GetFocusedItem()
+            p, n, s = self.tree_ctrl_fs.GetPyData( item )
+            oldname = os.path.join(p,n)
+        except:
+            return
+        dlg = wx.TextEntryDialog( self, 'Rename %s to:'% oldname, 'Rename')
+        dlg.SetValue( n )
+        if dlg.ShowModal() == wx.ID_OK:
+            newname = dlg.GetValue().encode('utf8')
+        else:
+            return
+
+        self.task = RenameTask( (port, oldname, newname), self.msgq )
+        event.Skip()
+
+    def OnView( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", wx.ICON_ERROR)
+            return
+        try:
+            item = self.tree_ctrl_fs.GetFocusedItem()
+            p, n, s = self.tree_ctrl_fs.GetPyData( item )
+            fname = os.path.join(p,n)
+            self.task = ViewTask( (port, fname), self.msgq )
+        except:
+            return
+        event.Skip()
+
+
+
+ 
 def main():
     gettext.install("app") # replace with the appropriate catalog name
     freeze_support()

@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : BUTTON public header file (API)
 --------------------END-OF-HEADER-------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef BUTTON_H
 #define BUTTON_H
 
@@ -116,7 +136,7 @@ BUTTON_Handle BUTTON_CreateIndirect(const GUI_WIDGET_CREATE_INFO * pCreateInfo, 
 
 /*********************************************************************
 *
-*       Standard member functions
+*       Managing default values
 *
 **********************************************************************
 */
@@ -129,12 +149,6 @@ GUI_COLOR        BUTTON_SetDefaultFocusColor(GUI_COLOR Color);
 void             BUTTON_SetDefaultFont      (const GUI_FONT * pFont);
 void             BUTTON_SetDefaultTextAlign (int Align);
 void             BUTTON_SetDefaultTextColor (GUI_COLOR Color, unsigned Index);
-
-#define BUTTON_EnableMemdev(hObj)  WM_EnableMemdev    (hObj)
-#define BUTTON_DisableMemdev(hObj) WM_DisableMemdev   (hObj)
-#define BUTTON_Delete(hObj)        WM_DeleteWindow    (hObj)
-#define BUTTON_Paint(hObj)         WM_Paint           (hObj)
-#define BUTTON_Invalidate(hObj)    WM_InvalidateWindow(hObj)
 
 /*********************************************************************
 *

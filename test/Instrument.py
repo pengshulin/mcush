@@ -64,7 +64,7 @@ class SerialInstrument:
     DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
     DEFAULT_PROMPTS_MULTILINE = re_compile( '>' )
     DEFAULT_IDN = None
-    DEFAULT_RESET_RETRY = 10
+    DEFAULT_REBOOT_RETRY = 10
     DEFAULT_LINE_LIMIT = 128
     
 
@@ -256,12 +256,12 @@ class SerialInstrument:
             raise Exception, "IDN not match"
         return self.idn
 
-    def reset( self, delay=None ):
-        '''reset command'''
+    def reboot( self, delay=None ):
+        '''reboot command'''
         sync = False
         retry = 0
         try:
-            self.writeCommand( 'reset' )
+            self.writeCommand( 'reboot' )
             self.connect()
             sync = True
         except ResponseError:
@@ -274,11 +274,11 @@ class SerialInstrument:
                 sync = True
             except:
                 retry = retry + 1
-                if retry > self.DEFAULT_RESET_RETRY:
+                if retry > self.DEFAULT_REBOOT_RETRY:
                     raise CommandTimeoutError()
         self.scpiIdn()
         if delay is None:
-            sleep( Env.DELAY_AFTER_RESET )
+            sleep( Env.DELAY_AFTER_REBOOT )
         else:
             sleep( delay )
 

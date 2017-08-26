@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : Common definitions and common code for all LIN-drivers
 ---------------------------END-OF-HEADER------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef GUIDRV_LIN_PRIVATE_H
 #define GUIDRV_LIN_PRIVATE_H
 
@@ -46,7 +66,7 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 *
 **********************************************************************
 */
-#if defined(WIN32) && !defined(GUIDRV_SLAYER)
+#if defined(WIN32)
   //
   // Simulation prototypes
   //
@@ -109,6 +129,11 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 #define OFF2PTR08(VRAMAddr, Off)     (U8  *)((U8 *)VRAMAddr + (Off     ))
 #define OFF2PTR16(VRAMAddr, Off)     (U16 *)((U8 *)VRAMAddr + (Off << 1))
 #define OFF2PTR32(VRAMAddr, Off)     (U32 *)((U8 *)VRAMAddr + (Off << 2))
+
+//
+// Use unique context identified
+//
+#define DRIVER_CONTEXT DRIVER_CONTEXT_LIN
 
 //
 // Definition of default members for DRIVER_CONTEXT structure
@@ -316,6 +341,27 @@ static void _GetRect(GUI_DEVICE * pDevice, LCD_RECT * pRect) {
 
 /*********************************************************************
 *
+*       _SetVis
+*
+* Purpose:
+*   Sets the visibility of the given layer by sending a LCD_X_SETVIS command to LCD_X_DisplayDriver()
+*   (Requires special hardware support.)
+*/
+static void _SetVis(GUI_DEVICE * pDevice, int OnOff) {
+  DRIVER_CONTEXT * pContext;
+  LCD_X_SETVIS_INFO Data = {0};
+
+  _InitOnce(pDevice);
+  if (pDevice->u.pContext) {
+    pContext = (DRIVER_CONTEXT *)pDevice->u.pContext;
+    pContext->IsVisible = OnOff;
+    Data.OnOff = OnOff;
+    LCD_X_DisplayDriver(pDevice->LayerIndex, LCD_X_SETVIS, (void *)&Data);
+  }
+}
+
+/*********************************************************************
+*
 *       _SetPos
 *
 * Purpose:
@@ -324,16 +370,53 @@ static void _GetRect(GUI_DEVICE * pDevice, LCD_RECT * pRect) {
 */
 static void _SetPos(GUI_DEVICE * pDevice, int xPos, int yPos) {
   DRIVER_CONTEXT * pContext;
-  LCD_X_SETPOS_INFO Data = {0};
+  int xSizeDisplay, ySizeDisplay, xSizeLayer, ySizeLayer, BitsPerPixel;
+  LCD_X_SETPOS_INFO PosInfo = {0};
 
   _InitOnce(pDevice);
   if (pDevice->u.pContext) {
     pContext = (DRIVER_CONTEXT *)pDevice->u.pContext;
     pContext->xPos = xPos;
     pContext->yPos = yPos;
-    Data.xPos = xPos;
-    Data.yPos = yPos;
-    LCD_X_DisplayDriver(pDevice->LayerIndex, LCD_X_SETPOS, (void *)&Data);
+
+    xSizeDisplay  = LCD_GetXSizeDisplay();
+    ySizeDisplay  = LCD_GetYSizeDisplay();
+    xSizeLayer    = pContext->xSize;
+    ySizeLayer    = pContext->ySize;
+    BitsPerPixel  = pDevice->pDeviceAPI->pfGetDevProp(pDevice, LCD_DEVCAP_BITSPERPIXEL);
+    PosInfo.BytesPerPixel = (BitsPerPixel + 7) / 8;
+    if (xPos < 0) {
+      PosInfo.Off -= xPos * PosInfo.BytesPerPixel;
+      PosInfo.xPos = 0;
+      PosInfo.xLen = xSizeLayer + xPos;
+    } else {
+      PosInfo.xPos = xPos;
+      PosInfo.xLen = xSizeLayer;
+      if ((PosInfo.xPos + PosInfo.xLen) > xSizeDisplay) {
+        PosInfo.xLen = xSizeDisplay - xPos;
+      }
+    }
+    if (yPos < 0) {
+      PosInfo.Off -= yPos * PosInfo.BytesPerPixel * xSizeLayer;
+      PosInfo.yPos = 0;
+      PosInfo.yLen = ySizeLayer + yPos;
+    } else {
+      PosInfo.yPos = yPos;
+      PosInfo.yLen = ySizeLayer;
+      if ((PosInfo.yPos + PosInfo.yLen) > ySizeDisplay) {
+        PosInfo.yLen = ySizeDisplay - yPos;
+      }
+    }
+    if ((PosInfo.xLen <= 0) || (PosInfo.yLen <= 0) || (PosInfo.xPos >= xSizeDisplay) || (PosInfo.yPos >= ySizeDisplay)) {
+      if (pContext->IsVisible == 1) {
+        _SetVis(pDevice, 0);
+      }
+      return;
+    }
+    if (pContext->IsVisible == 0) {
+      _SetVis(pDevice, 1);
+    }
+    LCD_X_DisplayDriver(pDevice->LayerIndex, LCD_X_SETPOS, (void *)&PosInfo);
   }
 }
 
@@ -373,27 +456,6 @@ static void _SetAlpha(GUI_DEVICE * pDevice, int Alpha) {
     pContext->Alpha = Alpha;
     Data.Alpha = Alpha;
     LCD_X_DisplayDriver(pDevice->LayerIndex, LCD_X_SETALPHA, (void *)&Data);
-  }
-}
-
-/*********************************************************************
-*
-*       _SetVis
-*
-* Purpose:
-*   Sets the visibility of the given layer by sending a LCD_X_SETVIS command to LCD_X_DisplayDriver()
-*   (Requires special hardware support.)
-*/
-static void _SetVis(GUI_DEVICE * pDevice, int OnOff) {
-  DRIVER_CONTEXT * pContext;
-  LCD_X_SETVIS_INFO Data = {0};
-
-  _InitOnce(pDevice);
-  if (pDevice->u.pContext) {
-    pContext = (DRIVER_CONTEXT *)pDevice->u.pContext;
-    pContext->IsVisible = OnOff;
-    Data.OnOff = OnOff;
-    LCD_X_DisplayDriver(pDevice->LayerIndex, LCD_X_SETVIS, (void *)&Data);
   }
 }
 
@@ -492,7 +554,7 @@ static void _SetChroma(GUI_DEVICE * pDevice, LCD_COLOR ChromaMin, LCD_COLOR Chro
 */
 static void _CopyBuffer(GUI_DEVICE * pDevice, int IndexSrc, int IndexDst) {
   DRIVER_CONTEXT * pContext;
-  #if (!defined(WIN32) | defined(GUIDRV_SLAYER))
+  #if (!defined(WIN32))
     U32 AddrSrc, AddrDst;
     I32 BufferSize;
     int BitsPerPixel;
@@ -502,7 +564,7 @@ static void _CopyBuffer(GUI_DEVICE * pDevice, int IndexSrc, int IndexDst) {
   if (pDevice->u.pContext) {
     pContext = (DRIVER_CONTEXT *)pDevice->u.pContext;
     if (IndexSrc != IndexDst) {
-      #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+      #if defined(WIN32)
         SIM_Lin_CopyBuffer(IndexSrc, IndexDst);
       #else
         BitsPerPixel = pDevice->pDeviceAPI->pfGetDevProp(pDevice, LCD_DEVCAP_BITSPERPIXEL);
@@ -543,7 +605,7 @@ static void _ShowBuffer(GUI_DEVICE * pDevice, int Index) {
 
   _InitOnce(pDevice);
   if (pDevice->u.pContext) {
-    #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+    #if defined(WIN32)
       SIM_Lin_ShowBuffer(Index);
     #else
       Data.Index = Index;
@@ -560,13 +622,13 @@ static void _ShowBuffer(GUI_DEVICE * pDevice, int Index) {
 *   Calls the driver callback function with the display origin to be set
 */
 static void _SetOrg(GUI_DEVICE * pDevice, int x, int y) {
-  #if (!defined(WIN32) | defined(GUIDRV_SLAYER))
+  #if (!defined(WIN32))
     DRIVER_CONTEXT * pContext;
     int Orientation;
   #endif
   LCD_X_SETORG_INFO Data = {0};
 
-  #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+  #if defined(WIN32)
     LCDSIM_SetOrg(x, y, pDevice->LayerIndex);
   #else
     pContext = (DRIVER_CONTEXT *)pDevice->u.pContext;
@@ -626,7 +688,7 @@ static void _SetVRAMAddr(GUI_DEVICE * pDevice, void * pVRAM) {
     Data.pVRAM = pVRAM;
     LCD_X_DisplayDriver(pDevice->LayerIndex, LCD_X_SETVRAMADDR, (void *)&Data);
   }
-  #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+  #if defined(WIN32)
     SIM_Lin_SetVRAMAddr(pDevice->LayerIndex, pVRAM);
   #endif
 }
@@ -637,18 +699,18 @@ static void _SetVRAMAddr(GUI_DEVICE * pDevice, void * pVRAM) {
 */
 static void _SetVSize(GUI_DEVICE * pDevice, int xSize, int ySize) {
   DRIVER_CONTEXT * pContext;
-  #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+  #if defined(WIN32)
     int NumBuffers;
   #endif
 
   _InitOnce(pDevice);
   if (pDevice->u.pContext) {
-    #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+    #if defined(WIN32)
       NumBuffers = GUI_MULTIBUF_GetNumBuffers();
     #endif
     pContext = (DRIVER_CONTEXT *)pDevice->u.pContext;
     if (LCD_GetSwapXYEx(pDevice->LayerIndex)) {
-      #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+      #if defined(WIN32)
         pContext->vxSize = xSize * NumBuffers;
       #else
         pContext->vxSize = xSize;
@@ -657,7 +719,7 @@ static void _SetVSize(GUI_DEVICE * pDevice, int xSize, int ySize) {
       pContext->vxSizePhys = ySize;
     } else {
       pContext->vxSize = xSize;
-      #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+      #if defined(WIN32)
         pContext->vySize = ySize * NumBuffers;
       #else
         pContext->vySize = ySize;
@@ -665,7 +727,7 @@ static void _SetVSize(GUI_DEVICE * pDevice, int xSize, int ySize) {
       pContext->vxSizePhys = xSize;
     }
   }
-  #if defined(WIN32) && !defined(GUIDRV_SLAYER)
+  #if defined(WIN32)
     SIM_Lin_SetVRAMSize(pDevice->LayerIndex, pContext->vxSize, pContext->vySize, pContext->xSize, pContext->ySize);
   #endif
 }

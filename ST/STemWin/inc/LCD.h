@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : Declares LCD interface functions
 ----------------------------------------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef LCD_H
 #define LCD_H
 
@@ -357,6 +377,9 @@ int LCD_GetYSizeMax(void);
 int LCD_GetVXSizeMax(void);
 int LCD_GetVYSizeMax(void);
 int LCD_GetBitsPerPixelMax(void);
+void LCD_SetDisplaySize(int xSizeDisplay, int ySizeDisplay);
+int LCD_GetXSizeDisplay(void);
+int LCD_GetYSizeDisplay(void);
 
 int LCD_GetXSizeEx          (int LayerIndex);
 int LCD_GetYSizeEx          (int LayerIndex);
@@ -480,6 +503,9 @@ typedef struct {
 
 typedef struct {
   int xPos, yPos;
+  int xLen, yLen;
+  int BytesPerPixel;
+  U32 Off;
 } LCD_X_SETPOS_INFO;
 
 typedef struct {
@@ -644,7 +670,11 @@ LCD_COLOR    LCD_GetPixelColor(int x, int y);     /* Get RGB color of pixel */
 unsigned int LCD_GetPixelIndex(int x, int y);
 int          LCD_GetBkColorIndex (void);
 int          LCD_GetColorIndex (void);
+#if (GUI_USE_ARGB)
+U32          LCD_AA_SetOrMask(U32 OrMask);
+#else
 U32          LCD_AA_SetAndMask(U32 AndMask);
+#endif
 
 /* Configuration */
 int LCD_SetMaxNumColors(unsigned MaxNumColors);

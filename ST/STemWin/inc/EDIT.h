@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : EDIT include
 --------------------END-OF-HEADER-------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef EDIT_H
 #define EDIT_H
 
@@ -58,24 +78,47 @@ Purpose     : EDIT include
 *
 **********************************************************************
 */
-/*********************************************************************
-*
-*       Create / Status flags
-*/
+//
+// Create / Status flags
+//
 #define EDIT_CF_LEFT    GUI_TA_LEFT
 #define EDIT_CF_RIGHT   GUI_TA_RIGHT
 #define EDIT_CF_HCENTER GUI_TA_HCENTER
-
 #define EDIT_CF_VCENTER GUI_TA_VCENTER
 #define EDIT_CF_TOP     GUI_TA_TOP
 #define EDIT_CF_BOTTOM  GUI_TA_BOTTOM
 
-/*********************************************************************
-*
-*       Color indices
-*/
+//
+// Color indices
+//
 #define EDIT_CI_DISABLED 0
 #define EDIT_CI_ENABLED  1
+#define EDIT_CI_CURSOR   2
+
+//
+// Signed or normal mode
+//
+#define GUI_EDIT_NORMAL                  (0 << 0)
+#define GUI_EDIT_SIGNED                  (1 << 0)
+#define GUI_EDIT_SUPPRESS_LEADING_ZEROES (1 << 1)
+
+//
+// Cursor coloring
+//
+#define GUI_EDIT_SHOWCURSOR              (1 << 2)
+#define GUI_EDIT_CUSTCOLORMODE           (1 << 3)
+
+//
+// Edit modes
+//
+#define GUI_EDIT_MODE_INSERT    0
+#define GUI_EDIT_MODE_OVERWRITE 1
+
+//
+// Compatibility macros
+//
+#define EDIT_CI_DISABELD EDIT_CI_DISABLED
+#define EDIT_CI_ENABELD  EDIT_CI_ENABLED
 
 /*********************************************************************
 *
@@ -108,25 +151,19 @@ void EDIT_Callback(WM_MESSAGE * pMsg);
 
 /*********************************************************************
 *
-*             Standard member functions
+*       Managing default values
+*
+**********************************************************************
 */
-#define EDIT_EnableMemdev(hObj)  WM_EnableMemdev(hObj)
-#define EDIT_DisableMemdev(hObj) WM_DisableMemdev(hObj)
-#define EDIT_Delete(hObj)        WM_DeleteWindow(hObj)
-#define EDIT_Paint(hObj)         WM_Paint(hObj)
-#define EDIT_Invalidate(hObj)    WM_InvalidateWindow(hObj)
+void EDIT_SetDefaultBkColor  (unsigned int Index, GUI_COLOR Color);
+void EDIT_SetDefaultFont     (const GUI_FONT * pFont);
+void EDIT_SetDefaultTextAlign(int Align);
+void EDIT_SetDefaultTextColor(unsigned int Index, GUI_COLOR Color);
 
 /*********************************************************************
 *
 *             Individual member functions
 */
-//
-// Methods changing preferences
-//
-void EDIT_SetDefaultBkColor  (unsigned int Index, GUI_COLOR Color);
-void EDIT_SetDefaultFont     (const GUI_FONT * pFont);
-void EDIT_SetDefaultTextAlign(int Align);
-void EDIT_SetDefaultTextColor(unsigned int Index, GUI_COLOR Color);
 //
 // Query preferences
 //
@@ -155,6 +192,7 @@ GUI_COLOR EDIT_GetTextColor(EDIT_Handle hObj, unsigned int Index);
 void EDIT_SetTextColor     (EDIT_Handle hObj, unsigned int Index, GUI_COLOR Color);
 void EDIT_SetSel           (EDIT_Handle hObj, int FirstChar, int LastChar);
 int  EDIT_SetUserData      (EDIT_Handle hObj, const void * pSrc, int NumBytes);
+int  EDIT_EnableInversion  (EDIT_Handle hObj, int OnOff);
 //
 // Get/Set user input
 //
@@ -187,29 +225,6 @@ U32   GUI_EditBin      (U32 Value, U32 Min, U32 Max, int Len, int xSize);
 I32   GUI_EditDec      (I32 Value, I32 Min, I32 Max, int Len, int xSize, int Shift, U8 Flags);
 float GUI_EditFloat    (float Value, float Min, float Max, int Len, int xSize, int Shift, U8 Flags);
 void  GUI_EditString   (char * pString, int Len, int xSize);
-
-/*********************************************************************
-*
-*             Flags
-*
-**********************************************************************
-*/
-//
-// Signed or normal mode
-//
-#define GUI_EDIT_NORMAL                  (0 << 0)
-#define GUI_EDIT_SIGNED                  (1 << 0)
-#define GUI_EDIT_SUPPRESS_LEADING_ZEROES (1 << 1)
-//
-// Edit modes
-//
-#define GUI_EDIT_MODE_INSERT    0
-#define GUI_EDIT_MODE_OVERWRITE 1
-//
-// Compatibility macros
-//
-#define EDIT_CI_DISABELD EDIT_CI_DISABLED
-#define EDIT_CI_ENABELD  EDIT_CI_ENABLED
 
 #if defined(__cplusplus)
   }

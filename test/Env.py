@@ -55,7 +55,7 @@ RTSCTS = getenv_bool( 'RTSCTS' )
 COMMAND_FAIL_RETRY = getenv_int( 'COMMAND_FAIL_RETRY', 3 )
 
 DELAY = getenv_float( 'DELAY', 1 )
-DELAY_AFTER_RESET = getenv_float( 'DELAY_AFTER_RESET', 1 )
+DELAY_AFTER_REBOOT = getenv_float( 'DELAY_AFTER_REBOOT', 1 )
 RETRY = getenv_int( 'RETRY', 1000 )
 NO_ECHO_CHECK = getenv_bool( 'NO_ECHO_CHECK' )
 COMPACT_MODE = getenv_bool( 'COMPACT_MODE' )

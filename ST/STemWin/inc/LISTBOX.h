@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : LISTBOX widget include
 --------------------END-OF-HEADER-------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef LISTBOX_H
 #define LISTBOX_H
 
@@ -89,19 +109,6 @@ typedef WM_HMEM LISTBOX_Handle;
 #define LISTBOX_SF_AUTOSCROLLBAR_V   LISTBOX_CF_AUTOSCROLLBAR_V
 #define LISTBOX_SF_MULTISEL          LISTBOX_CF_MULTISEL
 #define LISTBOX_SF_WRAP              LISTBOX_CF_WRAP
-
-/*********************************************************************
-*
-*       Standard member functions
-*
-**********************************************************************
-*/
-
-#define LISTBOX_EnableMemdev(hObj)  WM_EnableMemdev(hObj)
-#define LISTBOX_DisableMemdev(hObj) WM_DisableMemdev(hObj)
-#define LISTBOX_Delete(hObj)        WM_DeleteWindow(hObj)
-#define LISTBOX_Paint(hObj)         WM_Paint(hObj)
-#define LISTBOX_Invalidate(hObj)    WM_InvalidateWindow(hObj)
 
 /*********************************************************************
 *
@@ -176,7 +183,7 @@ int          LISTBOX_UpdateScrollers (LISTBOX_Handle hObj);
 
 /*********************************************************************
 *
-*       Global functions
+*       Managing default values
 *
 **********************************************************************
 */

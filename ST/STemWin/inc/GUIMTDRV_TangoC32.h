@@ -1,44 +1,31 @@
 /*********************************************************************
-*                        SEGGER Software GmbH                        *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
-*        (c) 1996 - 2015  SEGGER Software GmbH                       *
+*        (c) 1996 - 2015  SEGGER Microcontroller GmbH & Co. KG       *
 *                                                                    *
 *        Internet: www.segger.com    Support:  support@segger.com    *
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
 only be used in accordance with the following terms:
 
-The software  has been  licensed to  STMicroelectronics  International
-N.V. whose  registered office  is situated at Plan-les-Ouates, Geneva,
-39 Chemin du Champ des Filles,  Switzerland solely for the purposes of
-creating libraries for  STMicroelectronics  ARM Cortex™-M-based 32-bit
-microcontroller    products,    sublicensed    and    distributed   by
-STMicroelectronics  under  the  terms  and  conditions of the End User
-License Agreement supplied with  the software. The use of the software
-on a stand-alone basis  or for any purpose other  than to operate with
-the specified  microcontroller is prohibited and subject to a separate
-license agreement.
-
+The  software has  been licensed  to STMicroelectronics International
+N.V. a Dutch company with a Swiss branch and its headquarters in Plan-
+les-Ouates, Geneva, 39 Chemin du Champ des Filles, Switzerland for the
+purposes of creating libraries for ARM Cortex-M-based 32-bit microcon_
+troller products commercialized by Licensee only, sublicensed and dis_
+tributed under the terms and conditions of the End User License Agree_
+ment supplied by STMicroelectronics International N.V.
 Full source code is available at: www.segger.com
 
-We appreciate your understanding and fairness.----------------------------------------------------------------------
-Licensing information
-
-Licensor:                 SEGGER Software GmbH
-Licensed to:              STMicroelectronics International NV
-Licensed SEGGER software: emWin
-License number:           GUI-00429
-License model:            Buyout SRC [Buyout Source Code License, signed November 29th 2012]
-Licensed product:         -
-Licensed platform:        STMs ARM Cortex-M based 32 BIT CPUs
-Licensed number of seats: -
+We appreciate your understanding and fairness.
 ----------------------------------------------------------------------
 File        : GUIMTDRV_TangoC32.h
 Purpose     : Interface definition for GUIMTDRV_TangoC32 driver

@@ -5,9 +5,11 @@
 #define LED_NORMAL  0
 #define LED_ERROR   1
 
-#define HAL_LED_NUM   2
-#define HAL_LED_PORTS  {GPIOB, GPIOB}
-#define HAL_LED_PINS  {GPIO_Pin_0, GPIO_Pin_1}
+#ifndef HAL_LED_NUM
+    #define HAL_LED_NUM   2
+    #define HAL_LED_PORTS  {GPIOB, GPIOB}
+    #define HAL_LED_PINS  {GPIO_Pin_0, GPIO_Pin_1}
+#endif
 
 
 #define USE_CMD_BEEP  1

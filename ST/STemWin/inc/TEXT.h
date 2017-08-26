@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : TEXT include
 --------------------END-OF-HEADER-------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef TEXT_H
 #define TEXT_H
 
@@ -76,19 +96,6 @@ typedef WM_HMEM TEXT_Handle;
 
 /*********************************************************************
 *
-*       Standard member functions
-*
-**********************************************************************
-*/
-
-#define TEXT_EnableMemdev(hObj)  WM_EnableMemdev(hObj)
-#define TEXT_DisableMemdev(hObj) WM_DisableMemdev(hObj)
-#define TEXT_Delete(hObj)        WM_DeleteWindow(hObj)
-#define TEXT_Paint(hObj)         WM_Paint(hObj)
-#define TEXT_Invalidate(hObj)    WM_InvalidateWindow(hObj)
-
-/*********************************************************************
-*
 *       Create functions
 *
 **********************************************************************
@@ -117,26 +124,33 @@ void TEXT_Callback(WM_MESSAGE * pMsg);
 
 /* Methods changing properties */
 
-int  TEXT_GetNumLines (TEXT_Handle hObj);
-int  TEXT_GetText     (TEXT_Handle hObj, char * pDest, U32 BufferSize);
-int  TEXT_GetUserData (TEXT_Handle hObj, void * pDest, int NumBytes);
-void TEXT_SetBkColor  (TEXT_Handle hObj, GUI_COLOR Color); /* Obsolete. Left in GUI for compatibility to older versions */
-void TEXT_SetFont     (TEXT_Handle hObj, const GUI_FONT * pFont);
-int  TEXT_SetText     (TEXT_Handle hObj, const char * s);
-void TEXT_SetTextAlign(TEXT_Handle hObj, int Align);
-void TEXT_SetTextColor(TEXT_Handle hObj, GUI_COLOR Color);
-int  TEXT_SetUserData (TEXT_Handle hObj, const void * pSrc, int NumBytes);
-void TEXT_SetWrapMode (TEXT_Handle hObj, GUI_WRAPMODE WrapMode);
+GUI_COLOR        TEXT_GetBkColor  (TEXT_Handle hObj); 
+const GUI_FONT * TEXT_GetFont     (TEXT_Handle hObj);
+int              TEXT_GetNumLines (TEXT_Handle hObj);
+int              TEXT_GetText     (TEXT_Handle hObj, char * pDest, U32 BufferSize);
+int              TEXT_GetTextAlign(TEXT_Handle hObj);
+GUI_COLOR        TEXT_GetTextColor(TEXT_Handle hObj);
+int              TEXT_GetUserData (TEXT_Handle hObj, void * pDest, int NumBytes);
+GUI_WRAPMODE     TEXT_GetWrapMode (TEXT_Handle hObj);
+void             TEXT_SetBkColor  (TEXT_Handle hObj, GUI_COLOR Color);
+void             TEXT_SetFont     (TEXT_Handle hObj, const GUI_FONT * pFont);
+int              TEXT_SetText     (TEXT_Handle hObj, const char * s);
+void             TEXT_SetTextAlign(TEXT_Handle hObj, int Align);
+void             TEXT_SetTextColor(TEXT_Handle hObj, GUI_COLOR Color);
+int              TEXT_SetUserData (TEXT_Handle hObj, const void * pSrc, int NumBytes);
+void             TEXT_SetWrapMode (TEXT_Handle hObj, GUI_WRAPMODE WrapMode);
 
 /*********************************************************************
 *
-*       Global functions
+*       Managing default values
 *
 **********************************************************************
 */
 
-void             TEXT_SetDefaultFont     (const GUI_FONT * pFont);
 const GUI_FONT * TEXT_GetDefaultFont     (void);
+GUI_COLOR        TEXT_GetDefaultTextColor(void);
+GUI_WRAPMODE     TEXT_GetDefaultWrapMode (void);
+void             TEXT_SetDefaultFont     (const GUI_FONT * pFont);
 void             TEXT_SetDefaultTextColor(GUI_COLOR Color);
 GUI_WRAPMODE     TEXT_SetDefaultWrapMode (GUI_WRAPMODE WrapMode);
 

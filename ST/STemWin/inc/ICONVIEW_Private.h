@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : ICONVIEW private header file
 --------------------END-OF-HEADER-------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef ICONVIEW_PRIVATE_H
 #define ICONVIEW_PRIVATE_H
 
@@ -39,6 +59,10 @@ Purpose     : ICONVIEW private header file
 #include "ICONVIEW.h"
 
 #if GUI_WINSUPPORT
+
+#if defined(__cplusplus)
+  extern "C" {             // Make sure we have C-declarations in C++ programs
+#endif
 
 /*********************************************************************
 *
@@ -69,18 +93,19 @@ typedef struct {
   U16             Flags;
 } ICONVIEW_OBJ;
 
-typedef void tDrawImage    (const void * pData, int xPos, int yPos);
+typedef void tDrawImage    (const void * pData, GUI_GET_DATA_FUNC * pfGetData, int xPos, int yPos);
 typedef void tDrawText     (ICONVIEW_OBJ * pObj, GUI_RECT * pRect, const char * s);
-typedef void tGetImageSizes(const void * pData, int * xSize, int * ySize);
+typedef void tGetImageSizes(const void * pData, GUI_GET_DATA_FUNC * pfGetData, int * xSize, int * ySize);
 
 typedef struct {
-  tDrawImage     * pfDrawImage;
-  tDrawText      * pfDrawText;
-  tGetImageSizes * pfGetImageSizes;
-  const void     * pData;
-  U32              UserData;
-  int              SizeofData;
-  char             acText[1];
+  tDrawImage        * pfDrawImage;
+  tDrawText         * pfDrawText;
+  tGetImageSizes    * pfGetImageSizes;
+  GUI_GET_DATA_FUNC * pfGetData;
+  const void        * pData;
+  U32                 UserData;
+  int                 SizeOfData;
+  char                acText[1];
 } ICONVIEW_ITEM;
 
 /*********************************************************************
@@ -110,7 +135,20 @@ extern void (* ICONVIEW__pfDrawStreamedBitmap)(const void * p, int x, int y);
   #define ICONVIEW_LOCK_H(h)   (ICONVIEW_OBJ *)GUI_LOCK_H(h)
 #endif
 
-#endif   /* GUI_WINSUPPORT */
-#endif   /* ICONVIEW_H */
+/*********************************************************************
+*
+*       Private functions
+*
+**********************************************************************
+*/
+void ICONVIEW__DrawText        (ICONVIEW_OBJ    * pObj, GUI_RECT * pRect, const char * pText);
+void ICONVIEW__ManageAutoScroll(ICONVIEW_Handle   hObj);
+
+#if defined(__cplusplus)
+  }
+#endif
+
+#endif  // GUI_WINSUPPORT
+#endif  // ICONVIEW_H
 
 /*************************** End of file ****************************/

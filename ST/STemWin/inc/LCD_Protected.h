@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : LCD level - To be used only internally by the GUI
 ----------------------------------------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef LCD_PROTECTED_H
 #define LCD_PROTECTED_H
 
@@ -105,6 +125,7 @@ tLCDDEV_Index2Color LCD_Index2Color_565;
 tLCDDEV_Index2Color LCD_Index2Color_8666;
 tLCDDEV_Index2Color LCD_Index2Color_888;
 tLCDDEV_Index2Color LCD_Index2Color_8888;
+tLCDDEV_Index2Color LCD_Index2Color_M8888I;
 tLCDDEV_Index2Color LCD_Index2Color_M555;
 tLCDDEV_Index2Color LCD_Index2Color_M565;
 tLCDDEV_Index2Color LCD_Index2Color_M888;

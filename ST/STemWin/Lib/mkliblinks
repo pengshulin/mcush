@@ -1,0 +1,12 @@
+#!/bin/sh
+
+FILES=`ls STemWin*.a`
+
+for f in  $FILES ; do
+    echo $f
+    cut=`echo $f | cut -b12-`
+    echo $cut
+    ln -s $f libSTemWin_$cut
+done
+
+

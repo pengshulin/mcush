@@ -75,7 +75,7 @@ void hal_lcd_rectangle(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, uint1
 void hal_lcd_circle(uint16_t x0, uint16_t y0, uint8_t r, uint16_t color);
 void hal_lcd_hline(uint8_t y, uint8_t x0, uint8_t x1, uint16_t color);
 void hal_lcd_vline(uint8_t x, uint8_t y0, uint8_t y1, uint16_t color);
-
+uint16_t hal_lcd_get_pixel(uint16_t x0, uint16_t y0);
 
 
 #endif

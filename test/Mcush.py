@@ -50,17 +50,21 @@ class Mcush( Instrument.SerialInstrument ):
             cmd = 'disp -- "%s"'% buf
         self.writeCommand(cmd)
 
-    def list( self, pathname='/s' ):
-        cmd = 'ls %s'% pathname
+    def list( self, pathname=None ):
+        if pathname:
+            cmd = 'ls %s'% pathname
+        else:
+            cmd = 'ls'
         ret = self.writeCommand(cmd)
         flist = []
         path = ''
         for l in ret:
             if l.startswith('/'):
                 path = l.strip().rstrip(':')
+                flist.append( (path, None, None) )
             else:
                 a, b = l.strip().split()
-                flist.append( (os.path.join(path, b), int(a)) )
+                flist.append( (path, b, int(a)) )
         return flist
 
     def cat( self, pathname, b64=False, write=False, append=False, buf='' ):

@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : GUI internal declarations
 ---------------------------END-OF-HEADER------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef GUI_PRIVATE_H
 #define GUI_PRIVATE_H
 
@@ -212,7 +232,11 @@ void            * GUI_MEMDEV__XY2PTR             (int x,int y);
 void            * GUI_MEMDEV__XY2PTREx           (GUI_MEMDEV * pDev, int x,int y);
 void              GUI_MEMDEV__BlendColor32       (GUI_MEMDEV_Handle hMem, U32 BlendColor, U8 BlendIntens);
 
-unsigned GUI__AlphaSuppressMixing(int OnOff);
+unsigned GUI__AlphaPreserveTrans(int OnOff);
+
+extern unsigned GUI_MEMDEV__TimePerFrame;
+
+#define GUI_TIME_PER_FRAME (GUI_TIMER_TIME)GUI_MEMDEV__TimePerFrame
 
 #define GUI_POS_AUTO -4095   /* Position value for auto-pos */
 
@@ -431,6 +455,7 @@ void GUI_SetFuncGetpPalConvTable(LCD_PIXELINDEX * (* pFunc)(const LCD_LOGPALETTE
 #define GUI_STREAM_FORMAT_AM555      26  /* DO NOT CHANGE */
 #define GUI_STREAM_FORMAT_A565       27  /* DO NOT CHANGE */
 #define GUI_STREAM_FORMAT_AM565      28  /* DO NOT CHANGE */
+#define GUI_STREAM_FORMAT_M8888I     29  /* DO NOT CHANGE */
 
 
 void GUI__ReadHeaderFromStream  (GUI_BITMAP_STREAM * pBitmapHeader, const U8 * pData);
@@ -649,6 +674,8 @@ GUI_EXTERN           int GUI__BufferSize; // Required buffer size in pixels for 
 GUI_EXTERN           int GUI_AA__ClipX0;  // x0-clipping value for AA module
 
 GUI_EXTERN           I8  GUI__aNumBuffers[GUI_NUM_LAYERS]; // Number of buffers used per layer
+GUI_EXTERN           U8  GUI__PreserveTrans;
+GUI_EXTERN           U8  GUI__IsInitialized;
 
 #if GUI_SUPPORT_ROTATION
   GUI_EXTERN const tLCD_APIList * GUI_pLCD_APIList; /* Used for rotating text */
@@ -657,7 +684,6 @@ GUI_EXTERN           I8  GUI__aNumBuffers[GUI_NUM_LAYERS]; // Number of buffers 
 GUI_EXTERN I16 GUI_OrgX, GUI_OrgY;
 
 #undef GUI_EXTERN
-
 
 #if defined(__cplusplus)
 }

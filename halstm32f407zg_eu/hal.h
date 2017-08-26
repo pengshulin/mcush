@@ -24,7 +24,7 @@ void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
 
 void hal_reset(void);
-
+void hal_reboot(void);
 
 int hal_gpio_get_port_num(void);
 void hal_gpio_init(void);

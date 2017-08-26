@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : Windows manager include
 ----------------------------------------------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef WM_H            /* Make sure we only include it once */
 #define WM_H
 
@@ -260,6 +280,9 @@ typedef struct {
 #define WM_MOTION                   48      /* Automatic motion messages */
 
 #define WM_GET_WINDOW_ID            49      /* Return widget type specific Id (DebugId) */
+
+#define WM_PRE_BANDING              50
+#define WM_POST_BANDING             51
 
 #define WM_GESTURE                  0x0119  /* Gesture message */
 
@@ -500,6 +523,7 @@ void     WM__SetMotionCallback (void(* cbMotion) (GUI_PID_STATE * pState, void *
   int               GUI_MEMDEV_BlurAndBlendWinBk(WM_HWIN hWin, int Period, U8 BlurDepth, U32 BlendColor, U8 BlendIntens);
   int               GUI_MEMDEV_BlurWinBk        (WM_HWIN hWin, int Period, U8 BlurDepth);
   void              GUI_MEMDEV_CreateStatic     (WM_HWIN hWin);
+  GUI_MEMDEV_Handle GUI_MEMDEV_CreateWindowDevice(WM_HWIN hWin);
   int               GUI_MEMDEV_FadeInWindow     (WM_HWIN hWin, int Period);
   int               GUI_MEMDEV_FadeOutWindow    (WM_HWIN hWin, int Period);
   GUI_MEMDEV_Handle GUI_MEMDEV_GetStaticDevice  (WM_HWIN hWin);
@@ -511,6 +535,7 @@ void     WM__SetMotionCallback (void(* cbMotion) (GUI_PID_STATE * pState, void *
   int               GUI_MEMDEV_ShiftOutWindow   (WM_HWIN hWin, int Period, int Direction);
   int               GUI_MEMDEV_SwapWindow       (WM_HWIN hWin, int Period, int Edge);
 
+  void              GUI_MEMDEV__CreateStatic    (WM_HWIN hWin);
 #endif
 
 /* Move/resize windows */

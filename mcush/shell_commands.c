@@ -11,8 +11,8 @@
 #ifndef USE_CMD_SCPI_RST
     #define USE_CMD_SCPI_RST  1
 #endif
-#ifndef USE_CMD_RESET
-    #define USE_CMD_RESET  1
+#ifndef USE_CMD_REBOOT
+    #define USE_CMD_REBOOT  1
 #endif
 #ifndef USE_CMD_GPIO
     #define USE_CMD_GPIO  1
@@ -133,7 +133,7 @@
 int cmd_help( int argc, char *argv[] );
 int cmd_scpi_idn( int argc, char *argv[] );
 int cmd_scpi_rst( int argc, char *argv[] );
-int cmd_reset( int argc, char *argv[] );
+int cmd_reboot( int argc, char *argv[] );
 int cmd_gpio( int argc, char *argv[] );
 int cmd_led( int argc, char *argv[] );
 int cmd_dump( int argc, char *argv[] );
@@ -178,10 +178,10 @@ const shell_cmd_t CMD_TAB[] = {
     "reset device",
     "*rst" },
 #endif
-#if USE_CMD_RESET
-{   CMD_HIDDEN, 'r',  "reset",  cmd_reset, 
-    "reset CPU core",
-    "reset" },
+#if USE_CMD_REBOOT
+{   CMD_HIDDEN, 0,  "reboot",  cmd_reboot, 
+    "reboot device",
+    "reboot" },
 #endif
 #if USE_CMD_DUMP
 {   CMD_HIDDEN,  'x',  "dump",  cmd_dump, 
@@ -346,16 +346,17 @@ int cmd_scpi_idn( int argc, char *argv[] )
 int cmd_scpi_rst( int argc, char *argv[] )
 {
     /* *rst command ignore all arguments */
+    hal_reset();
     return 0;
 }
 #endif
 
 
-#if USE_CMD_RESET
-int cmd_reset( int argc, char *argv[] )
+#if USE_CMD_REBOOT
+int cmd_reboot( int argc, char *argv[] )
 {
-    /* reset command ignore all arguments */
-    hal_reset();
+    /* reboot command ignore all arguments */
+    hal_reboot();
     while( 1 );
     //return 0;
 }

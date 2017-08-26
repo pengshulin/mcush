@@ -2,8 +2,10 @@
 #define __HAL_OW_H__
 #include "hal.h"
 
-#define OW_GPIO  GPIOC
-#define OW_PIN  0
+#ifndef OW_GPIO
+    #define OW_GPIO  GPIOC
+    #define OW_PIN  0
+#endif
 
 #define hal_ow_init()  {\
     GPIO_InitTypeDef gpio_init; \

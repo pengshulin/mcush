@@ -1,5 +1,6 @@
 /*********************************************************************
-*                SEGGER Microcontroller GmbH & Co. KG                *
+*          Portions COPYRIGHT 2016 STMicroelectronics                *
+*          Portions SEGGER Microcontroller GmbH & Co. KG             *
 *        Solutions for real time microcontroller applications        *
 **********************************************************************
 *                                                                    *
@@ -9,7 +10,7 @@
 *                                                                    *
 **********************************************************************
 
-** emWin V5.28 - Graphical user interface for embedded applications **
+** emWin V5.32 - Graphical user interface for embedded applications **
 All  Intellectual Property rights  in the Software belongs to  SEGGER.
 emWin is protected by  international copyright laws.  Knowledge of the
 source code may not be used to write a similar product.  This file may
@@ -31,6 +32,25 @@ Purpose     : Widget interface
 ---------------------------END-OF-HEADER------------------------------
 */
 
+/**
+  ******************************************************************************
+  * @attention
+  *
+  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  * You may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at:
+  *
+  *        http://www.st.com/software_license_agreement_liberty_v2
+  *
+  * Unless required by applicable law or agreed to in writing, software 
+  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ******************************************************************************
+  */
+  
 #ifndef WIDGET_H        /* Avoid multiple inclusion  */
 #define WIDGET_H
 
@@ -105,6 +125,7 @@ typedef struct {
 #define RADIO_ID     0x52414449UL /* RADI */
 #define SCROLLBAR_ID 0x5343524fUL /* SCRO */
 #define SLIDER_ID    0x534c4944UL /* SLID */
+#define SWIPELIST_ID 0x53574950UL /* SWIP */
 #define TEXT_ID      0x54455854UL /* TEXT */
 #define TREEVIEW_ID  0x54524545UL /* TREE */
 #define ICONVIEW_ID  0x49434f4eUL /* ICON */

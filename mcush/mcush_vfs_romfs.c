@@ -6,11 +6,9 @@
 
 #define static
 
-const char file_copyright[] = "MCUSH designed by Peng Shulin, all rights reserved.";
-const char file_readme[] = "https://github.com/pengshulin/mcush";
+const char file_readme[] = "MCUSH designed by Peng Shulin, all rights reserved.\nhttps://github.com/pengshulin/mcush";
 const char file_demo[] = "echo 'blink leds'\nled -t -i0\nwait 200\nled -t -i0\n";
 const romfs_file_t romfs_tab[] = {
-    { "copyright", file_copyright, sizeof(file_copyright)-1 },
     { "readme", file_readme, sizeof(file_readme)-1 },
     { "demo", file_demo, sizeof(file_demo)-1 },
     { 0 } };

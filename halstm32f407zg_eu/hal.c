@@ -81,6 +81,10 @@ void hal_rcc_init(void)
     SystemCoreClockUpdate();
     _test_clk_output();
 
+
+    /* Enable CRC module (needed by STemWin) */
+    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_CRC, ENABLE );
+    
     /* Enable ADC & SYSCFG clocks */
     //RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_SYSCFG , ENABLE);
 
@@ -119,6 +123,10 @@ void SysTick_Handler( void )
 #endif
 
 void hal_debug_init(void)
+{
+}
+
+void hal_reset(void)
 {
 }
 

@@ -48,6 +48,7 @@ void hal_debug_init(void)
 {
 }
 
+
  
 int hal_init(void)
 {
@@ -60,6 +61,4 @@ int hal_init(void)
         return 0;
     return 1;
 }
-
-
 

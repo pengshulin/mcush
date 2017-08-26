@@ -2,29 +2,33 @@
 #include "task_disp_led595.h"
 
 /* temporarily test */
-//#define PORT GPIOG
-//#define DAT  GPIO_Pin_8
-//#define SCK  GPIO_Pin_9
-//#define RCK  GPIO_Pin_10
-#define PORT GPIOC
-#define DAT  GPIO_Pin_0
-#define SCK  GPIO_Pin_1
-#define RCK  GPIO_Pin_2
+//#define LED595_PORT GPIOG
+//#define LED595_DAT  GPIO_Pin_8
+//#define LED595_SCK  GPIO_Pin_9
+//#define LED595_RCK  GPIO_Pin_10
+
+#ifndef LED595_PORT
+    #define LED595_PORT GPIOC
+    #define LED595_DAT  GPIO_Pin_0
+    #define LED595_SCK  GPIO_Pin_1
+    #define LED595_RCK  GPIO_Pin_2
+#endif
+
 void hal_led595_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_Pin = DAT;
-    GPIO_Init(PORT, &GPIO_InitStructure);
-    GPIO_SetBits(PORT, DAT);
-    GPIO_InitStructure.GPIO_Pin = SCK;
-    GPIO_Init(PORT, &GPIO_InitStructure);
-    GPIO_SetBits(PORT, SCK);
-    GPIO_InitStructure.GPIO_Pin = RCK;
-    GPIO_Init(PORT, &GPIO_InitStructure);
-    GPIO_SetBits(PORT, RCK);
+    GPIO_InitStructure.GPIO_Pin = LED595_DAT;
+    GPIO_Init(LED595_PORT, &GPIO_InitStructure);
+    GPIO_SetBits(LED595_PORT, LED595_DAT);
+    GPIO_InitStructure.GPIO_Pin = LED595_SCK;
+    GPIO_Init(LED595_PORT, &GPIO_InitStructure);
+    GPIO_SetBits(LED595_PORT, LED595_SCK);
+    GPIO_InitStructure.GPIO_Pin = LED595_RCK;
+    GPIO_Init(LED595_PORT, &GPIO_InitStructure);
+    GPIO_SetBits(LED595_PORT, LED595_RCK);
 }
 
 void hal_led595_update_single(char bits)
@@ -33,11 +37,11 @@ void hal_led595_update_single(char bits)
     for( i=0; i<8; i++ )
     {
         if( bits & (1<<(7-i)) )
-            GPIO_SetBits(PORT, DAT);
+            GPIO_SetBits(LED595_PORT, LED595_DAT);
         else
-            GPIO_ResetBits(PORT, DAT);
-        GPIO_ResetBits(PORT, SCK);
-        GPIO_SetBits(PORT, SCK);
+            GPIO_ResetBits(LED595_PORT, LED595_DAT);
+        GPIO_ResetBits(LED595_PORT, LED595_SCK);
+        GPIO_SetBits(LED595_PORT, LED595_SCK);
     }
 }
 
@@ -45,8 +49,8 @@ void hal_led595_update(char ctl_digit, char ctl_val)
 {
     hal_led595_update_single(ctl_digit); 
     hal_led595_update_single(ctl_val); 
-    GPIO_ResetBits(PORT, RCK);
-    GPIO_SetBits(PORT, RCK);
+    GPIO_ResetBits(LED595_PORT, LED595_RCK);
+    GPIO_SetBits(LED595_PORT, LED595_RCK);
 }
 
 
