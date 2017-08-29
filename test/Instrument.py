@@ -66,6 +66,7 @@ class SerialInstrument:
     DEFAULT_IDN = None
     DEFAULT_REBOOT_RETRY = 10
     DEFAULT_LINE_LIMIT = 128
+    DEFAULT_CHECK_RETURN_COMMAND = True
     
 
     def __init__( self, port=None, baudrate=None, rtscts=False, connect=True ):
@@ -149,7 +150,7 @@ class SerialInstrument:
             self.ser.write( self.DEFAULT_TERMINATOR_RESET )
             self.ser.flush()
             self.readUntilPrompts()
-            if check_idn:
+            if check_idn and self.DEFAULT_IDN is not None:
                 self.scpiIdn()
         except serial.SerialException, e:
             raise UnknownSerialError( str(e) )
@@ -207,7 +208,8 @@ class SerialInstrument:
             if line:
                 self.logger.debug( line )
         self.checkReturnedPrompt( ret )
-        self.checkReturnedCommand( ret, cmd )
+        if self.DEFAULT_CHECK_RETURN_COMMAND:
+            self.checkReturnedCommand( ret, cmd )
         return ret[1:-1] 
     
     def writeCommandRetry( self, cmd, retry=None ):

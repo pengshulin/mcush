@@ -1,5 +1,6 @@
 #include "GUI.h"
 
+
 #ifdef GUI_ALLOC_SIZE
     #define GUI_BUF_LEN  GUI_ALLOC_SIZE
 #else

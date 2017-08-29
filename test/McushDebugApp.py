@@ -176,10 +176,57 @@ class ViewTask(MyTask):
         try:
             r = s.cat( fname, b64=True )
             r = base64.b64decode('\n'.join(r))
-            self.queue.put( ('view_file', r) )
+            self.queue.put( ('view_file', (fname, r)) )
             self.info( "Done" )
         except Instrument.CommandExecuteError, e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
+
+class GetFileTask(MyTask):
+    def target( self, args ):
+        (port, fname, savename) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"download file %s..."% (fname) )
+        try:
+            r = s.cat( fname, b64=True )
+            r = base64.b64decode('\n'.join(r))
+            #self.queue.put( ('view_file', (fname, r)) )
+        except Instrument.CommandExecuteError, e:
+            self.info( u"Failed to download file %s"% (fname), 'error' )
+        self.info( 'save as %s...'% savename )
+        try:
+            open(savename, 'w+').write(r)
+            self.info( "File %s saved, size %d."% (savename, len(r)) )
+        except Exception, e:
+            self.info( u"Failed to save file %s"% (savename), 'error' )
+
+class PutFileTask(MyTask):
+    def target( self, args ):
+        (port, srcname, fname) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"read file %s..."% (srcname) )
+        try:
+            raw = open(srcname, 'r').read()
+            raw_enc = base64.b64encode(raw)
+        except:
+            self.info( 'read file %s error'% srcname, 'error' )
+            return
+        self.info( u"write file %s..."% (fname) )
+        try:
+            print raw_enc
+        #    r = s.cat( fname, b64=True )
+        #    r = base64.b64decode('\n'.join(r))
+        #    #self.queue.put( ('view_file', (fname, r)) )
+        except Instrument.CommandExecuteError, e:
+            self.info( u"Failed to download file %s"% (fname), 'error' )
+        #self.info( 'save as %s...'% savename )
+        #try:
+        #    open(savename, 'w+').write(r)
+        #    self.info( "File %s saved, size %d."% (savename, len(r)) )
+        #except Exception, e:
+        #    self.info( u"Failed to save file %s"% (savename), 'error' )
+
 
 
 
@@ -214,7 +261,17 @@ class MainFrame(MyFrame):
              'start.png': ['start'],
              'dialog-ok-apply.png': ['ok', 'done'],
              'failed.png': ['failed', 'error', 'halt'],
+             'drive-harddisk.png': ['drive'],
+             'folder.png': ['folder'],
+             'folder-documents.png': ['file'],
              'message.png': ['info', 'message']} )
+
+        imglst = wx.ImageList( 24, 24 )
+        self.img_id_drive = imglst.Add( self.imgs['drive'] )
+        self.img_id_folder = imglst.Add( self.imgs['folder'] )
+        self.img_id_file = imglst.Add( self.imgs['file'] )
+        self.tree_ctrl_fs.SetImageList(imglst)
+        self._imglst = imglst
 
         self.info('')
         
@@ -377,6 +434,8 @@ class MainFrame(MyFrame):
             self.button_remove.Enable( not lock )
             self.button_rename.Enable( not lock )
             self.button_view.Enable( not lock )
+            self.button_put_file.Enable( not lock )
+            self.button_get_file.Enable( not lock )
             #self.notebook_1.Enable( not lock )
             self.button_stop.Show( lock )
             self.Layout()
@@ -384,21 +443,25 @@ class MainFrame(MyFrame):
             lst = event.val
             self.tree_ctrl_fs.DeleteAllItems()
             root = self.tree_ctrl_fs.AddRoot('/')
+            self.tree_ctrl_fs.SetItemImage(root, self.img_id_drive, wx.TreeItemIcon_Normal) 
             subroot = {}
             for p, n, s in lst:
                 print p, n, s
                 if not subroot.has_key( p ):
                     subroot[p] = self.tree_ctrl_fs.AppendItem(root, p)
+                    self.tree_ctrl_fs.SetItemImage(subroot[p], self.img_id_drive, wx.TreeItemIcon_Normal) 
+                    self.tree_ctrl_fs.SetPyData(subroot[p], (p, n, s))
                 if n is None:
                     continue
                 item = self.tree_ctrl_fs.AppendItem(subroot[p], n + ' (%d)'%s)
                 self.tree_ctrl_fs.SetPyData(item, (p, n, s))
+                self.tree_ctrl_fs.SetItemImage(item, self.img_id_file, wx.TreeItemIcon_Normal) 
             self.tree_ctrl_fs.ExpandAll()
         elif event.cmd == 'view_file':
-            contents = event.val
-            print contents
+            (fname, contents) = event.val
             dlg = MyViewFileDialog(self)
             dlg.text_ctrl_data.SetValue( contents )
+            dlg.SetTitle( 'File %s'% fname )
             dlg.ShowModal()
             
         event.Skip()
@@ -506,7 +569,7 @@ class MainFrame(MyFrame):
     def OnQuery( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info("port error", 'error')
             return
         self.task = QueryTask( (port), self.msgq )
         event.Skip()
@@ -522,7 +585,7 @@ class MainFrame(MyFrame):
     def OnRemove( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info("port error", 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -536,7 +599,7 @@ class MainFrame(MyFrame):
     def OnRename( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info("port error", 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -557,7 +620,7 @@ class MainFrame(MyFrame):
     def OnView( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info("port error", 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -566,6 +629,49 @@ class MainFrame(MyFrame):
             self.task = ViewTask( (port, fname), self.msgq )
         except:
             return
+        event.Skip()
+
+    def OnGetFile( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", 'error')
+            return
+        try:
+            item = self.tree_ctrl_fs.GetFocusedItem()
+            p, n, s = self.tree_ctrl_fs.GetPyData( item )
+            fname = os.path.join(p,n)
+        except:
+            return
+        dlg = wx.FileDialog( self, message="Choose destination file", defaultDir=self.config_dir, 
+                defaultFile=n, wildcard="File (*.*)|*.*", style=wx.SAVE )
+        if dlg.ShowModal() == wx.ID_OK:
+            savename = dlg.GetPath().strip()
+        else:
+            return
+        self.task = GetFileTask( (port, fname, savename), self.msgq )
+        event.Skip()
+
+    def OnPutFile( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", 'error')
+            return
+        try:
+            item = self.tree_ctrl_fs.GetFocusedItem()
+            p, n, s = self.tree_ctrl_fs.GetPyData( item )
+            if n is not None:
+                self.info("not a directory", 'error')
+                return
+        except:
+            return
+        dlg = wx.FileDialog( self, message="Choose source file", defaultDir=self.config_dir, 
+                defaultFile='', wildcard="File (*.*)|*.*", style=wx.OPEN )
+        if dlg.ShowModal() == wx.ID_OK:
+            srcname = dlg.GetPath().strip()
+        else:
+            return
+        fname = os.path.join(p,os.path.basename(srcname))
+        self.task = PutFileTask( (port, srcname, fname), self.msgq )
         event.Skip()
 
 

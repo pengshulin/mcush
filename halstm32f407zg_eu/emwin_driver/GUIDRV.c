@@ -85,7 +85,7 @@ static void _SetPixelIndex(GUI_DEVICE * pDevice, int x, int y, int PixelIndex)
 {
     x = LOG2PHYS_X(x, y);
     y = LOG2PHYS_Y(x, y);
-    //hal_lcd_pixel(x, y, PixelIndex ? 0xFFFF : 0 );
+    
     hal_lcd_pixel(x, y, PixelIndex );
 }
 
@@ -100,34 +100,22 @@ static void _SetPixelIndex(GUI_DEVICE * pDevice, int x, int y, int PixelIndex)
 */
 static unsigned int _GetPixelIndex(GUI_DEVICE * pDevice, int x, int y)
 {
-    unsigned int PixelIndex;
-    
     x = LOG2PHYS_X(x, y);
     y = LOG2PHYS_Y(x, y);
-    GUI_USE_PARA(pDevice);
-    GUI_USE_PARA(x);
-    GUI_USE_PARA(y);
     
-    PixelIndex = hal_lcd_get_pixel(x, y);
-    
-    return PixelIndex;
+    return hal_lcd_get_pixel(x, y);
 }
 
 /*********************************************************************
 *
 *       _XorPixel
 */
-static void _XorPixel(GUI_DEVICE * pDevice, int x, int y) {
-  LCD_PIXELINDEX PixelIndex;
-  //LCD_PIXELINDEX IndexMask;
-  x = LOG2PHYS_X(x, y);
-  y = LOG2PHYS_Y(x, y);
+static void _XorPixel(GUI_DEVICE * pDevice, int x, int y)
+{
+    x = LOG2PHYS_X(x, y);
+    y = LOG2PHYS_Y(x, y);
 
-  //PixelIndex = _GetPixelIndex(pDevice, x, y);
-  //IndexMask  = pDevice->pColorConvAPI->pfGetIndexMask();
-  //_SetPixelIndex(pDevice, x, y, PixelIndex ^ IndexMask);
-    PixelIndex = hal_lcd_get_pixel(x, y) & 0xFFFF;
-    hal_lcd_pixel(x, y, PixelIndex);
+    hal_lcd_pixel(x, y, hal_lcd_get_pixel(x, y) & 0xFFFF);
 }
 
 /*********************************************************************
@@ -136,8 +124,6 @@ static void _XorPixel(GUI_DEVICE * pDevice, int x, int y) {
 */
 static void _FillRect(GUI_DEVICE * pDevice, int x0, int y0, int x1, int y1)
 {
-    //LCD_PIXELINDEX PixelIndex;
-    //GUI_COLOR color;
     int coloridx;
     int i;
 
@@ -157,9 +143,7 @@ static void _FillRect(GUI_DEVICE * pDevice, int x0, int y0, int x1, int y1)
         y1 = y0;
         y0 = i;
     }
-
-    //PixelIndex = LCD__GetColorIndex();
-    //color = GUI_GetColor();
+    
     coloridx = LCD_GetColorIndex();
     if( GUI_pContext->DrawMode & LCD_DRAWMODE_XOR )
     {
@@ -172,11 +156,6 @@ static void _FillRect(GUI_DEVICE * pDevice, int x0, int y0, int x1, int y1)
     }
     else
     {
-        //for (; y0 <= y1; y0++) {
-        //  for (x = x0; x <= x1; x++) {
-        //    _SetPixelIndex(pDevice, x, y0, PixelIndex);
-        //  }
-        //}
         hal_lcd_rectangle(x0, y0, x1, y1, coloridx);
     }
 }
@@ -185,20 +164,9 @@ static void _FillRect(GUI_DEVICE * pDevice, int x0, int y0, int x1, int y1)
 *
 *       _DrawHLine
 */
-static void _DrawHLine(GUI_DEVICE * pDevice, int x0, int y, int x1) {
+static void _DrawHLine(GUI_DEVICE * pDevice, int x0, int y, int x1)
+{
     _FillRect(pDevice, x0, y, x1, y);
-    //int i;
-    //x0 = LOG2PHYS_X(x0, y);
-    //x1 = LOG2PHYS_X(x1, y);
-    //y = LOG2PHYS_Y(x, y);
-    //if( x1 < x0 )
-    //{
-    //    i = x1;
-    //    x1 = x0;
-    //    x0 = i;
-    //}
- 
-    //hal_lcd_hline(y, x0, x1, LCD__GetColorIndex() ? 0xffff : 0);
 }
 
 /*********************************************************************
@@ -208,65 +176,64 @@ static void _DrawHLine(GUI_DEVICE * pDevice, int x0, int y, int x1) {
 static void _DrawVLine(GUI_DEVICE * pDevice, int x, int y0, int y1)
 {
     _FillRect(pDevice, x, y0, x, y1);
-    //y0 = LOG2PHYS_Y(x, y0);
-    //y1 = LOG2PHYS_Y(x, y1);
-    //hal_lcd_vline(x, y0, y1, LCD__GetColorIndex() ? 0xffff : 0);
 }
 
 /*********************************************************************
 *
 *       Draw Bitmap 1 BPP
 */
-static void _DrawBitLine1BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int Diff, int xsize, const LCD_PIXELINDEX * pTrans) {
-  LCD_PIXELINDEX IndexMask, Index0, Index1, Pixel;
+static void _DrawBitLine1BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int Diff, int xsize, const LCD_PIXELINDEX * pTrans)
+{
+    LCD_PIXELINDEX IndexMask, Index0, Index1, Pixel;
 
-  Index0 = *(pTrans + 0);
-  Index1 = *(pTrans + 1);
-  x += Diff;
-  switch (GUI_pContext->DrawMode & (LCD_DRAWMODE_TRANS | LCD_DRAWMODE_XOR)) {
-  case 0:
-    do {
-      _SetPixelIndex(pDevice, x++, y, (*p & (0x80 >> Diff)) ? Index1 : Index0);
-      if (++Diff == 8) {
-        Diff = 0;
-        p++;
-      }
-    } while (--xsize);
-    break;
-  case LCD_DRAWMODE_TRANS:
-    do {
-      if (*p & (0x80 >> Diff))
-        _SetPixelIndex(pDevice, x, y, Index1);
-      x++;
-      if (++Diff == 8) {
-        Diff = 0;
-        p++;
-      }
-    } while (--xsize);
-    break;
-  case LCD_DRAWMODE_XOR | LCD_DRAWMODE_TRANS:
-  case LCD_DRAWMODE_XOR:
-    IndexMask = pDevice->pColorConvAPI->pfGetIndexMask();
-    do {
-      if (*p & (0x80 >> Diff)) {
-        Pixel = _GetPixelIndex(pDevice, x, y);
-        _SetPixelIndex(pDevice, x, y, Pixel ^ IndexMask);
-      }
-      x++;
-      if (++Diff == 8) {
-        Diff = 0;
-        p++;
-      }
-    } while (--xsize);
-    break;
-  }
+    Index0 = *(pTrans + 0);
+    Index1 = *(pTrans + 1);
+    x += Diff;
+    switch (GUI_pContext->DrawMode & (LCD_DRAWMODE_TRANS | LCD_DRAWMODE_XOR)) {
+    case 0:
+      do {
+        _SetPixelIndex(pDevice, x++, y, (*p & (0x80 >> Diff)) ? Index1 : Index0);
+        if (++Diff == 8) {
+          Diff = 0;
+          p++;
+        }
+      } while (--xsize);
+      break;
+    case LCD_DRAWMODE_TRANS:
+      do {
+        if (*p & (0x80 >> Diff))
+          _SetPixelIndex(pDevice, x, y, Index1);
+        x++;
+        if (++Diff == 8) {
+          Diff = 0;
+          p++;
+        }
+      } while (--xsize);
+      break;
+    case LCD_DRAWMODE_XOR | LCD_DRAWMODE_TRANS:
+    case LCD_DRAWMODE_XOR:
+      IndexMask = pDevice->pColorConvAPI->pfGetIndexMask();
+      do {
+        if (*p & (0x80 >> Diff)) {
+          Pixel = _GetPixelIndex(pDevice, x, y);
+          _SetPixelIndex(pDevice, x, y, Pixel ^ IndexMask);
+        }
+        x++;
+        if (++Diff == 8) {
+          Diff = 0;
+          p++;
+        }
+      } while (--xsize);
+      break;
+    }
 }
 
 /*********************************************************************
 *
 *       Draw Bitmap 2 BPP
 */
-static void  _DrawBitLine2BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int Diff, int xsize, const LCD_PIXELINDEX * pTrans) {
+static void  _DrawBitLine2BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int Diff, int xsize, const LCD_PIXELINDEX * pTrans)
+{
   LCD_PIXELINDEX Pixels, PixelIndex;
   int CurrentPixel, Shift, Index;
 
@@ -335,7 +302,8 @@ static void  _DrawBitLine2BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_U
 *
 *       Draw Bitmap 4 BPP
 */
-static void  _DrawBitLine4BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int Diff, int xsize, const LCD_PIXELINDEX * pTrans) {
+static void  _DrawBitLine4BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int Diff, int xsize, const LCD_PIXELINDEX * pTrans)
+{
   LCD_PIXELINDEX Pixels, PixelIndex;
   int CurrentPixel, Shift, Index;
 
@@ -404,7 +372,8 @@ static void  _DrawBitLine4BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_U
 *
 *       Draw Bitmap 8 BPP
 */
-static void  _DrawBitLine8BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int xsize, const LCD_PIXELINDEX * pTrans) {
+static void  _DrawBitLine8BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_UNI_PTR * p, int xsize, const LCD_PIXELINDEX * pTrans)
+{
   LCD_PIXELINDEX Pixel;
 
   switch (GUI_pContext->DrawMode & (LCD_DRAWMODE_TRANS | LCD_DRAWMODE_XOR)) {
@@ -448,7 +417,8 @@ static void  _DrawBitLine8BPP(GUI_DEVICE * pDevice, int x, int y, U8 const GUI_U
 *   Drawing of 16bpp high color bitmaps.
 *   Only required for 16bpp color depth of target. Should be removed otherwise.
 */
-static void _DrawBitLine16BPP(GUI_DEVICE * pDevice, int x, int y, U16 const GUI_UNI_PTR * p, int xsize) {
+static void _DrawBitLine16BPP(GUI_DEVICE * pDevice, int x, int y, U16 const GUI_UNI_PTR * p, int xsize)
+{
   for (;xsize > 0; xsize--, x++, p++) {
     _SetPixelIndex(pDevice, x, y, *p);
   }
@@ -462,7 +432,8 @@ static void _DrawBitLine16BPP(GUI_DEVICE * pDevice, int x, int y, U16 const GUI_
 *   Drawing of 32bpp true color bitmaps.
 *   Only required for 32bpp color depth of target. Should be removed otherwise.
 */
-static void _DrawBitLine32BPP(GUI_DEVICE * pDevice, int x, int y, U32 const GUI_UNI_PTR * p, int xsize) {
+static void _DrawBitLine32BPP(GUI_DEVICE * pDevice, int x, int y, U32 const GUI_UNI_PTR * p, int xsize)
+{
   for (;xsize > 0; xsize--, x++, p++) {
     _SetPixelIndex(pDevice, x, y, *p);
   }
@@ -571,7 +542,7 @@ static I32 _GetDevProp(GUI_DEVICE * pDevice, int Index) {
   case LCD_DEVCAP_BITSPERPIXEL:
     return pContext->BitsPerPixel;
   case LCD_DEVCAP_NUMCOLORS:
-    return 0;
+    return 1<<16;
   case LCD_DEVCAP_XMAG:
     return 1;
   case LCD_DEVCAP_YMAG:
@@ -791,6 +762,4 @@ const GUI_DEVICE_API GUIDRV_Template_API = {
 };
 
 
-
-//LCD_API_COLOR_CONV LCD_API_ColorConv_1;
 

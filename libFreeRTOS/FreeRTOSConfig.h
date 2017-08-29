@@ -25,7 +25,9 @@ extern uint32_t SystemCoreClock;
 #ifndef configUSE_TIMERS
     #define configUSE_TIMERS                    1
     #define configTIMER_TASK_PRIORITY           (configMAX_PRIORITIES - 1)
-    #define configTIMER_TASK_STACK_DEPTH        (configMINIMAL_STACK_SIZE)
+    #ifndef configTIMER_TASK_STACK_DEPTH
+        #define configTIMER_TASK_STACK_DEPTH    (configMINIMAL_STACK_SIZE)
+    #endif
     #define configTIMER_QUEUE_LENGTH            16
 #endif
 

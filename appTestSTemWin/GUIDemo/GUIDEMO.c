@@ -69,8 +69,8 @@ Purpose     : Several GUIDEMO routines
 */
 static const GUI_WIDGET_CREATE_INFO _aFrameWinControl[] = {
   { FRAMEWIN_CreateIndirect, "Control", 0,                0,  0, CONTROL_SIZE_X, CONTROL_SIZE_Y, 0,          0 },
-  //{ BUTTON_CreateIndirect,   "Halt",    GUI_ID_HALT,      2, 24, BUTTON_SIZE_X,  BUTTON_SIZE_Y,  0,          0 },
-  //{ BUTTON_CreateIndirect,   "Next",    GUI_ID_NEXT,     36, 24, BUTTON_SIZE_X,  BUTTON_SIZE_Y,  0,          0 },
+  { BUTTON_CreateIndirect,   "Halt",    GUI_ID_HALT,      2, 24, BUTTON_SIZE_X,  BUTTON_SIZE_Y,  0,          0 },
+  { BUTTON_CreateIndirect,   "Next",    GUI_ID_NEXT,     36, 24, BUTTON_SIZE_X,  BUTTON_SIZE_Y,  0,          0 },
   { PROGBAR_CreateIndirect,  0,         GUI_ID_PROGBAR0,  2, 11, PROGBAR_SIZE_X, PROGBAR_SIZE_Y, WM_CF_HIDE, 0 },
   { TEXT_CreateIndirect,     0,         GUI_ID_TEXT0,     2,  2, TEXT_SIZE_X,    TEXT_SIZE_Y,    0,          0 }
 };
@@ -407,7 +407,7 @@ void GUIDEMO_main(void) {
   WM_SelectWindow(WM_HBKWIN);
   GUI_Clear();
   #if (GUI_SUPPORT_CURSOR | GUI_SUPPORT_TOUCH)
-//    GUI_CURSOR_Show();
+    GUI_CURSOR_Show();
   #endif
   //
   // Create and configure Control and Information window

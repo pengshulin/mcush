@@ -1,11 +1,15 @@
 #include "mcush.h"
 #include "task_blink.h"
 #include "GUI.h"
+#include "timers.h"
 
 #define WHITE  0xFFFF
 #define BLACK  0x0000
 
-extern void GUIDEMO_main(void);
+extern void GUIDEMO_Main(void);
+
+static TimerHandle_t timer_touch;
+#define TOUCH_SCAN_MS  50
 
 static const GUI_COLOR colorBW[] = {
     //0xFFFFFF, 0x000000
@@ -91,6 +95,10 @@ void test_gui(void)
 }
 
 
+void timer_touch_hook(TimerHandle_t *xTimer)
+{
+    GUI_TOUCH_Exec();
+}
 
 
 int cmd_lcd( int argc, char *argv[] )
@@ -134,11 +142,17 @@ int cmd_lcd( int argc, char *argv[] )
         GUI_Init();
         GUI_SetDrawMode(GUI_DRAWMODE_NORMAL);
         GUI_SetTextMode(GUI_TM_TRANS);
-        GUI_SetBkColor(GUI_WHITE);
-        GUI_SetColor(GUI_BLACK);
+        GUI_SetBkColor(GUI_BLACK);
         GUI_Clear();
+        GUI_SetColor(GUI_WHITE);
         GUI_UC_SetEncodeUTF8();
 
+        if( ! timer_touch )
+        {
+            timer_touch = xTimerCreate( "touch", TOUCH_SCAN_MS*configTICK_RATE_HZ/1000, pdTRUE, 0, 
+                                        (TimerCallbackFunction_t)timer_touch_hook );
+            xTimerStart( timer_touch, 0 );
+        }
     }
 
     if( hal_test )
@@ -174,7 +188,7 @@ int cmd_lcd( int argc, char *argv[] )
     }
 
     if( demo )
-        GUIDEMO_main();
+        GUIDEMO_Main();
 
 
     return 0;

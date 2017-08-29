@@ -1,6 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #if !defined(MCUSH_NON_OS)
+
 void vApplicationTickHook(void)  __attribute__( ( weak ) );
 void vApplicationTickHook(void) 
 {

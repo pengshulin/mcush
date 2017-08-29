@@ -8,8 +8,10 @@ env = config.env
 env.appendDefineFlags( [
     'MCUSH_STACK_SIZE=10240',
     'GUI_ALLOC_SIZE=16000',
+    'GUI_SUPPORT_MEMDEV=1',
     'SHOW_GUIDEMO_BARGRAPH=1',
     'SHOW_GUIDEMO_RADIALMENU=1',
+    'configTIMER_TASK_STACK_DEPTH=2048',
     ] ) 
 
 env.appendPath([
