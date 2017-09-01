@@ -103,15 +103,15 @@ void timer_touch_hook(TimerHandle_t *xTimer)
 
 int cmd_lcd( int argc, char *argv[] )
 {
-    mcush_opt_parser parser;
-    mcush_opt opt;
-    const mcush_opt_spec opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, "loop", 'l', 0, "loop mode", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "init", 'i', 0, "init", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "test", 't', 0, "test", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "demo", 'd', 0, "demo", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "hal_test", 'h', 0, "hal api test", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
     uint8_t loop=0, init=0, test=0, hal_test=0, demo=0;
     int i;
     

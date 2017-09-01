@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import time
+import base64
 import logging
 import Env
 import Utils
@@ -63,41 +64,56 @@ class Mcush( Instrument.SerialInstrument ):
                 path = l.strip().rstrip(':')
                 flist.append( (path, None, None) )
             else:
-                a, b = l.strip().split()
+                a, b = l.lstrip().split('  ')
                 flist.append( (path, b, int(a)) )
         return flist
 
+
+    def convPathname( self, pathname ):
+        print pathname
+        pathname = unicode(pathname)
+        if pathname.find(' ') != -1:
+            pathname = '\"' + pathname + '\"'
+        return pathname.encode('utf8')
+
     def cat( self, pathname, b64=False, write=False, append=False, buf='' ):
+        pathname = self.convPathname(pathname)
         if write or append:
             if append:
                 cmd = 'cat -a '
             else:
                 cmd = 'cat -w '
+            if b64:
+                cmd += '-b '
             cmd += pathname
             self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
             self.writeCommand( cmd )
-            for l in buf.splitlines():
+            if b64:
+                buf = base64.encodestring(buf)
+            buf = buf.splitlines()
+            for l in buf:
                 self.writeCommand( l.rstrip() )
             self.setPrompts()
             self.writeCommand( '' )
         else:
             if b64:
-                cmd = 'cat -b %s'% pathname
+                cmd = 'cat -b '
             else:
-                cmd = 'cat %s'% pathname
+                cmd = 'cat '
+            cmd += pathname
             ret = self.writeCommand( cmd )
-            #for l in ret:
-            #    print l
             return ret
 
     def remove( self, pathname ):
-        cmd = 'rm %s'% pathname
+        pathname = self.convPathname(pathname)
+        cmd = 'rm ' + pathname
         self.writeCommand( cmd )
 
     def rename( self, old_pathname, new_name ):
+        old_pathname = self.convPathname(old_pathname)
+        new_name = self.convPathname(new_name)
         cmd = 'rename %s %s'% (old_pathname, new_name)
         self.writeCommand( cmd )
-
 
     def spiffs( self, command, value=None ):
         cmd = 'spiffs -c %s'% command
@@ -113,13 +129,14 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' -l'
         self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
         self.writeCommand( cmd )
-        line = []
+        line = ''
         for item in buf:
-            line.append( item )
-            if len(line) > 20:
-                self.writeCommand( ' '.join([str(i) for i in line] ) )
-                line = []
-        self.writeCommand( ' '.join([str(i) for i in line]) )
+            line += '%d '% item
+            if len(line) >= 60:
+                self.writeCommand( line.rstrip() )
+                line = ''
+        if line:
+            self.writeCommand( line.rstrip() )
         self.setPrompts()
         self.writeCommand( '' )
         if start:

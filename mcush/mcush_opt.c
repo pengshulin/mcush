@@ -247,3 +247,22 @@ done:
     return error;
 }
 
+
+int mcush_opt_check_invalid_argument(
+    const char *command, mcush_opt *opt, 
+    const mcush_opt_spec specs[] )
+{
+    if( opt->value && strcmp(opt->value, "--help")==0 )
+    {
+        mcush_opt_usage_print( command, specs );
+        return 0;
+    }
+    else
+    {
+        shell_write_str( "invalid arg: " );
+        shell_write_line( opt->value );
+        mcush_opt_usage_print( command, specs );
+        return -1;
+    } 
+}
+ 

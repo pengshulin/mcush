@@ -131,7 +131,7 @@ int  shell_driver_write( const char *buffer, int len )
 
 void shell_driver_write_char( char c )
 {
-    int retry;
+    int retry=0;
     
     while( hal_uart_putc( c, WRITE_TIMEOUT_TICK ) == pdFAIL )
     {

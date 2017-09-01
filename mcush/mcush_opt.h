@@ -57,7 +57,7 @@ typedef enum {
 /** Specification for an available option. */
 typedef struct mcush_opt_spec {
 	/** Type of option expected. */
-	mcush_opt_type_t type;
+	const mcush_opt_type_t type;
 
 	/** Name of the long option. */
 	const char *name;
@@ -77,7 +77,7 @@ typedef struct mcush_opt_spec {
 	/**
 	 * Optional `mcush_opt_usage_t`, used when creating usage information.
 	 */
-	mcush_opt_usage_t usage;
+	const mcush_opt_usage_t usage;
 } mcush_opt_spec;
 
 /** An option provided on the command-line. */
@@ -151,6 +151,13 @@ int mcush_opt_parser_next(
  */
 int mcush_opt_usage_print(
 	const char *command,
-	const mcush_opt_spec specs[]);
+	const mcush_opt_spec specs[] );
+
+
+/* check for argument and options, print usage info,
+   return 0(OK) for --help option or -1(SYNTAX ERR) for invalid args */
+int mcush_opt_check_invalid_argument(
+    const char *command, mcush_opt *opt, 
+    const mcush_opt_spec specs[] );
 
 #endif /* MCUSH_OPT_H */

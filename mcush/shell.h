@@ -39,17 +39,8 @@
     #define SHELL_QUOTE_PARSE_ENABLE   1
 #endif
 
-#define STOP_AT_INVALID_ARGUMENT    {  \
-    if( opt.value && strcmp(opt.value, "--help")==0 ) { \
-        mcush_opt_usage_print( argv[0], opt_spec ); \
-        return 0;  }  \
-    else  {  \
-        shell_write_str( "invalid arg: " ); \
-        shell_write_line( opt.value ); \
-        mcush_opt_usage_print( argv[0], opt_spec ); \
-        return -1; }  } 
-
-
+#define STOP_AT_INVALID_ARGUMENT   \
+        return mcush_opt_check_invalid_argument(argv[0], &opt, opt_spec);
 
 
 enum {

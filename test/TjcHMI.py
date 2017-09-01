@@ -131,7 +131,7 @@ if __name__ == "__main__":
     for i in ['main','button','key','guide','box','progressbar','slide']:
         print 'page', i
         h.page( i )
-        time.sleep(0.1)
+        time.sleep(1)
     
     h.cls()
     for i in range(0,319,10):

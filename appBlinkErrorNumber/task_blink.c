@@ -21,12 +21,12 @@ int set_errno(int new)
 
 int cmd_error( int argc, char *argv[] )
 {
-    mcush_opt_parser parser;
-    mcush_opt opt;
-    const mcush_opt_spec opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, "stop", 's', 0, "stop", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_ARG, "errno", 0, 0, "0~100000000", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
     int new = -1;
     uint8_t stop=0;
 

@@ -46,12 +46,12 @@ while True:
 '''],
 
 ["SGPIO output", '''\
-# PA[0:2]
+# PA[0:5]
 s = Mcush(PORT)
 port = 0  # PA
-pins = 7  # [0:2]
+pins = 0x3F  # [0:5]
 freq = 1
-buf = [0, 1, 2, 3, 4, 5, 6, 7]
+buf = range(64)
 s.sgpio( port, pins, buf, freq, loop=True )
 '''],
 
@@ -151,6 +151,7 @@ class RemoveTask(MyTask):
         self.info( u"removing %s..."% fname )
         try:
             s.remove( fname )
+            self.queue.put( ('remove_file', fname) )
             self.info( "Done" )
         except Instrument.CommandExecuteError, e:
             self.info( "Failed to remove %s"% fname, 'error' )
@@ -163,6 +164,7 @@ class RenameTask(MyTask):
         self.info( u"rename %s to %s..."% (oldname, newname) )
         try:
             s.rename( oldname, newname )
+            self.queue.put( ('rename_file', (oldname, newname)) )
             self.info( "Done" )
         except Instrument.CommandExecuteError, e:
             self.info( u"Failed to rename %s to %s..."% (oldname, newname), 'error' )
@@ -200,6 +202,8 @@ class GetFileTask(MyTask):
         except Exception, e:
             self.info( u"Failed to save file %s"% (savename), 'error' )
 
+PUTFILE_SEGMENT_SIZE = 1024
+
 class PutFileTask(MyTask):
     def target( self, args ):
         (port, srcname, fname) = args
@@ -208,24 +212,32 @@ class PutFileTask(MyTask):
         self.info( u"read file %s..."% (srcname) )
         try:
             raw = open(srcname, 'r').read()
-            raw_enc = base64.b64encode(raw)
         except:
             self.info( 'read file %s error'% srcname, 'error' )
             return
         self.info( u"write file %s..."% (fname) )
+        raw_split= []
+        i = 0
+        while True:
+            seg = raw[PUTFILE_SEGMENT_SIZE*i:PUTFILE_SEGMENT_SIZE*(i+1)]
+            if seg:
+                raw_split.append( seg )
+            else:
+                break
+            i += 1
+        segs = len(raw_split)
         try:
-            print raw_enc
-        #    r = s.cat( fname, b64=True )
-        #    r = base64.b64decode('\n'.join(r))
-        #    #self.queue.put( ('view_file', (fname, r)) )
+            buf0 = raw_split.pop(0)
+            self.info( u"1 / %d"% segs )
+            s.cat( fname, write=True, b64=True, buf=buf0 )
+            cnt = 2
+            for buf in raw_split:
+                self.info( u"%d / %d"% (cnt, segs) )
+                s.cat( fname, write=True, append=True, b64=True, buf=buf )
+                cnt += 1
+            self.info( u"File %s written, size %d."% (fname, len(raw)) )
         except Instrument.CommandExecuteError, e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
-        #self.info( 'save as %s...'% savename )
-        #try:
-        #    open(savename, 'w+').write(r)
-        #    self.info( "File %s saved, size %d."% (savename, len(r)) )
-        #except Exception, e:
-        #    self.info( u"Failed to save file %s"% (savename), 'error' )
 
 
 
@@ -319,6 +331,11 @@ class MainFrame(MyFrame):
         ctrl.SetCaretForeground("BLACK")
         ctrl.SetMarginType(1, wx.stc.STC_MARGIN_NUMBER)
         ctrl.SetMarginWidth(1, 40)
+
+        self.SetAcceleratorTable(wx.AcceleratorTable([  \
+            (wx.ACCEL_NORMAL, wx.WXK_F5,  self.button_run.GetId()),  # run
+            ]))
+
     
     def OnUpdateUI(self, evt):
         ctrl = self.text_ctrl_script
@@ -446,6 +463,8 @@ class MainFrame(MyFrame):
             self.tree_ctrl_fs.SetItemImage(root, self.img_id_drive, wx.TreeItemIcon_Normal) 
             subroot = {}
             for p, n, s in lst:
+                if n is not None:
+                    n = n.decode('utf8', errors='ignore')
                 print p, n, s
                 if not subroot.has_key( p ):
                     subroot[p] = self.tree_ctrl_fs.AppendItem(root, p)
@@ -463,7 +482,23 @@ class MainFrame(MyFrame):
             dlg.text_ctrl_data.SetValue( contents )
             dlg.SetTitle( 'File %s'% fname )
             dlg.ShowModal()
-            
+        elif event.cmd == 'remove_file':
+            fname = event.val
+            try:
+                item = self.tree_ctrl_fs.GetFocusedItem()
+                self.tree_ctrl_fs.Delete( item ) 
+            except:
+                return
+        elif event.cmd == 'rename_file':
+            (oldname, newname) = event.val
+            try:
+                item = self.tree_ctrl_fs.GetFocusedItem()
+                p, n, s = self.tree_ctrl_fs.GetPyData( item )
+                self.tree_ctrl_fs.SetItemText( item, '%s (%d)'% (newname, s) ) 
+                self.tree_ctrl_fs.SetPyData(item, (p, newname, s))
+            except Exception, e:
+                return
+
         event.Skip()
  
     def OnStop(self, event):
@@ -610,11 +645,11 @@ class MainFrame(MyFrame):
         dlg = wx.TextEntryDialog( self, 'Rename %s to:'% oldname, 'Rename')
         dlg.SetValue( n )
         if dlg.ShowModal() == wx.ID_OK:
-            newname = dlg.GetValue().encode('utf8')
+            newname = os.path.basename( dlg.GetValue() )
         else:
             return
-
-        self.task = RenameTask( (port, oldname, newname), self.msgq )
+        if n != newname :
+            self.task = RenameTask( (port, oldname, newname), self.msgq )
         event.Skip()
 
     def OnView( self, event ):

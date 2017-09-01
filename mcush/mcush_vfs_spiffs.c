@@ -60,13 +60,13 @@ int mcush_spiffs_check( void )
 
 int mcush_spiffs_remove( const char *path )
 {
-    return SPIFFS_remove( &_fs, path ); 
+    return SPIFFS_remove( &_fs, path ) ? 0 : 1;
 }
 
 
 int mcush_spiffs_rename( const char *old, const char *newPath )
 {
-    return SPIFFS_rename( &_fs, old, newPath ); 
+    return SPIFFS_rename( &_fs, old, newPath ) ? 0 : 1; 
 }
 
 

@@ -401,14 +401,14 @@ int disp_float( float val )
 
 int cmd_disp( int argc, char *argv[] )
 {
-    mcush_opt_parser parser;
-    mcush_opt opt;
-    const mcush_opt_spec opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, "update", 'u', "update", "update period in ms", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_VALUE, "int", 'i', "integer", "disp an integer", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_LITERAL, 0, 0, 0, 0, MCUSH_OPT_USAGE_HIDDEN },
         { MCUSH_OPT_ARG, "data", 0, 0, "new display buffer", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
     int update_ms=-1;
     int integer=-1;
     int has_data=0;
