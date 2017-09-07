@@ -25,7 +25,7 @@ from Mcush import *
 from McushDebugDlg import *
 from re import compile as re_compile
 import base64
-
+import pprint
 
 (UpdateEvent, EVT_UPDATE) = wx.lib.newevent.NewEvent()
 import gettext
@@ -95,9 +95,14 @@ class TestPortTask(MyTask):
         (port) = args
         self.info( u"Test port %s..."% port )
         s = Mcush(port)
-        self.updateInfo( s.getModel(), s.getVersion() )
+        model = s.getModel()
+        version = s.getVersion()
+        sn = s.getSerialNumber()
         s.disconnect()
-        self.info( u"Done" )
+        info = u'model %s, ver %s'% (model, version)
+        if sn:
+            info += u', sn %s'% sn
+        self.info( info, 'ok' )
 
 class ResetTask(MyTask):
     def target( self, args ):
@@ -212,6 +217,7 @@ class PutFileTask(MyTask):
         self.info( u"read file %s..."% (srcname) )
         try:
             raw = open(srcname, 'r').read()
+            raw_len = len(raw)
         except:
             self.info( 'read file %s error'% srcname, 'error' )
             return
@@ -225,20 +231,43 @@ class PutFileTask(MyTask):
             else:
                 break
             i += 1
-        segs = len(raw_split)
         try:
+            cnt = 0
             buf0 = raw_split.pop(0)
-            self.info( u"1 / %d"% segs )
+            self.info( u"Transfering file %s, 0 / %d bytes"% (fname, raw_len) )
             s.cat( fname, write=True, b64=True, buf=buf0 )
-            cnt = 2
+            cnt += len(buf0)
             for buf in raw_split:
-                self.info( u"%d / %d"% (cnt, segs) )
+                self.info( u"Transfering file %s, %d / %d bytes"% (fname, cnt, raw_len) )
                 s.cat( fname, write=True, append=True, b64=True, buf=buf )
-                cnt += 1
+                cnt += len(buf)
             self.info( u"File %s written, size %d."% (fname, len(raw)) )
+            self.queue.put( ('update_filelist', s.list()) )
         except Instrument.CommandExecuteError, e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
 
+
+class FormatTask(MyTask):
+    def target( self, args ):
+        (port, path) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"Formating %s..."% (path) )
+        s.setTimeout( 30 )
+        s.writeCommand( 's -c format' )
+        s.setTimeout()
+        self.info( "Done" )
+
+class FsInfoTask(MyTask):
+    def target( self, args ):
+        (port, path) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        self.info( u"Formating %s..."% (path) )
+        a, b = s.writeCommand( 's -c info' )[0].split('  ')
+        total = int(a.split(':')[1].strip())
+        used = int(b.split(':')[1].strip())
+        self.info( 'Total: %d, used: %d (%.1f%%)'% (total, used, float(used)/total*100) )
 
 
 
@@ -257,7 +286,25 @@ class MainFrame(MyFrame):
         self.Bind(EVT_UPDATE, self.OnUpdate)
                 
         self.tree_ctrl_fs.Bind(wx.EVT_LEFT_DCLICK, self.OnView)
-            
+        self.tree_ctrl_fs.Bind(wx.EVT_TREE_ITEM_RIGHT_CLICK, self.OnFsMenu)
+        self.popupID_query = wx.NewId()
+        self.popupID_remove = wx.NewId()
+        self.popupID_rename = wx.NewId()
+        self.popupID_view = wx.NewId()
+        self.popupID_get = wx.NewId()
+        self.popupID_put = wx.NewId()
+        self.popupID_format = wx.NewId()
+        self.popupID_fsinfo = wx.NewId()
+        self.Bind(wx.EVT_MENU, self.OnQuery, id=self.popupID_query)
+        self.Bind(wx.EVT_MENU, self.OnRemove, id=self.popupID_remove)
+        self.Bind(wx.EVT_MENU, self.OnRename, id=self.popupID_rename)
+        self.Bind(wx.EVT_MENU, self.OnView, id=self.popupID_view)
+        self.Bind(wx.EVT_MENU, self.OnGetFile, id=self.popupID_get)
+        self.Bind(wx.EVT_MENU, self.OnPutFile, id=self.popupID_put)
+        self.Bind(wx.EVT_MENU, self.OnFormat, id=self.popupID_format)
+        self.Bind(wx.EVT_MENU, self.OnFsInfo, id=self.popupID_fsinfo)
+        
+    
         self.init_text_ctrl_script()
         self.loadConfig()
         ports = Utils.enumPorts()
@@ -445,15 +492,16 @@ class MainFrame(MyFrame):
             lock = event.val
             self.combo_box_port.Enable( not lock )
             self.button_test_port.Enable( not lock )
-            self.button_run.Enable( not lock )
-            self.button_reset.Enable( not lock )
-            self.button_query.Enable( not lock )
-            self.button_remove.Enable( not lock )
-            self.button_rename.Enable( not lock )
-            self.button_view.Enable( not lock )
-            self.button_put_file.Enable( not lock )
-            self.button_get_file.Enable( not lock )
-            #self.notebook_1.Enable( not lock )
+            #self.button_run.Enable( not lock )
+            #self.button_reset.Enable( not lock )
+            #self.button_query.Enable( not lock )
+            #self.button_remove.Enable( not lock )
+            #self.button_rename.Enable( not lock )
+            #self.button_view.Enable( not lock )
+            #self.button_put_file.Enable( not lock )
+            #self.button_get_file.Enable( not lock )
+            #self.tree_ctrl_fs.Enable( not lock )
+            self.notebook_1.Enable( not lock )
             self.button_stop.Show( lock )
             self.Layout()
         elif event.cmd == 'update_filelist':
@@ -462,10 +510,9 @@ class MainFrame(MyFrame):
             root = self.tree_ctrl_fs.AddRoot('/')
             self.tree_ctrl_fs.SetItemImage(root, self.img_id_drive, wx.TreeItemIcon_Normal) 
             subroot = {}
-            for p, n, s in lst:
-                if n is not None:
-                    n = n.decode('utf8', errors='ignore')
-                print p, n, s
+            for p, rn, s in lst:
+                n = None if rn is None else rn.decode('utf8', errors='ignore')
+                print p, pprint.pformat(rn), n, s
                 if not subroot.has_key( p ):
                     subroot[p] = self.tree_ctrl_fs.AppendItem(root, p)
                     self.tree_ctrl_fs.SetItemImage(subroot[p], self.img_id_drive, wx.TreeItemIcon_Normal) 
@@ -613,7 +660,7 @@ class MainFrame(MyFrame):
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
             p, n, s = self.tree_ctrl_fs.GetPyData( item )
-            self.info( "File %s, size %d"% (os.path.join(p,n), s) )
+            self.info( "File %s, size %d"% (p+'/'+n, s) )
         except:
             self.info( "" )
 
@@ -625,7 +672,7 @@ class MainFrame(MyFrame):
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
             p, n, s = self.tree_ctrl_fs.GetPyData( item )
-            fname = os.path.join(p,n)
+            fname = p + '/' + n
             self.task = RemoveTask( (port, fname), self.msgq )
         except:
             pass
@@ -639,7 +686,7 @@ class MainFrame(MyFrame):
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
             p, n, s = self.tree_ctrl_fs.GetPyData( item )
-            oldname = os.path.join(p,n)
+            oldname = p + '/' + n
         except:
             return
         dlg = wx.TextEntryDialog( self, 'Rename %s to:'% oldname, 'Rename')
@@ -660,7 +707,7 @@ class MainFrame(MyFrame):
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
             p, n, s = self.tree_ctrl_fs.GetPyData( item )
-            fname = os.path.join(p,n)
+            fname = p + '/' + n
             self.task = ViewTask( (port, fname), self.msgq )
         except:
             return
@@ -674,7 +721,7 @@ class MainFrame(MyFrame):
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
             p, n, s = self.tree_ctrl_fs.GetPyData( item )
-            fname = os.path.join(p,n)
+            fname = p + '/' + n
         except:
             return
         dlg = wx.FileDialog( self, message="Choose destination file", defaultDir=self.config_dir, 
@@ -705,13 +752,63 @@ class MainFrame(MyFrame):
             srcname = dlg.GetPath().strip()
         else:
             return
-        fname = os.path.join(p,os.path.basename(srcname))
+        fname = p + '/' + os.path.basename(srcname)
         self.task = PutFileTask( (port, srcname, fname), self.msgq )
         event.Skip()
 
+    def OnFsMenu( self, event ):
+        item = self.tree_ctrl_fs.GetFocusedItem()
+        p, n, s = self.tree_ctrl_fs.GetPyData( item )
+        menu = wx.Menu()
+        if n is None:
+            # mount point
+            item1 = wx.MenuItem(menu, self.popupID_query, u"Update")
+            menu.AppendItem(item1)
+            if not p.startswith('/r'):
+                item2 = wx.MenuItem(menu, self.popupID_put, u"Put file...")
+                menu.AppendItem(item2)
+                item3 = wx.MenuItem(menu, self.popupID_format, u"Format")
+                menu.AppendItem(item3)
+                item4 = wx.MenuItem(menu, self.popupID_fsinfo, u"Filesystem info")
+                menu.AppendItem(item4)
+        else:
+            # file
+            if not p.startswith('/r'):
+                item1 = wx.MenuItem(menu, self.popupID_remove, u"Remove")
+                menu.AppendItem(item1)
+                item2 = wx.MenuItem(menu, self.popupID_rename, u"Rename")
+                menu.AppendItem(item2)
+            item3 = wx.MenuItem(menu, self.popupID_view, u"View")
+            menu.AppendItem(item3)
+            item4 = wx.MenuItem(menu, self.popupID_get, u"Get file...")
+            menu.AppendItem(item4)
+        self.PopupMenu(menu)
+        menu.Destroy()
+        event.Skip()
+         
+    def OnFormat( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", 'error')
+            return
+        item = self.tree_ctrl_fs.GetFocusedItem()
+        p, n, s = self.tree_ctrl_fs.GetPyData( item )
+        if n is None:
+            self.task = FormatTask( (port, p), self.msgq )
+        event.Skip()
+
+    def OnFsInfo( self, event ):
+        port = self.combo_box_port.GetValue()
+        if not port:
+            self.info("port error", 'error')
+            return
+        item = self.tree_ctrl_fs.GetFocusedItem()
+        p, n, s = self.tree_ctrl_fs.GetPyData( item )
+        if n is None:
+            self.task = FsInfoTask( (port, p), self.msgq )
+        event.Skip()
 
 
- 
 def main():
     gettext.install("app") # replace with the appropriate catalog name
     freeze_support()

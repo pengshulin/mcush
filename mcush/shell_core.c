@@ -799,6 +799,57 @@ fail:
     return 0;
 }
 
+int shell_make_float_data_buffer( void **pbuf, int *len )
+{
+    void *buf=0, *buf2=0;
+    int buf_len;
+    float *p, r;
+    char *p2, *p3;
+
+    buf = shell_read_multi_lines(0);
+    if( ! buf )
+        return 0;
+    buf2 = malloc(SHELL_FLOAT_BUF_ALLOC_SIZE_INC);
+    if( ! buf2 )
+        goto alloc_err;
+    buf_len = 0;
+    p = (float*)buf2;
+    p2 = (char*)buf;
+    while( *p2 )
+    {
+        r = strtof( p2, &p3 );
+        if( !p3 || !*p3 )
+            break;
+        if( p2==p3 )
+            goto fail;
+        while( *p3 && ((*p3==' ')||(*p3==',')||(*p3=='\t')||(*p3=='\r')||(*p3=='\n')) )
+            p3++;
+        //if( *p3 && !(*p3>='0' && *p3<='9') )
+        //    goto fail;
+        p2 = p3;
+        *p++ = r;
+        buf_len += 1;
+    }
+    if( !buf_len )
+        goto fail;
+    free(buf);
+    p = (float*)realloc( buf2, buf_len * 4 );
+    if( p )
+        buf2 = (float*)p;
+    *pbuf = buf2;
+    *len = buf_len;
+    return 1;
+alloc_err:
+    shell_write_line("malloc failed");
+fail:
+    if( buf )
+        free(buf);
+    if( buf2 )
+        free(buf2);
+    return 0;
+}
+
+
 
 void shell_run( void )
 {

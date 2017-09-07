@@ -15,6 +15,7 @@ if USE_SPIFFS:
     env.appendPath([ '/libspiffs' ])
     env.appendGlobSource([ '/libspiffs/*.c' ])
 
+env.appendDefineFlags( [ 'SUSPEND_ENABLED=1' ] )
 
     
 env.appendDefineFlags( [ 

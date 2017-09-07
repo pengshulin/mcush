@@ -134,6 +134,14 @@ class SerialInstrument:
         self.prompts = prompts
         return old_prompts
 
+        
+    def setTimeout( self, new=None ):
+        if new is None:
+            new = self.DEFAULT_TIMEOUT
+        old = self.ser.timeout
+        self.ser.timeout = new
+        return old
+
     def connect( self, check_idn=True ):
         '''connect'''
         if self.ser.isOpen():

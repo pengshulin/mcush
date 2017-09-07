@@ -30,6 +30,7 @@ void hal_gpio_init(void);
 void hal_gpio_set_input(int port, int bits);
 void hal_gpio_set_input_pull(int port, int bits, int pull);
 void hal_gpio_set_output(int port, int bits);
+void hal_gpio_set_output_open_drain(int port, int bits);
 void hal_gpio_set(int port, int bits);
 void hal_gpio_clr(int port, int bits);
 void hal_gpio_toggle(int port, int bits);

@@ -72,6 +72,9 @@ class Mcush( Instrument.SerialInstrument ):
     def convPathname( self, pathname ):
         print pathname
         pathname = unicode(pathname)
+        namelen = len(os.path.basename(pathname).encode('utf8'))
+        if namelen > 28:
+            raise Exception, "File name length too long %d"% namelen
         if pathname.find(' ') != -1:
             pathname = '\"' + pathname + '\"'
         return pathname.encode('utf8')
@@ -142,4 +145,67 @@ class Mcush( Instrument.SerialInstrument ):
         if start:
             self.writeCommand( 'sgpio --start' )
         
-                
+               
+    def i2c_init( self, addr, scl=None, sda=None, delay=None ):
+        cmd = 'i2c -a0x%X -i' % (addr)
+        if scl:
+            cmd += ' --scl=%s'% scl
+        if sda:
+            cmd += ' --sda=%s'% sda
+        if delay:
+            cmd += ' --delay=%s'% delay
+        self.writeCommand( cmd )
+
+
+    def i2c( self, write=[], read_count=None ):
+        cmd = 'i2c'
+        if read_count:
+            cmd += ' -r%d'% read_count
+        if write:
+            cmd += ' %s'% (' '.join(['0x%X'%i for i in write])) 
+        ret = self.writeCommand( cmd )
+        if read_count:
+            r = []
+            for l in ret:
+                for v in l.strip().split():
+                    r.append(eval(v))
+            return r
+        else:
+            return None
+
+    def spi_init( self, sdi=None, sdo=None, sck=None, cs=None, cpol=None, cpha=None, width=None, lsb=None, delay=None ):
+        cmd = 'spi -i'
+        if sdi:
+            cmd += ' --sdi=%s'% sdi
+        if sdo:
+            cmd += ' --sdo=%s'% sdo
+        if cs:
+            cmd += ' --cs=%s'% cs
+        if cpol:
+            cmd += ' --cpol'
+        if cpha:
+            cmd += ' --cpha'
+        if lsb:
+            cmd += ' --lsb'
+        if width:
+            cmd += ' --width=%d'% width
+        if delay:
+            cmd += ' --delay=%s'% delay
+        self.writeCommand( cmd )
+
+    def spi( self, write=[], read=None ):
+        cmd = 'spi'
+        if read:
+            cmd += ' -r'
+        for d in write:
+            cmd += ' 0x%X'% d 
+        ret = self.writeCommand( cmd )
+        if read:
+            r = []
+            for l in ret:
+                for v in l.strip().split():
+                    r.append(eval(v))
+            return r
+        else:
+            return None
+ 

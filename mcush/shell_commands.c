@@ -71,6 +71,14 @@
 #ifndef USE_CMD_POWER
     #define USE_CMD_POWER  0
 #endif
+#ifndef USE_CMD_I2C
+    #define USE_CMD_I2C  1
+#endif
+#ifndef USE_CMD_SPI
+    #define USE_CMD_SPI  1
+#endif
+
+
 
 #if MCUSH_SPIFFS
     #ifndef USE_CMD_SPIFFS
@@ -149,6 +157,8 @@ int cmd_beep( int argc, char *argv[] );
 int cmd_sgpio( int argc, char *argv[] );
 int cmd_mkbuf( int argc, char *argv[] );
 int cmd_power( int argc, char *argv[] );
+int cmd_i2c( int argc, char *argv[] );
+int cmd_spi( int argc, char *argv[] );
 
 int cmd_spiffs( int argc, char *argv[] );
 int cmd_cat( int argc, char *argv[] );
@@ -252,6 +262,16 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "power",  cmd_power, 
     "set power",
     "power [on|off]" },
+#endif
+#if USE_CMD_I2C
+{   0, 0,  "i2c",  cmd_i2c, 
+    "i2c emulated",
+    "i2c [-i|r] <data>" },
+#endif
+#if USE_CMD_SPI
+{   0, 0,  "spi",  cmd_spi, 
+    "spi emulated",
+    "spi [-i|r] <data>" },
 #endif
 #if USE_CMD_BEEP
 {   0,  'b',  "beep",  cmd_beep, 
@@ -808,7 +828,10 @@ int cmd_write( int argc, char *argv[] )
             else if( strcmp( opt.spec->name, "width" ) == 0 )
                 shell_eval_int(opt.value, (int*)&width);
             else if( strcmp( opt.spec->name, "data" ) == 0 )
+            {
+                parser.idx--;
                 break;
+            }
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -825,7 +848,7 @@ int cmd_write( int argc, char *argv[] )
         shell_write_line( "width err" );
         return -1;
     }
-
+    parser.idx++;
     while( parser.idx < argc )
     {
         if( ! shell_eval_int(argv[parser.idx], &dat) )
@@ -1415,32 +1438,37 @@ int cmd_beep( int argc, char *argv[] )
 #if USE_CMD_MKBUF
 int cmd_mkbuf( int argc, char *argv[] )
 {
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "float", 'f', 0, "float mode", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
     void *buf;
     int buf_len;
-    //mcush_opt_parser parser;
-    //mcush_opt opt;
-    //static const mcush_opt_spec opt_spec[] = {
-    //    { MCUSH_OPT_NONE } };
+    uint8_t float_mode=0;
 
-    //mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
-    //while( mcush_opt_parser_next( &opt, &parser ) )
-    //{
-    //    if( opt.spec )
-    //    {
-    //        if( strcmp( opt.spec->name, "port" ) == 0 )
-    //            shell_eval_int(opt.value, (int*)&port);
-    //        else if( strcmp( opt.spec->name, "freq" ) == 0 )
-    //        {
-    //            if( shell_eval_float(opt.value, (float*)&freq_val) )
-    //                freq = 1;
-    //        }
-    //    }
-    //    else
-    //         STOP_AT_INVALID_ARGUMENT  
-    //}
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "float" ) == 0 )
+                float_mode = 1;
+        }
+        else
+             STOP_AT_INVALID_ARGUMENT  
+    }
 
-    if( !shell_make_16bits_data_buffer( &buf, &buf_len ) )
-        return 1;
+    if( float_mode )
+    {
+        if( !shell_make_float_data_buffer( &buf, &buf_len ) )
+            return 1;
+    }
+    else
+    {
+        if( !shell_make_16bits_data_buffer( &buf, &buf_len ) )
+            return 1;
+    }
                 
     shell_printf( "0x%08X  %d\n", buf, buf_len );
     return 0;
@@ -1616,6 +1644,441 @@ int cmd_power( int argc, char *argv[] )
         shell_write_line( hal_is_power_set() ? "on" : "off" );
     } 
     return 0;
+}
+#endif
+
+
+#if USE_CMD_I2C
+static uint8_t i2c_port_sda=0, i2c_port_scl=0;
+static uint16_t i2c_pin_sda=1<<0, i2c_pin_scl=1<<1;
+static uint32_t i2c_addr=0;
+static uint32_t i2c_delay_us=5;
+
+static void i2c_start(void)
+{
+    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
+    hal_delay_us( i2c_delay_us );
+    hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
+    hal_delay_us( i2c_delay_us );
+    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+}
+
+static void i2c_stop(void)
+{
+    hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
+    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+    hal_delay_us( i2c_delay_us );
+    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
+    hal_delay_us( i2c_delay_us );
+    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+}
+
+static int i2c_read_ack(void)
+{
+    int ret;
+    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
+    hal_delay_us( i2c_delay_us );
+    ret = hal_gpio_get( i2c_port_sda, i2c_pin_sda );
+    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+    hal_delay_us( i2c_delay_us );
+    return ret ? 0 : 1;
+}
+
+static void i2c_write_ack(int ack)
+{
+    if( ack )
+        hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
+    else
+        hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+    hal_delay_us( i2c_delay_us );
+    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
+    hal_delay_us( i2c_delay_us );
+    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+}
+
+static uint8_t i2c_read_byte(int ack)
+{
+    int i;
+    uint8_t ret=0;
+    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+    for( i=0; i<8; i++ )
+    {     
+        hal_gpio_set( i2c_port_scl, i2c_pin_scl );
+        hal_delay_us( i2c_delay_us );
+        if( hal_gpio_get( i2c_port_sda, i2c_pin_sda ) )
+            ret |= 1 << (8-1-i);
+        hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+        hal_delay_us( i2c_delay_us );
+    } 
+    i2c_write_ack( ack );
+    return ret;
+}
+
+static int i2c_write_byte(uint8_t chr)
+{
+    int i;
+    for( i=0; i<8; i++ )
+    {     
+        if( chr & 1<<(8-1-i) )
+            hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+        else
+            hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
+        hal_delay_us( i2c_delay_us );
+        hal_gpio_set( i2c_port_scl, i2c_pin_scl );
+        hal_delay_us( i2c_delay_us );
+        hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+    }
+    return i2c_read_ack(); 
+}
+
+
+int cmd_i2c( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "delay", 0, "delay_us", "default 5", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "addr", 'a', "address", "default 0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "sda", 0, "sda_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "scl", 0, "scl_pin", "default 0.1", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "init", 'i', 0, "init pins", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "deinit", 'd', 0, "deinit pins", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "read", 'r', "read_cycle", "default 1", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED  },
+        { MCUSH_OPT_ARG, "val", 0, 0, "data", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t init=0, deinit=0;
+    int read_cycle=0;
+    char *p;
+    int i, dat, line_count;
+
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "addr" ) == 0 )
+                shell_eval_int(opt.value, (int*)&i2c_addr);
+            else if( strcmp( opt.spec->name, "delay" ) == 0 )
+                shell_eval_int(opt.value, (int*)&i2c_delay_us);
+            else if( strcmp( opt.spec->name, "read" ) == 0 )
+                shell_eval_int(opt.value, (int*)&read_cycle);
+            else if( strcmp( opt.spec->name, "init" ) == 0 )
+                init = 1;
+            else if( strcmp( opt.spec->name, "deinit" ) == 0 )
+                deinit = 1;
+            else if( strcmp( opt.spec->name, "scl" ) == 0 )
+            {
+                i2c_port_scl = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                i2c_pin_scl = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                i2c_pin_scl = 1 << i2c_pin_scl;
+            }
+            else if( strcmp( opt.spec->name, "sda" ) == 0 )
+            {
+                i2c_port_sda = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                i2c_pin_sda = strtol( ++p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                i2c_pin_sda = 1 << i2c_pin_sda;
+            }
+            else if( strcmp( opt.spec->name, "val" ) == 0 )
+            {
+                parser.idx--;
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( init )
+    {
+        hal_gpio_set_output_open_drain( i2c_port_scl, i2c_pin_scl );
+        hal_gpio_set_output_open_drain( i2c_port_sda, i2c_pin_sda );
+        i2c_stop();
+        return 0;
+    }
+    else if( deinit )
+    {
+        hal_gpio_set_input( i2c_port_scl, i2c_pin_scl );
+        hal_gpio_set_input( i2c_port_sda, i2c_pin_sda );
+        return 0;
+    }
+    
+    i2c_start();
+    if( ! i2c_write_byte( i2c_addr<<1 ) )
+    {
+        i2c_stop();
+        shell_write_line("err ACK");
+        return 1;
+    }
+    /* write data */ 
+    parser.idx++;
+    while( parser.idx < argc )
+    {
+        if( ! shell_eval_int(argv[parser.idx], &dat) )
+        {
+            shell_write_str( "data err: " );
+            shell_write_line( argv[parser.idx] );
+            i2c_stop();
+            return 1;
+        }
+        i2c_write_byte( dat );
+        parser.idx++;
+    }
+    /* then read back */
+    if( read_cycle )
+    {
+        i2c_start();
+        i2c_write_byte( (i2c_addr<<1)|1 );
+        /* read bytes */
+        line_count = 0;
+        for( i=read_cycle; i; i-- )
+        {
+            dat = i2c_read_byte( i>1 ? 1 : 0 ); 
+            line_count += shell_printf( "0x%X ", dat );
+            if( line_count > 78 )
+            {
+                shell_write_char( '\n' );
+                line_count =0;
+            }
+        }
+        if( line_count )
+            shell_write_char( '\n' );
+    }
+    i2c_stop();
+    return 0;
+    
+err_port:
+    shell_write_line("port/bit err");
+    return 1;
+}
+#endif
+
+
+#if USE_CMD_SPI
+static uint8_t spi_port_sdi=0, spi_port_sdo=0, spi_port_sck=0, spi_port_cs=0;
+static uint16_t spi_pin_sdi=1<<0, spi_pin_sdo=1<<1, spi_pin_sck=1<<2, spi_pin_cs=1<<3;
+static uint32_t spi_delay_us=5;
+static uint32_t spi_width=8;
+static uint8_t spi_cpol=0, spi_cpha=0, spi_lsb=0;
+
+static uint32_t spi_rw(uint32_t dat)
+{
+    uint32_t ret=0;
+    int i;
+
+    for( i=0; i<spi_width; i++ )
+    {
+        /* sdo output */
+        if( dat & 1<<(spi_lsb ? i : (spi_width-1-i)) )
+            hal_gpio_set( spi_port_sdo, spi_pin_sdo );
+        else
+            hal_gpio_clr( spi_port_sdo, spi_pin_sdo );
+        /* sck */
+        if( spi_cpha ^ spi_cpol )
+            hal_gpio_set( spi_port_sck, spi_pin_sck );
+        else
+            hal_gpio_clr( spi_port_sck, spi_pin_sck );
+        /* delay 1 */
+        hal_delay_us( spi_delay_us );
+        /* sck */
+        if( spi_cpha ^ spi_cpol )
+            hal_gpio_clr( spi_port_sck, spi_pin_sck );
+        else
+            hal_gpio_set( spi_port_sck, spi_pin_sck );
+        /* sdo */
+        if( dat & 1<<(spi_lsb ? i : (spi_width-1-i)) )
+            hal_gpio_set( spi_port_sdo, spi_pin_sdo );
+        else
+            hal_gpio_clr( spi_port_sdo, spi_pin_sdo );
+        /* sdi */
+        if( hal_gpio_get( spi_port_sdi, spi_pin_sdi ) )
+            ret |= 1<<(spi_lsb ? i : (spi_width-1-i));
+        /* delay 2 */
+        hal_delay_us( spi_delay_us );
+    }
+    return ret;    
+}
+
+
+int cmd_spi( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "width", 'w', "bits", "default 8", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "delay", 0, "delay_us", "default 5", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "sdi", 0, "sdi_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "sdo", 0, "sdo_pin", "default 0.1", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "sck", 0, "sck_pin", "default 0.2", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "cs", 0, "cs_pin", "default 0.3", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "init", 'i', 0, "init pins", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "deinit", 'd', 0, "deinit pins", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "read", 'r', 0, "print readout", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "cpol", 0, 0, "clk polarity", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "cpha", 0, 0, "clk phase", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "lsb", 0, 0, "lsb first", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, "val", 0, 0, "data", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t init=0, deinit=0, read_mode=0, cpol=0, cpha=0, lsb=0;
+    char *p;
+    int dat_out, dat_in;
+    int line_count;
+ 
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "delay" ) == 0 )
+                shell_eval_int(opt.value, (int*)&spi_delay_us);
+            else if( strcmp( opt.spec->name, "read" ) == 0 )
+                read_mode = 1;
+            else if( strcmp( opt.spec->name, "width" ) == 0 )
+                shell_eval_int(opt.value, (int*)&spi_width);
+            else if( strcmp( opt.spec->name, "init" ) == 0 )
+                init = 1;
+            else if( strcmp( opt.spec->name, "deinit" ) == 0 )
+                deinit = 1;
+            else if( strcmp( opt.spec->name, "cpol" ) == 0 )
+                cpol = 1;
+            else if( strcmp( opt.spec->name, "cpha" ) == 0 )
+                cpha = 1;
+            else if( strcmp( opt.spec->name, "lsb" ) == 0 )
+                lsb = 1;
+            else if( strcmp( opt.spec->name, "sdi" ) == 0 )
+            {
+                spi_port_sdi = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                spi_pin_sdi = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                spi_pin_sdi = 1 << spi_pin_sdi;
+            }
+            else if( strcmp( opt.spec->name, "sdo" ) == 0 )
+            {
+                spi_port_sdo = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                spi_pin_sdo = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                spi_pin_sdo = 1 << spi_pin_sdo;
+            }
+            else if( strcmp( opt.spec->name, "sck" ) == 0 )
+            {
+                spi_port_sck = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                spi_pin_sck = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                spi_pin_sck = 1 << spi_pin_sck;
+            }
+            else if( strcmp( opt.spec->name, "cs" ) == 0 )
+            {
+                spi_port_cs = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                spi_pin_cs = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                spi_pin_cs = 1 << spi_pin_cs;
+            }
+            else if( strcmp( opt.spec->name, "val" ) == 0 )
+            {
+                parser.idx--;
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( (spi_width < 2) || (spi_width > 32) )
+    {
+        shell_write_line( "width err" );
+        return 1;
+    }
+
+    if( init )
+    {
+        spi_cpol = cpol;
+        spi_cpha = cpha;
+        spi_lsb = lsb;
+        hal_gpio_set_input( spi_port_sdi, spi_pin_sdi );
+        hal_gpio_set_output( spi_port_sdo, spi_pin_sdo );
+        hal_gpio_set_output( spi_port_sck, spi_pin_sck );
+        hal_gpio_set_output( spi_port_cs, spi_pin_cs );
+        hal_gpio_set( spi_port_cs, spi_pin_cs );
+        return 0;
+    }
+    else if( deinit )
+    {
+        hal_gpio_set_input( spi_port_sdi, spi_pin_sdi );
+        hal_gpio_set_input( spi_port_sdo, spi_pin_sdo );
+        hal_gpio_set_input( spi_port_sck, spi_pin_sck );
+        hal_gpio_set_input( spi_port_cs, spi_pin_cs );
+        return 0;
+    }
+
+    if( spi_cpol )
+        hal_gpio_set( spi_port_sck, spi_pin_sck );
+    else
+        hal_gpio_clr( spi_port_sck, spi_pin_sck );
+    hal_gpio_clr( spi_port_cs, spi_pin_cs );
+    parser.idx++;
+    line_count = 0;
+    while( parser.idx < argc )
+    {
+        if( ! shell_eval_int(argv[parser.idx], &dat_out) )
+        {
+            shell_write_str( "data err: " );
+            shell_write_line( argv[parser.idx] );
+            hal_gpio_set( spi_port_cs, spi_pin_cs );
+            return 1;
+        }
+        dat_in = spi_rw( dat_out );
+        if( read_mode )
+        {
+            line_count += shell_printf( "0x%X ", dat_in );
+            if( line_count > 78 )
+            {
+                shell_write_char( '\n' );
+                line_count = 0;
+            }
+        }
+        parser.idx++;
+    }
+    if( read_mode && line_count )
+        shell_write_char( '\n' );
+    hal_gpio_set( spi_port_cs, spi_pin_cs );
+    return 0;
+ 
+err_port:
+    shell_write_line("port/bit err");
+    return 1;
 }
 #endif
 

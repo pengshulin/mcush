@@ -17,6 +17,9 @@
 #ifndef SHELL_READ_LINES_ALLOC_SIZE_INC
     #define SHELL_READ_LINES_ALLOC_SIZE_INC  512
 #endif
+#ifndef SHELL_FLOAT_BUF_ALLOC_SIZE_INC
+    #define SHELL_FLOAT_BUF_ALLOC_SIZE_INC  512
+#endif
 #ifndef SHELL_INPUT_SUB_PROMPT
     #define SHELL_INPUT_SUB_PROMPT  ">"
 #endif
@@ -104,6 +107,7 @@ const char *shell_get_prompt( void );
 void shell_proc_event_char(void);
 #endif
 int shell_make_16bits_data_buffer( void **pbuf, int *len );
+int shell_make_float_data_buffer( void **pbuf, int *len );
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );

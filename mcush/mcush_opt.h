@@ -77,7 +77,8 @@ typedef struct mcush_opt_spec {
 	/**
 	 * Optional `mcush_opt_usage_t`, used when creating usage information.
 	 */
-	const mcush_opt_usage_t usage;
+	//const mcush_opt_usage_t usage;
+    const int usage;
 } mcush_opt_spec;
 
 /** An option provided on the command-line. */

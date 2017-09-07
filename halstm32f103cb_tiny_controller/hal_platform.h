@@ -47,7 +47,7 @@ sgpio_cfg_t *hal_sgpio_info( void );
 
 #define USE_HAL_USB_DISCONNECT  0
 
-#define USE_CMD_POWER   1
+#define USE_CMD_POWER   0
 #define HAL_POWER_PORT  GPIOB
 #define HAL_POWER_PIN   GPIO_Pin_1
 void hal_power_set(int enable);

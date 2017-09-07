@@ -143,6 +143,6 @@ if __name__ == "__main__":
     h.xstr(0,0,200,50,0,'RED','BLUE',1,1,1,u'Hello测试')
     
     time.sleep(0.5)
-    h.cls()
+    #h.cls()
 
  
