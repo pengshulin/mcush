@@ -220,6 +220,24 @@ def spiffs_get( argv=None ):
 
 
 
+#############################################################################
+# I2C
+def i2c_search( argv=None ):
+    s = Mcush()
+    if argv:
+        try:
+            pin_sda, pin_scl = argv[0], argv[1]
+        except:
+            print 'arguments: pin_sda pin_scl'
+            return
+        s.i2c_init( 0, scl=pin_scl, sda=pin_sda )
+    for addr in range(128):
+        s.i2c_init( addr )
+        try:
+            s.i2c( [0] )
+            print 'Addr 0x%02X, OK'% (addr)
+        except Instrument.CommandExecuteError:
+            pass
 
 
 
@@ -234,7 +252,7 @@ if __name__ == '__main__':
         test_argv = sys.argv[2:] 
     else:
         # symbolic linked commands
-        test_command = sys.argv[0]
+        test_command = os.path.basename(sys.argv[0])
         test_argv = sys.argv[1:]
     if test_command.endswith('.py'):
         test_command = test_command[:-3]

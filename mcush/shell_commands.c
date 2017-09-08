@@ -1804,7 +1804,7 @@ int cmd_i2c( int argc, char *argv[] )
 
     if( init )
     {
-        hal_gpio_set_output_open_drain( i2c_port_scl, i2c_pin_scl );
+        hal_gpio_set_output( i2c_port_scl, i2c_pin_scl );
         hal_gpio_set_output_open_drain( i2c_port_sda, i2c_pin_sda );
         i2c_stop();
         return 0;

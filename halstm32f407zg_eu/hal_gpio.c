@@ -66,7 +66,7 @@ void hal_gpio_set_output(int port, int bits)
 
 void hal_gpio_set_output_open_drain(int port, int bits)
 {
-    _set_dir( port, bits, GPIO_Mode_OUT, GPIO_PuPd_NOPULL, GPIO_OType_OD );
+    _set_dir( port, bits, GPIO_Mode_OUT, GPIO_PuPd_UP, GPIO_OType_OD );
 }
 
 

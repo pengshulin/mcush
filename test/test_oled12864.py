@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf8
+# test oled12864 lcm with spi ports
+# Peng Shulin <trees_peng@163.com>
 import os
 import sys
 import time

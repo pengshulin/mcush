@@ -38,7 +38,7 @@
 /* Private variables ---------------------------------------------------------*/
 __IO uint32_t bDeviceState = UNCONNECTED; /* USB device status */
 #ifndef SUSPEND_ENABLED
-    #define SUSPEND_ENABLED  0
+    #define SUSPEND_ENABLED  1
 #endif
 #if SUSPEND_ENABLED
     __IO bool fSuspendEnabled = TRUE;  /* true when suspend is possible */

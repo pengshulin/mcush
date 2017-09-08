@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf8
+# test mpu6050 module
+# Peng Shulin <trees_peng@163.com>
 import os
 import sys
 import time
