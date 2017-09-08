@@ -1787,7 +1787,7 @@ int cmd_i2c( int argc, char *argv[] )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                i2c_pin_sda = strtol( ++p, &p, 10 );
+                i2c_pin_sda = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
                 i2c_pin_sda = 1 << i2c_pin_sda;
