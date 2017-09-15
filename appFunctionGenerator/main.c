@@ -27,8 +27,8 @@ typedef struct _fgen_cfg_t
 
 fgen_cfg_t cfg1={
     .freq = 2048000,
-    //.buf = dat_shock_1024,
-    .buf = dat_sine_1024,
+    .buf = dat_shock_1024,
+    //.buf = dat_sine_1024,
     .len = 1024,
     .need_free = 0,
 };

@@ -1,0 +1,1 @@
+../halstm32f407zg_eu/hal.c

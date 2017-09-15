@@ -57,7 +57,7 @@ s.sgpio( port, pins, buf, freq, loop=True )
 
 ]
 
-def STOP(message=''):
+def stop(message=''):
     raise StopError(message)
 
 task_obj = None
@@ -65,7 +65,10 @@ def info(message=''):
     global task_obj
     task_obj.info( message )
 
-PORT=None
+STOP = stop
+INFO = info
+
+PORT = None
 
 class MyTask(Task):
     def addResult( self, info=None ):

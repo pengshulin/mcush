@@ -2,7 +2,6 @@
 
 const unsigned int baudrate=9600;
 
-extern mcush_vfs_driver_t hal_spiffs_driver;
 
 void hal_delay_us(uint32_t us)
 {

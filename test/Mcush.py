@@ -198,7 +198,7 @@ class Mcush( Instrument.SerialInstrument ):
         if read:
             cmd += ' -r'
         for d in write:
-            cmd += ' 0x%X'% d 
+            cmd += ' %d'% d 
         ret = self.writeCommand( cmd )
         if read:
             r = []

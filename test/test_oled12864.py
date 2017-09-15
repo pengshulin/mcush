@@ -13,7 +13,7 @@ import Utils
 
 def main(argv=None):
     s = Mcush.Mcush()
-    s.writeCommand( "spi -i" )
+    s.spi_init()
     RST = '0.4'
     DC = '0.5'
     s.gpio( RST, o=True, s=True )
@@ -26,11 +26,11 @@ def main(argv=None):
       
     def dat(d):
         s.gpio( DC, s=True )
-        s.writeCommand( 'spi %d'% d )
+        s.spi( [d] )
 
     def cmd(d):
         s.gpio( DC, c=True )
-        s.writeCommand( 'spi %d'% d )
+        s.spi( [d] )
     
     def fill(bmp):
         for y in range(8):

@@ -116,6 +116,12 @@ def f2I( val ):
 def s2f( val ):
     return unpack('f', val) [0]
 
+def s2b( val ):
+    return unpack('B', val) [0]
+ 
+def s2B( val ):
+    return unpack('B', val) [0]
+ 
 def s2h( val ):
     return unpack('h', val) [0]
  

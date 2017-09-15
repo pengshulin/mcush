@@ -236,7 +236,7 @@ alias sw = sptk_watch
 source .gdbextra
 
 ######################################################################
-set pagination off
+#set pagination off
 
 init_regs
 load_file

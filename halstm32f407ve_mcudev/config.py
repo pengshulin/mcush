@@ -1,16 +1,13 @@
 from Arm.Stm32 import *
 
 env = Stm32f407xx()
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+env.setLinkfile( '/ld/stm32f407ve_min.ld' )
 port = 'ARM_CM4F'
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
 
-USE_VFS=False
 USE_VFS=True
-
 USE_SPIFFS=False
-USE_SPIFFS=True
 
 if USE_VFS:
     env.appendDefineFlags( [ 'MCUSH_VFS=1' ] )

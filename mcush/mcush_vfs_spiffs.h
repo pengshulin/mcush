@@ -22,7 +22,9 @@
     #define SPIFLASH_CFG_LOG_PAGE_SZ    (256)
 #endif
 
+#if MCUSH_SPIFFS
 #include "spiffs.h"
+#endif
 
 void hal_spiffs_flash_init(void);
 int hal_spiffs_flash_read_id(void);
