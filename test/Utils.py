@@ -7,10 +7,6 @@ from sys import platform, stdout
 from binascii import hexlify
 from random import randint
 from subprocess import Popen, PIPE
-#from ctypes import c_int, c_uint, c_long, c_ulong, c_int64, c_uint64
-#from ctypes import c_float, c_double, c_void_p
-#from ctypes import create_string_buffer
-#from ctypes import sizeof, Structure, POINTER, pointer, byref, memmove
 from struct import pack, unpack
 from time import strftime, localtime
 import json
@@ -93,12 +89,6 @@ def enumPorts():
 def espeak( contents ):
     if Env.platform == 'linux2':
         system( 'espeak %s'% contents )
-
-#class int_val(Structure):
-#    _fields_ = [("val", c_uint)]
-#
-#class float_val(Structure):
-#    _fields_ = [("val", c_float)]
 
 
 def i2f( val ):

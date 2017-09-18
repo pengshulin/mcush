@@ -9,6 +9,7 @@ if CHIP is None:
     chip='stm32f103ze'
     chip='stm32f103rb'
     chip='stm32f407zg'
+    chip='stm32f407ve'
     chip='lpc4337'
 else:
     chip = CHIP

@@ -47,7 +47,10 @@ if platform == 'win32':
     PORT = getenv('PORT', 'COM1')
 else:
     PORT = getenv('PORT', '/dev/ttyUSB0')
-    PORTS = check_output(['allports']).strip()
+    try:
+        PORTS = check_output(['allports']).strip()
+    except:
+        PORTS = ''
     PORTS_LIST = PORTS.split(',')
 
 BAUDRATE = getenv_int( 'BAUDRATE', 9600 )

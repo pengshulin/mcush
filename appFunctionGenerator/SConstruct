@@ -1,6 +1,7 @@
 from VEnvironment import *
 
 haldir='stm32f407zg_eu'
+haldir='stm32f407ve_mcudev'
 config = loadHalConfig( haldir )
 env = config.env
 

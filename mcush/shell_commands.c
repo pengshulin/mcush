@@ -1847,7 +1847,7 @@ int cmd_i2c( int argc, char *argv[] )
         for( i=read_cycle; i; i-- )
         {
             dat = i2c_read_byte( i>1 ? 1 : 0 ); 
-            line_count += shell_printf( "0x%X ", dat );
+            line_count += shell_printf( "0x%02X ", dat );
             if( line_count > 78 )
             {
                 shell_write_char( '\n' );

@@ -5,6 +5,11 @@
 
 #if USE_CMD_SGPIO
 
+/*
+ * TIM1.CC1 -- DMA1.Ch2 -- OUTPUT
+ * TIM1.CC2 -- DMA1.CH3 -- INPUT
+ */
+
 extern uint32_t SystemCoreClock;
 
 

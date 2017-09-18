@@ -3,9 +3,15 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if USE_CMD_SGPIO
+
+/*
+ * TIM4.CC1 -- DMA1.Ch2.Stream0 -- OUTPUT
+ * TIM4.CC2 -- DMA1.Ch2.Stream3 -- INPUT
+ */
+
+
 extern uint32_t SystemCoreClock;
-
-
 extern const uint8_t port_num;
 extern const GPIO_TypeDef * const ports[];
 
@@ -189,3 +195,4 @@ sgpio_cfg_t *hal_sgpio_info( void )
 }
 
 
+#endif

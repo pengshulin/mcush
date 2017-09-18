@@ -261,6 +261,7 @@ class FormatTask(MyTask):
         s.setTimeout()
         self.info( "Done" )
 
+
 class FsInfoTask(MyTask):
     def target( self, args ):
         (port, path) = args
@@ -271,6 +272,104 @@ class FsInfoTask(MyTask):
         total = int(a.split(':')[1].strip())
         used = int(b.split(':')[1].strip())
         self.info( 'Total: %d, used: %d (%.1f%%)'% (total, used, float(used)/total*100) )
+
+
+class I2cScanTask(MyTask):
+    def target( self, args ):
+        (port, config) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        pin_sda = config['sda']
+        pin_scl = config['scl']
+        delay_us = int(config['delay_us'])
+        s.i2c_init( 0, scl=pin_scl, sda=pin_sda, delay=delay_us )
+        result = []
+        for addr in range(128):
+            self.info( 'Scan address: 0x%02X'% (addr) )
+            s.i2c_init( addr )
+            try:
+                s.i2c( [0] )
+                result.append( addr )
+            except Instrument.CommandExecuteError:
+                pass
+        if result:
+            self.info( 'Responed address: %s'% (' '.join(['0x%02X'% i for i in result])) )
+        else:     
+            self.info( 'No address responsed' )
+
+        
+class I2cReadTask(MyTask):
+    def target( self, args ):
+        (port, config) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        addr = int(eval(config['address'])) & 0x7F
+        pin_sda = config['sda']
+        pin_scl = config['scl']
+        delay_us = int(config['delay_us'])
+        reg_from = int(eval(config['reg_from']))
+        reg_to = int(eval(config['reg_to']))
+        if reg_to > 255:
+            reg_to = 255
+        if reg_to >= reg_from:
+            length = reg_to - reg_from + 1
+        else:
+            length = 1
+        s.i2c_init( addr, scl=pin_scl, sda=pin_sda, delay=delay_us )
+        result = []
+        self.info( u"Reading..." )
+        r = s.i2c( [reg_from], read_count=length )
+        self.queue.put( ('i2c_data', r) )
+        self.info( '%d bytes read'% length )
+        
+
+class I2cWriteTask(MyTask):
+    def target( self, args ):
+        (port, config, data) = args
+        self.info( u"Open port %s..."% port )
+        s = Mcush(port)
+        addr = int(eval(config['address'])) & 0x7F
+        pin_sda = config['sda']
+        pin_scl = config['scl']
+        delay_us = int(config['delay_us'])
+        reg_from = int(eval(config['reg_from']))
+        reg_to = int(eval(config['reg_to']))
+        if reg_to > 255:
+            reg_to = 255
+        #if reg_to >= reg_from:
+        #    length = reg_to - reg_from + 1
+        #else:
+        #    length = 1
+        s.i2c_init( addr, scl=pin_scl, sda=pin_sda, delay=delay_us )
+        if reg_from + len(data) > 256:
+            # cut 
+            data = data[:256-reg_from]
+        self.info( u"Writing..." )
+        addr = reg_from
+        wr = [addr]
+        while True:
+            wr.append( data.pop(0) )
+            addr += 1
+            if len(wr) > 16:
+                s.i2c( wr )
+                wr = [addr]
+            if not data:
+                if len(wr) > 1:
+                    s.i2c( wr )
+                break
+        self.info( 'Done' )
+        
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -448,6 +547,12 @@ class MainFrame(MyFrame):
             cfgfile = ConfigParser.ConfigParser()
             cfgfile.read( self.config_file )
             self.combo_box_port.SetValue( unicode(cfgfile.get( 'config', 'port' ), encoding='utf-8'))
+            self.text_ctrl_i2c_address.SetValue( unicode(cfgfile.get( 'config', 'i2c_address' ), encoding='utf-8'))
+            self.text_ctrl_i2c_pin_sda.SetValue( unicode(cfgfile.get( 'config', 'i2c_pin_sda' ), encoding='utf-8'))
+            self.text_ctrl_i2c_pin_scl.SetValue( unicode(cfgfile.get( 'config', 'i2c_pin_scl' ), encoding='utf-8'))
+            self.text_ctrl_i2c_delay_us.SetValue( unicode(cfgfile.get( 'config', 'i2c_delay_us' ), encoding='utf-8'))
+            self.text_ctrl_i2c_reg_from.SetValue( unicode(cfgfile.get( 'config', 'i2c_reg_from' ), encoding='utf-8'))
+            self.text_ctrl_i2c_reg_to.SetValue( unicode(cfgfile.get( 'config', 'i2c_reg_to' ), encoding='utf-8'))
         except Exception, e:
             print 'loadconfig failed'
             mode = False
@@ -457,6 +562,30 @@ class MainFrame(MyFrame):
         cfgfile.add_section( 'config' )
         try:
             cfgfile.set( 'config', 'port', self.combo_box_port.GetValue().encode('utf-8') ) 
+        except:
+            pass
+        try:
+            cfgfile.set( 'config', 'i2c_address', self.text_ctrl_i2c_address.GetValue().encode('utf-8') ) 
+        except:
+            pass
+        try:
+            cfgfile.set( 'config', 'i2c_pin_sda', self.text_ctrl_i2c_pin_sda.GetValue().encode('utf-8') ) 
+        except:
+            pass
+        try:
+            cfgfile.set( 'config', 'i2c_pin_scl', self.text_ctrl_i2c_pin_scl.GetValue().encode('utf-8') ) 
+        except:
+            pass
+        try:
+            cfgfile.set( 'config', 'i2c_delay_us', self.text_ctrl_i2c_delay_us.GetValue().encode('utf-8') ) 
+        except:
+            pass
+        try:
+            cfgfile.set( 'config', 'i2c_reg_from', self.text_ctrl_i2c_reg_from.GetValue().encode('utf-8') ) 
+        except:
+            pass
+        try:
+            cfgfile.set( 'config', 'i2c_reg_to', self.text_ctrl_i2c_reg_to.GetValue().encode('utf-8') ) 
         except:
             pass
         try:
@@ -548,7 +677,18 @@ class MainFrame(MyFrame):
                 self.tree_ctrl_fs.SetPyData(item, (p, newname, s))
             except Exception, e:
                 return
-
+        elif event.cmd == 'i2c_data':
+            data = event.val
+            lines, l = [], []
+            while True:
+                l.append( '0x%02X'% data.pop(0) )
+                if len(l) >= 16:
+                    lines.append( ' '.join(l) )
+                    l = []
+                if not data:
+                    lines.append( ' '.join(l) )
+                    break
+            self.text_ctrl_i2c_data.SetValue( '\n'.join(lines) )
         event.Skip()
  
     def OnStop(self, event):
@@ -809,6 +949,55 @@ class MainFrame(MyFrame):
         p, n, s = self.tree_ctrl_fs.GetPyData( item )
         if n is None:
             self.task = FsInfoTask( (port, p), self.msgq )
+        event.Skip()
+
+    def loadI2cConfig(self):
+        config = {}
+        config['address'] = str(self.text_ctrl_i2c_address.GetValue().strip())
+        config['sda'] = str(self.text_ctrl_i2c_pin_sda.GetValue().strip())
+        config['scl'] = str(self.text_ctrl_i2c_pin_scl.GetValue().strip())
+        config['delay_us'] = str(self.text_ctrl_i2c_delay_us.GetValue().strip())
+        config['reg_from'] = str(self.text_ctrl_i2c_reg_from.GetValue().strip())
+        config['reg_to'] = str(self.text_ctrl_i2c_reg_to.GetValue().strip())
+        return config
+    
+    def OnI2cScan(self, event):
+        port = self.combo_box_port.GetValue()
+        config = self.loadI2cConfig()
+        if port and config:
+            self.task = I2cScanTask( (port, config), self.msgq )
+        event.Skip()
+
+    def OnI2cRead(self, event):
+        port = self.combo_box_port.GetValue()
+        config = self.loadI2cConfig()
+        if port and config:
+            self.task = I2cReadTask( (port, config), self.msgq )
+        event.Skip()
+
+    def OnI2cWrite(self, event):
+        port = self.combo_box_port.GetValue()
+        config = self.loadI2cConfig()
+        data = []
+        for l in self.text_ctrl_i2c_data.GetValue().strip().splitlines():
+            for d in l.strip().split():
+                data.append( int(eval(d.strip())) )
+        if port and config and data:
+            self.task = I2cWriteTask( (port, config, data), self.msgq )
+        event.Skip()
+
+    def OnI2cLoad(self, event):
+        dlg = wx.FileDialog( self, message="Choose data file", defaultDir=self.config_dir, 
+                defaultFile='', wildcard="Data file (*.txt)|*.txt", style=wx.OPEN )
+        if dlg.ShowModal() == wx.ID_OK:
+            self.text_ctrl_i2c_data.LoadFile( dlg.GetPath().strip() )
+        event.Skip()
+
+    def OnI2cSave(self, event):
+        dlg = wx.FileDialog( self, message="Choose data file", defaultDir=self.config_dir, 
+                defaultFile='', wildcard="Data file (*.txt)|*.txt", style=wx.SAVE )
+        if dlg.ShowModal() == wx.ID_OK:
+            open( dlg.GetPath().strip(), 'w+' ).write( self.text_ctrl_i2c_data.GetValue().encode('utf-8') )
         event.Skip()
 
 
