@@ -63,7 +63,8 @@ void hal_rcc_init(void)
         RCC_PCLK1Config(RCC_HCLK_Div4);
         RCC_PCLK2Config(RCC_HCLK_Div2);
         //RCC_PLLConfig(RCC_PLLSource_HSE, 8, 336, 2, 7);   /* 8M / 8 * 336 / 2 = 168M */
-        RCC_PLLConfig(RCC_PLLSource_HSE, 8, 300, 2, 7);   /* 8M / 8 * 300 / 2 = 150M */
+        RCC_PLLConfig(RCC_PLLSource_HSE, 8, 320, 2, 7);   /* 8M / 8 * 320 / 2 = 160M */
+        //RCC_PLLConfig(RCC_PLLSource_HSE, 8, 300, 2, 7);   /* 8M / 8 * 300 / 2 = 150M */
         RCC_PLLCmd(ENABLE);
         while( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) { }
      
