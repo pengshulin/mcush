@@ -1,21 +1,25 @@
+#include <math.h>
 #include "mcush.h"
 #include "task_blink.h"
 
-#define USE_SINGLE_TIMER  1
+//#define USE_SINGLE_TIMER  1
 
 #define DAC_DHR12R1_ADDRESS    0x40007408
 #define DAC_DHR12R2_ADDRESS    0x40007414
 
 extern uint32_t SystemCoreClock;
 
-extern uint16_t dat_sine_1024[];
-extern uint16_t dat_half_sine_1024[];
-extern uint16_t dat_triangle_1024[];
-extern uint16_t dat_sawtooth_1024[];
-extern uint16_t dat_impulse_1024[];
-extern uint16_t dat_envelope_1024[];
-extern uint16_t dat_random_1024[];
-extern uint16_t dat_shock_1024[];
+extern uint16_t dat_sine_1000[];
+extern uint16_t dat_half_sine_1000[];
+extern uint16_t dat_triangle_1000[];
+extern uint16_t dat_sawtooth_1000[];
+extern uint16_t dat_impulse_1000[];
+extern uint16_t dat_envelope_1000[];
+extern uint16_t dat_random_1000[];
+extern uint16_t dat_shock_1000[];
+extern uint16_t dat_shock2_1000[];
+extern uint16_t dat_shock3_1000[];
+extern uint16_t dat_shock4_1000[];
 
 typedef struct _fgen_cfg_t
 {
@@ -26,18 +30,19 @@ typedef struct _fgen_cfg_t
 } fgen_cfg_t;
 
 fgen_cfg_t cfg1={
-    .freq = 2048000,
-    .buf = dat_shock_1024,
-    //.buf = dat_sine_1024,
-    .len = 1024,
+    .freq = 1000000,
+    .buf = dat_shock_1000,
+    //.buf = dat_sine_1000,
+    .len = 1000,
     .need_free = 0,
 };
 
 fgen_cfg_t cfg2={
-    .freq = 2048000,
-    //.buf = dat_sawtooth_1024,
-    .buf = dat_impulse_1024,
-    .len = 1024,
+    .freq = 1000000,
+    .buf = dat_sine_1000,
+    //.buf = dat_sawtooth_1000,
+    //.buf = dat_impulse_1000,
+    .len = 1000,
     .need_free = 0,
 };
 
@@ -47,8 +52,10 @@ int _calc_tim_period( float freq )
     float f = SystemCoreClock;
     int i;
 
-    f = f / freq;
+    f = round(f/freq/2.0);
     i = f;
+    if( i )
+        i--;
     if( i > 0xffff )
         i = 0xffff;
     else if( i < 1 )
@@ -59,6 +66,8 @@ int _calc_tim_period( float freq )
 void TIM6_Config(float freq)
 {
     TIM_TimeBaseInitTypeDef tim_init;
+
+    TIM_Cmd(TIM6, DISABLE);
     /* TIM6 Periph clock enable */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
     /* Time base configuration */
@@ -83,6 +92,8 @@ void TIM6_Config(float freq)
 void TIM7_Config(float freq)
 {
     TIM_TimeBaseInitTypeDef tim_init;
+
+    TIM_Cmd(TIM7, DISABLE);
     /* TIM7 Periph clock enable */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
     /* Time base configuration */
@@ -104,6 +115,13 @@ void DAC_Ch1_Config( uint16_t *buf, int size )
 {
     DMA_InitTypeDef dma_init;
     DAC_InitTypeDef dac_init;
+
+    /* Disable DMA1_Stream5 */
+    DMA_Cmd(DMA1_Stream5, DISABLE);
+    /* Disable DAC Channel1 */
+    DAC_Cmd(DAC_Channel_1, DISABLE);
+    /* Disable DMA for DAC Channel1 */
+    DAC_DMACmd(DAC_Channel_1, DISABLE);
 
     /* DAC channel1 Configuration */
     DAC_StructInit( &dac_init );
@@ -144,6 +162,13 @@ void DAC_Ch2_Config( uint16_t *buf, int size )
 {
     DMA_InitTypeDef dma_init;
     DAC_InitTypeDef dac_init;
+
+    /* Disable DMA1_Stream6 */
+    DMA_Cmd(DMA1_Stream6, DISABLE);
+    /* Disable DAC Channel2 */
+    DAC_Cmd(DAC_Channel_2, DISABLE);
+    /* Disable DMA for DAC Channel2 */
+    DAC_DMACmd(DAC_Channel_2, DISABLE);
 
     /* DAC channel2 Configuration */
     DAC_StructInit( &dac_init );
@@ -222,9 +247,9 @@ void hal_dac_init(void)
 int cmd_fgen( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "freq", 'f', "trig_freq", "dma trig freq 100~50000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "channel2", '2', 0, "set to channel 2", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "mode", 'm', "waveform_mode", "sine|triangle|random|impulse|sawtooth|half_sine|envelope|shock|custom_NNN", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "freq", 'f', "trig_freq", "dma trig freq 100~6000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "channel2", '2', 0, "apply to channel 2", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, "mode", 'm', "waveform_mode", "sine|triangle|random|impulse|sawtooth|half_sine|envelope|shock[2|3|4]|custom", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "info", 'i', 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE }
     };
@@ -232,7 +257,7 @@ int cmd_fgen( int argc, char *argv[] )
     mcush_opt opt;
     char info=0, channel2=0;
     uint16_t *buf=0;
-    int buf_len=1024, need_free=0;
+    int buf_len=1000, need_free=0;
     float freq=-1;
 
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -243,26 +268,33 @@ int cmd_fgen( int argc, char *argv[] )
             if( strcmp( opt.spec->name, "mode" ) == 0 )
             {
                 if( strcmp( opt.value, "sine" ) == 0 )
-                    buf = dat_sine_1024;
+                    buf = dat_sine_1000;
                 else if( strcmp( opt.value, "half_sine" ) == 0 )
-                    buf = dat_half_sine_1024;
+                    buf = dat_half_sine_1000;
                 else if( strcmp( opt.value, "triangle" ) == 0 )
-                    buf = dat_triangle_1024;
+                    buf = dat_triangle_1000;
                 else if( strcmp( opt.value, "sawtooth" ) == 0 )
-                    buf = dat_sawtooth_1024;
+                    buf = dat_sawtooth_1000;
                 else if( strcmp( opt.value, "impulse" ) == 0 )
-                    buf = dat_impulse_1024;
+                    buf = dat_impulse_1000;
                 else if( strcmp( opt.value, "envelope" ) == 0 )
-                    buf = dat_envelope_1024;
+                    buf = dat_envelope_1000;
                 else if( strcmp( opt.value, "random" ) == 0 )
-                    buf = dat_random_1024;
+                    buf = dat_random_1000;
                 else if( strcmp( opt.value, "shock" ) == 0 )
-                    buf = dat_shock_1024;
+                    buf = dat_shock_1000;
+                else if( strcmp( opt.value, "shock2" ) == 0 )
+                    buf = dat_shock2_1000;
+                else if( strcmp( opt.value, "shock3" ) == 0 )
+                    buf = dat_shock3_1000;
+                else if( strcmp( opt.value, "shock4" ) == 0 )
+                    buf = dat_shock4_1000;
                 else if( strcmp( opt.value, "custom" ) == 0 )
                 {
                     if( !shell_make_16bits_data_buffer( (void*)&buf, &buf_len ) )
                         return 1; 
                     need_free = 1;
+                    //shell_printf("customed buffer @ 0x%08X\n", buf);
                 } 
                 else
                     return 1; 
@@ -271,6 +303,11 @@ int cmd_fgen( int argc, char *argv[] )
             {
                 if( ! shell_eval_float(opt.value, &freq) )
                     return 1;
+                if( freq < 100.0 || freq > 6000000 )
+                {
+                    shell_write_line( "freq out of range" );
+                    return 1;
+                }
             }
             else if( strcmp( opt.spec->name, "channel2" ) == 0 )
                 channel2 = 1;
@@ -325,12 +362,12 @@ int cmd_fgen( int argc, char *argv[] )
         if( channel2 )
         {
             TIM7_Config( freq );
-            cfg2.freq = freq;
+            //cfg2.freq = freq;
         }
         else
         {
             TIM6_Config( freq );
-            cfg1.freq = freq;
+            //cfg1.freq = freq;
         }
     }
     

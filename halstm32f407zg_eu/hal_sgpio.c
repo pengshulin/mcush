@@ -8,6 +8,9 @@
 /*
  * TIM4.CC1 -- DMA1.Ch2.Stream0 -- OUTPUT
  * TIM4.CC2 -- DMA1.Ch2.Stream3 -- INPUT
+ *
+ * DMA1 - 0x40026000 ~ 0x400263FF
+ * TIM4 - 0x
  */
 
 
