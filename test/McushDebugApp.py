@@ -101,11 +101,18 @@ class TestPortTask(MyTask):
         model = s.getModel()
         version = s.getVersion()
         sn = s.getSerialNumber()
-        s.disconnect()
         info = u'model %s, ver %s'% (model, version)
         if sn:
             info += u', sn %s'% sn
         self.info( info, 'ok' )
+        for i in range(10): 
+            try:
+                s.led(0, toggle=True)
+            except Exception, e:
+                print e
+                break
+            time.sleep(0.1)
+        s.disconnect()
 
 class ResetTask(MyTask):
     def target( self, args ):
