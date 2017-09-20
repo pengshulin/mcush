@@ -10,16 +10,20 @@
 extern uint32_t SystemCoreClock;
 
 extern uint16_t dat_sine_1000[];
+extern uint16_t dat_sine10_1000[];
+extern uint16_t dat_sine100_1000[];
 extern uint16_t dat_half_sine_1000[];
 extern uint16_t dat_triangle_1000[];
 extern uint16_t dat_sawtooth_1000[];
 extern uint16_t dat_impulse_1000[];
+extern uint16_t dat_impulse10_1000[];
 extern uint16_t dat_envelope_1000[];
 extern uint16_t dat_random_1000[];
-extern uint16_t dat_shock_1000[];
-extern uint16_t dat_shock2_1000[];
-extern uint16_t dat_shock3_1000[];
-extern uint16_t dat_shock4_1000[];
+extern uint16_t dat_shock10_1000[];
+extern uint16_t dat_shock20_1000[];
+extern uint16_t dat_shock50_1000[];
+extern uint16_t dat_shock100_1000[];
+extern uint16_t dat_shock200_1000[];
 
 typedef struct _fgen_cfg_t
 {
@@ -31,8 +35,7 @@ typedef struct _fgen_cfg_t
 
 fgen_cfg_t cfg1={
     .freq = 1000000,
-    .buf = dat_shock_1000,
-    //.buf = dat_sine_1000,
+    .buf = dat_shock20_1000,
     .len = 1000,
     .need_free = 0,
 };
@@ -40,8 +43,6 @@ fgen_cfg_t cfg1={
 fgen_cfg_t cfg2={
     .freq = 1000000,
     .buf = dat_sine_1000,
-    //.buf = dat_sawtooth_1000,
-    //.buf = dat_impulse_1000,
     .len = 1000,
     .need_free = 0,
 };
@@ -249,7 +250,7 @@ int cmd_fgen( int argc, char *argv[] )
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, "freq", 'f', "trig_freq", "dma trig freq 100~6000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "channel2", '2', 0, "apply to channel 2", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "mode", 'm', "waveform_mode", "sine|triangle|random|impulse|sawtooth|half_sine|envelope|shock[2|3|4]|custom", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "mode", 'm', "waveform_mode", "sine[10|100]|triangle|random|impulse[10]|sawtooth|half_sine|envelope|shock(10|20|50|100|200)|custom", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_SWITCH, "info", 'i', 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE }
     };
@@ -269,6 +270,10 @@ int cmd_fgen( int argc, char *argv[] )
             {
                 if( strcmp( opt.value, "sine" ) == 0 )
                     buf = dat_sine_1000;
+                else if( strcmp( opt.value, "sine10" ) == 0 )
+                    buf = dat_sine10_1000;
+                else if( strcmp( opt.value, "sine100" ) == 0 )
+                    buf = dat_sine100_1000;
                 else if( strcmp( opt.value, "half_sine" ) == 0 )
                     buf = dat_half_sine_1000;
                 else if( strcmp( opt.value, "triangle" ) == 0 )
@@ -277,18 +282,22 @@ int cmd_fgen( int argc, char *argv[] )
                     buf = dat_sawtooth_1000;
                 else if( strcmp( opt.value, "impulse" ) == 0 )
                     buf = dat_impulse_1000;
+                else if( strcmp( opt.value, "impulse10" ) == 0 )
+                    buf = dat_impulse10_1000;
                 else if( strcmp( opt.value, "envelope" ) == 0 )
                     buf = dat_envelope_1000;
                 else if( strcmp( opt.value, "random" ) == 0 )
                     buf = dat_random_1000;
-                else if( strcmp( opt.value, "shock" ) == 0 )
-                    buf = dat_shock_1000;
-                else if( strcmp( opt.value, "shock2" ) == 0 )
-                    buf = dat_shock2_1000;
-                else if( strcmp( opt.value, "shock3" ) == 0 )
-                    buf = dat_shock3_1000;
-                else if( strcmp( opt.value, "shock4" ) == 0 )
-                    buf = dat_shock4_1000;
+                else if( strcmp( opt.value, "shock10" ) == 0 )
+                    buf = dat_shock10_1000;
+                else if( strcmp( opt.value, "shock20" ) == 0 )
+                    buf = dat_shock20_1000;
+                else if( strcmp( opt.value, "shock50" ) == 0 )
+                    buf = dat_shock50_1000;
+                else if( strcmp( opt.value, "shock100" ) == 0 )
+                    buf = dat_shock100_1000;
+                else if( strcmp( opt.value, "shock200" ) == 0 )
+                    buf = dat_shock200_1000;
                 else if( strcmp( opt.value, "custom" ) == 0 )
                 {
                     if( !shell_make_16bits_data_buffer( (void*)&buf, &buf_len ) )
