@@ -167,7 +167,7 @@ def I2t( val, format=None ):
 
 def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True ):
     if Env.platform != 'linux2':
-        print 'must run under linux'
+        print( 'must run under linux' )
         return 
     # prepare source file with specified modules merged
     src = open(pyin,'r').read()

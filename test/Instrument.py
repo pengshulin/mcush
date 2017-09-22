@@ -3,8 +3,7 @@ __doc__ = 'instrument class with basic port communication'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
-from time import sleep
-from binascii import unhexlify
+import time
 import logging
 import serial
 import Env
@@ -38,24 +37,10 @@ class CommandTimeoutError( Exception ):
 
     
 
-class reg:
-    '''mcu register'''
-    def __init__( self, name, address, description, reg_type=int, width=32 ):
-        self.name = str(name)
-        self.address = int(address)
-        self.description = str(description)
-        self.width = width
-        self.length = (width+7)/8
-        self.reg_type = reg_type
-        assert 0 < self.length < 32
-        assert reg_type in [int, float, str]
 
-    def __str__( self ):
-        return self.name
-
-
-class SerialInstrument:
-    '''Instruments based on serial port'''
+class Instrument:
+    '''abstract instrument class'''
+    
     DEFAULT_NAME = 'INST'
     DEFAULT_TERMINATOR_WRITE = '\x0A'  # '\n'
     DEFAULT_TERMINATOR_READ = '\x0A'  # '\n'
@@ -67,17 +52,13 @@ class SerialInstrument:
     DEFAULT_REBOOT_RETRY = 10
     DEFAULT_LINE_LIMIT = 128
     DEFAULT_CHECK_RETURN_COMMAND = True
-    
-
-    def __init__( self, port=None, baudrate=None, rtscts=False, connect=True ):
+   
+    def __init__( self, *args, **kwargs ):
         '''init'''
+        # logging level 
         self.verbose = Env.VERBOSE
         self.debug = Env.DEBUG
         self.info = Env.INFO
-        self.prompts = self.DEFAULT_PROMPTS
-        self.regs_by_name = {}
-        self.regs_by_addr = {}
-
         if self.debug:
             logging.basicConfig( level=logging.DEBUG )
         elif self.info:
@@ -85,27 +66,39 @@ class SerialInstrument:
         else:
             logging.basicConfig( level=logging.FATAL )
         self.logger = logging.getLogger( self.DEFAULT_NAME )
-        if port:
-            self.port = port
-        else:
-            self.port = Env.PORT
-        if baudrate:
-            self.baudrate = baudrate
-        else:
-            self.baudrate = Env.BAUDRATE
-        if rtscts:
-            self.rtscts = rtscts
-        else:
-            self.rtscts = Env.RTSCTS
-        
-        self.idn = None
+
+        # load from parms/env/default and saved as attributes
+        self.logger.debug( '__init__: args: %s'% str(args) )
         try:
-            self.ser = serial.serial_for_url( self.port, do_not_open=True )
-        except AttributeError:
-            self.ser = serial.Serial()
-        if connect:
+            kwargs['port'] = args[0]
+        except:
+            pass
+        if not 'port' in kwargs:
+            kwargs['port'] = Env.PORT
+        if not 'baudrate' in kwargs:
+            kwargs['baudrate'] = Env.BAUDRATE
+        if not 'rtscts' in kwargs:
+            kwargs['rtscts'] = Env.RTSCTS
+        if not 'connect' in kwargs:
+            kwargs['connect'] = True
+        if not 'prompts' in kwargs:
+            kwargs['prompts'] = self.DEFAULT_PROMPTS
+        if not 'timeout' in kwargs:
+            kwargs['timeout'] = self.DEFAULT_TIMEOUT
+        # some attributes 'connect', ...  need to be renamed for method conflict
+        for n in ['connect']:
+            kwargs['_'+n] = kwargs.pop(n)
+        # attached as attributes
+        for k, v in kwargs.items():
+            self.__dict__[k] = v
+        self.logger.debug( '__init__: %s'% str(self.__dict__) )
+
+        # init/connect
+        self.idn = None
+        self.port = self.PORT_TYPE(self, *args, **kwargs)
+        if self._connect:
             self.connect()
-        
+
     def setVerbose( self, verbose ):
         '''Set verbose mode'''
         self.verbose = verbose
@@ -134,82 +127,71 @@ class SerialInstrument:
         self.prompts = prompts
         return old_prompts
 
-        
     def setTimeout( self, new=None ):
         if new is None:
             new = self.DEFAULT_TIMEOUT
-        old = self.ser.timeout
-        self.ser.timeout = new
+        old = self.port.timeout
+        self.port.timeout = new
         return old
 
     def connect( self, check_idn=True ):
         '''connect'''
-        if self.ser.isOpen():
-            return
-        self.ser.port = self.port
-        self.ser.baudrate = self.baudrate
-        self.ser.ttscts = self.rtscts
-        self.ser.timeout = self.DEFAULT_TIMEOUT
+        self.port.connect()
         try:
-            self.ser.open()
-        except Exception:
-            raise SerialNotFound( self.port )
-        try:
-            self.ser.write( self.DEFAULT_TERMINATOR_RESET )
-            self.ser.flush()
+            self.port.write( self.DEFAULT_TERMINATOR_RESET )
+            self.port.flush()
             self.readUntilPrompts()
             if check_idn and self.DEFAULT_IDN is not None:
                 self.scpiIdn()
-        except serial.SerialException, e:
+        except serial.SerialException as e:
             raise UnknownSerialError( str(e) )
         #except Exception, e:
         #    print type(e), str(e)
 
     def disconnect( self ):
         '''disconnect'''
-        if self.ser.isOpen():
-            self.ser.close()
+        if self.port.connected:
+            self.port.disconnect()
 
     def assertIsOpen( self ):
-        '''assert serial is opened'''
-        if not self.ser.isOpen():
-            self.connect()
-            if not self.ser.isOpen():
-                raise Exception, "Fail to open serial port"
-    
+        '''assert port is opened'''
+        if not self.port.connected:
+            self.port.connect()
+            if not self.port.connect:
+                raise Exception("Fail to open port")
+  
     def readUntilPrompts( self ):
         '''read until prompts'''
-        contents, newline = [], ''
+        contents, newline_lst, newline_str = [], [], ''
         while True:
-            byte = self.ser.read(1)
+            byte = self.port.read(1)
+            if Env.PYTHON_V3:
+                byte = byte.decode(encoding='utf8')
             if byte:
                 if byte == self.DEFAULT_TERMINATOR_READ:
-                    contents.append( newline.rstrip() )
-                    self.logger.debug( newline )
-                    newline = ''
+                    contents.append( newline_str.rstrip() )
+                    self.logger.debug( newline_str )
+                    newline_lst, newline_str = [], ''
                 else:
-                    newline += byte
+                    newline_lst.append( byte )
+                    newline_str += byte
             else:
-                contents.append( newline )
+                contents.append( newline_str )
                 raise CommandTimeoutError( ' | '.join(contents) )
-            match = self.prompts.match( newline )
+            match = self.prompts.match( newline_str )
             if match:
-                contents.append( newline )
-                self.logger.debug( newline )
+                contents.append( newline_str )
+                self.logger.debug( newline_str )
                 return contents
 
-    def serialOutput( self, cmd ):
+    def writeLine( self, dat ):
         self.assertIsOpen() 
-        self.ser.flushInput()
-        self.ser.write( cmd + self.DEFAULT_TERMINATOR_WRITE )
-        self.ser.flush()
+        self.port.write( dat + self.DEFAULT_TERMINATOR_WRITE )
+        self.port.flush()
    
     def writeCommand( self, cmd ):
         '''write command and wait for prompts'''
-        self.assertIsOpen() 
-        self.ser.flushInput()
-        self.ser.write( cmd + self.DEFAULT_TERMINATOR_WRITE )
-        self.ser.flush()
+        self.writeLine( cmd )
         self.logger.debug( cmd )
         ret = self.readUntilPrompts()
         for line in [i.strip() for i in ret]:
@@ -229,9 +211,9 @@ class SerialInstrument:
             try:
                 ret = self.writeCommand( cmd )
                 return ret
-            except Exception, e:  # capture ANY exception
+            except Exception as e:
                 if Env.VERBOSE:
-                    print e
+                    print( e )
         return self.writeCommand( cmd )
   
     def checkReturnedCommand( self, ret, cmd ):
@@ -252,7 +234,21 @@ class SerialInstrument:
             result = ret[1:-1]
             err = cmd + ', returns: ' + ','.join(result)
             raise CommandExecuteError( err )
- 
+
+    # Instrument class only supports basic commands:
+    # 
+    # 1. scpi identify
+    #    =>*idn?
+    #    mcush,1.1          --- model, version
+    #    NNNNNNNNNNNNNNNN   --- serial number (if exists)
+    # 
+    # 2. scpi reset
+    #    =>*rst
+    # 
+    # 3. reboot cpu core
+    #    =>reboot
+    # 
+
     def scpiRst( self ):
         '''scpi reset'''
         self.writeCommand( '*rst' )
@@ -263,7 +259,7 @@ class SerialInstrument:
         self.idn = ret[0].strip()
         self.logger.info( 'IDN:%s', str(self.idn) )
         if not self.DEFAULT_IDN.match( self.idn ):
-            raise Exception, "IDN not match"
+            raise Exception( "IDN not match" )
         return self.idn
 
     def reboot( self, delay=None ):
@@ -288,9 +284,9 @@ class SerialInstrument:
                     raise CommandTimeoutError()
         self.scpiIdn()
         if delay is None:
-            sleep( Env.DELAY_AFTER_REBOOT )
+            time.sleep( Env.DELAY_AFTER_REBOOT )
         else:
-            sleep( delay )
+            time.sleep( delay )
 
     def getModel( self ):
         if self.idn is None:
@@ -303,11 +299,11 @@ class SerialInstrument:
     def getSerialNumber( self ):
         ret = self.writeCommand( '*idn?' )
         try:
-            self.serial_number = ret[1].strip()
-            self.logger.info( 'SN:%s', str(self.serial_number) )
-            return self.serial_number
+            self.portial_number = ret[1].strip()
+            self.logger.info( 'SN:%s', str(self.portial_number) )
+            return self.portial_number
         except IndexError:
-            self.serial_number = None
+            self.portial_number = None
             return ''
 
     def getVersion( self ):
@@ -319,175 +315,93 @@ class SerialInstrument:
             return ''
 
     def printInfo( self ):
-        print '%s, %s'% (self.getModel(), self.getVersion())
+        print( '%s, %s'% (self.getModel(), self.getVersion()) )
     
-    def led( self, idx, on=None, toggle=None ):
-        '''led control'''
-        if on is None and toggle is None:
-            # read
-            r = self.writeCommand( 'led -i %d'% (idx) )
-            return bool(r[0].strip() == '1')
-        else:
-            # set 
-            cmd = 'led -i %d'% (idx)
-            if toggle is not None:
-                cmd += ' -t'
-            else:
-                cmd += ' -s' if on else ' -c'
-            self.writeCommand( cmd )
 
-    def gpio( self, port, i=None, o=None, s=None, c=None, t=None ):
-        '''gpio control'''
-        cmd = 'gpio -p %s'% str(port)
-        if i is not None:
-            if type(i) is int:
-                cmd += ' -i 0x%x'% i
-            elif type(i) is bool and i:
-                cmd += ' -i'
-        if o is not None:
-            if type(o) is int:
-                cmd += ' -o 0x%x'% o
-            elif type(o) is bool and o:
-                cmd += ' -o'
-        if s is not None:
-            if type(s) is int:
-                cmd += ' -s 0x%x'% s
-            elif type(s) is bool and s:
-                cmd += ' -s'
-        if c is not None:
-            if type(c) is int:
-                cmd += ' -c 0x%x'% c 
-            elif type(c) is bool and c:
-                cmd += ' -c'
-        if t is not None:
-            if type(t) is int:
-                cmd += ' -t 0x%x'% t 
-            elif type(t) is bool and t:
-                cmd += ' -t'
-        ret = self.writeCommand( cmd )
-        if ret:
-            return eval(ret[0])
-
-    def parseMemLine( self, line, compact_mode=False ):
-        '''parse memory line which has been stripped'''
-        # format(standard):  XXXXXXXX: xx xx xx xx xx ... xx    (no ascii mode, final space stripped)
-        # format(compact):   xxxxxxxxxxxx...xx
-        line_len = len(line)
-        line_len_err = bool(line_len % 2) if compact_mode else bool((line_len-9) % 3)
-        if line_len_err:
-            raise CommandExecuteError('memory line width error, length=%s'% line_len)
-        if compact_mode:
-            return ''.join([unhexlify(line[i:i+2]) for i in range(0,line_len,2)])
-        else:
-            return ''.join([unhexlify(line[i:i+2]) for i in range(10,line_len,3)])
-       
-    def fillMem( self, addr, pattern, width, length ):
-        '''fill memory with specific pattern'''
-        cmd = 'mfill -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
-        self.writeCommand( cmd )
+class Port:
+    
+    def __init__( self, parent, *args, **kwargs ):
+        self.parent = parent
+        for k, v in kwargs.items():
+            self.__dict__[k] = v
+        self._connected = False
  
-    def testMem( self, addr, pattern, width, length ):
-        '''test filled memory with specific pattern'''
-        cmd = 'mfill -t -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
+    def connect( self ):
+        raise NotImplementedError
+
+    def disconnect( self ):
+        raise NotImplementedError
+    
+    @property        
+    def connected( self ):
+        return self._connected
+
+    def read( self, read_bytes=1 ):
+        raise NotImplementedError
+
+    def write( self, buf ):
+        raise NotImplementedError
+ 
+    def flush( self ):
+        raise NotImplementedError
+
+    @property        
+    def timeout( self ):
+        return None
+
+    @timeout.setter
+    def timeout( self, val ):
+        pass
+ 
+ 
+class SerialPort(Port):
+    
+    def __init__( self, parent, *args, **kwargs ):
+        Port.__init__( self, parent, *args, **kwargs )
         try:
-            self.writeCommand( cmd )
-            return True
-        except CommandExecuteError:
-            return False
-        
-    def malloc( self, length ):
-        cmd = 'mapi -m -l %d'% length
-        ret = self.writeCommand(cmd)
-        addr = eval(ret[0])
-        return addr
+            self.ser = serial.serial_for_url( self.port, do_not_open=True )
+        except AttributeError:
+            self.ser = serial.Serial()
+   
+    def connect( self ):
+        if self.connected:
+            return
+        self.ser.port = self.port
+        self.ser.baudrate = self.baudrate
+        self.ser.rtscts = self.rtscts
+        self.ser.timeout = self.timeout
+        try:
+            self.ser.open()
+            self._connected = True
+        except Exception:
+            raise SerialNotFound( self.port )
 
-    def realloc( self, addr, length ):
-        cmd = 'mapi -r -b 0x%08X -l %d'% (addr, length)
-        ret = self.writeCommand(cmd)
-        addr = eval(ret[0])
-        return addr
-
-    def free( self, addr ):
-        cmd = 'mapi -f -b 0x%08X'% addr
-        self.writeCommand( cmd )
+    def disconnect( self ):
+        self.ser.close()
+        self._connected = False
  
-    def readMem( self, addr, length=1, compact_mode=False, retry=None ):
-        '''get memory'''
-        cmd = 'x -b 0x%X -l %d'% ( addr, length )
-        if compact_mode:
-            cmd += ' -c'
-        if retry:
-            ret = self.writeCommandRetry( cmd, retry )
-        else:
-            ret = self.writeCommand( cmd )
-        assert 1 <= len(ret)
-        for line in ret:
-            self.logger.info( line )
-        mem = ''.join([self.parseMemLine(line.strip(), compact_mode) for line in ret])
-        return mem[:length]
+    @property        
+    def timeout( self ):
+        return self.ser.timeout
 
-    MAX_ITEMS_PER_WRITE = { 1: 16, 2: 8, 4: 4  }
+    @timeout.setter
+    def timeout( self, val ):
+        self.ser.timeout = val
 
-    def writeMem( self, addr, data, width=1 ):
-        '''write memory'''
-        length = len(data)
-        written = 0
-        while written < length:
-            cmd = 'w -b 0x%X -w%d '% ( addr, width )
-            left = min(length-written, self.MAX_ITEMS_PER_WRITE[width])
-            if width == 1:
-                cmd += ' '.join([str(ord(c)) for c in data[written:written+left]])
-            elif width == 2:
-                cmd += ' '.join([hex(ord(data[i])+(ord(data[i+1])<<8)) for i in range(written, written+left*2, 2)])
-            elif width == 4:
-                cmd += ' '.join([hex(ord(data[i])+(ord(data[i+1])<<8)+(ord(data[i+2])<<16)+(ord(data[i+3])<<24)) for i in range(written, written+left*4, 4)])
-            self.writeCommand( cmd )
-            written += left*width
-            addr += left*width
+    def read( self, read_bytes=1 ):
+        return self.ser.read(read_bytes)
 
-    def dumpMem( self, addr, length=1 ):
-        '''dump memory'''
-        Utils.dumpMem( self.readMem(addr, length) )
-
-    def addReg( self, r ):
-        '''add register'''
-        self.regs_by_name[r.name] = r
-        self.regs_by_addr[r.address] = r
-        
-    def setReg( self, regname, value ):
-        '''set register'''
-        r = self.regs_by_name[regname]
-        if r.reg_type == float:
-            m = Utils.f2s(value)
-        elif r.reg_type == int:
-            m = Utils.i2s(value)
-        else:
-            m = str(value)
-        #print 'setReg', regname, value, binascii.hexlify(m)
-        self.writeMem( r.address, m )
-    
-    def getReg( self, regname ):
-        '''get register'''
-        r = self.regs_by_name[regname]
-        m = self.readMem( r.address, length=r.length )
-        if r.reg_type == float:
-            return Utils.s2f(m)
-        elif r.reg_type == int:
-            return Utils.s2i(m)
-        else:
-            return m
-
-    def uptime( self ):
-        return self.writeCommand('uptime')[0].strip()
-
-    def sysTask( self ):
-        ret = self.writeCommand('sys t')
-        return ret
-
-    def sysQueue( self ):
-        ret = self.writeCommand('sys q')
-        return ret
-
+    def write( self, buf ):
+        self.ser.write( buf.encode(encoding='utf8') )
  
+    def flush( self ):
+        self.ser.flush()
  
+
+class SerialInstrument(Instrument):
+    '''Serial port based instruments'''
+
+    PORT_TYPE = SerialPort
+
+
 

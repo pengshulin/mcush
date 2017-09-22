@@ -18,14 +18,14 @@ import tempfile
 import base64
 
 def halt(message=None):
-    print message
+    print( message )
     raise Exception(message)
 
 #############################################################################
 # GPIO
 def gpio_read( argv=None ):
     port_pin = argv[0]
-    print '%s: 0x%08X'% (port_pin, Mcush().gpio(port_pin))
+    print( '%s: 0x%08X'% (port_pin, Mcush().gpio(port_pin)) )
  
 def gpio_set_high( argv=None ):
     # set gpio high for 100ms(default) and back
@@ -60,7 +60,7 @@ LED_CMD = {
 def led( argv=None ):
     if len(argv) == 1: # read status
         cmd = None
-        print Mcush().led( int(argv[0]) )
+        print( Mcush().led( int(argv[0]) ) )
     elif len(argv) == 2: # set/clr/toggle
         cmd = LED_CMD[argv[1].strip()]
         if cmd == -1:
@@ -74,7 +74,7 @@ def led( argv=None ):
 # MISC
 def info( argv=None ):
     m = Mcush()
-    print m.getModel(), m.getVersion()
+    m.printInfo()
     m.disconnect()
  
 def reset( argv=None ):
@@ -86,10 +86,10 @@ def regs_test( argv=None ):
     s.addReg( reg( 'PORTA_CRH', 0x40010804, 'PORTA control (high)' ) )
     s.addReg( reg( 'PORTA_IDR', 0x40010808, 'PORTA input data' ) )
     s.addReg( reg( 'PORTA_ODR', 0x40010808, 'PORTA output data' ) )
-    print hex(s.getReg('PORTA_CRL'))
-    print hex(s.getReg('PORTA_CRH'))
-    print hex(s.getReg('PORTA_IDR'))
-    print hex(s.getReg('PORTA_ODR'))
+    print( hex(s.getReg('PORTA_CRL')) )
+    print( hex(s.getReg('PORTA_CRH')) )
+    print( hex(s.getReg('PORTA_IDR')) )
+    print( hex(s.getReg('PORTA_ODR')) )
     s.setReg('PORTA_ODR', 0x12345678)
 
 def beep( argv=None ):
@@ -106,12 +106,12 @@ def disp( argv=None ):
         Mcush().disp( buf=argv[0] )
 
 def uptime( argv=None ):
-    print Mcush().uptime()
+    print( Mcush().uptime() )
         
 def uptime_mon( argv=None ):
     s = Mcush()
     while True:
-        print s.uptime()
+        print( s.uptime() )
 
 
 #############################################################################
@@ -129,8 +129,8 @@ def memory_read( argv=None ):
     except IndexError:
         fname = None
     if Env.VERBOSE:
-        print 'addr: 0x%08X, length: %d'% (addr, length)
-        print 'output: %s'% ('stdout' if fname is None else fname )
+        print( 'addr: 0x%08X, length: %d'% (addr, length) )
+        print( 'output: %s'% ('stdout' if fname is None else fname ) )
     if length <= 0:
         return
     mem = Mcush().readMem( addr, length, compact_mode=Env.COMPACT_MODE )
@@ -148,7 +148,7 @@ def memory_read_loop( argv=None ):
     s = Mcush()
     count = 1
     while True:
-        print time.strftime('%H:%M:%S'), count
+        print( time.strftime('%H:%M:%S'), count )
         mem = s.readMem( 0x20000000, 20*1024 )
         #Utils.dumpMem( mem ) 
         count += 1
@@ -163,19 +163,19 @@ def memory_read_speed_test( argv=None ):
         t1 = time.time()
         speed = len(mem)/(t1-t0)
         count += 1
-        print '[%d] read %d bytes, %.3f kB/s'% (count, SIZE, speed/1000.0)
+        print( '[%d] read %d bytes, %.3f kB/s'% (count, SIZE, speed/1000.0) )
 
 #############################################################################
 # FILESYSTEM
 def spiffs_info( argv=None ):
-    print Mcush().spiffs( 'info' )
+    print( Mcush().spiffs( 'info' ) )
 
 def spiffs_format( argv=None ):
     Mcush().spiffs( 'format' )
 
 def spiffs_ls( argv=None ):
     for f, s in Mcush().list('/s'):
-        print '%s %s'% (f,s)
+        print( '%s %s'% (f,s) )
 
 def spiffs_remove( argv=None ):
     f = argv[0]
@@ -186,37 +186,37 @@ def spiffs_remove( argv=None ):
 def spiffs_removeall( argv=None ):
     m = Mcush()
     for f, s in m.list('/s'):
-        print 'remove %s'% f
+        print( 'remove %s'% f )
         m.remove( f )
    
 def spiffs_loop_append( argv=None ):
     buf = open('/proc/misc','r').read()
     s = Mcush()
     while True:
-        print s.list()
+        print( s.list() )
         for i in range(10):
-            print '/s/test.%d'% i
+            print( '/s/test.%d'% i )
             s.cat( '/s/test.%d'% i, append=True, buf=buf )
  
 def spiffs_fill_small_files( argv=None ):
     buf = open('/proc/misc','r').read()
     s = Mcush()
-    print s.list()
+    print( s.list() )
     while True:
         f = tempfile.mktemp(prefix='test', dir='/s')
-        print f
+        print( f )
         s.cat( f, append=True, buf=buf )
  
 def spiffs_get( argv=None ):
     if len(argv) < 1:
-        print 'syntax: spiffs_get <remote_pathname> [local_pathname]'
+        print( 'syntax: spiffs_get <remote_pathname> [local_pathname]' )
         return
     r = Mcush().cat( argv[0], b64=True )
     r = base64.b64decode('\n'.join(r))
     if len(argv) > 1:
         open(argv[1], 'w+').write(r)
     else:
-        print r
+        print( r )
 
 
 
@@ -228,14 +228,14 @@ def i2c_search( argv=None ):
         try:
             pin_sda, pin_scl = argv[0], argv[1]
         except:
-            print 'arguments: pin_sda pin_scl'
+            print( 'arguments: pin_sda pin_scl' )
             return
         s.i2c_init( 0, scl=pin_scl, sda=pin_sda )
     for addr in range(128):
         s.i2c_init( addr )
         try:
             s.i2c( [0] )
-            print 'Addr 0x%02X, OK'% (addr)
+            print( 'Addr 0x%02X, OK'% (addr) )
         except Instrument.CommandExecuteError:
             pass
 
@@ -246,7 +246,7 @@ if __name__ == '__main__':
     app_name = os.path.basename(sys.argv[0])
     if app_name == 'Tests.py':
         if len(sys.argv) < 2:
-            print 'Syntax: Test.py test_command <args>'
+            print( 'Syntax: Test.py test_command <args>' )
             sys.exit(1)
         test_command = sys.argv[1]
         test_argv = sys.argv[2:] 
@@ -261,7 +261,7 @@ if __name__ == '__main__':
         command = eval(test_command)
         # TODO: verify command
     except:
-        print 'invalid command %s'% test_command
+        print( 'invalid command %s'% test_command )
         sys.exit(1)
     #print test_command, test_argv
     command(test_argv) 

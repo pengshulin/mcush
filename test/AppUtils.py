@@ -111,13 +111,16 @@ class Task():
                 a,b = e.args
                 info += u'%d %s'% (a, b.decode(encoding='utf8'))
             else:
-                for c in str(e):  # e string may not be Unicode
-                    info += c if ord(c) <= 128 else 'x%X'% ord(c)
+                #for c in str(e):  # e string may not be Unicode
+                #    info += c if ord(c) <= 128 else 'x%X'% ord(c)
+                info = str(e).decode(encoding='utf8')
             self.info( info, 'error' )
      
     def listener( self ):
         if self.p.is_alive():
+            #print 'listener:alive'
             self.p.join()
+            #print 'listener:end'
         self.end()
        
     def isStopped( self ):

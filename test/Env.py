@@ -4,7 +4,7 @@ __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from os import getenv
 from os.path import isdir, join
-from sys import platform
+from sys import platform, version_info
 from binascii import unhexlify
 from tempfile import mktemp
 from subprocess import check_output
@@ -48,11 +48,10 @@ if platform == 'win32':
 else:
     PORT = getenv('PORT', '/dev/ttyUSB0')
     try:
-        PORTS = check_output(['allports']).strip()
+        PORTS = check_output(['allports']).strip().decode(encoding='utf8')
+        PORTS_LIST = PORTS.split(',')
     except:
-        PORTS = ''
-    PORTS_LIST = PORTS.split(',')
-
+        PORTS_LIST = []
 BAUDRATE = getenv_int( 'BAUDRATE', 9600 )
 RTSCTS = getenv_bool( 'RTSCTS' )
 COMMAND_FAIL_RETRY = getenv_int( 'COMMAND_FAIL_RETRY', 3 )
@@ -93,9 +92,10 @@ REV = getenv_bool( 'REV' )
 LANGUAGES = {'en', 'zh_cn'}
 LANGUAGE = 'en'
 
+PYTHON_V3 = bool(version_info > (3, 0))
+
 try:
     from EnvExtra import *
 except ImportError:
     pass
-
 

@@ -56,7 +56,7 @@ class TjcHMI( Instrument.SerialInstrument ):
         '''read until prompts'''
         contents = []
         while True:
-            byte = self.ser.read(1)
+            byte = self.port.read(1)
             if byte:
                 if (len(contents)==0) and (byte=='\xff'):
                     continue  # ignore leading 0xff
