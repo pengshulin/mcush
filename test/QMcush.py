@@ -54,4 +54,19 @@ class QMcush( Mcush.Mcush ):
     PORT_TYPE = AndroidBluetoothPort
 
 
-   
+    def tts( self, msg ):
+        self.port.android.ttsSpeak( msg )
+        while True:
+            r = self.port.android.ttsIsSpeaking()
+            if r.result:
+                time.sleep(0.5)
+            else:
+                break
+
+
+    def vibrate( self, duration=300 ):
+        self.port.android.vibrate(duration)
+
+    def smsSend( self, addr, msg ):
+        self.port.android.smsSend( addr, msg )
+        
