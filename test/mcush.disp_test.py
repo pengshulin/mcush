@@ -3,10 +3,9 @@ import os
 import sys
 import time
 import random
-import Env
-import Mcush
-import Utils
+from mcush import *
 import subprocess
+
 
 def main(argv=None):
     s = Mcush.Mcush()

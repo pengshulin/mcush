@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding:utf8
 __doc__ = 'mcush controller'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
@@ -8,28 +7,12 @@ import re
 import sys
 import time
 import base64
-import logging
-import Env
-import Utils
-import Instrument
 import binascii
-
-
-
-class Register:
-    '''mcu register'''
-    def __init__( self, name, address, description, reg_type=int, width=32 ):
-        self.name = str(name)
-        self.address = int(address)
-        self.description = str(description)
-        self.width = width
-        self.length = (width+7)/8
-        self.reg_type = reg_type
-        assert 0 < self.length < 32
-        assert reg_type in [int, float, str]
-
-    def __str__( self ):
-        return self.name
+import logging
+from . import Env
+from . import Utils
+from . import Instrument
+from . import Register
 
 
 
@@ -41,6 +24,24 @@ class Mcush( Instrument.SerialInstrument ):
     regs_by_name = {}
     regs_by_addr = {}
 
+    def addReg( self, r ):
+        '''add register'''
+        self.regs_by_name[r.name] = r
+        self.regs_by_addr[r.address] = r
+        
+    def setReg( self, regname, value ):
+        '''set register'''
+        r = self.regs_by_name[regname]
+        w, b, fget, fset = Register.REGISTER_TYPE[r.reg_type]
+        m = fset(value)
+        self.writeMem( r.address, m )
+    
+    def getReg( self, regname ):
+        '''get register'''
+        r = self.regs_by_name[regname]
+        w, b, fget, fset = Register.REGISTER_TYPE[r.reg_type]
+        m = self.readMem( r.address, length=b )
+        return fget(m)
 
     def led( self, idx, on=None, toggle=None ):
         '''led control'''
@@ -93,6 +94,7 @@ class Mcush( Instrument.SerialInstrument ):
         '''parse memory line which has been stripped'''
         # format(standard):  XXXXXXXX: xx xx xx xx xx ... xx    (no ascii mode, final space stripped)
         # format(compact):   xxxxxxxxxxxx...xx
+        #print( type(line), line )
         line_len = len(line)
         line_len_err = bool(line_len % 2) if compact_mode else bool((line_len-9) % 3)
         if line_len_err:
@@ -101,10 +103,9 @@ class Mcush( Instrument.SerialInstrument ):
             m = [binascii.unhexlify(line[i:i+2]) for i in range(0,line_len,2)]
         else:
             m = [binascii.unhexlify(line[i:i+2]) for i in range(10,line_len,3)]
-        if Env.PYTHON_V3:
-            return b''.join(m)
-        else:
-            return ''.join(m) 
+        ret = (b'' if Env.PYTHON_V3 else '').join(m)
+        #print( type(ret), len(ret), ret )
+        return ret
        
     def fillMem( self, addr, pattern, width, length ):
         '''fill memory with specific pattern'''
@@ -148,7 +149,9 @@ class Mcush( Instrument.SerialInstrument ):
         assert 1 <= len(ret)
         for line in ret:
             self.logger.info( line )
-        mem = ''.join([self.parseMemLine(line.strip(), compact_mode) for line in ret])
+        mem = (b'' if Env.PYTHON_V3 else '').join( \
+               [self.parseMemLine(line.strip(), compact_mode) for line in ret])
+        #print( type(mem), len(mem), mem )
         return mem[:length]
 
     MAX_ITEMS_PER_WRITE = { 1: 16, 2: 8, 4: 4  }
@@ -173,34 +176,6 @@ class Mcush( Instrument.SerialInstrument ):
     def dumpMem( self, addr, length=1 ):
         '''dump memory'''
         Utils.dumpMem( self.readMem(addr, length) )
-
-    def addReg( self, r ):
-        '''add register'''
-        self.regs_by_name[r.name] = r
-        self.regs_by_addr[r.address] = r
-        
-    def setReg( self, regname, value ):
-        '''set register'''
-        r = self.regs_by_name[regname]
-        if r.reg_type == float:
-            m = Utils.f2s(value)
-        elif r.reg_type == int:
-            m = Utils.i2s(value)
-        else:
-            m = str(value)
-        #print 'setReg', regname, value, binascii.hexlify(m)
-        self.writeMem( r.address, m )
-    
-    def getReg( self, regname ):
-        '''get register'''
-        r = self.regs_by_name[regname]
-        m = self.readMem( r.address, length=r.length )
-        if r.reg_type == float:
-            return Utils.s2f(m)
-        elif r.reg_type == int:
-            return Utils.s2i(m)
-        else:
-            return m
 
     def uptime( self ):
         return self.writeCommand('uptime')[0].strip()

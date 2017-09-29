@@ -8,11 +8,7 @@ import sys
 import wx
 import wx.lib.newevent
 from multiprocessing import Queue, freeze_support
-import Env
-import Utils
-import Instrument
-from Instrument import reg
-from AppUtils import *
+from mcush import *
 from MemViewerDlg import *
 from Widgets import SegmentMemoryPanel
 

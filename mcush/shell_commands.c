@@ -77,6 +77,10 @@
 #ifndef USE_CMD_SPI
     #define USE_CMD_SPI  1
 #endif
+#ifndef USE_CMD_COUNTER
+    #define USE_CMD_COUNTER  0
+#endif
+
 
 
 
@@ -159,6 +163,7 @@ int cmd_mkbuf( int argc, char *argv[] );
 int cmd_power( int argc, char *argv[] );
 int cmd_i2c( int argc, char *argv[] );
 int cmd_spi( int argc, char *argv[] );
+int cmd_counter( int argc, char *argv[] );
 
 int cmd_spiffs( int argc, char *argv[] );
 int cmd_cat( int argc, char *argv[] );
@@ -272,6 +277,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "spi",  cmd_spi, 
     "spi emulated",
     "spi [-i|r] <data>" },
+#endif
+#if USE_CMD_COUNTER
+{   0, 'c',  "counter",  cmd_counter, 
+    "input trigger counter",
+    "counter [-i|r]" },
 #endif
 #if USE_CMD_BEEP
 {   0,  'b',  "beep",  cmd_beep, 
@@ -2074,6 +2084,80 @@ int cmd_spi( int argc, char *argv[] )
     if( read_mode && line_count )
         shell_write_char( '\n' );
     hal_gpio_set( spi_port_cs, spi_pin_cs );
+    return 0;
+ 
+err_port:
+    shell_write_line("port/bit err");
+    return 1;
+}
+#endif
+
+
+#if USE_CMD_COUNTER
+static uint8_t counter_port=0;
+static uint16_t counter_pin=1<<0;
+static uint32_t counter_val=0;
+
+int cmd_counter( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "pin", 0, "input_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "init", 'i', 0, "init pin", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "deinit", 0, 0, "deinit pin", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "reset", 'r', 0, "reset zero", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t init=0, deinit=0, reset=0;
+    char *p;
+ 
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "init" ) == 0 )
+                init = 1;
+            else if( strcmp( opt.spec->name, "deinit" ) == 0 )
+                deinit = 1;
+            else if( strcmp( opt.spec->name, "reset" ) == 0 )
+                reset = 1;
+            else if( strcmp( opt.spec->name, "pin" ) == 0 )
+            {
+                counter_port = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                counter_pin = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+                counter_pin = 1 << counter_pin;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( init )
+    {
+        hal_gpio_set_input( counter_port, counter_pin );
+        counter_val = 0;
+        return 0;
+    }
+    else if( deinit )
+    {
+        hal_gpio_set_input( counter_port, counter_pin );
+        return 0;
+    }
+
+    if( reset )
+    {
+        counter_val = 0;
+        return 0;
+    }
+
+    shell_printf("%d\n", counter_val);
     return 0;
  
 err_port:

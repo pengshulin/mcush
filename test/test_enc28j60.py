@@ -6,9 +6,7 @@ import os
 import sys
 import time
 import random
-import Env
-import Mcush
-import Utils
+from mcush import *
 
 macaddr = [0x12, 0x34, 0x56, 0x78, 0x90, 0xAB]  
 

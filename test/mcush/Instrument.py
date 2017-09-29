@@ -5,9 +5,7 @@ __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
 import time
 import logging
-import serial
-import Env
-import Utils
+from . import Env
 
 if Env.LOGGING_FORMAT:
     logging.BASIC_FORMAT = Env.LOGGING_FORMAT
@@ -137,16 +135,11 @@ class Instrument:
     def connect( self, check_idn=True ):
         '''connect'''
         self.port.connect()
-        try:
-            self.port.write( self.DEFAULT_TERMINATOR_RESET )
-            self.port.flush()
-            self.readUntilPrompts()
-            if check_idn and self.DEFAULT_IDN is not None:
-                self.scpiIdn()
-        except serial.SerialException as e:
-            raise UnknownSerialError( str(e) )
-        #except Exception, e:
-        #    print type(e), str(e)
+        self.port.write( self.DEFAULT_TERMINATOR_RESET )
+        self.port.flush()
+        self.readUntilPrompts()
+        if check_idn and self.DEFAULT_IDN is not None:
+            self.scpiIdn()
 
     def disconnect( self ):
         '''disconnect'''
@@ -177,7 +170,10 @@ class Instrument:
                     newline_str += byte
             else:
                 contents.append( newline_str )
-                raise CommandTimeoutError( ' | '.join(contents) )
+                if contents:
+                    raise CommandTimeoutError( ' | '.join(contents) )
+                else:
+                    raise CommandTimeoutError( 'No response' )
             match = self.prompts.match( newline_str )
             if match:
                 contents.append( newline_str )
@@ -325,12 +321,15 @@ class Port:
         for k, v in kwargs.items():
             self.__dict__[k] = v
         self._connected = False
+
+    def __del__( self ):
+        self.disconnect()
  
     def connect( self ):
         raise NotImplementedError
 
     def disconnect( self ):
-        raise NotImplementedError
+        pass
     
     @property        
     def connected( self ):
@@ -343,7 +342,7 @@ class Port:
         raise NotImplementedError
  
     def flush( self ):
-        raise NotImplementedError
+        pass
 
     @property        
     def timeout( self ):
@@ -358,6 +357,8 @@ class SerialPort(Port):
     
     def __init__( self, parent, *args, **kwargs ):
         Port.__init__( self, parent, *args, **kwargs )
+        import serial
+        self.serial_exception = serial.SerialException 
         try:
             self.ser = serial.serial_for_url( self.port, do_not_open=True )
         except AttributeError:
@@ -389,13 +390,22 @@ class SerialPort(Port):
         self.ser.timeout = val
 
     def read( self, read_bytes=1 ):
-        return self.ser.read(read_bytes)
+        try:
+            return self.ser.read(read_bytes)
+        except self.serial_exception as e:
+            raise UnknownSerialError( str(e) )
 
     def write( self, buf ):
-        self.ser.write( buf.encode(encoding='utf8') )
+        try:
+            self.ser.write( buf.encode(encoding='utf8') )
+        except self.serial_exception as e:
+            raise UnknownSerialError( str(e) )
  
     def flush( self ):
-        self.ser.flush()
+        try:
+            self.ser.flush()
+        except self.serial_exception as e:
+            raise UnknownSerialError( str(e) )
  
 
 class SerialInstrument(Instrument):

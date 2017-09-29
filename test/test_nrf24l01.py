@@ -6,12 +6,10 @@ import os
 import sys
 import time
 import random
-import Env
-import Mcush
-import Utils
+from mcush import *
+
 
 WR = Env.getenv_bool('WR')
-
 
 #####################################################
 # NRF24L01寄存器操作命令

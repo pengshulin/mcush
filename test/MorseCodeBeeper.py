@@ -5,7 +5,7 @@
 # designed by Peng Shulin <trees_peng@163.com>
 import sys
 import time
-import Mcush
+from mcush import *
 
 
 MorseCode = {

@@ -10,7 +10,7 @@ from subprocess import Popen, PIPE
 from struct import pack, unpack
 from time import strftime, localtime
 import json
-import Env
+from . import Env
 
 
 MAX_LINE_LEN = 80
@@ -106,6 +106,9 @@ def f2I( val ):
 def s2f( val ):
     return unpack('f', val) [0]
 
+def s2d( val ):
+    return unpack('d', val) [0]
+
 def s2b( val ):
     return unpack('B', val) [0]
  
@@ -132,6 +135,9 @@ def s2Q( val ):
     
 def f2s( val ):
     return pack('f', val)
+
+def d2s( val ):
+    return pack('d', val)
 
 def i2s( val ):
     return pack('i', val)

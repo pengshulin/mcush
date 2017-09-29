@@ -3,15 +3,18 @@ __doc__ = 'subprocess task control'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from time import sleep
-from Queue import Empty
+try:
+    from Queue import Empty
+except ImportError:
+    from queue import Empty
 from threading import Thread
 from multiprocessing import Process, Queue
 try:
     from termios import error as termios_error
 except ImportError:
     termios_error = None
-import Env
-import Instrument
+import mcush.Env as Env
+import mcush.Instrument as Instrument
 
 __INFO_STR = {
     'STOPPING': {'en': u'Stopping...',
@@ -82,7 +85,7 @@ class Task():
             else:
                 sleep( self.STOP_CHECK_PERIOD )
         if Env.VERBOSE:
-            print 'subprocess still alive'
+            print( 'subprocess still alive' )
         return False
 
     def info( self, info, info_type='info' ):
@@ -99,13 +102,13 @@ class Task():
         except Instrument.CommandTimeoutError:
             self.info( _getStr('STOPPING') )
             self.info( _getStr('TIMEOUT'), 'error' )
-        except Instrument.SerialNotFound, e:
+        except Instrument.SerialNotFound as e:
             self.info( _getStr('PORT_NOT_EXIST') + ': ' + unicode(e), 'error' )
-        except Instrument.UnknownSerialError, e:
+        except Instrument.UnknownSerialError as e:
             self.info( _getStr('UNKNOWN_SERIAL_ERROR') + ': ' + unicode(e), 'error' )
-        except Exception, e:
+        except Exception as e:
             if Env.VERBOSE:
-                print type(e), str(e)
+                print( type(e), str(e) )
             info = _getStr('UNKNOWN_ERROR') + ': '
             if termios_error and isinstance(e, termios_error):
                 a,b = e.args

@@ -12,8 +12,8 @@ from binascii import hexlify
 from random import randint
 from subprocess import Popen, PIPE
 import time
-import Env
-from Mcush import *
+from mcush import *
+from mcush.Mcush import *
 import tempfile
 import base64
 
@@ -82,10 +82,10 @@ def reset( argv=None ):
 
 def regs_test( argv=None ):
     s = Mcush()
-    s.addReg( reg( 'PORTA_CRL', 0x40010800, 'PORTA control (low)' ) )
-    s.addReg( reg( 'PORTA_CRH', 0x40010804, 'PORTA control (high)' ) )
-    s.addReg( reg( 'PORTA_IDR', 0x40010808, 'PORTA input data' ) )
-    s.addReg( reg( 'PORTA_ODR', 0x40010808, 'PORTA output data' ) )
+    s.addReg( Register( 'PORTA_CRL', 0x40010800, 'PORTA control (low)' ) )
+    s.addReg( Register( 'PORTA_CRH', 0x40010804, 'PORTA control (high)' ) )
+    s.addReg( Register( 'PORTA_IDR', 0x40010808, 'PORTA input data' ) )
+    s.addReg( Register( 'PORTA_ODR', 0x40010808, 'PORTA output data' ) )
     print( hex(s.getReg('PORTA_CRL')) )
     print( hex(s.getReg('PORTA_CRH')) )
     print( hex(s.getReg('PORTA_IDR')) )
@@ -174,8 +174,10 @@ def spiffs_format( argv=None ):
     Mcush().spiffs( 'format' )
 
 def spiffs_ls( argv=None ):
-    for f, s in Mcush().list('/s'):
-        print( '%s %s'% (f,s) )
+    for m, f, s in Mcush().list('/s'):
+        if f is None:
+            continue
+        print( '%s %s'% (m+'/'+f,s) )
 
 def spiffs_remove( argv=None ):
     f = argv[0]

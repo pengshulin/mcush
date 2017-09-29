@@ -10,7 +10,10 @@ from time import *
 import keyword
 import random
 import subprocess
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError:
+    import configparser
 import wx
 import wx.lib.newevent
 import wx.stc as stc
@@ -18,10 +21,8 @@ import StringIO
 from copy import deepcopy
 from multiprocessing import Queue, freeze_support
 from threading import Thread
-import Env
-import Utils
-from AppUtils import Task
-from Mcush import *
+from mcush import *
+from mcush.Mcush import *
 from McushDebugDlg import *
 from re import compile as re_compile
 import base64
@@ -70,7 +71,7 @@ INFO = info
 
 PORT = None
 
-class MyTask(Task):
+class MyTask(AppUtils.Task):
     def addResult( self, info=None ):
         if info is None:
             self.queue.put( ('add_result', '') )
@@ -108,8 +109,8 @@ class TestPortTask(MyTask):
         for i in range(10): 
             try:
                 s.led(0, toggle=True)
-            except Exception, e:
-                print e
+            except Exception as e:
+                print( e )
                 break
             time.sleep(0.1)
         s.disconnect()
@@ -168,7 +169,7 @@ class RemoveTask(MyTask):
             s.remove( fname )
             self.queue.put( ('remove_file', fname) )
             self.info( "Done" )
-        except Instrument.CommandExecuteError, e:
+        except Instrument.CommandExecuteError as e:
             self.info( "Failed to remove %s"% fname, 'error' )
 
 class RenameTask(MyTask):
@@ -181,7 +182,7 @@ class RenameTask(MyTask):
             s.rename( oldname, newname )
             self.queue.put( ('rename_file', (oldname, newname)) )
             self.info( "Done" )
-        except Instrument.CommandExecuteError, e:
+        except Instrument.CommandExecuteError as e:
             self.info( u"Failed to rename %s to %s..."% (oldname, newname), 'error' )
 
 class ViewTask(MyTask):
@@ -195,7 +196,7 @@ class ViewTask(MyTask):
             r = base64.b64decode('\n'.join(r))
             self.queue.put( ('view_file', (fname, r)) )
             self.info( "Done" )
-        except Instrument.CommandExecuteError, e:
+        except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
 
 class GetFileTask(MyTask):
@@ -208,13 +209,13 @@ class GetFileTask(MyTask):
             r = s.cat( fname, b64=True )
             r = base64.b64decode('\n'.join(r))
             #self.queue.put( ('view_file', (fname, r)) )
-        except Instrument.CommandExecuteError, e:
+        except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
         self.info( 'save as %s...'% savename )
         try:
             open(savename, 'w+').write(r)
             self.info( "File %s saved, size %d."% (savename, len(r)) )
-        except Exception, e:
+        except Exception as e:
             self.info( u"Failed to save file %s"% (savename), 'error' )
 
 PUTFILE_SEGMENT_SIZE = 1024
@@ -253,7 +254,7 @@ class PutFileTask(MyTask):
                 cnt += len(buf)
             self.info( u"File %s written, size %d."% (fname, len(raw)) )
             self.queue.put( ('update_filelist', s.list()) )
-        except Instrument.CommandExecuteError, e:
+        except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
 
 
@@ -560,8 +561,8 @@ class MainFrame(MyFrame):
             self.text_ctrl_i2c_delay_us.SetValue( unicode(cfgfile.get( 'config', 'i2c_delay_us' ), encoding='utf-8'))
             self.text_ctrl_i2c_reg_from.SetValue( unicode(cfgfile.get( 'config', 'i2c_reg_from' ), encoding='utf-8'))
             self.text_ctrl_i2c_reg_to.SetValue( unicode(cfgfile.get( 'config', 'i2c_reg_to' ), encoding='utf-8'))
-        except Exception, e:
-            print 'loadconfig failed'
+        except Exception as e:
+            print( 'loadconfig failed' )
             mode = False
 
     def saveConfig( self ):
@@ -651,7 +652,7 @@ class MainFrame(MyFrame):
             subroot = {}
             for p, rn, s in lst:
                 n = None if rn is None else rn.decode('utf8', errors='ignore')
-                print p, pprint.pformat(rn), n, s
+                print( p, pprint.pformat(rn), n, s )
                 if not subroot.has_key( p ):
                     subroot[p] = self.tree_ctrl_fs.AppendItem(root, p)
                     self.tree_ctrl_fs.SetItemImage(subroot[p], self.img_id_drive, wx.TreeItemIcon_Normal) 
@@ -682,7 +683,7 @@ class MainFrame(MyFrame):
                 p, n, s = self.tree_ctrl_fs.GetPyData( item )
                 self.tree_ctrl_fs.SetItemText( item, '%s (%d)'% (newname, s) ) 
                 self.tree_ctrl_fs.SetPyData(item, (p, newname, s))
-            except Exception, e:
+            except Exception as e:
                 return
         elif event.cmd == 'i2c_data':
             data = event.val

@@ -9,9 +9,8 @@ import sys
 import time
 import binascii
 import logging
-import Env
-import Utils
-import Instrument
+from mcush import *
+
 
 RETURN_CODES = {
     0x00 : 'invalid',

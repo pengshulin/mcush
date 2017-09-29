@@ -6,9 +6,8 @@ import os
 import sys
 import time
 import random
-import Env
-import Mcush
-import Utils
+from mcush import *
+
 
 PCF8563T_SYS1  = 0x00  # PCF8563状态寄存器地址1
 PCF8563T_SYS2  = 0x01  # PCF8563状态寄存器地址2

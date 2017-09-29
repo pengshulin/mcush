@@ -19,6 +19,7 @@
 
 #define INLINE(type) static inline type
 
+
 INLINE(const mcush_opt_spec *) spec_byname(
     mcush_opt_parser *parser, const char *name, size_t namelen)
 {
@@ -136,7 +137,7 @@ void mcush_opt_parser_init(
     const char **args,
     size_t args_len)
 {
-    assert(parser);
+    //assert(parser);
 
     memset(parser, 0x0, sizeof(mcush_opt_parser));
 
@@ -147,7 +148,7 @@ void mcush_opt_parser_init(
 
 int mcush_opt_parser_next(mcush_opt *opt, mcush_opt_parser *parser)
 {
-    assert(opt && parser);
+    //assert(opt && parser);
 
     memset(opt, 0x0, sizeof(mcush_opt));
 

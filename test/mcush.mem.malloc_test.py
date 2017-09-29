@@ -3,9 +3,7 @@ import os
 import sys
 import time
 import random
-import Env
-import Mcush
-import Utils
+from mcush import *
 
 MALLOC_LIMIT = 200000
 
@@ -21,8 +19,7 @@ def main(argv=None):
     fill_err_counter = 0
 
     s = Mcush.Mcush()
-    s.serialOutput( 'reset' )
-    s.readUntilPrompts()
+    s.reboot()
 
     def info( message ):
         print '[%d] (%d/%d/%d/%d) %s'% (segment_counter, malloc_counter, realloc_counter, free_counter, fill_err_counter, message)

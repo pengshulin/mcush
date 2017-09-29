@@ -95,7 +95,10 @@ LANGUAGE = 'en'
 PYTHON_V3 = bool(version_info > (3, 0))
 
 try:
-    from EnvExtra import *
+    if PYTHON_V3:
+        from mcush.EnvExtra import *
+    else:
+        from EnvExtra import *
 except ImportError:
     pass
 
