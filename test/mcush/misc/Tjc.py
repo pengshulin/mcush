@@ -1,15 +1,10 @@
-#!/usr/bin/env python
 # coding:utf8
 __doc__ = 'USART-HMI from Taojingchi Co.'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
-import os
 import re
-import sys
-import time
 import binascii
-import logging
-from mcush import *
+from .. import *
 
 
 RETURN_CODES = {
@@ -57,6 +52,8 @@ class TjcHMI( Instrument.SerialInstrument ):
         while True:
             byte = self.port.read(1)
             if byte:
+                if Env.PYTHON_V3:
+                    byte = chr(ord(byte))
                 if (len(contents)==0) and (byte=='\xff'):
                     continue  # ignore leading 0xff
                 else:
@@ -118,30 +115,14 @@ class TjcHMI( Instrument.SerialInstrument ):
         self.writeCommand(cmd)
 
     def xstr( self, x,y,w,h,fontid,pointcolor,backcolor,xcenter,ycenter,sta,string ):
-        cmd = 'xstr %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\"%s\"'% (str(x),str(y),str(w),str(h),
-                    str(fontid),str(pointcolor),str(backcolor),str(xcenter),str(ycenter),
-                    str(sta),unicode(string).encode('gbk'))
+        cmd = 'xstr %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\"'% (str(x),str(y),str(w),str(h),
+                    str(fontid),str(pointcolor),str(backcolor),str(xcenter),str(ycenter), str(sta))
+        if Env.PYTHON_V3:
+            cmd += ''.join( map(chr, string.encode(encoding='gbk')) )
+        else:
+            cmd += unicode(string).encode(encoding='gbk')
+        cmd += '\"'    
         self.writeCommand(cmd)
 
 
 
-if __name__ == "__main__":
-    h = TjcHMI()
-    for i in ['main','button','key','guide','box','progressbar','slide']:
-        print 'page', i
-        h.page( i )
-        time.sleep(1)
-    
-    h.cls()
-    for i in range(0,319,10):
-        h.line( 0,0,i,239)
-        h.cir( i,100,10)
-    
-    h.page( 'key' )
-    h.set( 't0.txt', 'hello' )
-    h.xstr(0,0,200,50,0,'RED','BLUE',1,1,1,u'Hello测试')
-    
-    time.sleep(0.5)
-    #h.cls()
-
- 

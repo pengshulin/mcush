@@ -114,6 +114,31 @@ def uptime_mon( argv=None ):
         print( s.uptime() )
 
 
+def beep_player( argv=None ):
+    bp = BeepPlayer.BeepPlayer()
+    while True:
+        for m in [BeepPlayer.OK, BeepPlayer.QUESTION, BeepPlayer.POWERON]:
+        #for m in [BeepPlayer.WAHAHA, BeepPlayer.JINGLE_BELLS, BeepPlayer.ALISE, BeepPlayer.DORAEMON, BeepPlayer.DO_RE_MI]:
+            bp.play( m )
+            time.sleep(5)
+    bp.disconnect()
+
+def morse_code_beeper( argv=None ):
+    bp = MorseCodeBeeper.MorseCodeBeeper()
+    #bp.gpio( '0.0', o=True, c=True )
+    #def beeper_pin( duration ):
+    #    bp.gpio( '0.0', s=True )
+    #    time.sleep( duration )
+    #    bp.gpio( '0.0', c=True )
+    #bp.set_beeper( beeper_pin )
+    #bp.set_beeper( bp.beeper_led1 )
+    #bp.BeepFile('Readme.txt')
+    while True:
+        bp.BeepString( 'SOS' )
+        time.sleep(5)
+
+
+
 #############################################################################
 # MEMORY
 def memory_read( argv=None ):

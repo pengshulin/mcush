@@ -1,9 +1,9 @@
-#!/usr/bin/env python
 # coding:utf8
-# designed by Peng Shulin <trees_peng@163.com>
+__doc__ = 'play music with beep command'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 import time
-from mcush import *
-
+from .. import *
 
 
 OK = '2+:/4 5:/8'
@@ -12,8 +12,6 @@ QUESTION = '5:/8 2+:/4 '
 
 POWERON = '1:/8 3:/8 2:/8 2+:/8 '
 
-
- 
 WAHAHA = '''
 a3:/2 e:/4 e:/4 e:/2 e:/2   f:/2 f:/4 a:/4 e:1
 d:/2 d:/4 d:/4 d:/2 c:/2 d:/2 d:/4 e:/4 a3:1
@@ -22,7 +20,6 @@ b3:/2 b:/4 b:/4 b:/4 d:/4 c:/4 b:/4   a3:/2 a3:/2 a3:1
 d:/2 d:/2 d:/2 a3:/4 b3:/4   c:/2 c:/2 c:/2 b3:/4 a3:/4
 b3:/2 b3:/4 b3:/4 b3:/4 d:/4 c:/4 b3:/4 a3:/2 a3:/2 a3:/1
 '''
-
 
 JINGLE_BELLS = '''
 5-:/2 5-:/2 3:/2 2:/2 1:/2 5-  5:/4 5:/4 5-:/2 3:/2 2:/2 1:/2 6-:1
@@ -157,21 +154,13 @@ class BeepPlayer( Mcush.Mcush ):
                 time.sleep( delay )
                 continue
             #if not ord('0') <= ord(note[-1]) <= ord('9'):  c += '4'  # default
-            if BEEP_NOTE_FREQS.has_key( note ):
+            if note in BEEP_NOTE_FREQS:
                 freq = BEEP_NOTE_FREQS[note]
                 self.beep( freq, delay )
                 time.sleep( delay )
             else:
-                print 'error note', note
+                print( 'error note %s'% note )
     
 
 
-if __name__ == '__main__':
-    bp = BeepPlayer()
-    while True:
-        for m in [OK, QUESTION, POWERON]:
-        #for m in [WAHAHA, JINGLE_BELLS, ALISE, DORAEMON, DO_RE_MI]:
-            bp.play( m )
-            time.sleep(5)
-    bp.disconnect()
 

@@ -1,11 +1,11 @@
-#!/usr/bin/env python
 # coding:utf8
-# Morse code beeper
+__doc__ = 'beep morse code with beep command (or customized function)'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 # refer to http://en.wikipedia.org/wiki/Morse_code
-# designed by Peng Shulin <trees_peng@163.com>
 import sys
 import time
-from mcush import *
+from .. import *
 
 
 MorseCode = {
@@ -30,13 +30,34 @@ class MorseCodeBeeper( Mcush.Mcush ):
     pause_char = 0.1 * 3  # equal to 3 dots
     pause_word = 0.1 * 7  # equal to 7 dots
 
-    def beep_function( self, duration ):
-        self.led( 1, True )
+    beeper = None
+
+    def beeper_led( self, index, duration ):
+        self.led( index, True )
         time.sleep( duration )
-        self.led( 1, False )
+        self.led( index, False )
+
+    def beeper_led0( self, duration ):
+        self.beeper_led( 0, duration )
+
+    def beeper_led1( self, duration ):
+        self.beeper_led( 1, duration )
+
+    def beeper_beep( self, duration ):
+        self.beep( duration=duration )
+        time.sleep( duration )
+
+    def beep_function( self, duration ):
+        if self.beeper:
+            self.beeper( duration )
+        else:
+            self.beeper_beep( duration )
+
+    def set_beeper( self, func ):
+        self.beeper = func
 
     def BeepChar( self, char ):
-        if not MorseCode.has_key( char ):
+        if not char in MorseCode:
             return
         #print '%c'%char,
         for bit in list(MorseCode[char]):
@@ -71,10 +92,4 @@ class MorseCodeBeeper( Mcush.Mcush ):
                 self.BeepString( string )
 
 
-
-if __name__ == '__main__':
-    m = MorseCodeBeeper()
-    m.BeepString( 'abcdefghijklmnopqrstuvwxyz' )
-    m.BeepString( 'SOS' )
-    #m.BeepFile('Readme.txt')
 
