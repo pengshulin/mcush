@@ -117,10 +117,12 @@ def uptime_mon( argv=None ):
 def beep_player( argv=None ):
     bp = BeepPlayer.BeepPlayer()
     while True:
-        for m in [BeepPlayer.OK, BeepPlayer.QUESTION, BeepPlayer.POWERON]:
-        #for m in [BeepPlayer.WAHAHA, BeepPlayer.JINGLE_BELLS, BeepPlayer.ALISE, BeepPlayer.DORAEMON, BeepPlayer.DO_RE_MI]:
-            bp.play( m )
-            time.sleep(5)
+        #m.play_ok()
+        #m.play_question()
+        bp.play_poweron()
+        time.sleep(5)
+        bp.play_poweroff()
+        time.sleep(5)
     bp.disconnect()
 
 def morse_code_beeper( argv=None ):

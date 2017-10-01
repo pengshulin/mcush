@@ -1,80 +1,77 @@
-# Same as before, with a kivy-based UI
+# coding:utf8
+from mcush import Android
+from kivy.lang import Builder
+from kivy.app import App
+from kivy.clock import Clock
  
-#'''
-#Bluetooth/Pyjnius example
-#=========================
-#This was used to send some bytes to an arduino via bluetooth.
-#The app must have BLUETOOTH and BLUETOOTH_ADMIN permissions (well, i didn't
-#tested without BLUETOOTH_ADMIN, maybe it works.)
-#Connect your device to your phone, via the bluetooth menu. After the
-#pairing is done, you'll be able to use it in the app.
-#'''
-# 
-#from jnius import autoclass
-# 
-#BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
-#BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
-#BluetoothSocket = autoclass('android.bluetooth.BluetoothSocket')
-#UUID = autoclass('java.util.UUID')
-# 
-#def get_socket_stream(name):
-#    paired_devices = BluetoothAdapter.getDefaultAdapter().getBondedDevices().toArray()
-#    socket = None
-#    for device in paired_devices:
-#        if device.getName() == name:
-#            socket = device.createRfcommSocketToServiceRecord(
-#                UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
-#            recv_stream = socket.getInputStream()
-#            send_stream = socket.getOutputStream()
-#            break
-#    socket.connect()
-#    return recv_stream, send_stream
  
-if __name__ == '__main__':
-    kv = '''
+kv = '''
 BoxLayout:
+    orientation: 'vertical'
     Button:
         text: 'connect'
         on_release: app.connect()
-    ToggleButton:
-        id: b1
-        text: 'led -i0 -t'
-        on_release: app.command(self.text)
-    ToggleButton:
-        id: b2
-        text: 'led -i1 -t'
-        on_release: app.command(self.text)
-    ToggleButton:
-        id: b3
+    Button:
+        id: btn_led0
+        text: 'led 0'
+        on_press: app.command('led -i0 -s')
+        on_release: app.command('led -i0 -c')
+    Button:
+        id: btn_led1
+        text: 'led 1'
+        on_press: app.command('led -i1 -s')
+        on_release: app.command('led -i1 -c')
+    Button:
+        id: btn_idn
         text: '*idn?'
-        on_release: app.command(self.text)
-    ToggleButton:
-        id: b4
+        on_release: info.text = app.command('*idn?')
+    Button:
+        id: btn_gpio
+        text: 'gpio -p0'
+        on_release: info.text = app.command('gpio -p0')
+    Button:
+        id: btn_uptime
+        text: 'uptime'
+        on_release: info.text = app.command('uptime')
+    Button:
+        id: btn_beep
         text: 'beep'
-        on_release: app.command(self.text)
-    ToggleButton:
-        id: b5
-        text: '*rst'
-        on_release: app.command(self.text)
-    '''
-    from kivy.lang import Builder
-    from kivy.app import App
- 
-    class Bluetooth(App):
-        def build(self):
-            from mcush import Android
-            self.m = Android.KMcush('mcush', connect=False)
-            return Builder.load_string(kv)
+        on_release: app.command('beep')
+    Button:
+        id: btn_reboot
+        text: 'reboot'
+        on_release: app.command('reboot')
+    Label:
+        id: info
+        text: ''
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
 
-        def connect(self):
-            self.m.connect()
- 
-        def command(self, cmd):
-            self.m.writeCommand(cmd)
- 
-        def reset(self, btns):
-            for btn in btns:
-                btn.state = 'normal'
-            self.command('reboot')
- 
-    Bluetooth().run()
+'''
+
+class Bluetooth(App):
+    def build(self):
+        self.m = Android.KMcush('mcush', connect=False)
+        return Builder.load_string(kv)
+
+    def connect(self):
+        print( dir(self) )
+        print( dir(self.root) )
+        print( dir(self.root.children) )
+        self.m.connect()
+        self.m.vibrate()
+        Clock.schedule_interval(self.get_uptime, 1)
+
+    def get_uptime(self, dt):
+        self.uptime = self.m.writeCommand('uptime')[0]
+        print( "uptime %s"% self.uptime )
+        #self.root.info.text = "uptime %s"% self.uptime
+
+    def command(self, cmd):
+        self.m.vibrate()
+        return ','.join(self.m.writeCommand(cmd))
+
+
+Bluetooth().run()
+

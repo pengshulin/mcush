@@ -75,22 +75,24 @@ class JavaBluetoothPort(Instrument.Port):
     def __init__( self, parent, *args, **kwargs ):
         Instrument.Port.__init__( self, parent, *args, **kwargs )
         from jnius import autoclass
+        self.UUID = autoclass('java.util.UUID')
         self.BluetoothAdapter = autoclass('android.bluetooth.BluetoothAdapter')
         self.BluetoothDevice = autoclass('android.bluetooth.BluetoothDevice')
         self.BluetoothSocket = autoclass('android.bluetooth.BluetoothSocket')
-        self.UUID = autoclass('java.util.UUID')
-        self.socket = None
- 
+        
     def connect( self ):
         if self._connected:
             return
         paired_devices = self.BluetoothAdapter.getDefaultAdapter().getBondedDevices().toArray()
         for device in paired_devices:
-            if device.getName() == name:
-                self.socket = device.createRfcommSocketToServiceRecord(
-                    self.UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
-                self._connected = True
+            if device.getName() == self.port:
+                self.socket = device.createRfcommSocketToServiceRecord(self.UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                #print( type(self.socket), self.socket )
+                self.recv = self.socket.getInputStream()
+                self.send = self.socket.getOutputStream()
+                #print( type(self.recv), self.recv, type(self.send), self.send )
                 self.socket.connect()
+                self._connected = True
                 break
 
     def disconnect( self ):
@@ -98,17 +100,42 @@ class JavaBluetoothPort(Instrument.Port):
         self.socket.close()
     
     def read( self, read_bytes=1 ):
-        return self.socket.getInputStream().read(read_bytes)
+        ret = []
+        for i in range(read_bytes):
+            r = self.recv.read()
+            if r:
+                ret.append( chr(r) )
+            else:
+                break
+        #print( 'read', ret )
+        return ''.join(ret)
 
     def write( self, buf ):
-        self.socket.getOutputStream().write(buf)
+        self.send.write(buf)
  
     def flush( self ):
-        self.socket.getOutputStream().flush()
+        self.send.flush()
 
 
 class KMcush( Mcush.Mcush ):
     '''Mcush on Android/Kivy'''
     PORT_TYPE = JavaBluetoothPort
 
+    def writeCommand( self, cmd ):
+        try:
+            ret = Mcush.Mcush.writeCommand( self, cmd )
+            print( 'cmd: ' + cmd )
+            print( 'ret: ' + '\n'.join(ret) )
+            return ret
+        except Instrument.CommandSyntaxError:
+            print( 'command syntax err: ' + cmd )
+            return []
+
+    def vibrate( self, duration=0.05 ):
+        try:
+            self.vibrator
+        except AttributeError:
+            from plyer import vibrator
+            self.vibrator = vibrator
+        self.vibrator.vibrate( duration )
 

@@ -3,14 +3,13 @@ __doc__ = 'play music with beep command'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 import time
-from .. import *
+from .. import Mcush
 
 
 OK = '2+:/4 5:/8'
-
 QUESTION = '5:/8 2+:/4 '
-
 POWERON = '1:/8 3:/8 2:/8 2+:/8 '
+POWEROFF = '2+:/8 2:/8 3:/8 1:/8 '
 
 WAHAHA = '''
 a3:/2 e:/4 e:/4 e:/2 e:/2   f:/2 f:/4 a:/4 e:1
@@ -120,47 +119,62 @@ BEEP_NOTE_FREQS = {
 '6b++':1661, '6++':1760, '6#++':1864, '7b++':1864, '7++':1975, 
 }
 
+def play( controller, code, tick=0.5 ):
+    '''play music code'''
+    if isinstance(code,list):
+        code = ' '.join(code)
+    lastnote, lastdelay = '0', '1'
+    for i in code.split():
+        i = i.strip()
+        if not i:
+            continue
+        if i.find(':') >= 0:
+            note, delay = i.split(':')
+            if not note:
+                note = lastnote
+            if not delay:
+                delay = lastdelay
+        else:
+            note = i
+            delay = '1'
+        if delay == '~':
+            delay = lastdelay
+        if note == '~':
+
+            note = lastnote
+        lastnote, lastdelay = note, delay
+        if delay.startswith( '/' ):
+            delay = tick / int(delay[1:])
+        else:
+            delay = float(delay)*tick
+        if note == '0':
+            time.sleep( delay )
+            continue
+        #if not ord('0') <= ord(note[-1]) <= ord('9'):  c += '4'  # default
+        if note in BEEP_NOTE_FREQS:
+            freq = BEEP_NOTE_FREQS[note]
+            controller.beep( freq, delay )
+            #time.sleep( delay )
+        else:
+            print( 'error note %s'% note )
+    
 
 class BeepPlayer( Mcush.Mcush ):
 
     def play( self, code, tick=0.5 ):
-        '''play music code'''
-        if isinstance(code,list):
-            code = ' '.join(code)
-        lastnote, lastdelay = '0', '1'
-        for i in code.split():
-            i = i.strip()
-            if not i:
-                continue
-            if i.find(':') >= 0:
-                note, delay = i.split(':')
-                if not note:
-                    note = lastnote
-                if not delay:
-                    delay = lastdelay
-            else:
-                note = i
-                delay = '1'
-            if delay == '~':
-                delay = lastdelay
-            if note == '~':
-                note = lastnote
-            lastnote, lastdelay = note, delay
-            if delay.startswith( '/' ):
-                delay = tick / int(delay[1:])
-            else:
-                delay = float(delay)*tick
-            if note == '0':
-                time.sleep( delay )
-                continue
-            #if not ord('0') <= ord(note[-1]) <= ord('9'):  c += '4'  # default
-            if note in BEEP_NOTE_FREQS:
-                freq = BEEP_NOTE_FREQS[note]
-                self.beep( freq, delay )
-                time.sleep( delay )
-            else:
-                print( 'error note %s'% note )
-    
+        play( self, code, tick )
+        
+    def play_ok( self ):
+        play( self, OK )
+
+    def play_question( self ):
+        play( self, QUESTION )
+
+    def play_poweron( self ):
+        play( self, POWERON )
+
+    def play_poweroff( self ):
+        play( self, POWEROFF )
 
 
 

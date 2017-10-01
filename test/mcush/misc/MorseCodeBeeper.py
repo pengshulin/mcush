@@ -5,7 +5,7 @@ __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 # refer to http://en.wikipedia.org/wiki/Morse_code
 import sys
 import time
-from .. import *
+from .. import Mcush
 
 
 MorseCode = {

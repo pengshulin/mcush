@@ -365,7 +365,7 @@ class SerialPort(Port):
             self.ser = serial.Serial()
    
     def connect( self ):
-        if self.connected:
+        if self._connected:
             return
         self.ser.port = self.port
         self.ser.baudrate = self.baudrate
