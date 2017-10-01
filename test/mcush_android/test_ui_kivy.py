@@ -1,7 +1,6 @@
 # coding:utf8
 import time
 from mcush import *
-#from jnius import autoclass
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
@@ -46,18 +45,4 @@ class ExampleApp(App):
 ExampleApp().run()
 
  
-##m = QMcush.QMcush( connect=False )
-#m = QMcush.QMcush( '98:D3:32:20:C2:69' )
-#m.tts( u'启动' )    
-#try:
-#    print( m.port.android.fullShow(layout))
-#    eventloop( m )  
-#except:
-#    print("GUI Fail!")
-#
-#m.disconnect()
-#m.tts( u'停止' )    
-#m.port.android.fullDismiss()
-#m.port.android.exit()
-#
-#
+

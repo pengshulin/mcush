@@ -1,5 +1,5 @@
 # coding:utf8
-from mcush import Android
+from mcush import Kivy
 from kivy.lang import Builder
 from kivy.app import App
 from kivy.clock import Clock
@@ -52,7 +52,7 @@ BoxLayout:
 
 class Bluetooth(App):
     def build(self):
-        self.m = Android.KMcush('mcush', connect=False)
+        self.m = Kivy.KMcush('mcush', connect=False)
         return Builder.load_string(kv)
 
     def connect(self):

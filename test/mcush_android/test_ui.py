@@ -115,7 +115,7 @@ def eventloop( m ):
             droid.fullSetProperty("info","text","eventloop fail!")
 
 
-m = Android.QMcush( '98:D3:32:20:C2:69', connect=False )
+m = Qpython.QMcush( '98:D3:32:20:C2:69', connect=False )
 
 def info(msg):
     m.port.android.fullSetProperty("info","text",msg)

@@ -11,7 +11,7 @@ from . import Instrument
 from . import Register
 from . import Mcush
 from . import AppUtils
-from . import Android
 
+from .android import *
 from .misc import *
 
