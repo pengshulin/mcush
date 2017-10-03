@@ -52,7 +52,9 @@ BoxLayout:
 
 class Bluetooth(App):
     def build(self):
+        #self.m = Kivy.KMcush('mcush')
         self.m = Kivy.KMcush('mcush', connect=False)
+        Clock.schedule_interval(self.timer, 1)
         return Builder.load_string(kv)
 
     def connect(self):
@@ -61,12 +63,14 @@ class Bluetooth(App):
         print( dir(self.root.children) )
         self.m.connect()
         self.m.vibrate()
-        Clock.schedule_interval(self.get_uptime, 1)
 
-    def get_uptime(self, dt):
-        self.uptime = self.m.writeCommand('uptime')[0]
-        print( "uptime %s"% self.uptime )
-        #self.root.info.text = "uptime %s"% self.uptime
+    def timer(self, dt):
+        if not self.m.connected:
+            self.connect()
+        else:
+            self.uptime = self.m.writeCommand('uptime')[0]
+            print( "uptime %s"% self.uptime )
+            #self.root.info.text = "uptime %s"% self.uptime
 
     def command(self, cmd):
         self.m.vibrate()

@@ -47,7 +47,7 @@ ENVIRONMENT
 LICENSE
 =======
 * source codes:
-  * As this is my personal software toolkit, you can use it freely only for personal use.
+  * As this is my personal software toolkit, you can use it freely only for non-commerical use.
   * Commerical use is NOT AUTHORIZED!!!
 * binary executables:
   * images provided in build directory are free as BSD

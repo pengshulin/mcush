@@ -97,6 +97,10 @@ class Instrument:
         if self._connect:
             self.connect()
 
+    @property        
+    def connected( self ):
+        return self.port.connected
+
     def setVerbose( self, verbose ):
         '''Set verbose mode'''
         self.verbose = verbose
