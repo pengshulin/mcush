@@ -48,10 +48,10 @@ class MainFrame(MemViewerFrame):
 
 
 def main():
-    gettext.install("app")
+    gettext.install( "messages", "locale", unicode=True, codeset='utf8' )
     freeze_support()
     app = wx.App(0)
-    app.locale = wx.Locale(wx.LANGUAGE_CHINESE_SIMPLIFIED)
+    #app.locale = wx.Locale(wx.LANGUAGE_CHINESE_SIMPLIFIED)
     app.SetAppName( 'MemoryViewerApp' )
     frame_1 = MainFrame(None, wx.ID_ANY, "")
     app.SetTopWindow(frame_1)

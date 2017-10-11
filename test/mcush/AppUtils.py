@@ -24,14 +24,14 @@ __INFO_STR = {
                  'zh_cn': u'已停止',
                 },
     'TIMEOUT':  {'en': u'Timeout',
-                 'zh_cn': u'通讯超时',
+                 'zh_cn': u'超时',
                 },
     'PORT_NOT_EXIST':   {'en': u'Communication port not exist',
-                         'zh_cn': u'通讯端口不存在',
+                         'zh_cn': u'端口不存在',
                         },
-    'UNKNOWN_SERIAL_ERROR':     {'en': u'Unknown error',
-                                'zh_cn': u'未知通讯错误',
-                                },
+    'UNKNOWN_PORT_ERROR':     {'en': u'Unknown port error',
+                                'zh_cn': u'未知端口错误',
+                              },
     'UNKNOWN_ERROR':    {'en': u'Unknown error',
                          'zh_cn': u'未知错误',
                         },
@@ -42,8 +42,21 @@ __INFO_STR = {
 def _getStr( key, lang=None ):
     if lang is None:
         lang = Env.LANGUAGE
-    assert lang in Env.LANGUAGES
-    return __INFO_STR[key][lang]
+    if not lang in Env.LANGUAGES:
+        lang = 'en'
+    en_str = __INFO_STR[key]['en']
+    # use localization result first
+    try:
+        trans_str = _(en_str)
+        if trans_str != en_str: 
+            return trans_str
+    except:
+        pass
+    try:
+        return __INFO_STR[key][lang]
+    except:
+        pass
+    return en_str
 
 
 class Task():
@@ -102,10 +115,10 @@ class Task():
         except Instrument.CommandTimeoutError:
             self.info( _getStr('STOPPING') )
             self.info( _getStr('TIMEOUT'), 'error' )
-        except Instrument.SerialNotFound as e:
+        except Instrument.PortNotFound as e:
             self.info( _getStr('PORT_NOT_EXIST') + ': ' + unicode(e), 'error' )
-        except Instrument.UnknownSerialError as e:
-            self.info( _getStr('UNKNOWN_SERIAL_ERROR') + ': ' + unicode(e), 'error' )
+        except Instrument.UnknownPortError as e:
+            self.info( _getStr('UNKNOWN_PORT_ERROR') + ': ' + unicode(e), 'error' )
         except Exception as e:
             if Env.VERBOSE:
                 print( type(e), str(e) )

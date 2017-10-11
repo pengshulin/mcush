@@ -205,3 +205,13 @@ def compact_cjson_str(obj):
     #print lst 
     return lst
 
+
+def STR(s):
+    try:
+        s = _(s)
+    except:
+        return s
+    try:
+        return s.decode('utf8')
+    except:
+        return s

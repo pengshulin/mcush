@@ -12,10 +12,10 @@ if Env.LOGGING_FORMAT:
 else:
     logging.BASIC_FORMAT = '%(asctime)s ' + logging.BASIC_FORMAT
 
-class SerialNotFound( Exception ):
+class PortNotFound( Exception ):
     pass
 
-class UnknownSerialError( Exception ):
+class UnknownPortError( Exception ):
     pass
 
 class ResponseError( Exception ):
@@ -379,7 +379,7 @@ class SerialPort(Port):
             self.ser.open()
             self._connected = True
         except Exception:
-            raise SerialNotFound( self.port )
+            raise PortNotFound( self.port )
 
     def disconnect( self ):
         self.ser.close()
@@ -397,7 +397,7 @@ class SerialPort(Port):
         try:
             return self.ser.read(read_bytes)
         except self.serial_exception as e:
-            raise UnknownSerialError( str(e) )
+            raise UnknownPortError( str(e) )
 
     def write( self, buf ):
         try:
@@ -425,13 +425,13 @@ class SerialPort(Port):
             #print( buf )
             self.ser.write( buf )
         except self.serial_exception as e:
-            raise UnknownSerialError( str(e) )
+            raise UnknownPortError( str(e) )
  
     def flush( self ):
         try:
             self.ser.flush()
         except self.serial_exception as e:
-            raise UnknownSerialError( str(e) )
+            raise UnknownPortError( str(e) )
  
 
 class SerialInstrument(Instrument):

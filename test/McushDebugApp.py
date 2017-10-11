@@ -23,6 +23,7 @@ from multiprocessing import Queue, freeze_support
 from threading import Thread
 from mcush import *
 from mcush.Mcush import *
+from mcush.Utils import *
 from McushDebugDlg import *
 from re import compile as re_compile
 import base64
@@ -97,14 +98,15 @@ class MyTask(AppUtils.Task):
 class TestPortTask(MyTask):
     def target( self, args ):
         (port) = args
-        self.info( u"Test port %s..."% port )
+        self.info( u'%s (%s)'% (_('Testing port...'), port) )
         s = Mcush(port)
         model = s.getModel()
         version = s.getVersion()
         sn = s.getSerialNumber()
-        info = u'model %s, ver %s'% (model, version)
+        info = u'%s %s'% (_('Model'), model)
+        info += u', %s %s'% (_('Version'), version)
         if sn:
-            info += u', sn %s'% sn
+            info += u', %s %s'% (_('SN'), sn)
         self.info( info, 'ok' )
         for i in range(10): 
             try:
@@ -120,30 +122,30 @@ class ResetTask(MyTask):
         (port) = args
         self.info( u"Open port %s..."% port )
         s = Mcush(port)
-        self.info( u"reset..." )
+        self.info( _("Reset") )
         s.scpiRst()
-        self.info( u"Done" )
+        self.info( _("Done") )
 
 class RebootTask(MyTask):
     def target( self, args ):
         (port) = args
         self.info( u"Open port %s..."% port )
         s = Mcush(port)
-        self.info( u"reboot..." )
+        self.info( _("Reboot") )
         s.ser.write('reboot\n')
         s.ser.flush()
-        self.info( u"Done" )
+        self.info( _("Done") )
 
 
 class ExecuteScriptTask(MyTask):
     def target( self, args ):
         global PORT, task_obj
-        self.info( u"Execute code..." )
+        self.info( _("Execute script...") )
         (port, code, script) = args
         task_obj = self
         PORT = port
         exec( code )
-        self.info( u"Done" )
+        self.info( _("Done") )
 
 class QueryTask(MyTask):
     def target( self, args ):
@@ -154,7 +156,7 @@ class QueryTask(MyTask):
         try:
             lst = s.list( )
             self.queue.put( ('update_filelist', lst) )
-            self.info( u"Done" )
+            self.info( _("Done") )
         except:
             lst = []
             self.info( u"Failed to query file list", 'error' )
@@ -168,7 +170,7 @@ class RemoveTask(MyTask):
         try:
             s.remove( fname )
             self.queue.put( ('remove_file', fname) )
-            self.info( "Done" )
+            self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
             self.info( "Failed to remove %s"% fname, 'error' )
 
@@ -181,7 +183,7 @@ class RenameTask(MyTask):
         try:
             s.rename( oldname, newname )
             self.queue.put( ('rename_file', (oldname, newname)) )
-            self.info( "Done" )
+            self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
             self.info( u"Failed to rename %s to %s..."% (oldname, newname), 'error' )
 
@@ -195,7 +197,7 @@ class ViewTask(MyTask):
             r = s.cat( fname, b64=True )
             r = base64.b64decode('\n'.join(r))
             self.queue.put( ('view_file', (fname, r)) )
-            self.info( "Done" )
+            self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
 
@@ -267,7 +269,7 @@ class FormatTask(MyTask):
         s.setTimeout( 30 )
         s.writeCommand( 's -c format' )
         s.setTimeout()
-        self.info( "Done" )
+        self.info( _("Done") )
 
 
 class FsInfoTask(MyTask):
@@ -325,7 +327,7 @@ class I2cReadTask(MyTask):
             length = 1
         s.i2c_init( addr, scl=pin_scl, sda=pin_sda, delay=delay_us )
         result = []
-        self.info( u"Reading..." )
+        self.info( _("Reading...") )
         r = s.i2c( [reg_from], read_count=length )
         self.queue.put( ('i2c_data', r) )
         self.info( '%d bytes read'% length )
@@ -352,7 +354,7 @@ class I2cWriteTask(MyTask):
         if reg_from + len(data) > 256:
             # cut 
             data = data[:256-reg_from]
-        self.info( u"Writing..." )
+        self.info( _("Writing...") )
         addr = reg_from
         wr = [addr]
         while True:
@@ -365,7 +367,7 @@ class I2cWriteTask(MyTask):
                 if len(wr) > 1:
                     s.i2c( wr )
                 break
-        self.info( 'Done' )
+        self.info( _("Done") )
         
 
 
@@ -386,7 +388,7 @@ class MainFrame(MyFrame):
         self.preset_popup_menu_id = {}
         self.plot_spectrum_log_mode = False
         MyFrame.__init__(self, *args, **kwds )
-        
+
         dirs = wx.StandardPaths.Get()
         self.config_dir = dirs.GetUserDataDir()
         self.config_file = os.path.join( self.config_dir, 'config.conf' )
@@ -426,14 +428,24 @@ class MainFrame(MyFrame):
     
         # images/icons
         self.imgs = self.loadImages('img', 
-            {'empty.png': ['empty','none'],
-             'start.png': ['start'],
+            {'empty.png': ['empty', 'none'],
+             'start.png': ['start', 'run'],
              'dialog-ok-apply.png': ['ok', 'done'],
              'failed.png': ['failed', 'error', 'halt'],
              'drive-harddisk.png': ['drive'],
              'folder.png': ['folder'],
              'folder-documents.png': ['file'],
+             'system-shutdown.png': ['quit', 'exit', 'poweroff', 'shutdown'],
+             'view-refresh.png': ['refresh', 'reset'],
+             'edit-find.png': ['search', 'find'],
              'message.png': ['info', 'message']} )
+
+        self.button_stop.SetBitmap(self.imgs['halt'], wx.LEFT)
+        self.button_exit.SetBitmap(self.imgs['exit'], wx.LEFT)
+        self.button_run.SetBitmap(self.imgs['run'], wx.LEFT)
+        self.button_reset.SetBitmap(self.imgs['reset'], wx.LEFT)
+        self.button_reboot.SetBitmap(self.imgs['poweroff'], wx.LEFT)
+        self.button_query.SetBitmap(self.imgs['find'], wx.LEFT)
 
         imglst = wx.ImageList( 24, 24 )
         self.img_id_drive = imglst.Add( self.imgs['drive'] )
@@ -667,7 +679,7 @@ class MainFrame(MyFrame):
             (fname, contents) = event.val
             dlg = MyViewFileDialog(self)
             dlg.text_ctrl_data.SetValue( contents )
-            dlg.SetTitle( 'File %s'% fname )
+            dlg.SetTitle( '%s'% fname )
             dlg.ShowModal()
         elif event.cmd == 'remove_file':
             fname = event.val
@@ -728,7 +740,7 @@ class MainFrame(MyFrame):
     def OnRun( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info(_("port error"), wx.ICON_ERROR)
             return
         try:
             script = self.text_ctrl_script.GetValue()
@@ -742,7 +754,7 @@ class MainFrame(MyFrame):
     def OnReset( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info(_("port error"), wx.ICON_ERROR)
             return
         self.task = ResetTask( (port), self.msgq )
         event.Skip()
@@ -750,7 +762,7 @@ class MainFrame(MyFrame):
     def OnReboot( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", wx.ICON_ERROR)
+            self.info(_("port error"), wx.ICON_ERROR)
             return
         self.task = RebootTask( (port), self.msgq )
         event.Skip()
@@ -767,11 +779,11 @@ class MainFrame(MyFrame):
             else:
                 newid = self.preset_popup_menu_id[name] 
             sm.Append( newid, name )
-        menu.AppendMenu(wx.NewId(), u"Load preset", sm)
+        menu.AppendMenu(wx.NewId(), _("Load preset"), sm)
         menu.AppendSeparator()
         newid = wx.NewId()
         self.Bind(wx.EVT_MENU, self.OnLoadFromFile, id=newid)
-        item = wx.MenuItem(menu, newid, u"Load file...")
+        item = wx.MenuItem(menu, newid, _("Load file..."))
         menu.AppendItem(item)
         self.PopupMenu(menu)
         event.Skip()
@@ -786,14 +798,14 @@ class MainFrame(MyFrame):
         event.Skip()
  
     def OnLoadFromFile( self, event ):
-        dlg = wx.FileDialog( self, message="Choose python script file", defaultDir=self.config_dir, 
+        dlg = wx.FileDialog( self, message=_("Choose python script file"), defaultDir=self.config_dir, 
                 defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.OPEN )
         if dlg.ShowModal() == wx.ID_OK:
             self.text_ctrl_script.LoadFile( dlg.GetPath().strip() )
         event.Skip()
 
     def OnSaveAs( self, event ):
-        dlg = wx.FileDialog( self, message="Choose python script file", defaultDir=self.config_dir, 
+        dlg = wx.FileDialog( self, message=_("Choose python script file"), defaultDir=self.config_dir, 
                 defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.SAVE )
         if dlg.ShowModal() == wx.ID_OK:
             open( dlg.GetPath().strip(), 'w+' ).write( self.text_ctrl_script.GetValue().encode('utf-8') )
@@ -802,7 +814,7 @@ class MainFrame(MyFrame):
     def OnQuery( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         self.task = QueryTask( (port), self.msgq )
         event.Skip()
@@ -818,7 +830,7 @@ class MainFrame(MyFrame):
     def OnRemove( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -832,7 +844,7 @@ class MainFrame(MyFrame):
     def OnRename( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -853,7 +865,7 @@ class MainFrame(MyFrame):
     def OnView( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -867,7 +879,7 @@ class MainFrame(MyFrame):
     def OnGetFile( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
@@ -875,7 +887,7 @@ class MainFrame(MyFrame):
             fname = p + '/' + n
         except:
             return
-        dlg = wx.FileDialog( self, message="Choose destination file", defaultDir=self.config_dir, 
+        dlg = wx.FileDialog( self, message=_("Choose destination file"), defaultDir=self.config_dir, 
                 defaultFile=n, wildcard="File (*.*)|*.*", style=wx.SAVE )
         if dlg.ShowModal() == wx.ID_OK:
             savename = dlg.GetPath().strip()
@@ -887,13 +899,13 @@ class MainFrame(MyFrame):
     def OnPutFile( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         try:
             item = self.tree_ctrl_fs.GetFocusedItem()
             p, n, s = self.tree_ctrl_fs.GetPyData( item )
             if n is not None:
-                self.info("not a directory", 'error')
+                self.info(_("not a directory"), 'error')
                 return
         except:
             return
@@ -913,25 +925,25 @@ class MainFrame(MyFrame):
         menu = wx.Menu()
         if n is None:
             # mount point
-            item1 = wx.MenuItem(menu, self.popupID_query, u"Update")
+            item1 = wx.MenuItem(menu, self.popupID_query, _("Update"))
             menu.AppendItem(item1)
             if not p.startswith('/r'):
-                item2 = wx.MenuItem(menu, self.popupID_put, u"Put file...")
+                item2 = wx.MenuItem(menu, self.popupID_put, _("Put file"))
                 menu.AppendItem(item2)
-                item3 = wx.MenuItem(menu, self.popupID_format, u"Format")
+                item3 = wx.MenuItem(menu, self.popupID_format, _("Format"))
                 menu.AppendItem(item3)
                 item4 = wx.MenuItem(menu, self.popupID_fsinfo, u"Filesystem info")
                 menu.AppendItem(item4)
         else:
             # file
             if not p.startswith('/r'):
-                item1 = wx.MenuItem(menu, self.popupID_remove, u"Remove")
+                item1 = wx.MenuItem(menu, self.popupID_remove, _("Remove"))
                 menu.AppendItem(item1)
-                item2 = wx.MenuItem(menu, self.popupID_rename, u"Rename")
+                item2 = wx.MenuItem(menu, self.popupID_rename, _("Rename"))
                 menu.AppendItem(item2)
-            item3 = wx.MenuItem(menu, self.popupID_view, u"View")
+            item3 = wx.MenuItem(menu, self.popupID_view, _("View"))
             menu.AppendItem(item3)
-            item4 = wx.MenuItem(menu, self.popupID_get, u"Get file...")
+            item4 = wx.MenuItem(menu, self.popupID_get, _("Get file"))
             menu.AppendItem(item4)
         self.PopupMenu(menu)
         menu.Destroy()
@@ -940,7 +952,7 @@ class MainFrame(MyFrame):
     def OnFormat( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         item = self.tree_ctrl_fs.GetFocusedItem()
         p, n, s = self.tree_ctrl_fs.GetPyData( item )
@@ -951,7 +963,7 @@ class MainFrame(MyFrame):
     def OnFsInfo( self, event ):
         port = self.combo_box_port.GetValue()
         if not port:
-            self.info("port error", 'error')
+            self.info(_("port error"), 'error')
             return
         item = self.tree_ctrl_fs.GetFocusedItem()
         p, n, s = self.tree_ctrl_fs.GetPyData( item )
@@ -995,14 +1007,14 @@ class MainFrame(MyFrame):
         event.Skip()
 
     def OnI2cLoad(self, event):
-        dlg = wx.FileDialog( self, message="Choose data file", defaultDir=self.config_dir, 
+        dlg = wx.FileDialog( self, message=_("Choose data file"), defaultDir=self.config_dir, 
                 defaultFile='', wildcard="Data file (*.txt)|*.txt", style=wx.OPEN )
         if dlg.ShowModal() == wx.ID_OK:
             self.text_ctrl_i2c_data.LoadFile( dlg.GetPath().strip() )
         event.Skip()
 
     def OnI2cSave(self, event):
-        dlg = wx.FileDialog( self, message="Choose data file", defaultDir=self.config_dir, 
+        dlg = wx.FileDialog( self, message=_("Choose data file"), defaultDir=self.config_dir, 
                 defaultFile='', wildcard="Data file (*.txt)|*.txt", style=wx.SAVE )
         if dlg.ShowModal() == wx.ID_OK:
             open( dlg.GetPath().strip(), 'w+' ).write( self.text_ctrl_i2c_data.GetValue().encode('utf-8') )
@@ -1010,10 +1022,10 @@ class MainFrame(MyFrame):
 
 
 def main():
-    gettext.install("app") # replace with the appropriate catalog name
+    gettext.install( "messages", "locale", unicode=True, codeset='utf8' )
     freeze_support()
     app = wx.App(0)
-    app.locale = wx.Locale(wx.LANGUAGE_CHINESE_SIMPLIFIED)
+    #app.locale = wx.Locale(wx.LANGUAGE_CHINESE_SIMPLIFIED)
     app.SetAppName( 'McushDebugApp' )
     frame_1 = MainFrame(None, wx.ID_ANY, "")
     app.SetTopWindow(frame_1)

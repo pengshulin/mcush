@@ -90,7 +90,7 @@ elif platform == 'linux2':
 REV = getenv_bool( 'REV' )
 
 LANGUAGES = {'en', 'zh_cn'}
-LANGUAGE = 'en'
+LANGUAGE = getenv( 'LANGUAGE', 'en' ).split(':')[0].lower()
 
 PYTHON_V3 = bool(version_info > (3, 0))
 
