@@ -114,13 +114,13 @@ class TestPortTask(MyTask):
             except Exception as e:
                 print( e )
                 break
-            time.sleep(0.1)
+            time.sleep(0.05)
         s.disconnect()
 
 class ResetTask(MyTask):
     def target( self, args ):
         (port) = args
-        self.info( u"Open port %s..."% port )
+        self.info( u"%s (%s)"% (_('Open port...'), port) )
         s = Mcush(port)
         self.info( _("Reset") )
         s.scpiRst()
@@ -129,18 +129,18 @@ class ResetTask(MyTask):
 class RebootTask(MyTask):
     def target( self, args ):
         (port) = args
-        self.info( u"Open port %s..."% port )
+        self.info( u"%s (%s)"% (_('Open port...'), port) )
         s = Mcush(port)
         self.info( _("Reboot") )
-        s.ser.write('reboot\n')
-        s.ser.flush()
+        s.port.write('reboot\n')
+        #s.port.flush()
         self.info( _("Done") )
 
 
 class ExecuteScriptTask(MyTask):
     def target( self, args ):
         global PORT, task_obj
-        self.info( _("Execute script...") )
+        self.info( _("Executing script...") )
         (port, code, script) = args
         task_obj = self
         PORT = port
@@ -150,7 +150,7 @@ class ExecuteScriptTask(MyTask):
 class QueryTask(MyTask):
     def target( self, args ):
         (port) = args
-        self.info( u"Open port %s..."% port )
+        self.info( u"%s (%s)"% (_('Open port...'), port) )
         s = Mcush(port)
         self.info( u"querying..." )
         try:

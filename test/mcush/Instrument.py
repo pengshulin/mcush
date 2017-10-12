@@ -139,6 +139,8 @@ class Instrument:
     def connect( self, check_idn=True ):
         '''connect'''
         self.port.connect()
+        if not self.port.connected:
+            return
         self.port.write( self.DEFAULT_TERMINATOR_RESET )
         self.port.flush()
         self.readUntilPrompts()

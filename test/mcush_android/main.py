@@ -1,5 +1,13 @@
+#!/usr/bin/env python
 # coding:utf8
-from mcush import Kivy
+from mcush import Env
+if Env.platform == 'linux2':
+    from mcush.Mcush import Mcush
+    demo_port = '/dev/ttyACM0'
+else:
+    import mcush.android
+    from mcush.android.Kivy import KMcush as Mcush
+    demo_port = 'mcush'
 from kivy.lang import Builder
 from kivy.app import App
 from kivy.clock import Clock
@@ -50,19 +58,22 @@ BoxLayout:
 
 '''
 
-class Bluetooth(App):
+class BluetoothApp(App):
     def build(self):
-        #self.m = Kivy.KMcush('mcush')
-        self.m = Kivy.KMcush('mcush', connect=False)
+        self.m = Mcush(demo_port, connect=False)
         Clock.schedule_interval(self.timer, 1)
         return Builder.load_string(kv)
 
     def connect(self):
-        print( dir(self) )
-        print( dir(self.root) )
-        print( dir(self.root.children) )
+        print( 'BluetoothApp.connect', dir(self) )
+        print( 'BluetoothApp.connect', dir(self.root) )
+        print( 'BluetoothApp.connect', dir(self.root.children) )
         self.m.connect()
-        self.m.vibrate()
+        if self.m.connected:
+            try:
+                self.m.vibrate()
+            except:
+                self.m.beep()
 
     def timer(self, dt):
         if not self.m.connected:
@@ -73,9 +84,15 @@ class Bluetooth(App):
             #self.root.info.text = "uptime %s"% self.uptime
 
     def command(self, cmd):
-        self.m.vibrate()
-        return ','.join(self.m.writeCommand(cmd))
+        if self.m.connected:
+            try:
+                self.m.vibrate()
+            except:
+                self.m.beep()
+            return ','.join(self.m.writeCommand(cmd))
+        else:
+            return 'not connected'
 
 
-Bluetooth().run()
+BluetoothApp().run()
 

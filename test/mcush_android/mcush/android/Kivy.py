@@ -35,7 +35,7 @@ class JavaBluetoothPort(Instrument.Port):
                 #print( type(self.socket), self.socket )
                 self.recv = self.socket.getInputStream()
                 self.send = self.socket.getOutputStream()
-                #print( type(self.recv), self.recv, type(self.send), self.send )
+                print( 'JavaBluetoothPort.connect', 'recv', type(self.recv), self.recv, 'send',  type(self.send), self.send )
                 self.socket.connect()
                 self._connected = True
                 break
@@ -45,21 +45,24 @@ class JavaBluetoothPort(Instrument.Port):
         self.socket.close()
     
     def read( self, read_bytes=1 ):
-        ret = []
-        for i in range(read_bytes):
-            r = self.recv.read()
-            if r:
-                ret.append( chr(r) )
-            else:
-                break
-        #print( 'read', ret )
-        return ''.join(ret)
+        if self._connected:
+            ret = []
+            for i in range(read_bytes):
+                r = self.recv.read()
+                if r:
+                    ret.append( chr(r) )
+                else:
+                    break
+            #print( 'read', ret )
+            return ''.join(ret)
 
     def write( self, buf ):
-        self.send.write(buf)
+        if self._connected:
+            self.send.write(buf)
  
     def flush( self ):
-        self.send.flush()
+        if self._connected:
+            self.send.flush()
 
 
 class KMcush( Mcush.Mcush ):

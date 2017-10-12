@@ -144,6 +144,10 @@ msgstr "版本"
 msgid "SN"
 msgstr "序列号"
 
+msgid "Serial number"
+msgstr "序列号"
+
+
 msgid "Done"
 msgstr "完成"
 
@@ -174,6 +178,8 @@ msgstr "正在写入..."
 msgid "Reading..."
 msgstr "正在读取..."
 
+msgid "Open port..."
+msgstr "打开端口..."
 
 
 

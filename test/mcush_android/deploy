@@ -1,0 +1,2 @@
+#!/bin/sh
+buildozer --verbose android deploy run
