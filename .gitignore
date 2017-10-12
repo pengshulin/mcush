@@ -28,3 +28,6 @@ __pycache__/
 .buildozer/
 bin/
 
+dist/
+*.egg-info/
+
