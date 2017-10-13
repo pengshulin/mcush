@@ -6,6 +6,7 @@ DESCRIPTION
 * MCUSH is heavily based on FreeRTOS, the shell task runs as a stand-alone task with middle level priority.
 * Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.
 * Hosted on github: <https://github.com/pengshulin/mcush>
+* Python core module released on PYPI and installed by 'pip install mcush'
 
 
 FEATURES
@@ -48,7 +49,7 @@ LICENSE
 =======
 * source codes:
   * As this is my personal software toolkit, you can use it freely only for non-commerical use.
-  * Commerical use is NOT AUTHORIZED!!!
+  * Contact the author for commerical authorization, or it's NOT AUTHORIZED.
 * binary executables:
   * images provided in build directory are free as BSD
 
