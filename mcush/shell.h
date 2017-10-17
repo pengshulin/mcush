@@ -30,7 +30,7 @@
     #define USE_SHELL_PRINTF  1
 #endif
 #ifndef USE_SHELL_PRINTF2
-    #define USE_SHELL_PRINTF2  1
+    #define USE_SHELL_PRINTF2  0
 #endif
 #ifndef USE_SHELL_EVAL
     #define USE_SHELL_EVAL  1

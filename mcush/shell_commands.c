@@ -688,8 +688,11 @@ int cmd_dump( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, "addr", 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_VALUE, "length", 'l', "length", "default 16", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_VALUE, "width", 'w', "width", "1(default)|2|4", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "ascii", 'C', 0, "ascii output (width=1)", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "compact", 'c', 0, "compact output", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "float", 'f', 0, "float output (width=4)", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "ascii", 'C', 0, "ascii output (width=1)", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "int", 'i', 0, "signed integer output", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "uint", 'I', 0, "unsigned integer output", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -699,8 +702,7 @@ int cmd_dump( int argc, char *argv[] )
     int count=0, count2;
     int i;
     char c;
-    uint8_t ascii_mode=0;
-    uint8_t compact_mode=0;
+    uint8_t compact_mode=0, ascii_mode=0, integer_mode=0, float_mode=0, need_fill_line=0, unsigned_mode=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
@@ -714,10 +716,22 @@ int cmd_dump( int argc, char *argv[] )
                 shell_eval_int(opt.value, (int*)&length);
             else if( strcmp( opt.spec->name, "width" ) == 0 )
                 shell_eval_int(opt.value, (int*)&width);
-            else if( strcmp( opt.spec->name, "ascii" ) == 0 )
-                ascii_mode = 1;
             else if( strcmp( opt.spec->name, "compact" ) == 0 )
                 compact_mode = 1;
+            else if( strcmp( opt.spec->name, "ascii" ) == 0 )
+                ascii_mode = 1;
+            else if( strcmp( opt.spec->name, "int" ) == 0 )
+            {
+                integer_mode = 1;
+                unsigned_mode = 0;
+            }
+            else if( strcmp( opt.spec->name, "uint" ) == 0 )
+            {
+                integer_mode = 1;
+                unsigned_mode = 1;
+            }
+            else if( strcmp( opt.spec->name, "float" ) == 0 )
+                float_mode = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -735,20 +749,31 @@ int cmd_dump( int argc, char *argv[] )
         return -1;
     }
 
-    if( (width != 1) || compact_mode )
+    if( compact_mode )
+    {
         ascii_mode = 0;
+        float_mode = 0;
+        integer_mode = 0;
+        need_fill_line = 0;
+    }
+    else
+    {
+        if( ascii_mode && (width != 1) )
+            ascii_mode = 0;
+        if( float_mode && (width != 4) )
+            float_mode = 0;
+        if( ascii_mode || float_mode || integer_mode )
+            need_fill_line = 1;
+    }
     while( count < length )
     {
         if( !compact_mode )
             shell_printf( "%08X: ", (unsigned int)addr );
+        count2 = count;
+        addr2 = addr;
         switch(width)
         {
         case 1:
-            if( ascii_mode )
-            {
-                count2 = count;
-                addr2 = addr;
-            }
             for( i=0; i<16; i++ )
             {
                 shell_printf( compact_mode ? "%02X" : "%02X ", *(unsigned char*)addr );
@@ -756,7 +781,7 @@ int cmd_dump( int argc, char *argv[] )
                 count += 1;
                 if( count >= length )
                 {
-                    if( ascii_mode )
+                    if( need_fill_line );
                     {
                         for( i++; i<16; i++ )
                             shell_write_str( "   " ); 
@@ -780,6 +805,24 @@ int cmd_dump( int argc, char *argv[] )
                 }
                 shell_write_char( '|' );
             }
+            else if( integer_mode )
+            {
+                shell_write_str( " |" );
+                for( i=0; i<16; i++ )
+                {
+                    if( unsigned_mode )
+                        shell_printf("%u", *(uint8_t*)addr2);
+                    else
+                        shell_printf("%d", *(int8_t*)addr2);
+                    addr2 = (void*)(((int)addr2) + 1 );
+                    count2 += 1;
+                    if( count2 >= length )
+                        break;
+                    if( i < 15 )
+                        shell_write_char(' ');
+                }
+                shell_write_char( '|' );
+            }
             break;
         case 2:
             for( i=0; i<8; i++ )
@@ -788,7 +831,32 @@ int cmd_dump( int argc, char *argv[] )
                 addr = (void*)(((int)addr) + 2 );
                 count += 2;
                 if( count >= length )
+                {
+                    if( need_fill_line );
+                    {
+                        for( i++; i<8; i++ )
+                            shell_write_str( "     " ); 
+                    }
                     break;
+                }
+            }
+            if( integer_mode )
+            {
+                shell_write_str( " |" );
+                for( i=0; i<8; i++ )
+                {
+                    if( unsigned_mode )
+                        shell_printf("%u", *(uint16_t*)addr2);
+                    else
+                        shell_printf("%d", *(int16_t*)addr2);
+                    addr2 = (void*)(((int)addr2) + 2 );
+                    count2 += 2;
+                    if( count2 >= length )
+                        break;
+                    if( i < 7 )
+                        shell_write_char(' ');
+                }
+                shell_write_char( '|' );
             }
             break;
         case 4:
@@ -798,7 +866,34 @@ int cmd_dump( int argc, char *argv[] )
                 addr = (void*)(((int)addr) + 4 );
                 count += 4;
                 if( count >= length )
+                {
+                    if( need_fill_line );
+                    {
+                        for( i++; i<4; i++ )
+                            shell_write_str( "         " ); 
+                    }
                     break;
+                }
+            }
+            if( float_mode || integer_mode )
+            {
+                shell_write_str( " |" );
+                for( i=0; i<4; i++ )
+                {
+                    if( float_mode )
+                        shell_printf("%e", *(float*)addr2);
+                    else if( unsigned_mode )
+                        shell_printf("%u", *(uint32_t*)addr2);
+                    else
+                        shell_printf("%d", *(int32_t*)addr2);
+                    addr2 = (void*)(((int)addr2) + 4 );
+                    count2 += 4;
+                    if( count2 >= length )
+                        break;
+                    if( i < 3 )
+                        shell_write_char(' ');
+                }
+                shell_write_char( '|' );
             }
             break;
         }
