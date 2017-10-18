@@ -70,6 +70,7 @@
 #include "shell.h"
 #if USE_SHELL_PRINTF2
 #include "mcush_printf2.h"
+#include <math.h>
 #include <string.h>
 #include <stdarg.h>
 #include <limits.h>
@@ -221,6 +222,86 @@ static unsigned fltordbl2stri(char *outbfr, FLOAT_OR_DOUBLE flt_or_dbl, unsigned
 
     return strlen(output) ;
 }
+
+
+/* convert float to exp mode */
+/* Output format:
+      -N.nnnnnnE+xxxx
+         |____|  |__|
+     dec_digits  exp_digits  
+*/
+static unsigned float_to_exp_str(char *outbfr, float flt, unsigned dec_digits, unsigned exp_digits)
+{
+    static char local_bfr[128] ;
+    char *output = (outbfr == 0) ? local_bfr : outbfr ;
+    float  mul;
+    int    exp = 0;
+    int    n;
+    int    pow;
+    float  pow2;
+
+    if( isnan(flt) )
+    {
+        //*output++ = signbit(flt) ? ' ' : '-';  // I don't care
+        *output++ = 'n';
+        *output++ = 'a';
+        *output++ = 'n';
+    }
+    else if( ! isfinite(flt) )
+    {
+        *output++ = signbit(flt) ? ' ' : '-';
+        *output++ = 'i';
+        *output++ = 'n';
+        *output++ = 'f';
+    }
+    else
+    { 
+        // sign convert
+        if( signbit(flt) )
+        {
+            *output++ = '-';
+            flt = -flt;
+        }
+        else 
+            *output++ = ' ';
+
+        // mul/div 10.0 repeatedly to make 1.0 < f < 10.0
+        mul = flt < 1.0 ? 10.0 : 0.1;
+        while( (flt >= 10.0 || flt < 1.0) && flt != 0 ) 
+        {
+            flt *= mul;
+            exp++;
+        }
+
+        // output the float part
+        pow2 = 1;
+        for( n=0; n<=dec_digits; n++ )
+        {
+            *output++ = (int)(flt/pow2) + '0';
+            if( n == 0 )
+                *output++ = '.';
+            flt -= pow2*(int)(flt/pow2);
+            pow2 *= 0.1;
+        }
+    
+        // output the exp part
+        *output++ = 'e';
+        *output++ = (mul > 2.0 && exp) ? '-' : '+';
+        for(pow=1, n=1; n<exp_digits; n++ , pow *= 10);
+        for(n=0; n<exp_digits; n++)
+        {
+            *output++ = exp/pow + '0';
+            exp -= pow * (exp / pow);
+            pow /= 10;
+        } 
+    } 
+    *output = 0;
+
+    //  prepare output
+    output = (outbfr == 0) ? local_bfr : outbfr ;
+    return strlen(output) ;
+}
+
 
 //****************************************************************************
 #define  PAD_RIGHT   1
@@ -475,6 +556,18 @@ static int print (
                 int result = prints (
                               out,
                               bfr, width, pad, max_output_len, cur_output_char_p);
+                if (result<0) return result;
+                pc += result;
+                use_leading_plus = 0 ;  //  reset this flag after printing one value
+            }
+            break;
+
+            case 'e':
+            {
+                float f = va_arg(vargs,double);
+                char bfr[81];
+                float_to_exp_str(bfr, f, 6, 2);
+                int result = prints ( out, bfr, width, pad, max_output_len, cur_output_char_p);
                 if (result<0) return result;
                 pc += result;
                 use_leading_plus = 0 ;  //  reset this flag after printing one value
