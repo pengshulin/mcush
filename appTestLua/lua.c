@@ -73,10 +73,14 @@ static int docall (lua_State *L, int narg, int nres) {
   int base = lua_gettop(L) - narg;  /* function index */
   lua_pushcfunction(L, msghandler);  /* push message handler */
   lua_insert(L, base);  /* put it under function and args */
-  //globalL = L;  /* to be available to 'laction' */
-  //signal(SIGINT, laction);  /* set C-signal handler */
+#if 0
+  globalL = L;  /* to be available to 'laction' */
+  signal(SIGINT, laction);  /* set C-signal handler */
+#endif
   status = lua_pcall(L, narg, nres, base);
-  //signal(SIGINT, SIG_DFL); /* reset C-signal handler */
+#if 0
+  signal(SIGINT, SIG_DFL); /* reset C-signal handler */
+#endif
   lua_remove(L, base);  /* remove message handler from the stack */
   return status;
 }
@@ -98,11 +102,14 @@ static int docall (lua_State *L, int narg, int nres) {
 ** Returns the string to be used as a prompt by the interpreter.
 */
 static const char *get_prompt (lua_State *L, int firstline) {
-  const char *p;
-  lua_getglobal(L, firstline ? "_PROMPT" : "_PROMPT2");
-  p = lua_tostring(L, -1);
-  if (p == NULL) p = (firstline ? LUA_PROMPT : LUA_PROMPT2);
-  return p;
+    const char *p;
+    lua_getglobal(L, firstline ? "_PROMPT" : "_PROMPT2");
+    p = lua_tostring(L, -1);
+    if( p == NULL )
+    {
+        p = (firstline ? LUA_PROMPT : LUA_PROMPT2);
+    }
+    return p;
 }
 
 /* mark in error messages for incomplete statements */
@@ -269,9 +276,11 @@ int lua_main (int argc, char **argv)
     lua_pop(L, 1);
     //luaopen_ledlib(L);
 
+#if 0
     //print_version();
     //dostring(L,"print('hello')","Test_lua");
     //dofile(L, NULL);  /* executes stdin as a file */
+#endif
     doREPL(L);
     
     lua_close(L);

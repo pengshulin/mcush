@@ -472,14 +472,14 @@ void CAN_FilterInit(CAN_FilterInitTypeDef* CAN_FilterInitStruct)
     /* First 16-bit identifier and First 16-bit mask */
     /* Or First 16-bit identifier and Second 16-bit identifier */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR1 = 
-       ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdLow) << 16) |
-        (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdLow);
+       ((0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdLow) << 16) |
+        (0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdLow);
 
     /* Second 16-bit identifier and Second 16-bit mask */
     /* Or Third 16-bit identifier and Fourth 16-bit identifier */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR2 = 
-       ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
-        (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdHigh);
+       ((0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
+        (0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdHigh);
   }
 
   if (CAN_FilterInitStruct->CAN_FilterScale == CAN_FilterScale_32bit)
@@ -488,12 +488,12 @@ void CAN_FilterInit(CAN_FilterInitTypeDef* CAN_FilterInitStruct)
     CAN1->FS1R |= filter_number_bit_pos;
     /* 32-bit identifier or First 32-bit identifier */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR1 = 
-       ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdHigh) << 16) |
-        (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdLow);
+       ((0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdHigh) << 16) |
+        (0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterIdLow);
     /* 32-bit mask or Second 32-bit identifier */
     CAN1->sFilterRegister[CAN_FilterInitStruct->CAN_FilterNumber].FR2 = 
-       ((0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
-        (0x0000FFFF & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdLow);
+       ((0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdHigh) << 16) |
+        (0x0000FFFFu & (uint32_t)CAN_FilterInitStruct->CAN_FilterMaskIdLow);
   }
 
   /* Filter Mode */

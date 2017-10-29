@@ -30,7 +30,8 @@
   *
   ******************************************************************************
   */
-
+#ifdef NEED_FSMC 
+  
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_fsmc.h"
 #include "stm32f4xx_rcc.h"
@@ -1096,5 +1097,7 @@ void FSMC_ClearITPendingBit(uint32_t FSMC_Bank, uint32_t FSMC_IT)
 /**
   * @}
   */
+  
+#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

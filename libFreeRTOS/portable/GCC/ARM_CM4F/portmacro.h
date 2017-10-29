@@ -228,12 +228,11 @@ BaseType_t xReturn;
 	return xReturn;
 }
 
+#ifndef S_SPLINT_S
 /*-----------------------------------------------------------*/
-
 portFORCE_INLINE static void vPortRaiseBASEPRI( void )
 {
 uint32_t ulNewBASEPRI;
-
 	__asm volatile
 	(
 		"	mov %0, %1												\n"	\
@@ -245,7 +244,6 @@ uint32_t ulNewBASEPRI;
 }
 
 /*-----------------------------------------------------------*/
-
 portFORCE_INLINE static uint32_t ulPortRaiseBASEPRI( void )
 {
 uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
@@ -260,8 +258,7 @@ uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
 		:"=r" (ulOriginalBASEPRI), "=r" (ulNewBASEPRI) : "i" ( configMAX_SYSCALL_INTERRUPT_PRIORITY )
 	);
 
-	/* This return will not be reached but is necessary to prevent compiler
-	warnings. */
+	/* This return will not be reached but is necessary to prevent compiler warnings. */
 	return ulOriginalBASEPRI;
 }
 /*-----------------------------------------------------------*/
@@ -274,6 +271,7 @@ portFORCE_INLINE static void vPortSetBASEPRI( uint32_t ulNewMaskValue )
 	);
 }
 /*-----------------------------------------------------------*/
+#endif
 
 
 #ifdef __cplusplus

@@ -2,7 +2,7 @@
 #ifndef __MCUSH_H__
 #define __MCUSH_H__
 #include <stdint.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

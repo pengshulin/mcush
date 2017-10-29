@@ -77,6 +77,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_STATS_FORMATTING_FUNCTIONS    1
 //#define configGENERATE_RUN_TIME_STATS           0
 
+//#define configUSE_PORT_OPTIMISED_TASK_SELECTION   0
 
 #ifdef CORTEX_M0
     /* nothing to do */

@@ -10,6 +10,7 @@ if CHIP is None:
     chip='stm32f103rb'
     chip='stm32f407zg'
     chip='stm32f407ve'
+    chip='stm32f429ig'
     chip='lpc4337'
 else:
     chip = CHIP
@@ -146,6 +147,19 @@ chip_mem_configs = {
 [ 0x6C000000, 0x70000000, 'rw', 16, False, 'FSMC/bank4', ],
 [ 0x40000000, 0x60000000, 'rw', 32, False, 'PERIPHERALS', ],
 ],
+
+'stm32f429ig': [
+[ 0x00000000, 0x00200000, 'ro', 32, True,  'IROM 2M', ],
+[ 0x08000000, 0x08100000, 'ro', 32, True,  '', ],
+[ 0x20000000, 0x20030000, 'rw', 32, False, 'IRAM 192k', ],
+[ 0x10000000, 0x10010000, 'rw', 32, False, 'CCM data RAM 64k', ],
+#[ 0x60000000, 0x64000000, 'rw', 16, False, 'FSMC/bank1', ],
+#[ 0x64000000, 0x68000000, 'rw', 16, False, 'FSMC/bank2', ],
+#[ 0x68000000, 0x6C000000, 'rw', 16, False, 'FSMC/bank3', ],
+#[ 0x6C000000, 0x70000000, 'rw', 16, False, 'FSMC/bank4', ],
+[ 0x40000000, 0x60000000, 'rw', 32, False, 'PERIPHERALS', ],
+],
+
 
 'lpc4337': [
 [ 0x1A000000, 0x1A080000, 'ro', 32, True,   'FLASH A', ],

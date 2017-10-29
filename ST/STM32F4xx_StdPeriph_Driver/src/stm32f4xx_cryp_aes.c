@@ -1154,9 +1154,9 @@ ErrorStatus CRYP_AES_CCM(uint8_t Mode,
   uint32_t headersize = HLength;
   uint32_t loopcounter = 0;
   uint32_t bufferidx = 0;
-  uint8_t blockb0[16] = {0};/* Block B0 */
-  uint8_t ctr[16] = {0}; /* Counter */
-  uint32_t temptag[4] = {0}; /* temporary TAG (MAC) */
+  uint8_t blockb0[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};/* Block B0 */
+  uint8_t ctr[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; /* Counter */
+  uint32_t temptag[4] = {0,0,0,0}; /* temporary TAG (MAC) */
   uint32_t ctraddr = (uint32_t)ctr;
   uint32_t b0addr = (uint32_t)blockb0;
   

@@ -581,8 +581,10 @@ loop_start:
 #endif
         {
             if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 )
+            {
                 if( c == 0x03 ) /* Ctrl-C for stop */
                     return 0;
+            }
         }
         goto loop_start;
     }
@@ -648,14 +650,15 @@ int cmd_led( int argc, char *argv[] )
         test_on = 0;
         while( 1 )
         {
-            if( (shell_driver_read_char_blocked(&c, 250*configTICK_RATE_HZ/1000) != -1 ) \
-                && (c == 0x03) )  /* Ctrl-C for quit */
+            if( (shell_driver_read_char_blocked(&c, 250*configTICK_RATE_HZ/1000) != -1 ) && (c == 0x03) )  /* Ctrl-C for quit */
                 break;
             for( index=0; index<led_num; index++ )
+            {
                 if( test_on )
                     hal_led_set( index );
                 else
                     hal_led_clr( index );
+            }
             test_on ^= 1;
         }
         for( index=0; index<led_num; index++ )
@@ -1289,11 +1292,12 @@ int cmd_system( int argc, char *argv[] )
         {
             if( mcushGetQueueRegistered( i, &xQueue, &name ) )
             {
-                if( ! mcushGetQueueInfo( xQueue, &qinfo ) )
-                    continue; 
-                shell_printf( "%8s 0x%08X  %4d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)xQueue, 
+                if( mcushGetQueueInfo( xQueue, &qinfo ) )
+                {
+                    shell_printf( "%8s 0x%08X  %4d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)xQueue, 
                         qinfo.uxLength, qinfo.uxItemSize, qinfo.uxMessagesWaiting, 
                         (int)qinfo.pcHead, (int)qinfo.pcTail, ((int)qinfo.pcTail-(int)qinfo.pcHead) );
+                }
             }
         }
     }
@@ -1306,7 +1310,9 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "NumOfOverflows:       %d\n", kinfo.uxNumOfOverflows );
         shell_printf( "CurrentTCB:           0x%08X %s\n", (uint32_t)kinfo.pxCurrentTCB, mcushGetTaskNameFromTCB(kinfo.pxCurrentTCB) );
         for( i=0; i<configMAX_PRIORITIES; i++ )
+        {
             shell_printf( "ReadyTaskLists[%d]:    0x%08X %s\n", i, (uint32_t)kinfo.pxReadyTaskLists[i], mcushGetTaskNamesFromTaskList(kinfo.pxReadyTaskLists[i], buf) );
+        }
         shell_printf( "DelayedTaskList1:     0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList1, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList1, buf) );
         shell_printf( "DelayedTaskList2:     0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList2, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList2, buf) );
         shell_printf( "DelayedTaskList:      0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList, buf) );

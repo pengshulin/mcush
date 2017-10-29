@@ -37,13 +37,14 @@ s32_t spiffs_gc_quick(
   u32_t cur_block_addr = 0;
   int cur_entry = 0;
   spiffs_obj_id *obj_lu_buf = (spiffs_obj_id *)fs->lu_work;
+    int entries_per_page;
 
   SPIFFS_GC_DBG("gc_quick: running\n");
 #if SPIFFS_GC_STATS
   fs->stats_gc_runs++;
 #endif
 
-  int entries_per_page = (SPIFFS_CFG_LOG_PAGE_SZ(fs) / sizeof(spiffs_obj_id));
+  entries_per_page = (SPIFFS_CFG_LOG_PAGE_SZ(fs) / sizeof(spiffs_obj_id));
 
   // find fully deleted blocks
   // check each block

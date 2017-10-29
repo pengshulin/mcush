@@ -455,7 +455,7 @@ typedef struct {
 // page header, part of each page except object lookup pages
 // NB: this is always aligned when the data page is an object index,
 // as in this case struct spiffs_page_object_ix is used
-typedef struct __attribute(( packed )) {
+typedef struct __attribute__(( packed )) {
   // object id
   spiffs_obj_id obj_id;
   // object span index
@@ -465,9 +465,9 @@ typedef struct __attribute(( packed )) {
 } spiffs_page_header;
 
 // object index header page header
-typedef struct __attribute(( packed ))
+typedef struct __attribute__(( packed ))
 #if SPIFFS_ALIGNED_OBJECT_INDEX_TABLES
-                __attribute(( aligned(sizeof(spiffs_page_ix)) ))
+                __attribute__(( aligned(sizeof(spiffs_page_ix)) ))
 #endif
 {
   // common page header
@@ -487,7 +487,7 @@ typedef struct __attribute(( packed ))
 } spiffs_page_object_ix_header;
 
 // object index page header
-typedef struct __attribute(( packed )) {
+typedef struct __attribute__(( packed )) {
  spiffs_page_header p_hdr;
  u8_t _align[4 - ((sizeof(spiffs_page_header)&3)==0 ? 4 : (sizeof(spiffs_page_header)&3))];
 } spiffs_page_object_ix;

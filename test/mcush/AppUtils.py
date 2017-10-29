@@ -13,8 +13,8 @@ try:
     from termios import error as termios_error
 except ImportError:
     termios_error = None
-import mcush.Env as Env
-import mcush.Instrument as Instrument
+from . import Env
+from . import Instrument
 
 __INFO_STR = {
     'STOPPING': {'en': u'Stopping...',

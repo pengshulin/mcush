@@ -36,7 +36,7 @@ int mcush_spiffs_mount( void )
     if( hal_spiffs_flash_read_id() != HAL_SPIFFS_CHIPID )
         return 0;
 
-     SPIFFS_mount( &_fs, &cfg, (u8_t*)_work_buf, (u8_t*)_fds, 
+    SPIFFS_mount( &_fs, &cfg, (u8_t*)_work_buf, (u8_t*)_fds, 
                    sizeof(_fds), (void*)_cache_buf,
                    sizeof(_cache_buf), 0 );
     return SPIFFS_mounted(&_fs) ? 1 : 0;

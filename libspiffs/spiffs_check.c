@@ -50,6 +50,7 @@ static s32_t spiffs_object_get_data_page_index_reference(
   spiffs_page_ix *pix,
   spiffs_page_ix *objix_pix) {
   s32_t res;
+    u32_t addr;
 
   // calculate object index span index for given data page span index
   spiffs_span_ix objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
@@ -59,7 +60,7 @@ static s32_t spiffs_object_get_data_page_index_reference(
   SPIFFS_CHECK_RES(res);
 
   // load obj index entry
-  u32_t addr = SPIFFS_PAGE_TO_PADDR(fs, *objix_pix);
+  addr = SPIFFS_PAGE_TO_PADDR(fs, *objix_pix);
   if (objix_spix == 0) {
     // get referenced page from object index header
     addr += sizeof(spiffs_page_object_ix_header) + data_spix * sizeof(spiffs_page_ix);
@@ -93,6 +94,8 @@ static s32_t spiffs_rewrite_index(spiffs *fs, spiffs_obj_id obj_id, spiffs_span_
   spiffs_block_ix bix;
   int entry;
   spiffs_page_ix free_pix;
+    spiffs_span_ix objix_spix;
+
   obj_id |= SPIFFS_OBJ_ID_IX_FLAG;
 
   // find free entry
@@ -101,7 +104,7 @@ static s32_t spiffs_rewrite_index(spiffs *fs, spiffs_obj_id obj_id, spiffs_span_
   free_pix = SPIFFS_OBJ_LOOKUP_ENTRY_TO_PIX(fs, bix, entry);
 
   // calculate object index span index for given data page span index
-  spiffs_span_ix objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
+  objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
   if (objix_spix == 0) {
     // calc index in index header
     entry = data_spix;

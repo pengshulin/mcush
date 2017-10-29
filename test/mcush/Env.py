@@ -10,7 +10,8 @@ from tempfile import mktemp
 from subprocess import check_output
 
 
-_bool_true_list = ['1', 't', 'T', 'y', 'Y']
+_bool_true_list = ['1', 'Y', 'y', 'T', 't', 'yes', 'Yes', 'YES', 'true', 'True', 'TRUE']
+
  
 def getenv_bool( key, default=None ):
     ret = getenv(key, default)

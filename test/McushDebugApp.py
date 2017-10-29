@@ -1026,6 +1026,7 @@ def main():
     freeze_support()
     app = wx.App(0)
     #app.locale = wx.Locale(wx.LANGUAGE_CHINESE_SIMPLIFIED)
+    app.locale = wx.Locale(wx.LANGUAGE_DEFAULT)
     app.SetAppName( 'McushDebugApp' )
     frame_1 = MainFrame(None, wx.ID_ANY, "")
     app.SetTopWindow(frame_1)

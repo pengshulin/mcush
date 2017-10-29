@@ -75,7 +75,7 @@
 /* Exported functions ------------------------------------------------------- */
   void assert_failed(uint8_t* file, uint32_t line);
 #else
-  #define assert_param(expr) ((void)0)
+  #define assert_param(expr) 
 #endif /* USE_FULL_ASSERT */
 
 #endif /* __STM32F10x_CONF_H */

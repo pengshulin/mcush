@@ -477,7 +477,7 @@ extern "C"
 
 #endif
 
-
+/*@ignore@*/
   /**
    * @brief Clips Q63 to Q31 values.
    */
@@ -7036,7 +7036,7 @@ void arm_rfft_fast_f32(
   /**
    * @} end of BilinearInterpolate group
    */
-
+/*@end@*/
 
 /* SMMLAR */
 #define multAcc_32x32_keep32_R(a, x, y) \

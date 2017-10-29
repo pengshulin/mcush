@@ -30,7 +30,6 @@ MLX90614_ID3     = 0x1E
 MLX90614_ID4     = 0x1F
 
 
-
 def main(argv=None):
     s = Mcush.Mcush()
     s.i2c_init(MLX90614_I2CADDR, delay=1)
@@ -65,7 +64,6 @@ def main(argv=None):
     def readTemp( addr ):
         return readRamInt16( addr ) * 0.02 - 273.15
 
-
     # 检查ID
     id1 = readE2prom( MLX90614_ID1 )
     id2 = readE2prom( MLX90614_ID2 )
@@ -84,8 +82,5 @@ def main(argv=None):
         #time.sleep(0.1)
 
 
-
-
 if __name__ == '__main__':
     main(sys.argv)
-

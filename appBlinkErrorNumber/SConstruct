@@ -11,6 +11,7 @@ if haldir is None:
     #haldir='stm32f103c8_xtw'
     #haldir='stm32f103cb_tiny_controller'
     haldir='stm32f407zg_eu'
+    #haldir='stm32f429ig_challenger'
     #haldir='stm32f767zi_nucleo'
 
 
@@ -60,7 +61,7 @@ env.appendPath([
 
 
 env.appendGlobSource([
-    '*.c',
+    './*.c',
     '/mcush/*.c',
     '/hal%s/*.c'% haldir,
 ])

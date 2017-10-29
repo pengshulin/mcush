@@ -925,7 +925,9 @@ uint32_t RTC_GetSubSecond(void)
   tmpreg = (uint32_t)(RTC->SSR);
   
   /* Read DR register to unfroze calendar registers */
+#if 0
   (void) (RTC->DR);
+#endif
   
   return (tmpreg);
 }

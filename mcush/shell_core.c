@@ -13,12 +13,14 @@ static shell_control_block_t cb;
 
 int shell_read_char( char *c )
 {
+    int ret=-1;
+
     if( cb.script )
     {
         if( *cb.script )
         {
             *c = *cb.script++;
-            return *c;
+            ret = *c;
         }
         else
         {
@@ -30,7 +32,10 @@ int shell_read_char( char *c )
             }
         }
     }
-    return shell_driver_read_char( c );
+    if( ret == -1 )
+        ret = shell_driver_read_char( c );
+
+    return ret;
 }
 
 

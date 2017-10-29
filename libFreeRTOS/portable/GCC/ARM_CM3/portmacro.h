@@ -125,8 +125,8 @@ typedef unsigned long UBaseType_t;
 																				\
 	/* Barriers are normally not required but do ensure the code is completely	\
 	within the specified behaviour for the architecture. */						\
-	__asm volatile( "dsb" );													\
-	__asm volatile( "isb" );													\
+	__asm__ volatile( "dsb" );													\
+	__asm__ volatile( "isb" );													\
 }
 
 #define portNVIC_INT_CTRL_REG		( * ( ( volatile uint32_t * ) 0xe000ed04 ) )
@@ -173,7 +173,7 @@ not necessary for to use this port.  They are defined so the common demo files
 	{
 	uint8_t ucReturn;
 
-		__asm volatile ( "clz %0, %1" : "=r" ( ucReturn ) : "r" ( ulBitmap ) );
+		__asm__ volatile ( "clz %0, %1" : "=r" ( ucReturn ) : "r" ( ulBitmap ) );
 		return ucReturn;
 	}
 
@@ -214,7 +214,7 @@ uint32_t ulCurrentInterrupt;
 BaseType_t xReturn;
 
 	/* Obtain the number of the currently executing interrupt. */
-	__asm volatile( "mrs %0, ipsr" : "=r"( ulCurrentInterrupt ) );
+	__asm__ volatile( "mrs %0, ipsr" : "=r"( ulCurrentInterrupt ) );
 
 	if( ulCurrentInterrupt == 0 )
 	{
@@ -234,7 +234,7 @@ portFORCE_INLINE static void vPortRaiseBASEPRI( void )
 {
 uint32_t ulNewBASEPRI;
 
-	__asm volatile
+	__asm__ volatile
 	(
 		"	mov %0, %1												\n"	\
 		"	msr basepri, %0											\n" \
@@ -250,7 +250,7 @@ portFORCE_INLINE static uint32_t ulPortRaiseBASEPRI( void )
 {
 uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
 
-	__asm volatile
+	__asm__ volatile
 	(
 		"	mrs %0, basepri											\n" \
 		"	mov %1, %2												\n"	\
@@ -268,7 +268,7 @@ uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
 
 portFORCE_INLINE static void vPortSetBASEPRI( uint32_t ulNewMaskValue )
 {
-	__asm volatile
+	__asm__ volatile
 	(
 		"	msr basepri, %0	" :: "r" ( ulNewMaskValue )
 	);
