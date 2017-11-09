@@ -26,12 +26,13 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "lwip/opt.h"
 #include "stm32f429_eth.h"
+#include "lwip/opt.h"
 #include "LAN8742A.h"
 #include "lwip/netif.h"
-#include "netconf.h"
+#include "lwip_config.h"
 #include "lwip/dhcp.h"
+#include "FreeRTOS.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -54,6 +55,42 @@ static void ETH_MACDMA_Config(void);
 /* Bit 2 from Basic Status Register in PHY */
 #define GET_PHY_LINK_STATUS()		(ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & 0x00000004)
 
+void print_regs(void)
+{
+    shell_printf("BSR:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR));
+    shell_printf("BCR:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR));
+    shell_printf("IDN1: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_IDN1));
+    shell_printf("IDN2: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_IDN2));
+    shell_printf("NADV: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_NEGO_ADV));
+    shell_printf("NLPA: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_NEGO_LPA));
+    shell_printf("NEXP: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_NEGO_EXP));
+    shell_printf("MODE: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_MODE));
+    shell_printf("SMOD: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_MODES));
+    shell_printf("SEC:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SYMBOL_ERR_COUNTER));
+    shell_printf("SCSI: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_CTRL_STA_IND));
+    shell_printf("INTS: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_INT_SRC));
+    shell_printf("INTM: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_INT_MASK));
+    shell_printf("SCS:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_CTRL_STA));
+}
+
+
+/* SHELL COMMAND FOR DEBUG */
+int cmd_lan8720( int argc, char *argv[] )
+{
+    /* TODO: add read/write api for debug */
+    print_regs();
+
+    return 0;
+}
+
+const shell_cmd_t cmd_tab_lan8720[] = {
+{   0, 0, "lan8720",  cmd_lan8720, 
+    "debug phy chip",
+    "lan8720"  },
+{   CMD_END  } };
+
+
+
 
 
 /**
@@ -74,6 +111,8 @@ void ETH_BSP_Config(void)
     {
         EthStatus |= ETH_LINK_FLAG;
     }
+    
+    shell_add_cmd_table( cmd_tab_lan8720 );
 }
 
 
@@ -340,7 +379,7 @@ void ETH_link_callback(struct netif *netif)
             timeout = 0;
 
             /* Read the result of the auto-negotiation */
-            RegValue = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SR);
+            RegValue = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_CTRL_STA);
 
             /* Configure the MAC with the Duplex Mode fixed by the auto-negotiation process */
             if((RegValue & PHY_DUPLEX_STATUS) != (uint32_t)RESET)

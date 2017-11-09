@@ -378,7 +378,7 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
     /* Reset Timeout counter */
     timeout = 0;
     /* Read the result of the auto-negotiation */
-    RegValue = ETH_ReadPHYRegister(PHYAddress, PHY_SR);
+    RegValue = ETH_ReadPHYRegister(PHYAddress, PHY_SPECIAL_CTRL_STA);
     /* Configure the MAC with the Duplex Mode fixed by the auto-negotiation process */
     if((RegValue & PHY_DUPLEX_STATUS) != (uint32_t)RESET)
     {

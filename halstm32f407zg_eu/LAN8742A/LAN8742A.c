@@ -26,8 +26,8 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "lwip/opt.h"
 #include "stm32f4x7_eth.h"
+#include "lwip/opt.h"
 #include "LAN8742A.h"
 #include "lwip/netif.h"
 #include "lwip_config.h"
@@ -73,33 +73,12 @@ void print_regs(void)
     shell_printf("INTM: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_INT_MASK));
     shell_printf("SCS:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_CTRL_STA));
 }
+
+
 /* SHELL COMMAND FOR DEBUG */
 int cmd_lan8720( int argc, char *argv[] )
 {
-    //static const mcush_opt_spec opt_spec[] = {
-    //    { MCUSH_OPT_ARG, "errno", 0, 0, "0~100000000", MCUSH_OPT_USAGE_REQUIRED },
-    //    { MCUSH_OPT_NONE } };
-    //mcush_opt_parser parser;
-    //mcush_opt opt;
-    //int new = -1;
-    //uint8_t stop=0;
-
-    //mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
-    //while( mcush_opt_parser_next( &opt, &parser ) )
-    //{
-    //    if( opt.spec )
-    //    {
-    //        if( strcmp( opt.spec->name, "errno" ) == 0 )
-    //        {
-    //            if( ! shell_eval_int(opt.value, (int*)&new) )
-    //                return -1;
-    //        }
-    //        else if( strcmp( opt.spec->name, "stop" ) == 0 )
-    //            stop = 1;
-    //    }
-    //    else
-    //        STOP_AT_INVALID_ARGUMENT 
-    //}
+    /* TODO: add read/write api for debug */
     print_regs();
 
     return 0;
@@ -219,7 +198,7 @@ static void ETH_MACDMA_Config(void)
     ETH_InitStructure.ETH_FixedBurst = ETH_FixedBurst_Enable;
     /* DMA发送的最大突发长度为32个节拍 */
     ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
-    /*DMA接收的最大突发长度为32个节拍 */
+    /* DMA接收的最大突发长度为32个节拍 */
     ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
     ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
 

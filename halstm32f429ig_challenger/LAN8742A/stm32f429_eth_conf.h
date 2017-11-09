@@ -98,7 +98,19 @@
    so the user have to update this value depending on the used external PHY */   
 
 /* The LAN8742A PHY status register  */
-#define PHY_SR                 ((uint16_t)0x001F) /* PHY status register Offset */
+#define PHY_IDN1                     ((uint16_t)2)
+#define PHY_IDN2                     ((uint16_t)3)
+#define PHY_NEGO_ADV                 ((uint16_t)4)
+#define PHY_NEGO_LPA                 ((uint16_t)5)
+#define PHY_NEGO_EXP                 ((uint16_t)6)
+#define PHY_MODE                     ((uint16_t)17)
+#define PHY_SPECIAL_MODES            ((uint16_t)18)
+#define PHY_SYMBOL_ERR_COUNTER       ((uint16_t)26)
+#define PHY_SPECIAL_CTRL_STA_IND     ((uint16_t)27)
+#define PHY_INT_SRC                  ((uint16_t)29)
+#define PHY_INT_MASK                 ((uint16_t)30)
+#define PHY_SPECIAL_CTRL_STA         ((uint16_t)31)
+
 #define PHY_SPEED_STATUS       ((uint16_t)0x0004) /* PHY Speed mask  1:10Mb/s       0:100Mb/s*/
 #define PHY_DUPLEX_STATUS      ((uint16_t)0x0010) /* PHY Duplex mask 1:Full duplex  0:Half duplex*/
 
