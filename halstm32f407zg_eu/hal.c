@@ -26,6 +26,13 @@ void hal_delay_ms(uint32_t ms)
     }
 }
 
+
+void hal_delay_10ms(uint32_t ms)
+{
+    hal_delay_ms( ms*10 );
+}
+
+
 void _test_clk_output(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;

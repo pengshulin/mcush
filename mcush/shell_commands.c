@@ -1199,26 +1199,6 @@ int cmd_wdg( int argc, char *argv[] )
 
 
 #if USE_CMD_UPTIME
-char *get_uptime_str(char *buf, int ms)
-{
-#if defined(MCUSH_NON_OS)
-    unsigned int t = get_sys_tick_count();
-#else
-    unsigned int t = xTaskGetTickCount();
-#endif
-    unsigned int s = t / configTICK_RATE_HZ;
-    if( ms )
-    {
-        t = t - s * configTICK_RATE_HZ;
-        t = t * 1000 / configTICK_RATE_HZ; 
-        sprintf(buf, "%u:%02u:%02u.%03u", s/3600, (s/60)%60, s%60, t);
-    }
-    else
-        sprintf(buf, "%u:%02u:%02u", s/3600, (s/60)%60, s%60);
-    return buf;
-}
-
-
 int cmd_uptime( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {

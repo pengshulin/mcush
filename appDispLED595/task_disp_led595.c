@@ -500,7 +500,7 @@ void task_disp_led595_entry(void *p)
 void task_disp_led595_init(void)
 {
     xTaskCreate(task_disp_led595_entry, (const char *)"led595", TASK_DISP_LED595_STACK_SIZE, NULL, TASK_DISP_LED595_PRIORITY, &task_disp_led595);
-    if( !task_disp_led595 )
+    if( task_disp_led595 == NULL )
         halt("create disp led595 task");
     mcushTaskAddToRegistered((void*)task_disp_led595);
 }

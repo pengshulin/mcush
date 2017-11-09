@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "task_blink.h"
 
@@ -11,10 +12,15 @@
 
 static int _errno = 0;
 
-int set_errno(int new)
+int get_errno(void)
 {
-    int old=_errno;
-    _errno = new;
+    return _errno;
+}
+
+int set_errno(int num)
+{
+    int old = _errno;
+    _errno = num;
     return old;
 }
 
@@ -38,7 +44,7 @@ int cmd_error( int argc, char *argv[] )
             if( strcmp( opt.spec->name, "errno" ) == 0 )
             {
                 if( ! shell_eval_int(opt.value, (int*)&new) )
-                    new = 0; 
+                    return -1;
             }
             else if( strcmp( opt.spec->name, "stop" ) == 0 )
                 stop = 1;
@@ -124,25 +130,30 @@ void task_blink_entry(void *p)
         i = _errno;
         if( i < 0 )
         {
-            vTaskDelay( DELAY_D );
-            continue;
+            /* errno < 0, disable mode */
         }
-        if( i == 0 )
-            blink_digit( 0, LED_NORMAL );
         else
         {
-            /* digit from 1 ~ 100000000 */
-            for( pos=9, skip=1; pos; pos-- )
+            if( i == 0 )
             {
-                digit = (i / 100000000) % 10;
-                i -= digit * 100000000;
-                i *= 10;
-                if( skip && !digit && (pos != 1) )
-                    continue;
-                blink_digit( digit, LED_ERROR );
-                skip = 0;
-                if( pos != 1 )
-                    vTaskDelay(DELAY_B);
+                /* no error */
+                blink_digit( 0, LED_NORMAL );
+            }
+            else
+            {
+                /* errno from 1 ~ 100000000 */
+                for( pos=9, skip=1; pos; pos-- )
+                {
+                    digit = (i / 100000000) % 10;
+                    i -= digit * 100000000;
+                    i *= 10;
+                    if( skip && !digit && (pos != 1) )
+                        continue;
+                    blink_digit( digit, LED_ERROR );
+                    skip = 0;
+                    if( pos != 1 )
+                        vTaskDelay(DELAY_B);
+                }
             }
         }
         vTaskDelay( DELAY_D );
@@ -156,7 +167,7 @@ void task_blink_init(void)
     (void)xTaskCreate(task_blink_entry, (const char *)"blinkT", 
                 TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
                 NULL, TASK_BLINK_PRIORITY, &task_blink);
-    if( !task_blink )
+    if( task_blink == NULL )
         halt("create blink task");
     mcushTaskAddToRegistered((void*)task_blink);
 }

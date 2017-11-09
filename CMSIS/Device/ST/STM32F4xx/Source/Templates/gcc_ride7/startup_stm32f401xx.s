@@ -54,11 +54,9 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word  _ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
-/****************************************************************************/
 /* start/end address of the stack */
 .word  _sstack
 .word  _estack
-/****************************************************************************/
 
 /**
  * @brief  This is the code that gets called when the processor first
@@ -104,7 +102,8 @@ LoopFillZerobss:
   bcc  FillZerobss
 
 /****************************************************************************/
-/* fill stack area with 0xA5 for future check, by PengShulin */
+/* fill stack area with 0xA5 for future check, by PengShulin                */
+/****************************************************************************/
     ldr  r2, =_sstack
     b  LoopFillStack
 FillStack:

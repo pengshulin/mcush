@@ -14,5 +14,7 @@ typedef uint32_t u32_t;
 //#define SPIFFS_DBG(...) {if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED) shell_printf(__VA_ARGS__);}
 
 #define SPIFFS_TEST_VISUALISATION    0
+//#define SPIFFS_TEST_VISUALISATION    1
+//#define spiffs_printf(...) {if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED) shell_printf(__VA_ARGS__);}
 
 #endif

@@ -22,6 +22,7 @@ int hal_led_get(int index);
 
 void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
+void hal_delay_10ms(uint32_t ms);
 
 void hal_reset(void);
 void hal_reboot(void);

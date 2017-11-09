@@ -57,6 +57,9 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word  _ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
+/* start/end address of the stack */
+.word  _sstack
+.word  _estack
 
 /**
  * @brief  This is the code that gets called when the processor first
@@ -99,6 +102,20 @@ LoopFillZerobss:
   ldr  r3, = _ebss
   cmp  r2, r3
   bcc  FillZerobss
+
+/****************************************************************************/
+/* fill stack area with 0xA5 for future check, by PengShulin                */
+/****************************************************************************/
+    ldr  r2, =_sstack
+    b  LoopFillStack
+FillStack:
+    movs  r3, #0xA5A5A5A5
+    str  r3, [r2], #4
+LoopFillStack:
+    ldr  r3, = _estack
+    cmp  r2, r3
+    bcc  FillStack
+/****************************************************************************/
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit   

@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #ifndef _TASK_BLINK_H_
 #define _TASK_BLINK_H_
 
@@ -12,7 +13,8 @@ extern void task_blink_entry(void *p);
 extern void task_blink_entry(void);
 #endif
 
-int set_errno(int new);
+int get_errno(void);
+int set_errno(int num);
 
 #endif
 

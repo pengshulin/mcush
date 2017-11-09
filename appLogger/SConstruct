@@ -1,0 +1,35 @@
+from VEnvironment import *
+
+haldir='stm32f407zg_eu'
+haldir='stm32f429ig_challenger'
+config = loadHalConfig( haldir )
+env = config.env
+
+env.appendDefineFlags( [
+    'configTIMER_TASK_STACK_DEPTH=1024',
+    ] ) 
+
+
+env.appendPath([
+    '.',
+    '/libFreeRTOS',
+    '/libFreeRTOS/include',
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
+    '/mcush',
+    '/hal%s'% haldir,
+])
+
+
+env.appendGlobSource([
+    '*.c',
+    '/mcush/*.c',
+    '/hal%s/*.c'% haldir,
+    '/libFreeRTOS/*.c',
+    '/libFreeRTOS/portable/MemMang/heap_3.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
+])
+
+
+
+env.makeApp()
+

@@ -108,6 +108,9 @@ extern TaskHandle_t task_mcush;
 #endif
 
 
+#ifndef NULL
+    #define NULL  (void*)0
+#endif
 
 #ifdef DEBUG
     extern void halt(const char *message);

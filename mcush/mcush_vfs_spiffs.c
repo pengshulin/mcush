@@ -148,7 +148,23 @@ int mcush_spiffs_format( void )
 
 int mcush_spiffs_size( const char *name, int *size )
 {
-    return 0;
+    spiffs_DIR dir;
+    struct spiffs_dirent dirent;
+    int found=0;
+
+    if( ! SPIFFS_opendir( &_fs, "/", &dir ) )
+        return 0;
+    while( SPIFFS_readdir( &dir, &dirent ) )
+    {
+        if( strcmp( (const char*)dirent.name, name ) == 0 )
+        {
+            *size = dirent.size;
+            found = 1;
+            break;
+        }
+    } 
+    SPIFFS_closedir( &dir );
+    return found;
 }
 
 

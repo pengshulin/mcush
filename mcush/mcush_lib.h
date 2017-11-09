@@ -10,6 +10,7 @@ uint32_t calc_checksum(void *p, uint32_t len);
 void test_delay_us(void);
 void test_delay_ms(void);
 
+char *get_uptime_str(char *buf, int ms);
 
 #endif
 
