@@ -148,6 +148,9 @@ int hal_init(void)
     hal_gpio_init();
     hal_sgpio_init();
     hal_led_init();
+#if HAL_RTC
+    hal_rtc_init();
+#endif
 #if defined(HAL_LCD) && HAL_LCD
     hal_lcd_init();
 #endif

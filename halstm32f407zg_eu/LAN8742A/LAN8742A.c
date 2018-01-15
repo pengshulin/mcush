@@ -147,9 +147,9 @@ static void ETH_MACDMA_Config(void)
     /*------------------------   MAC   -----------------------------------*/
     /* 开启网络自适应功能 */
     ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-//  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Disable;
-//  ETH_InitStructure.ETH_Speed = ETH_Speed_10M;
-//  ETH_InitStructure.ETH_Mode = ETH_Mode_FullDuplex;
+    //ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Disable;
+    ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
+    ETH_InitStructure.ETH_Mode = ETH_Mode_FullDuplex;
     /* 关闭反馈 */
     ETH_InitStructure.ETH_LoopbackMode = ETH_LoopbackMode_Disable;
     /* 关闭重传功能 */
@@ -247,7 +247,7 @@ void ETH_GPIO_Config(void)
     /*
         ETH_MDIO -------------------------> PA2
         ETH_MDC --------------------------> PC1
-        ETH_MII_RX_CLK/ETH_RMII_REF_CLK---> PA1
+        ETH_MII_RX_CLK/ETH_RMII_REF_CLK --> PA1
         ETH_MII_RX_DV/ETH_RMII_CRS_DV ----> PA7
         ETH_MII_RXD0/ETH_RMII_RXD0 -------> PC4
         ETH_MII_RXD1/ETH_RMII_RXD1 -------> PC5

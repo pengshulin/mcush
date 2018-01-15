@@ -377,4 +377,22 @@ class Mcush( Instrument.SerialInstrument ):
             return r
         else:
             return None
+
+    def rtcSync( self ):
+        # update to current time
+        t = time.localtime()
+        cmd = 'rtc -s %d-%d-%d %d:%d:%d'% (t.tm_year, t.tm_mon, t.tm_mday,
+                                           t.tm_hour, t.tm_min, t.tm_sec )
+        self.writeCommand( cmd )
+   
+    def rtcRead( self ): 
+        try:
+            r = self.writeCommand( 'rtc' )
+            d, t = r[0].split(' ')
+        except Instrument.CommandExecuteError:
+            return None
+        YEAR, MONTH, MDAY = d.split('-')
+        HOUR, MIN, SEC = t.split(':')
+        return (int(YEAR), int(MONTH), int(MDAY), int(HOUR), int(MIN), int(SEC), 0, 1, -1)
+
  

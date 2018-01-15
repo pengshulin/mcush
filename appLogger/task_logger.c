@@ -20,7 +20,11 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 {
     char tp[3];
 
+#if HAL_RTC
+    get_rtc_str( buf );
+#else
     get_uptime_str( buf, 1 ); 
+#endif
     strcat( buf, " " );
     if( evt->type & LOG_SYS )
         tp[0] = 'S';
@@ -50,11 +54,12 @@ int cmd_logger( int argc, char *argv[] )
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, "disable", 'd', 0, "disable logging to file", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_SWITCH, "enable", 'e', 0, "enable logging to file", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "history", 'h', 0, "list history from log file", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_VALUE, "msg", 'm', "message", "log message", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int8_t enable, enable_set=0;
+    int8_t enable, enable_set=0, history_set=0;
     const char *msg=0;
     logger_event_t evt;
     char c;
@@ -75,6 +80,8 @@ int cmd_logger( int argc, char *argv[] )
                 enable = 0;
                 enable_set = 1;
             }
+            else if( strcmp( opt.spec->name, "history" ) == 0 )
+                history_set = 1;
             else if( strcmp( opt.spec->name, "msg" ) == 0 )
             {
                 msg = opt.value;
@@ -94,15 +101,23 @@ int cmd_logger( int argc, char *argv[] )
         logger_enable = enable;
         return 0;
     }
-   
+  
+    /* priority: 
+       1 - add new message 
+       2 - view history
+       3 - monitor
+     */
     if( msg )
     {
-        /* log message */
         logger_str( LOG_INFO, msg );
+    }
+    else if( history_set )
+    {
+        /* TODO: similar to tail command
+           read file line by line, record last 10 lines, print them all when EOF */
     }
     else
     {
-        /* logger monitor */
         monitoring_mode = 1;
         while( 1 )
         {

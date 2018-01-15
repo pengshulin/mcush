@@ -144,3 +144,23 @@ char *get_uptime_str(char *buf, int ms)
         sprintf(buf, "%u:%02u:%02u", s/3600, (s/60)%60, s%60);
     return buf;
 }
+
+
+char *get_rtc_str(char *buf)
+{
+#if HAL_RTC
+    struct tm t;
+    if( hal_rtc_get( &t ) )
+    {
+        sprintf( buf, "%d-%d-%d %02d:%02d:%02d", t.tm_year, t.tm_mon, t.tm_mday,
+                        t.tm_hour, t.tm_min, t.tm_sec );
+    }
+    else
+        strcpy( buf, "RTC ERR" );
+#else
+    strcpy( buf, "NO RTC" );
+#endif
+    return buf;
+}
+
+

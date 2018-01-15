@@ -139,6 +139,15 @@ def morse_code_beeper( argv=None ):
         bp.BeepString( 'SOS' )
         time.sleep(5)
 
+def rtc_sync( argv=None ):
+    s = Mcush()
+    s.rtcSync()
+
+def rtc( argv=None ):
+    s = Mcush()
+    print s.rtcRead()
+
+   
 
 
 #############################################################################

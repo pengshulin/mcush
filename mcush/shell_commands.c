@@ -80,7 +80,9 @@
 #ifndef USE_CMD_COUNTER
     #define USE_CMD_COUNTER  0
 #endif
-
+#ifndef USE_CMD_RTC
+    #define USE_CMD_RTC  0
+#endif
 
 
 
@@ -164,6 +166,7 @@ int cmd_power( int argc, char *argv[] );
 int cmd_i2c( int argc, char *argv[] );
 int cmd_spi( int argc, char *argv[] );
 int cmd_counter( int argc, char *argv[] );
+int cmd_rtc( int argc, char *argv[] );
 
 int cmd_spiffs( int argc, char *argv[] );
 int cmd_cat( int argc, char *argv[] );
@@ -282,6 +285,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 'c',  "counter",  cmd_counter, 
     "input trigger counter",
     "counter [-i|r]" },
+#endif
+#if USE_CMD_RTC
+{   0, 0,  "rtc",  cmd_rtc, 
+    "rtc",
+    "rtc -s [val]" },
 #endif
 #if USE_CMD_BEEP
 {   0,  'b',  "beep",  cmd_beep, 
@@ -2244,6 +2252,75 @@ int cmd_counter( int argc, char *argv[] )
 err_port:
     shell_write_line("port/bit err");
     return 1;
+}
+#endif
+
+
+#if USE_CMD_RTC
+int cmd_rtc( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "set", 's', 0, "set rtc", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, "setting", 0, 0, "format: YYYY-MM-DD HH:MM:SS", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    int8_t set=-1;
+    struct tm t;
+     
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "set" ) == 0 )
+                set = 1;
+            else if( strcmp( opt.spec->name, "setting" ) == 0 )
+                break;
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( set == 1 )
+    {
+        if( (parser.idx >= argc) || \
+            (3 != sscanf( argv[parser.idx], "%d-%d-%d", 
+                      &t.tm_year, &t.tm_mon, &t.tm_mday )) )
+        {
+            shell_write_line( "data error" );
+            return 1;
+        }
+        t.tm_wday = 0;
+ 
+        parser.idx++;     
+        if( (parser.idx >= argc) || \
+            (3 != sscanf( argv[parser.idx], "%d:%d:%d", 
+                      &t.tm_hour, &t.tm_min, &t.tm_sec )) )
+        {
+            shell_write_line( "time error" );
+            return 1;
+        }
+ 
+        if( ! hal_rtc_set( &t ) )
+        {
+            shell_write_line( "rtc_set error" );
+            return 1;
+        }
+    }
+    else
+    {
+        if( ! hal_rtc_get( &t ) )
+        {
+            shell_write_line( "not synced" );
+            return 1;
+        }
+        shell_printf( "%d-%d-%d %02d:%02d:%02d\n", 
+                      t.tm_year, t.tm_mon, t.tm_mday,
+                      t.tm_hour, t.tm_min, t.tm_sec );
+    }
+    
+    return 0;
 }
 #endif
 

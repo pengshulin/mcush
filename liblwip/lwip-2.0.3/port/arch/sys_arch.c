@@ -53,7 +53,7 @@ struct timeoutlist
 };
 
 /* This is the number of threads that can be started with sys_thread_new() */
-#define SYS_THREAD_MAX  8
+#define SYS_THREAD_MAX  16
 
 static struct timeoutlist s_timeoutlist[SYS_THREAD_MAX];
 static u16_t s_nextthread = 0;

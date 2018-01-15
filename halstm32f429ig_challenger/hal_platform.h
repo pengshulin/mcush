@@ -7,6 +7,23 @@
 #define HAL_LED_PINS  { GPIO_Pin_12 }
 
 
+#ifndef HAL_RTC
+  #define HAL_RTC  1
+  #define USE_CMD_RTC  1
+#endif
+
+#include <time.h>
+int  hal_rtc_get( struct tm *t );
+int  hal_rtc_set( struct tm *t );
+int  hal_rtc_get_tick( uint64_t *tick );
+void hal_rtc_init(void);
+
+
+#define HAL_RNG   1
+int hal_rng_get(void);
+
+
+
 #define USE_CMD_SGPIO  1
 #define SGPIO_FREQ_MIN  1.0
 #define SGPIO_FREQ_DEF  1000000.0
