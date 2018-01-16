@@ -4,6 +4,7 @@ __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 import re
 import binascii
+import time
 from .. import Env, Instrument
 
 
@@ -46,7 +47,7 @@ class TjcHMI( Instrument.SerialInstrument ):
     DEFAULT_PROMPTS = re.compile( '[^\xFF]+\xff\xff\xff' )
     DEFAULT_CHECK_RETURN_COMMAND = False
     
-    def readUntilPrompts( self ):
+    def readUntilPrompts( self, check_return_code=True ):
         '''read until prompts'''
         contents = []
         while True:
@@ -64,7 +65,8 @@ class TjcHMI( Instrument.SerialInstrument ):
             match = self.prompts.match( ret )
             if match:
                 self.logger.debug( ret )
-                assert ord(contents[0]) in RETURN_CODES.keys()
+                if check_return_code:
+                    assert ord(contents[0]) in RETURN_CODES.keys()
                 return [''] + list(ret.rstrip('\xff')) + ['']
 
     def page( self, pageid=0 ):
@@ -123,6 +125,5 @@ class TjcHMI( Instrument.SerialInstrument ):
             cmd += unicode(string).encode(encoding='gbk')
         cmd += '\"'    
         self.writeCommand(cmd)
-
 
 

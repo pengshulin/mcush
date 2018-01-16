@@ -380,6 +380,9 @@ class SerialPort(Port):
         try:
             self.ser.open()
             self._connected = True
+            self.ser.reset_input_buffer()
+            self.ser.reset_output_buffer()
+            #print 'in_waiting', self.ser.inWaiting()
         except Exception:
             raise PortNotFound( self.port )
 
