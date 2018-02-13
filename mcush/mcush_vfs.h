@@ -5,7 +5,7 @@
 #if defined(MCUSH_VFS) && MCUSH_VFS
 
 #ifndef MCUSH_VFS_VOLUME_NUM
-    #define MCUSH_VFS_VOLUME_NUM  2
+    #define MCUSH_VFS_VOLUME_NUM  3
 #endif
 
 #ifndef MCUSH_VFS_FILE_DESCRIPTOR_NUM
@@ -86,6 +86,10 @@ const char *mcush_basename( const char *pathname );
 
 #if defined(MCUSH_ROMFS) && MCUSH_ROMFS
 #include "mcush_vfs_romfs.h"
+#endif
+
+#if defined(MCUSH_FCFS) && MCUSH_FCFS
+#include "mcush_vfs_fcfs.h"
 #endif
 
 #if defined(MCUSH_SPIFFS) && MCUSH_SPIFFS

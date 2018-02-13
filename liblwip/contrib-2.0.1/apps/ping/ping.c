@@ -122,7 +122,7 @@ ping_prepare_echo( struct icmp_echo_hdr *iecho, u16_t len)
 }
 
 #if PING_USE_SOCKETS
-
+#error stophere
 /* Ping using the socket ip */
 static err_t
 ping_send(int s, const ip_addr_t *addr)

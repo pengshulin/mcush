@@ -53,6 +53,9 @@ void mcush_init(void)
 #if MCUSH_ROMFS
     mcush_mount( "r", &mcush_romfs_driver );
 #endif
+#if MCUSH_FCFS
+    mcush_mount( "c", &mcush_fcfs_driver );
+#endif
 #if MCUSH_SPIFFS
     mcush_mount( "s", &mcush_spiffs_driver );
 #endif

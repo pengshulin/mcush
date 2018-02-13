@@ -10,8 +10,8 @@ if CHIP is None:
     chip='stm32f103rb'
     chip='stm32f407zg'
     chip='stm32f407ve'
-    chip='stm32f429ig'
     chip='lpc4337'
+    chip='stm32f429ig'
 else:
     chip = CHIP
 print 'set chip as %s'% chip

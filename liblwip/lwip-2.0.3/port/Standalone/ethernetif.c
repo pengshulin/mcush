@@ -53,11 +53,11 @@
 #include "ethernetif.h"
 //#include "includes.h"
 #if defined(STM32F40_41xxx)
-#include "stm32f4x7_eth.h"
+    #include "stm32f4x7_eth.h"
 #elif defined(STM32F429_439xx)
-#include "stm32f429_eth.h"
+    #include "stm32f429_eth.h"
 #else
-#error "unknown platform"
+    #error "unknown platform"
 #endif
 #include <string.h>
 #include "lwip_config.h"

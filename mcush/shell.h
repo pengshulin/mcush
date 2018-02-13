@@ -96,6 +96,7 @@ void shell_write_char( char c );
 void shell_write( const char *buf, int len );
 void shell_write_str( const char *str );
 void shell_write_line( const char *str );
+void shell_newline( void );
 void shell_write_int( int i );
 void shell_write_float( float f );
 void shell_write_hex( int x );

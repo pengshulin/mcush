@@ -18,7 +18,8 @@ int  hal_rtc_get_tick( uint64_t *tick );
 void hal_rtc_init(void);
 
 #define HAL_RNG   1
-int hal_rng_get(void);
+void hal_rng_init(void);
+uint32_t hal_rng_get(void);
 
 #define USE_CMD_SGPIO  1
 #define SGPIO_FREQ_MIN  1.0

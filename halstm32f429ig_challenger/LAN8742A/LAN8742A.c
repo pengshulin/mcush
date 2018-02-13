@@ -1,38 +1,12 @@
-/**
-  ******************************************************************************
-  * @file    stm32f4x7_eth_bsp.c
-  * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    31-July-2013
-  * @brief   STM32F4x7 Ethernet hardware configuration.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
-  *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  *
-  ******************************************************************************
-  */
-
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f429_eth.h"
 #include "lwip/opt.h"
 #include "LAN8742A.h"
 #include "lwip/netif.h"
 #include "lwip_config.h"
 #include "lwip/dhcp.h"
+#include "mcush.h"
 #include "FreeRTOS.h"
+#include "task_dhcpc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -43,9 +17,6 @@ __IO uint32_t  EthStatus = 0;
 __IO uint8_t EthLinkStatus = 0;
 extern struct netif gnetif;
 
-#ifdef USE_DHCP
-extern __IO uint8_t DHCP_state;
-#endif /* LWIP_DHCP */
 
 /* Private function prototypes -----------------------------------------------*/
 static void ETH_GPIO_Config(void);
@@ -88,7 +59,6 @@ const shell_cmd_t cmd_tab_lan8720[] = {
     "debug phy chip",
     "lan8720"  },
 {   CMD_END  } };
-
 
 
 
@@ -139,7 +109,6 @@ static void ETH_MACDMA_Config(void)
         vTaskDelay(1);
     }
 
-
     /* ETHERNET Configuration --------------------------------------------------*/
     /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
     ETH_StructInit(&ETH_InitStructure);
@@ -148,9 +117,9 @@ static void ETH_MACDMA_Config(void)
     /*------------------------   MAC   -----------------------------------*/
     /* 开启网络自适应功能 */
     ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Enable;
-//  ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Disable;
-//  ETH_InitStructure.ETH_Speed = ETH_Speed_10M;
-//  ETH_InitStructure.ETH_Mode = ETH_Mode_FullDuplex;
+    //ETH_InitStructure.ETH_AutoNegotiation = ETH_AutoNegotiation_Disable;
+    //ETH_InitStructure.ETH_Speed = ETH_Speed_100M;
+    //ETH_InitStructure.ETH_Mode = ETH_Mode_FullDuplex;
     /* 关闭反馈 */
     ETH_InitStructure.ETH_LoopbackMode = ETH_LoopbackMode_Disable;
     /* 关闭重传功能 */
@@ -199,7 +168,7 @@ static void ETH_MACDMA_Config(void)
     ETH_InitStructure.ETH_FixedBurst = ETH_FixedBurst_Enable;
     /* DMA发送的最大突发长度为32个节拍 */
     ETH_InitStructure.ETH_RxDMABurstLength = ETH_RxDMABurstLength_32Beat;
-    /*DMA接收的最大突发长度为32个节拍 */
+    /* DMA接收的最大突发长度为32个节拍 */
     ETH_InitStructure.ETH_TxDMABurstLength = ETH_TxDMABurstLength_32Beat;
     ETH_InitStructure.ETH_DMAArbitration = ETH_DMAArbitration_RoundRobin_RxTx_2_1;
 
@@ -246,17 +215,16 @@ void ETH_GPIO_Config(void)
 
     /* Ethernet pins configuration ************************************************/
     /*
-         ETH_MDIO -------------------------> PA2
-         ETH_MDC --------------------------> PC1
-         ETH_MII_RX_CLK/ETH_RMII_REF_CLK---> PA1
-         ETH_MII_RX_DV/ETH_RMII_CRS_DV ----> PA7
-         ETH_MII_RXD0/ETH_RMII_RXD0 -------> PC4
-         ETH_MII_RXD1/ETH_RMII_RXD1 -------> PC5
-         ETH_MII_TX_EN/ETH_RMII_TX_EN -----> PB11
-         ETH_MII_TXD0/ETH_RMII_TXD0 -------> PG13
-         ETH_MII_TXD1/ETH_RMII_TXD1 -------> PG14
-    			ETH_NRST -------------------------> PI1
-
+        ETH_MDIO -------------------------> PA2
+        ETH_MDC --------------------------> PC1
+        ETH_MII_RX_CLK/ETH_RMII_REF_CLK --> PA1
+        ETH_MII_RX_DV/ETH_RMII_CRS_DV ----> PA7
+        ETH_MII_RXD0/ETH_RMII_RXD0 -------> PC4
+        ETH_MII_RXD1/ETH_RMII_RXD1 -------> PC5
+        ETH_MII_TX_EN/ETH_RMII_TX_EN -----> PB11
+        ETH_MII_TXD0/ETH_RMII_TXD0 -------> PG13
+        ETH_MII_TXD1/ETH_RMII_TXD1 -------> PG14
+        ETH_NRST -------------------------> PI1
     	*/
 
     //GPIO_InitStructure.GPIO_Pin = ETH_NRST_PIN;
@@ -354,9 +322,6 @@ void ETH_link_callback(struct netif *netif)
 {
     __IO uint32_t timeout = 0;
     uint32_t tmpreg,RegValue;
-    ip_addr_t ipaddr;
-    ip_addr_t netmask;
-    ip_addr_t gw;
 
     if(netif_is_link_up(netif))
     {
@@ -426,18 +391,10 @@ void ETH_link_callback(struct netif *netif)
         /* Restart MAC interface */
         ETH_Start();
 
-#ifdef USE_DHCP
-        ipaddr.addr = 0;
-        netmask.addr = 0;
-        gw.addr = 0;
-        DHCP_state = DHCP_START;
-#else
-        IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
-        IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
-        IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
-#endif /* USE_DHCP */
+        
+        send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
 
-        netif_set_addr(&gnetif, &ipaddr , &netmask, &gw);
+        //netif_set_addr(&gnetif, &ipaddr , &netmask, &gw);
 
         /* When the netif is fully configured this function must be called.*/
         netif_set_up(&gnetif);
@@ -447,10 +404,8 @@ void ETH_link_callback(struct netif *netif)
     else
     {
         ETH_Stop();
-#ifdef USE_DHCP
-        DHCP_state = DHCP_LINK_DOWN;
-        dhcp_stop(netif);
-#endif /* USE_DHCP */
+
+        send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
 
         /*  When the netif link is down this function must be called.*/
         netif_set_down(&gnetif);
@@ -490,4 +445,4 @@ void ETH_EXTERN_GetSpeedAndDuplex(uint32_t PHYAddress, ETH_InitTypeDef* ETH_Init
     }
     /* LAN8720A */
 }
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+

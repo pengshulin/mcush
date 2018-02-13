@@ -40,7 +40,12 @@ def main(argv=None):
             break
     print 'File name:', filename
     print 'File size: %d Bytes, splited into %s packets'% (filesize, len(packets))
-
+    port = Env.PORT
+    if not port:
+        print 'Serial port not set'
+        return 3
+    print 'Serial port:', port
+   
     # 1. connect using default baudrate (9600) 
     # 2. get device info
     # 3. switch to fast baudrate (115200)

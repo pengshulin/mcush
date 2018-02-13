@@ -2,9 +2,9 @@
 #define __HAL_PLATFORM_H__
 
 #define HAL_LED_REV
-#define HAL_LED_NUM   1
-#define HAL_LED_PORTS  { GPIOD } 
-#define HAL_LED_PINS  { GPIO_Pin_12 }
+#define HAL_LED_NUM   4
+#define HAL_LED_PORTS  { GPIOD, GPIOH, GPIOH, GPIOH } 
+#define HAL_LED_PINS  { GPIO_Pin_12, GPIO_Pin_10, GPIO_Pin_11, GPIO_Pin_12,  }
 
 
 #ifndef HAL_RTC
@@ -20,7 +20,8 @@ void hal_rtc_init(void);
 
 
 #define HAL_RNG   1
-int hal_rng_get(void);
+void hal_rng_init(void);
+uint32_t hal_rng_get(void);
 
 
 

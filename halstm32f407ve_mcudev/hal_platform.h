@@ -6,6 +6,10 @@
 #define HAL_LED_PORTS  { GPIOA, GPIOA } 
 #define HAL_LED_PINS  { GPIO_Pin_6, GPIO_Pin_7 }
 
+#define HAL_RNG   1
+void hal_rng_init(void);
+uint32_t hal_rng_get(void);
+
 
 #define USE_CMD_SGPIO  1
 #define SGPIO_FREQ_MIN  1.0

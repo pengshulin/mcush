@@ -73,6 +73,12 @@ void shell_write_str( const char *str )
 }
 
 
+void shell_newline( void )
+{
+    shell_write( "\r\n", 2 );
+}
+
+
 void shell_write_line( const char *str )
 {
     if( str )

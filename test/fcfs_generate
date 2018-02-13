@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+# coding: utf8
+# Generate FCFS binary image for specified directory.
+# part of MCUSH project
+# MCUSH designed by Peng Shulin, all rights reserved.'
+# Peng Shulin <trees_peng@164.com> 2018
+import os
+import sys
+import glob
+import time
+import struct
+import binascii
+
+
+class Signature():
+    def __init__( self, info ):
+        self.info = info
+    def __len__( self ):
+        return len(self.info)
+    def __str__( self ):
+        return self.info
+
+class Node():
+    def __init__( self, file ):
+        self.file = file
+        self.offset = 0
+        self.size = file.size
+    def __len__( self ):
+        return 4
+    def __str__( self ):
+        return struct.pack('H', self.offset) + struct.pack('H', self.size)
+
+class File():
+    def __init__( self, fname ):
+        self.fname_raw = fname
+        self.fname = os.path.basename(fname)
+        self.contents = open(fname, 'rb').read()
+        self.size = len(self.contents)
+    def __len__( self ):
+        return len(self.fname.encode('utf8')) + 1 + self.size
+    def __str__( self ):
+        return self.fname.encode('utf8') + '\00' + self.contents
+
+
+
+def generate(directory, output_filename):
+    files = glob.glob(os.path.join(directory, '*'))
+
+    HEAD = [Signature('FCFS')]
+    CONTENTS = []
+    for f in files:
+        if os.path.isfile(f):
+            newfile = File(f) 
+            CONTENTS.append( newfile )
+            HEAD.append( Node(newfile) )
+            print 'add file: %s, size %d'% (newfile.fname, newfile.size)
+    HEAD.append( Signature('\x00\x00\x00\x00') )  # end node
+    HEAD.append( Signature(time.strftime('%y%m%d%H%M%S')) )  # timestamp
+
+    # re-calculate the offsets
+    offset_counter = sum([len(h) for h in HEAD])
+    for idx in range(len(CONTENTS)):
+        f = HEAD[idx+1]
+        f.offset = offset_counter
+        offset_counter += len(f.file)
+    
+    CONTENTS.append( Signature('END') )  # end
+    OUTPUT = HEAD+CONTENTS
+    print 'HEAD:'
+    for item in HEAD:
+        print ' ', binascii.hexlify(str(item))
+    print 'CONTENTS:'
+    for item in CONTENTS:
+        print ' ', binascii.hexlify(str(item))
+    output = ''.join([str(o) for o in OUTPUT])
+    open(output_filename, 'w+').write(output)
+    cmd = 'hd ' + output_filename
+    os.system(cmd)
+
+
+def main(argv=None):
+    if len(argv) < 2:
+        print 'Usage: fcfs_generate directory [output_filename]'
+        print 'default output: fcfs.bin'
+        sys.exit(1)
+    directory = argv[1].decode('utf8')
+    try:
+        output_filename = argv[2]
+    except:
+        output_filename = 'fcfs.bin'
+    if not os.path.isdir(directory):
+        print 'directory', directory, 'not exist'
+        sys.exit(1)
+    generate( directory, output_filename )
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+

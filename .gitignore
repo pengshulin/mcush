@@ -31,3 +31,4 @@ bin/
 dist/
 *.egg-info/
 
+test/fcfs/
