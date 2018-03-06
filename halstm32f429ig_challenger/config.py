@@ -6,8 +6,8 @@ port = 'ARM_CM4F'
 env.appendDefineFlags( [ 'HSE_VALUE=25000000', 'NEED_FMC' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 # NOTE:
-# FCFS from 0x081E0000 ~ 0x081FFFFF contains 128Kbytes, this wastes a lot
-env.appendDefineFlags( [ 'MCUSH_FCFS=1', 'FCFS_ADDR=0x081E0000', ] )
+# FCFS from 0x080E0000 ~ 0x080FFFFF contains 128Kbytes, this wastes a lot
+env.appendDefineFlags( [ 'MCUSH_FCFS=1', 'FCFS_ADDR=0x080E0000', ] )
 
 
 
