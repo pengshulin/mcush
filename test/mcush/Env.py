@@ -43,6 +43,10 @@ if not TEST_DIR:
 TEST_PREFIX = getenv('TEST_PREFIX', 'mcush_test' )
 TEST_WR = mktemp( prefix=TEST_PREFIX + "_wr_", dir=TEST_DIR )
 TEST_RD = mktemp( prefix=TEST_PREFIX + "_rd_", dir=TEST_DIR )
+TEST_MINID = getenv_int('TEST_MINID', 0)
+TEST_MAXID = getenv_int('TEST_MAXID', 100)
+TEST_MAXSIZE = getenv_int('TEST_MAXSIZE', 10*1024)
+
 
 if platform == 'win32':
     PORT = getenv('PORT', 'COM1')

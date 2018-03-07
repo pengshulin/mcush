@@ -239,7 +239,7 @@ class Mcush( Instrument.SerialInstrument ):
 
 
     def convPathname( self, pathname ):
-        print( pathname )
+        #print( pathname )
         pathname = unicode(pathname)
         namelen = len(os.path.basename(pathname).encode('utf8'))
         if namelen > 28:
@@ -274,6 +274,8 @@ class Mcush( Instrument.SerialInstrument ):
                 cmd = 'cat '
             cmd += pathname
             ret = self.writeCommand( cmd )
+            if b64:
+                ret = base64.decodestring( '\n'.join(ret) )
             return ret
 
     def remove( self, pathname ):

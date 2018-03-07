@@ -45,8 +45,10 @@ def diffTestFiles():
 
 def testSingleRandomFile( device, targetfile, size ):
     generateRandomFile( size )
-    device.putFile( targetfile, Env.TEST_WR )
-    device.getFile( targetfile, Env.TEST_RD )
+    buf = open(Env.TEST_WR, 'rb').read()
+    device.cat( targetfile, True, True, False, buf )
+    ret = device.cat( targetfile, True, False, False )
+    open( Env.TEST_RD, 'wb+' ).write( ret )
     return diffTestFiles()
 
 def dumpFile( fname ):
