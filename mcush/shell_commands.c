@@ -2601,10 +2601,10 @@ int cmd_cat( int argc, char *argv[] )
                     j = base64_encode_blockend( buf, &state_en );
                     shell_write( buf, j );
                 }
-                shell_write_str( "\n" );
                 break;
             }
         }
+        shell_write_str( "\n" );
         mcush_close(fd);
     }
     return 0;
