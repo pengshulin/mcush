@@ -155,15 +155,18 @@ const shell_cmd_t cmd_tab_logger[] = {
     "logger -d|u"  },
 {   CMD_END  } };
 
-
+int in_logger_str_malloc=0;
 static int _logger_str( int type, const char *str, int isr_mode )
 {
     logger_event_t evt;
     uint32_t length = strlen(str);
-    char *buf=(char*)malloc(length+1);
+    char *buf;
     int err=0;
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     
+    in_logger_str_malloc=1;
+    buf = (char*)malloc(length+1);
+    in_logger_str_malloc=0;
     if( buf == NULL )
         return 0;
 
