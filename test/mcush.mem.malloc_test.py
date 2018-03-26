@@ -19,7 +19,7 @@ def main(argv=None):
     fill_err_counter = 0
 
     s = Mcush.Mcush()
-    s.reboot()
+    #s.reboot()
 
     def info( message ):
         print '[%d] (%d/%d/%d/%d) %s'% (segment_counter, malloc_counter, realloc_counter, free_counter, fill_err_counter, message)
