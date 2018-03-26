@@ -350,6 +350,8 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' --sdi=%s'% sdi
         if sdo:
             cmd += ' --sdo=%s'% sdo
+        if sck:
+            cmd += ' --sck=%s'% sck
         if cs:
             cmd += ' --cs=%s'% cs
         if cpol:
