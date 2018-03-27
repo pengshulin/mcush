@@ -89,6 +89,16 @@ void shell_write_line( const char *str )
 }
 
 
+void shell_write_err( const char *str )
+{
+    if( str )
+    {
+        shell_write_str( str );
+        shell_write_line( " error" );
+    }
+}
+
+ 
 #if USE_SHELL_PRINTF
 int shell_printf( char *fmt, ... )
 {
