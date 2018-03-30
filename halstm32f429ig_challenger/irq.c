@@ -49,10 +49,6 @@ void TIM4_IRQHandler(void)
 {
 }
 
-void TIM5_IRQHandler(void)
-{
-}
-
 void TIM6_IRQHandler(void)
 {
 }

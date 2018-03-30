@@ -327,6 +327,9 @@ int cmd_fgen( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT
     }
 
+    if( (buf==0) && (freq<0) )
+        info = 1;  /* if nothing is set, display info */
+
     if( info )
     {
         shell_printf( "DAC1 0x%08X %d %.1f\n", cfg1.buf, cfg1.len, cfg1.freq );
@@ -385,9 +388,9 @@ int cmd_fgen( int argc, char *argv[] )
 
 
 static const shell_cmd_t cmd_tab[] = {
-    {   0,  0, "fgen",  cmd_fgen,
+    {   0,  'f', "fgen",  cmd_fgen,
         "function generator",
-        "fgen"
+        "fgen -m <mode> -f <freq>"
     },
     {   CMD_END  }
 };
