@@ -93,7 +93,7 @@ int mcush_fcfs_open( const char *pathname, const char *mode )
                 {
                     _fds[i].file = f;
                     j = strlen((char*)(FCFS_ADDR+f->offset));
-                    _fds[i].contents = (FCFS_ADDR+f->offset+j+1);
+                    _fds[i].contents = (const char *)(FCFS_ADDR+f->offset+j+1);
                     _fds[i].pos = 0;
                     return i+1;
                 }

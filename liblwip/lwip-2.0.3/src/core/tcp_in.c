@@ -746,9 +746,9 @@ tcp_process(struct tcp_pcb *pcb)
       return ERR_RST;
     } else {
       LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_process: unacceptable reset seqno %"U32_F" rcv_nxt %"U32_F"\n",
-       seqno, pcb->rcv_nxt));
+       (unsigned int)seqno, (unsigned int)pcb->rcv_nxt));
       LWIP_DEBUGF(TCP_DEBUG, ("tcp_process: unacceptable reset seqno %"U32_F" rcv_nxt %"U32_F"\n",
-       seqno, pcb->rcv_nxt));
+       (unsigned int)seqno, (unsigned int)pcb->rcv_nxt));
       return ERR_OK;
     }
   }
@@ -770,8 +770,8 @@ tcp_process(struct tcp_pcb *pcb)
   /* Do different things depending on the TCP state. */
   switch (pcb->state) {
   case SYN_SENT:
-    LWIP_DEBUGF(TCP_INPUT_DEBUG, ("SYN-SENT: ackno %"U32_F" pcb->snd_nxt %"U32_F" unacked %"U32_F"\n", ackno,
-     pcb->snd_nxt, lwip_ntohl(pcb->unacked->tcphdr->seqno)));
+    LWIP_DEBUGF(TCP_INPUT_DEBUG, ("SYN-SENT: ackno %"U32_F" pcb->snd_nxt %"U32_F" unacked %"U32_F"\n", (unsigned int)ackno,
+     (unsigned int)pcb->snd_nxt, (unsigned int)lwip_ntohl(pcb->unacked->tcphdr->seqno)));
     /* received SYN ACK with expected sequence number? */
     if ((flags & TCP_ACK) && (flags & TCP_SYN)
         && (ackno == pcb->lastack + 1)) {
@@ -1159,11 +1159,11 @@ tcp_receive(struct tcp_pcb *pcb)
         }
       }
       LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: ACK for %"U32_F", unacked->seqno %"U32_F":%"U32_F"\n",
-                                    ackno,
+                                    (unsigned int)ackno,
                                     pcb->unacked != NULL?
-                                    lwip_ntohl(pcb->unacked->tcphdr->seqno): 0,
+                                    (unsigned int)lwip_ntohl(pcb->unacked->tcphdr->seqno): 0,
                                     pcb->unacked != NULL?
-                                    lwip_ntohl(pcb->unacked->tcphdr->seqno) + TCP_TCPLEN(pcb->unacked): 0));
+                                    (unsigned int)lwip_ntohl(pcb->unacked->tcphdr->seqno) + TCP_TCPLEN(pcb->unacked): 0));
 
       /* Remove segment from the unacknowledged list if the incoming
          ACK acknowledges them. */
@@ -1171,8 +1171,8 @@ tcp_receive(struct tcp_pcb *pcb)
              TCP_SEQ_LEQ(lwip_ntohl(pcb->unacked->tcphdr->seqno) +
                          TCP_TCPLEN(pcb->unacked), ackno)) {
         LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: removing %"U32_F":%"U32_F" from pcb->unacked\n",
-                                      lwip_ntohl(pcb->unacked->tcphdr->seqno),
-                                      lwip_ntohl(pcb->unacked->tcphdr->seqno) +
+                                      (unsigned int)lwip_ntohl(pcb->unacked->tcphdr->seqno),
+                                      (unsigned int)lwip_ntohl(pcb->unacked->tcphdr->seqno) +
                                       TCP_TCPLEN(pcb->unacked)));
 
         next = pcb->unacked;
@@ -1223,8 +1223,8 @@ tcp_receive(struct tcp_pcb *pcb)
            TCP_SEQ_BETWEEN(ackno, lwip_ntohl(pcb->unsent->tcphdr->seqno) +
                            TCP_TCPLEN(pcb->unsent), pcb->snd_nxt)) {
       LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: removing %"U32_F":%"U32_F" from pcb->unsent\n",
-                                    lwip_ntohl(pcb->unsent->tcphdr->seqno), lwip_ntohl(pcb->unsent->tcphdr->seqno) +
-                                    TCP_TCPLEN(pcb->unsent)));
+                                    (unsigned int)lwip_ntohl(pcb->unsent->tcphdr->seqno), 
+                                    (unsigned int)lwip_ntohl(pcb->unsent->tcphdr->seqno) + TCP_TCPLEN(pcb->unsent)));
 
       next = pcb->unsent;
       pcb->unsent = pcb->unsent->next;
@@ -1249,7 +1249,7 @@ tcp_receive(struct tcp_pcb *pcb)
     /* End of ACK for new data processing. */
 
     LWIP_DEBUGF(TCP_RTO_DEBUG, ("tcp_receive: pcb->rttest %"U32_F" rtseq %"U32_F" ackno %"U32_F"\n",
-                                pcb->rttest, pcb->rtseq, ackno));
+                                (unsigned int)pcb->rttest, (unsigned int)pcb->rtseq, (unsigned int)ackno));
 
     /* RTT estimation calculations. This is done by checking if the
        incoming segment acknowledges the segment we use to take a
@@ -1369,7 +1369,7 @@ tcp_receive(struct tcp_pcb *pcb)
         /* the whole segment is < rcv_nxt */
         /* must be a duplicate of a packet that has already been correctly handled */
 
-        LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: duplicate seqno %"U32_F"\n", seqno));
+        LWIP_DEBUGF(TCP_INPUT_DEBUG, ("tcp_receive: duplicate seqno %"U32_F"\n", (unsigned int)seqno));
         tcp_ack_now(pcb);
       }
     }
@@ -1389,7 +1389,7 @@ tcp_receive(struct tcp_pcb *pcb)
           LWIP_DEBUGF(TCP_INPUT_DEBUG,
                       ("tcp_receive: other end overran receive window"
                        "seqno %"U32_F" len %"U16_F" right edge %"U32_F"\n",
-                       seqno, tcplen, pcb->rcv_nxt + pcb->rcv_wnd));
+                       (unsigned int)seqno, tcplen, (unsigned int)pcb->rcv_nxt + pcb->rcv_wnd));
           if (TCPH_FLAGS(inseg.tcphdr) & TCP_FIN) {
             /* Must remove the FIN from the header as we're trimming
              * that byte of sequence-space from the packet */

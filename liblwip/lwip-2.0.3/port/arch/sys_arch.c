@@ -387,7 +387,7 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
         name2[len+1] = 0; 
         result = xTaskCreate( thread, ( signed portCHAR * ) name2, stacksize, arg, prio, &CreatedTask );
 #else
-        result = xTaskCreate( thread, ( signed portCHAR * ) name, stacksize, arg, prio, &CreatedTask );
+        result = xTaskCreate( thread, ( const char * ) name, stacksize, arg, prio, &CreatedTask );
 #endif
         if(result != pdPASS)
             CreatedTask = NULL;

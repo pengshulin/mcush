@@ -327,11 +327,11 @@ dhcp_handle_offer(struct netif *netif)
   if (dhcp_option_given(dhcp, DHCP_OPTION_IDX_SERVER_ID)) {
     ip_addr_set_ip4_u32(&dhcp->server_ip_addr, lwip_htonl(dhcp_get_option_value(dhcp, DHCP_OPTION_IDX_SERVER_ID)));
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_handle_offer(): server 0x%08"X32_F"\n",
-      ip4_addr_get_u32(ip_2_ip4(&dhcp->server_ip_addr))));
+      (unsigned int)ip4_addr_get_u32(ip_2_ip4(&dhcp->server_ip_addr))));
     /* remember offered address */
     ip4_addr_copy(dhcp->offered_ip_addr, dhcp->msg_in->yiaddr);
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_handle_offer(): offer for 0x%08"X32_F"\n",
-      ip4_addr_get_u32(&dhcp->offered_ip_addr)));
+      (unsigned int)ip4_addr_get_u32(&dhcp->offered_ip_addr)));
 
     dhcp_select(netif);
   } else {
@@ -894,7 +894,7 @@ dhcp_arp_reply(struct netif *netif, const ip4_addr_t *addr)
   /* is a DHCP client doing an ARP check? */
   if ((dhcp != NULL) && (dhcp->state == DHCP_STATE_CHECKING)) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_arp_reply(): CHECKING, arp reply for 0x%08"X32_F"\n",
-      ip4_addr_get_u32(addr)));
+      (unsigned int)ip4_addr_get_u32(addr)));
     /* did a host respond with the address we
        were offered by the DHCP server? */
     if (ip4_addr_cmp(addr, &dhcp->offered_ip_addr)) {
@@ -1029,7 +1029,7 @@ dhcp_bind(struct netif *netif)
 
   if (dhcp->offered_t0_lease != 0xffffffffUL) {
      /* set renewal period timer */
-     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(): t0 renewal timer %"U32_F" secs\n", dhcp->offered_t0_lease));
+     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(): t0 renewal timer %"U32_F" secs\n", (unsigned int)dhcp->offered_t0_lease));
      timeout = (dhcp->offered_t0_lease + DHCP_COARSE_TIMER_SECS / 2) / DHCP_COARSE_TIMER_SECS;
      if (timeout > 0xffff) {
        timeout = 0xffff;
@@ -1038,13 +1038,13 @@ dhcp_bind(struct netif *netif)
      if (dhcp->t0_timeout == 0) {
        dhcp->t0_timeout = 1;
      }
-     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_bind(): set request timeout %"U32_F" msecs\n", dhcp->offered_t0_lease*1000));
+     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_bind(): set request timeout %"U32_F" msecs\n", (unsigned int)dhcp->offered_t0_lease*1000));
   }
 
   /* temporary DHCP lease? */
   if (dhcp->offered_t1_renew != 0xffffffffUL) {
     /* set renewal period timer */
-    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(): t1 renewal timer %"U32_F" secs\n", dhcp->offered_t1_renew));
+    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(): t1 renewal timer %"U32_F" secs\n", (unsigned int)dhcp->offered_t1_renew));
     timeout = (dhcp->offered_t1_renew + DHCP_COARSE_TIMER_SECS / 2) / DHCP_COARSE_TIMER_SECS;
     if (timeout > 0xffff) {
       timeout = 0xffff;
@@ -1053,12 +1053,12 @@ dhcp_bind(struct netif *netif)
     if (dhcp->t1_timeout == 0) {
       dhcp->t1_timeout = 1;
     }
-    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_bind(): set request timeout %"U32_F" msecs\n", dhcp->offered_t1_renew*1000));
+    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_bind(): set request timeout %"U32_F" msecs\n", (unsigned int)dhcp->offered_t1_renew*1000));
     dhcp->t1_renew_time = dhcp->t1_timeout;
   }
   /* set renewal period timer */
   if (dhcp->offered_t2_rebind != 0xffffffffUL) {
-    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(): t2 rebind timer %"U32_F" secs\n", dhcp->offered_t2_rebind));
+    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE, ("dhcp_bind(): t2 rebind timer %"U32_F" secs\n", (unsigned int)dhcp->offered_t2_rebind));
     timeout = (dhcp->offered_t2_rebind + DHCP_COARSE_TIMER_SECS / 2) / DHCP_COARSE_TIMER_SECS;
     if (timeout > 0xffff) {
       timeout = 0xffff;
@@ -1067,7 +1067,7 @@ dhcp_bind(struct netif *netif)
     if (dhcp->t2_timeout == 0) {
       dhcp->t2_timeout = 1;
     }
-    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_bind(): set request timeout %"U32_F" msecs\n", dhcp->offered_t2_rebind*1000));
+    LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_STATE, ("dhcp_bind(): set request timeout %"U32_F" msecs\n", (unsigned int)dhcp->offered_t2_rebind*1000));
     dhcp->t2_rebind_time = dhcp->t2_timeout;
   }
 
@@ -1108,7 +1108,7 @@ dhcp_bind(struct netif *netif)
 #endif /* LWIP_DHCP_AUTOIP_COOP */
 
   LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_STATE, ("dhcp_bind(): IP: 0x%08"X32_F" SN: 0x%08"X32_F" GW: 0x%08"X32_F"\n",
-    ip4_addr_get_u32(&dhcp->offered_ip_addr), ip4_addr_get_u32(&sn_mask), ip4_addr_get_u32(&gw_addr)));
+    (unsigned int)ip4_addr_get_u32(&dhcp->offered_ip_addr), (unsigned int)ip4_addr_get_u32(&sn_mask), (unsigned int)ip4_addr_get_u32(&gw_addr)));
   /* netif is now bound to DHCP leased address - set this before assigning the address
      to ensure the callback can use dhcp_supplied_address() */
   dhcp_set_state(dhcp, DHCP_STATE_BOUND);
@@ -1724,7 +1724,7 @@ dhcp_recv(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr,
   /* match transaction ID against what we expected */
   if (lwip_ntohl(reply_msg->xid) != dhcp->xid) {
     LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE | LWIP_DBG_LEVEL_WARNING,
-      ("transaction id mismatch reply_msg->xid(%"X32_F")!=dhcp->xid(%"X32_F")\n",lwip_ntohl(reply_msg->xid),dhcp->xid));
+      ("transaction id mismatch reply_msg->xid(%"X32_F")!=dhcp->xid(%"X32_F")\n",(unsigned int)lwip_ntohl(reply_msg->xid),(unsigned int)dhcp->xid));
     goto free_pbuf_and_return;
   }
   /* option fields could be unfold? */
@@ -1844,7 +1844,7 @@ dhcp_create_msg(struct netif *netif, struct dhcp *dhcp, u8_t message_type)
     dhcp->xid = xid;
   }
   LWIP_DEBUGF(DHCP_DEBUG | LWIP_DBG_TRACE,
-              ("transaction id xid(%"X32_F")\n", xid));
+              ("transaction id xid(%"X32_F")\n", (unsigned int)xid));
 
   dhcp->msg_out = (struct dhcp_msg *)dhcp->p_out->payload;
 

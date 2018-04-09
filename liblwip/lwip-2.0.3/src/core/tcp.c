@@ -1482,7 +1482,7 @@ tcp_kill_prio(u8_t prio)
   }
   if (inactive != NULL) {
     LWIP_DEBUGF(TCP_DEBUG, ("tcp_kill_prio: killing oldest PCB %p (%"S32_F")\n",
-           (void *)inactive, inactivity));
+           (void *)inactive, (unsigned int)inactivity));
     tcp_abort(inactive);
   }
 }
@@ -1513,7 +1513,7 @@ tcp_kill_state(enum tcp_state state)
   }
   if (inactive != NULL) {
     LWIP_DEBUGF(TCP_DEBUG, ("tcp_kill_closing: killing oldest %s PCB %p (%"S32_F")\n",
-           tcp_state_str[state], (void *)inactive, inactivity));
+           tcp_state_str[state], (void *)inactive, (unsigned int)inactivity));
     /* Don't send a RST, since no data is lost. */
     tcp_abandon(inactive, 0);
   }
@@ -1540,7 +1540,7 @@ tcp_kill_timewait(void)
   }
   if (inactive != NULL) {
     LWIP_DEBUGF(TCP_DEBUG, ("tcp_kill_timewait: killing oldest TIME-WAIT PCB %p (%"S32_F")\n",
-           (void *)inactive, inactivity));
+           (void *)inactive, (unsigned int)inactivity));
     tcp_abort(inactive);
   }
 }

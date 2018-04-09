@@ -490,10 +490,10 @@ ip4_input(struct pbuf *p, struct netif *inp)
     netif = inp;
     do {
       LWIP_DEBUGF(IP_DEBUG, ("ip_input: iphdr->dest 0x%"X32_F" netif->ip_addr 0x%"X32_F" (0x%"X32_F", 0x%"X32_F", 0x%"X32_F")\n",
-          ip4_addr_get_u32(&iphdr->dest), ip4_addr_get_u32(netif_ip4_addr(netif)),
-          ip4_addr_get_u32(&iphdr->dest) & ip4_addr_get_u32(netif_ip4_netmask(netif)),
-          ip4_addr_get_u32(netif_ip4_addr(netif)) & ip4_addr_get_u32(netif_ip4_netmask(netif)),
-          ip4_addr_get_u32(&iphdr->dest) & ~ip4_addr_get_u32(netif_ip4_netmask(netif))));
+          (unsigned int)ip4_addr_get_u32(&iphdr->dest), (unsigned int)ip4_addr_get_u32(netif_ip4_addr(netif)),
+          (unsigned int)ip4_addr_get_u32(&iphdr->dest) & (unsigned int)ip4_addr_get_u32(netif_ip4_netmask(netif)),
+          (unsigned int)ip4_addr_get_u32(netif_ip4_addr(netif)) & (unsigned int)ip4_addr_get_u32(netif_ip4_netmask(netif)),
+          (unsigned int)ip4_addr_get_u32(&iphdr->dest) & ~(unsigned int)ip4_addr_get_u32(netif_ip4_netmask(netif))));
 
       /* interface is up and configured? */
       if ((netif_is_up(netif)) && (!ip4_addr_isany_val(*netif_ip4_addr(netif)))) {

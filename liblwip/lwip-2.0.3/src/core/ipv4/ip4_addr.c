@@ -156,7 +156,8 @@ ip4addr_aton(const char *cp, ip4_addr_t *addr)
 {
   u32_t val;
   u8_t base;
-  char c;
+  //char c;
+  int c;
   u32_t parts[4];
   u32_t *pp = parts;
 

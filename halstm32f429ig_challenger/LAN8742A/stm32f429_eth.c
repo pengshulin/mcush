@@ -235,7 +235,7 @@ void ETH_StructInit(ETH_InitTypeDef* ETH_InitStruct)
 uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
 {
   uint32_t RegValue = 0, tmpreg = 0;
-  __IO uint32_t i = 0;
+  //__IO uint32_t i = 0;
   RCC_ClocksTypeDef  rcc_clocks;
   uint32_t hclk = 60000000;
   __IO uint32_t timeout = 0, err = ETH_SUCCESS;
