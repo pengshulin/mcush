@@ -110,8 +110,8 @@ class TjcHMI( Instrument.SerialInstrument ):
         self.writeCommand(cmd)
 
     def set( self, key, val ):
-        if isinstance(val, str):
-            cmd = '%s=\"%s\"'% (str(key), str(val))
+        if isinstance(val, str) or isinstance(val, unicode):
+            cmd = '%s=\"%s\"'% (str(key), val.encode('gbk'))
         else:
             cmd = '%s=%s'% (str(key), str(val))
         self.writeCommand(cmd)
