@@ -77,6 +77,8 @@ class Instrument:
             kwargs['baudrate'] = Env.BAUDRATE
         if not 'rtscts' in kwargs:
             kwargs['rtscts'] = Env.RTSCTS
+        if not 'parity' in kwargs:
+            kwargs['parity'] = Env.PARITY
         if not 'connect' in kwargs:
             kwargs['connect'] = True
         if not 'prompts' in kwargs:
@@ -376,6 +378,7 @@ class SerialPort(Port):
         self.ser.port = self.port
         self.ser.baudrate = self.baudrate
         self.ser.rtscts = self.rtscts
+        self.ser.parity = self.parity
         self.ser.timeout = self.timeout
         try:
             self.ser.open()

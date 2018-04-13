@@ -59,6 +59,7 @@ else:
         PORTS_LIST = []
 BAUDRATE = getenv_int( 'BAUDRATE', 9600 )
 RTSCTS = getenv_bool( 'RTSCTS' )
+PARITY = getenv( 'PARITY', 'N' )
 COMMAND_FAIL_RETRY = getenv_int( 'COMMAND_FAIL_RETRY', 3 )
 
 DELAY = getenv_float( 'DELAY', 1 )

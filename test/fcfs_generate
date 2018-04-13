@@ -3,7 +3,7 @@
 # Generate FCFS binary image for specified directory.
 # part of MCUSH project
 # MCUSH designed by Peng Shulin, all rights reserved.'
-# Peng Shulin <trees_peng@164.com> 2018
+# Peng Shulin <trees_peng@163.com> 2018
 import os
 import sys
 import glob
