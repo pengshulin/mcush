@@ -6,4 +6,5 @@ __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from . import BeepPlayer
 from . import MorseCodeBeeper
 from . import Tjc
+from . import Gratten
 
