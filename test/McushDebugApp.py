@@ -195,7 +195,7 @@ class ViewTask(MyTask):
         self.info( u"download file %s..."% (fname) )
         try:
             r = s.cat( fname, b64=True )
-            r = base64.b64decode('\n'.join(r))
+            #print type(r), r
             self.queue.put( ('view_file', (fname, r)) )
             self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
@@ -678,6 +678,7 @@ class MainFrame(MyFrame):
         elif event.cmd == 'view_file':
             (fname, contents) = event.val
             dlg = MyViewFileDialog(self)
+            #print type(contents), contents
             dlg.text_ctrl_data.SetValue( contents )
             dlg.SetTitle( '%s'% fname )
             dlg.ShowModal()
