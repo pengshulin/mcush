@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # coding: utf8
 # control GRATTEN Instrument with serial port 
 # manufactured by Nanjing GLARUN-ATTEN Technology Co. Ltd
@@ -187,36 +186,4 @@ class ATF20E( Instrument.SerialInstrument ):
 
 
 
-def main(argv=None):
-    if len(argv) < 2:
-        print 'Usage: %s function [option] [data] [unit]'% argv[0]
-        sys.exit(1)
-    function = argv[1]
-    option, data, unit = None, None, None
-    if len(argv) >= 3:
-        option = argv[2]
-        if len(argv) >= 4:
-            data = argv[3]
-            if len(argv) >= 5:
-                unit = argv[4]
-
-    s = ATF20E()
-    s.getVersion()
-    s.command( function, option, data, unit )
-    #s.singleA( 'Sine', 1000.0, 1.414 )
-    #for mode in range(32):
-    #    #for f in [0.001, 1.0, 1000, 100000]:
-    #    f = 1000
-    #    s.singleA( mode, f, 3.14159 )
-    #    time.sleep(1)
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        s.disconnect()
-
-
-
-if __name__ == '__main__':
-    main(sys.argv)
 

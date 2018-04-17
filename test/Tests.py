@@ -277,6 +277,29 @@ def i2c_search( argv=None ):
         except Instrument.CommandExecuteError:
             pass
 
+############################################################################# 
+# Gratten Electronics
+def atf20e(argv=None):
+    if len(argv) < 2:
+        print 'Usage: atf20e function [option] [data] [unit]'
+        sys.exit(1)
+    function = argv[1]
+    option, data, unit = None, None, None
+    if len(argv) >= 3:
+        option = argv[2]
+        if len(argv) >= 4:
+            data = argv[3]
+            if len(argv) >= 5:
+                unit = argv[4]
+    s = Gratten.ATF20E()
+    s.getVersion()
+    s.command( function, option, data, unit )
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        s.disconnect()
+
 
 
 #############################################################################
