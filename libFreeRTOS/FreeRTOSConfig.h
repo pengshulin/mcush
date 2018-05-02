@@ -1,7 +1,7 @@
 /* config template for mcush
  * MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef __FREERTOS_CONFIG_H_
-#define __FREERTOS_CONFIG_H_
+#ifndef __FREERTOS_CONFIG_H__
+#define __FREERTOS_CONFIG_H__
 #include <stdint.h>
 
 extern uint32_t SystemCoreClock;
@@ -13,6 +13,9 @@ extern uint32_t SystemCoreClock;
 #ifdef CONFIG_TICK_RATE_HZ
     #define configTICK_RATE_HZ                  ((TickType_t)CONFIG_TICK_RATE_HZ)
 #else
+    /* max uptime counter support at 250 Hz:
+       (4*1024*1024*1024) * (1/250) / (24*60*60) = 198.84 days = 6.6 months
+     */
     #define configTICK_RATE_HZ                  ((TickType_t)250)
 #endif
 #define configMAX_PRIORITIES                    7
