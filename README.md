@@ -3,7 +3,7 @@ DESCRIPTION
 * MCUSH is the short name for MCU-SHell.
 * A practical project that enhance microcontroller serial port command line interface with shell features like in many linux systems.
 * The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.
-* MCUSH is heavily based on FreeRTOS, the shell task runs as a stand-alone task with middle level priority.
+* MCUSH is heavily based on FreeRTOS, the core shell runs as a stand-alone task with middle level priority.
 * Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.
 * Hosted on github: <https://github.com/pengshulin/mcush>
 * Python core module released on PYPI and installed by 'pip install mcush'
@@ -12,15 +12,15 @@ DESCRIPTION
 FEATURES
 ========
 * SUPPORT:
-  * call command functions with arguments in form of argc and argv
+  * command functions are called with arguments in form of argc and argv
   * arguments parser with short option '-' and long option '--'
   * low memory requirement, suitable for some tiny chips
   * prompt hook function for customize
-  * history command list 
+  * compact history command list
   * multi-line input
   * may port to different architectures, but currently it runs on CORTEX-M only
 * NOT SUPPORT:
-  * lineedit features require multi-bytes (such as array keys, shell colors...) not supported, only support simple features that require single-byte (such as BACKSPACE, Ctrl-A/B/C/D/E/F/K/N/P)
+  * lineedit features that require multi-bytes (such as array keys, shell colors...) are not supported, only simple features that require single-byte (such as BACKSPACE, Ctrl-A/B/C/D/E/F/K/N/P) are supported
 
 
 ROADMAP

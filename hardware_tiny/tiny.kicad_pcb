@@ -400,7 +400,7 @@
     (fp_text reference U1 (at -0.127 0.127) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
-    (fp_text value ASM1117-3.3 (at 0 0.762) (layer F.Fab) hide
+    (fp_text value AMS1117-3.3 (at 0 0.762) (layer F.Fab) hide
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_line (start -3.556 1.524) (end -3.556 4.572) (layer F.SilkS) (width 0.15))

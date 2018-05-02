@@ -9,8 +9,8 @@ if haldir is None:
     #haldir='stm32f103ze_redbull'
     #haldir='stm32f103rb_pyeasycontrol'
     #haldir='stm32f103c8_xtw'
-    #haldir='stm32f103cb_tiny_controller'
-    haldir='stm32f407zg_eu'
+    haldir='stm32f103cb_tiny_controller'
+    #haldir='stm32f407zg_eu'
     #haldir='stm32f429ig_challenger'
     #haldir='stm32f767zi_nucleo'
 
@@ -41,7 +41,7 @@ env.appendDefineFlags( [
     #'configUSE_MUTEX=0',
     #'configCHECK_FOR_STACK_OVERFLOW=0',
     #'configTOTAL_HEAP_SIZE=10240',
-    #'MCUSH_STACK_SIZE=10240',
+    'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'USE_SHELL_EVAL_SSCANF=1',
     ] ) 

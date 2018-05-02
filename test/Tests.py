@@ -117,13 +117,19 @@ def uptime_mon( argv=None ):
 def beep_player( argv=None ):
     bp = BeepPlayer.BeepPlayer()
     while True:
-        #m.play_ok()
-        #m.play_question()
         bp.play_poweron()
         time.sleep(5)
         bp.play_poweroff()
         time.sleep(5)
     bp.disconnect()
+
+def beep_player_music( argv=None ):
+    bp = BeepPlayer.BeepPlayer()
+    while True:
+        bp.play( BeepPlayer.ALISE )
+        time.sleep(5)
+    bp.disconnect()
+
 
 def morse_code_beeper( argv=None ):
     bp = MorseCodeBeeper.MorseCodeBeeper()
