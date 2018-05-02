@@ -286,7 +286,7 @@ def i2c_search( argv=None ):
 ############################################################################# 
 # Gratten Electronics
 def atf20e(argv=None):
-    if len(argv) < 2:
+    if len(argv) < 1:
         print 'Usage: atf20e function [option] [data] [unit]'
         sys.exit(1)
     function = argv[1]
@@ -300,6 +300,30 @@ def atf20e(argv=None):
     s = Gratten.ATF20E()
     s.getVersion()
     s.command( function, option, data, unit )
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        s.disconnect()
+
+def atf20e_single_a(argv=None):
+    try:
+        mode = argv[0]
+        freq = float(argv[1])
+        vpp = float(argv[2])
+    except:
+        print 'Usage: atf20e_single_a [mode] [freq] [vpp] [offset=0.0]'
+        sys.exit(1)
+    try:
+        mode = int(mode)
+    except:
+        pass
+    try:
+        offset = float(argv[3])
+    except:
+        offset = 0.0
+    s = Gratten.ATF20E()
+    s.singleA( mode, freq, vpp, offset )
     try:
         while True:
             time.sleep(1)
