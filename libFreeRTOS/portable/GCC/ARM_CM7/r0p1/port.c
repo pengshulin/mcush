@@ -26,18 +26,15 @@
  */
 
 /*-----------------------------------------------------------
- * Implementation of functions defined in portable.h for the ARM CM3 port.
+ * Implementation of functions defined in portable.h for the ARM CM4F port.
  *----------------------------------------------------------*/
 
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* For backward compatibility, ensure configKERNEL_INTERRUPT_PRIORITY is
-defined.  The value should also ensure backward compatibility.
-FreeRTOS.org versions prior to V4.4.0 did not include this definition. */
-#ifndef configKERNEL_INTERRUPT_PRIORITY
-	#define configKERNEL_INTERRUPT_PRIORITY 255
+#ifndef __VFP_FP__
+	#error This port can only be used when the project options are configured to enable hardware floating point support.
 #endif
 
 #ifndef configSYSTICK_CLOCK_HZ
@@ -78,20 +75,25 @@ FreeRTOS.org versions prior to V4.4.0 did not include this definition. */
 /* Masks off all bits but the VECTACTIVE bits in the ICSR register. */
 #define portVECTACTIVE_MASK					( 0xFFUL )
 
+/* Constants required to manipulate the VFP. */
+#define portFPCCR							( ( volatile uint32_t * ) 0xe000ef34 ) /* Floating point context control register. */
+#define portASPEN_AND_LSPEN_BITS			( 0x3UL << 30UL )
+
 /* Constants required to set up the initial stack. */
-#define portINITIAL_XPSR					( 0x01000000UL )
+#define portINITIAL_XPSR					( 0x01000000 )
+#define portINITIAL_EXC_RETURN				( 0xfffffffd )
 
 /* The systick is a 24-bit counter. */
 #define portMAX_24_BIT_NUMBER				( 0xffffffUL )
+
+/* For strict compliance with the Cortex-M spec the task start address should
+have bit-0 clear, as it is loaded into the PC on exit from an ISR. */
+#define portSTART_ADDRESS_MASK		( ( StackType_t ) 0xfffffffeUL )
 
 /* A fiddle factor to estimate the number of SysTick counts that would have
 occurred while the SysTick counter is stopped during tickless idle
 calculations. */
 #define portMISSED_COUNTS_FACTOR			( 45UL )
-
-/* For strict compliance with the Cortex-M spec the task start address should
-have bit-0 clear, as it is loaded into the PC on exit from an ISR. */
-#define portSTART_ADDRESS_MASK				( ( StackType_t ) 0xfffffffeUL )
 
 /* Let the user override the pre-loading of the initial LR with the address of
 prvTaskExitError() in case it messes up unwinding of the stack in the
@@ -120,6 +122,11 @@ void vPortSVCHandler( void ) __attribute__ (( naked ));
  * Start first task is a separate function so it can be tested in isolation.
  */
 static void prvPortStartFirstTask( void ) __attribute__ (( naked ));
+
+/*
+ * Function to enable the VFP.
+ */
+static void vPortEnableVFP( void ) __attribute__ (( naked ));
 
 /*
  * Used to catch tasks that attempt to return from their implementing function.
@@ -175,14 +182,26 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t px
 {
 	/* Simulate the stack frame as it would be created by a context switch
 	interrupt. */
-	pxTopOfStack--; /* Offset added to account for the way the MCU uses the stack on entry/exit of interrupts. */
+
+	/* Offset added to account for the way the MCU uses the stack on entry/exit
+	of interrupts, and to ensure alignment. */
+	pxTopOfStack--;
+
 	*pxTopOfStack = portINITIAL_XPSR;	/* xPSR */
 	pxTopOfStack--;
 	*pxTopOfStack = ( ( StackType_t ) pxCode ) & portSTART_ADDRESS_MASK;	/* PC */
 	pxTopOfStack--;
 	*pxTopOfStack = ( StackType_t ) portTASK_RETURN_ADDRESS;	/* LR */
+
+	/* Save code space by skipping register initialisation. */
 	pxTopOfStack -= 5;	/* R12, R3, R2 and R1. */
 	*pxTopOfStack = ( StackType_t ) pvParameters;	/* R0 */
+
+	/* A save method is being used that requires each task to maintain its
+	own exec return value. */
+	pxTopOfStack--;
+	*pxTopOfStack = portINITIAL_EXC_RETURN;
+
 	pxTopOfStack -= 8;	/* R11, R10, R9, R8, R7, R6, R5 and R4. */
 
 	return pxTopOfStack;
@@ -191,7 +210,7 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t px
 
 static void prvTaskExitError( void )
 {
-volatile uint32_t ulDummy = 0UL;
+volatile uint32_t ulDummy = 0;
 
 	/* A function that implements a task must not exit or attempt to return to
 	its caller as there is nothing to return to.  If a task wants to exit it
@@ -220,12 +239,11 @@ void vPortSVCHandler( void )
 					"	ldr	r3, pxCurrentTCBConst2		\n" /* Restore the context. */
 					"	ldr r1, [r3]					\n" /* Use pxCurrentTCBConst to get the pxCurrentTCB address. */
 					"	ldr r0, [r1]					\n" /* The first item in pxCurrentTCB is the task top of stack. */
-					"	ldmia r0!, {r4-r11}				\n" /* Pop the registers that are not automatically saved on exception entry and the critical nesting count. */
+					"	ldmia r0!, {r4-r11, r14}		\n" /* Pop the registers that are not automatically saved on exception entry and the critical nesting count. */
 					"	msr psp, r0						\n" /* Restore the task stack pointer. */
 					"	isb								\n"
 					"	mov r0, #0 						\n"
 					"	msr	basepri, r0					\n"
-					"	orr r14, #0xd					\n"
 					"	bx r14							\n"
 					"									\n"
 					"	.align 4						\n"
@@ -236,11 +254,17 @@ void vPortSVCHandler( void )
 
 static void prvPortStartFirstTask( void )
 {
+	/* Start the first task.  This also clears the bit that indicates the FPU is
+	in use in case the FPU was used before the scheduler was started - which
+	would otherwise result in the unnecessary leaving of space in the SVC stack
+	for lazy saving of FPU registers. */
 	__asm volatile(
 					" ldr r0, =0xE000ED08 	\n" /* Use the NVIC offset register to locate the stack. */
 					" ldr r0, [r0] 			\n"
 					" ldr r0, [r0] 			\n"
 					" msr msp, r0			\n" /* Set the msp back to the start of the stack. */
+					" mov r0, #0			\n" /* Clear the bit that indicates the FPU is in use, see comment above. */
+					" msr control, r0		\n"
 					" cpsie i				\n" /* Globally enable interrupts. */
 					" cpsie f				\n"
 					" dsb					\n"
@@ -333,6 +357,12 @@ BaseType_t xPortStartScheduler( void )
 	/* Initialise the critical nesting count ready for the first task. */
 	uxCriticalNesting = 0;
 
+	/* Ensure the VFP is enabled - it should be anyway. */
+	vPortEnableVFP();
+
+	/* Lazy save always. */
+	*( portFPCCR ) |= portASPEN_AND_LSPEN_BITS;
+
 	/* Start the first task. */
 	prvPortStartFirstTask();
 
@@ -398,22 +428,44 @@ void xPortPendSVHandler( void )
 	"	ldr	r3, pxCurrentTCBConst			\n" /* Get the location of the current TCB. */
 	"	ldr	r2, [r3]						\n"
 	"										\n"
-	"	stmdb r0!, {r4-r11}					\n" /* Save the remaining registers. */
+	"	tst r14, #0x10						\n" /* Is the task using the FPU context?  If so, push high vfp registers. */
+	"	it eq								\n"
+	"	vstmdbeq r0!, {s16-s31}				\n"
+	"										\n"
+	"	stmdb r0!, {r4-r11, r14}			\n" /* Save the core registers. */
 	"	str r0, [r2]						\n" /* Save the new top of stack into the first member of the TCB. */
 	"										\n"
-	"	stmdb sp!, {r3, r14}				\n"
-	"	mov r0, %0							\n"
+	"	stmdb sp!, {r0, r3}					\n"
+	"	mov r0, %0 							\n"
+	"	cpsid i								\n" /* Errata workaround. */
 	"	msr basepri, r0						\n"
+	"	dsb									\n"
+	"	isb									\n"
+	"	cpsie i								\n" /* Errata workaround. */
 	"	bl vTaskSwitchContext				\n"
 	"	mov r0, #0							\n"
 	"	msr basepri, r0						\n"
-	"	ldmia sp!, {r3, r14}				\n"
-	"										\n" /* Restore the context, including the critical nesting count. */
-	"	ldr r1, [r3]						\n"
-	"	ldr r0, [r1]						\n" /* The first item in pxCurrentTCB is the task top of stack. */
-	"	ldmia r0!, {r4-r11}					\n" /* Pop the registers. */
+	"	ldmia sp!, {r0, r3}					\n"
+	"										\n"
+	"	ldr r1, [r3]						\n" /* The first item in pxCurrentTCB is the task top of stack. */
+	"	ldr r0, [r1]						\n"
+	"										\n"
+	"	ldmia r0!, {r4-r11, r14}			\n" /* Pop the core registers. */
+	"										\n"
+	"	tst r14, #0x10						\n" /* Is the task using the FPU context?  If so, pop the high vfp registers too. */
+	"	it eq								\n"
+	"	vldmiaeq r0!, {s16-s31}				\n"
+	"										\n"
 	"	msr psp, r0							\n"
 	"	isb									\n"
+	"										\n"
+	#ifdef WORKAROUND_PMU_CM001 /* XMC4000 specific errata workaround. */
+		#if WORKAROUND_PMU_CM001 == 1
+	"			push { r14 }				\n"
+	"			pop { pc }					\n"
+		#endif
+	#endif
+	"										\n"
 	"	bx r14								\n"
 	"										\n"
 	"	.align 4							\n"
@@ -607,7 +659,7 @@ void xPortSysTickHandler( void )
 		}
 	}
 
-#endif /* configUSE_TICKLESS_IDLE */
+#endif /* #if configUSE_TICKLESS_IDLE */
 /*-----------------------------------------------------------*/
 
 /*
@@ -632,6 +684,21 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 	/* Configure SysTick to interrupt at the requested rate. */
 	portNVIC_SYSTICK_LOAD_REG = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;
 	portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT );
+}
+/*-----------------------------------------------------------*/
+
+/* This is a naked function. */
+static void vPortEnableVFP( void )
+{
+	__asm volatile
+	(
+		"	ldr.w r0, =0xE000ED88		\n" /* The FPU enable bits are in the CPACR. */
+		"	ldr r1, [r0]				\n"
+		"								\n"
+		"	orr r1, r1, #( 0xf << 20 )	\n" /* Enable CP10 and CP11 coprocessors, then save back. */
+		"	str r1, [r0]				\n"
+		"	bx r14						"
+	);
 }
 /*-----------------------------------------------------------*/
 
@@ -694,24 +761,5 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 	}
 
 #endif /* configASSERT_DEFINED */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
