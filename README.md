@@ -1,7 +1,7 @@
 DESCRIPTION
 ===========
 * MCUSH is the short name for MCU-SHell.
-* A practical project that enhance microcontroller serial port command line interface with shell features like in many linux systems.
+* A practical project that enhance microcontroller serial port console  with shell features like in many linux systems.
 * The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.
 * MCUSH is heavily based on FreeRTOS, the core shell runs as a stand-alone task with middle level priority.
 * Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.
@@ -25,13 +25,16 @@ FEATURES
 
 ROADMAP
 =======
+(done)
 * run the basic shell on STM32 chips
 * add commands to control more peripherals
 * use USB virtual com port driver provided by ST
-* test embedded dynamic languages (eg. lua/picolisp/tinyscheme...)
-* add file system support (FatFS/spiffs...)
+* add file system support (spiffs...)
 * add file utils (ls,cp,rm,cat,...) for file system
+(todo/in progress)
+* test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
 * add bootloader and upgrade support
+* add practical utilities for network (lwip used), such as traceroute, ntp update...
 
 
 ENVIRONMENT
@@ -47,7 +50,7 @@ ENVIRONMENT
 
 RESOURCES
 =========
-* Demo videos: <https://github.com/pengshulin/mcush/tree/master/demo_video>
+* Demo videos: <https://github.com/pengshulin/mcush/tree/master/demo_video>  Suitable for beginners and give you a brief overview.
 * Windows/VCP(Virtual Com Port) driver: <https://github.com/pengshulin/mcush/tree/master/vcp_driver>
 
 
