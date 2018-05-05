@@ -31,6 +31,7 @@ ROADMAP
 * use USB virtual com port driver provided by ST
 * add file system support (spiffs...)
 * add file utils (ls,cp,rm,cat,...) for file system
+
 (todo/in progress)
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
 * add bootloader and upgrade support
@@ -50,6 +51,7 @@ ENVIRONMENT
 
 RESOURCES
 =========
+* Snapshots: <https://github.com/pengshulin/mcush/tree/master/snapshots> 
 * Demo videos: <https://github.com/pengshulin/mcush/tree/master/demo_video>  Suitable for beginners and give you a brief overview.
 * Windows/VCP(Virtual Com Port) driver: <https://github.com/pengshulin/mcush/tree/master/vcp_driver>
 
