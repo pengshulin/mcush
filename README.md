@@ -1,3 +1,6 @@
+![](demo_video/logo_gif/logo.gif)
+
+
 DESCRIPTION
 ===========
 * MCUSH is the short name for MCU-SHell.
