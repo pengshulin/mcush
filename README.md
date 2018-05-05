@@ -45,6 +45,12 @@ ENVIRONMENT
 * develope and test on Debian/Ubuntu machines
 
 
+RESOURCES
+=========
+* Demo videos: <https://github.com/pengshulin/mcush/tree/master/demo_video>
+* Windows/VCP(Virtual Com Port) driver: <https://github.com/pengshulin/mcush/tree/master/vcp_driver>
+
+
 LICENSE
 =======
 * source codes:
