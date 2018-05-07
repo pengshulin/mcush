@@ -6,11 +6,11 @@ For more info about MCUSH, visit https://github.com/pengshulin/mcush/
 
 LICENSE
 =======
-* Free only for non-commerical use.
-* Commerical use is NOT AUTHORIZED!!!
+* Free only for non-commercial purpose.
+* Commercial use SHOULD BE AUTHORIZED!!!
 
 AUTHOR
 ======
 Peng Shulin <trees_peng@163.com>
-Shanghai, China 2017
+Shanghai, China 2018
 

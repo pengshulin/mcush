@@ -62,8 +62,8 @@ RESOURCES
 LICENSE
 =======
 * source codes:
-  * As this is my personal software toolkit, you can use it freely only for non-commerical use.
-  * Contact the author for commerical authorization, or it's NOT AUTHORIZED.
+  * As this is my personal software toolkit, you can use it freely only for non-commercial purpose.
+  * Contact the author for commercial authorization, or it's NOT AUTHORIZED.
 * binary executables:
   * images provided in build directory are free as BSD
 
