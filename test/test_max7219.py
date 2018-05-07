@@ -52,10 +52,13 @@ def main(argv=None):
     s = MAX7219()
     s.init()
     s.reset()
+    for i in range(16):
+        s.write( ADDR_INTENSITY, i )
+        time.sleep(0.2)
     counter = 1
     while True:
         s.write( ADDR_D0, counter & 0xFF )
-        time.sleep(0.2)
+        time.sleep(0.1)
         counter += 1
 
 
