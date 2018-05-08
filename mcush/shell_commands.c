@@ -1746,8 +1746,20 @@ int cmd_power( int argc, char *argv[] )
 
 
 #if USE_CMD_I2C
-static uint8_t i2c_port_sda=0, i2c_port_scl=0;
-static uint16_t i2c_pin_sda=1<<0, i2c_pin_scl=1<<1;
+#ifndef CMD_I2C_SDA_PORT
+#define CMD_I2C_SDA_PORT  0
+#endif
+#ifndef CMD_I2C_SDA_PIN
+#define CMD_I2C_SDA_PIN  0
+#endif
+#ifndef CMD_I2C_SCL_PORT
+#define CMD_I2C_SCL_PORT  0
+#endif
+#ifndef CMD_I2C_SCL_PIN
+#define CMD_I2C_SCL_PIN  1
+#endif
+static uint8_t i2c_port_sda=CMD_I2C_SDA_PORT, i2c_port_scl=CMD_I2C_SCL_PORT;
+static uint16_t i2c_pin_sda=1<<(CMD_I2C_SDA_PIN), i2c_pin_scl=1<<(CMD_I2C_SCL_PIN);
 static uint32_t i2c_addr=0;
 static uint32_t i2c_delay_us=5;
 
@@ -1965,8 +1977,32 @@ err_port:
 
 
 #if USE_CMD_SPI
-static uint8_t spi_port_sdi=0, spi_port_sdo=0, spi_port_sck=0, spi_port_cs=0;
-static uint16_t spi_pin_sdi=1<<0, spi_pin_sdo=1<<1, spi_pin_sck=1<<2, spi_pin_cs=1<<3;
+#ifndef CMD_SPI_SDI_PORT
+#define CMD_SPI_SDI_PORT  0
+#endif
+#ifndef CMD_SPI_SDI_PIN
+#define CMD_SPI_SDI_PIN  0
+#endif
+#ifndef CMD_SPI_SDO_PORT
+#define CMD_SPI_SDO_PORT  0
+#endif
+#ifndef CMD_SPI_SDO_PIN
+#define CMD_SPI_SDO_PIN  1
+#endif
+#ifndef CMD_SPI_SCK_PORT
+#define CMD_SPI_SCK_PORT  0
+#endif
+#ifndef CMD_SPI_SCK_PIN
+#define CMD_SPI_SCK_PIN  2
+#endif
+#ifndef CMD_SPI_CS_PORT
+#define CMD_SPI_CS_PORT  0
+#endif
+#ifndef CMD_SPI_CS_PIN
+#define CMD_SPI_CS_PIN  3
+#endif
+static uint8_t spi_port_sdi=CMD_SPI_SDI_PORT, spi_port_sdo=CMD_SPI_SDO_PORT, spi_port_sck=CMD_SPI_SCK_PORT, spi_port_cs=CMD_SPI_CS_PORT;
+static uint16_t spi_pin_sdi=1<<(CMD_SPI_SDI_PIN), spi_pin_sdo=1<<(CMD_SPI_SDO_PIN), spi_pin_sck=1<<(CMD_SPI_SCK_PIN), spi_pin_cs=1<<(CMD_SPI_CS_PIN);
 static uint32_t spi_delay_us=5;
 static uint32_t spi_width=8;
 static uint8_t spi_cpol=0, spi_cpha=0, spi_lsb=0;

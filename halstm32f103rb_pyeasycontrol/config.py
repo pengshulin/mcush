@@ -5,6 +5,14 @@ env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDriver(STM32_USB_FS_Driver())
 port = 'ARM_CM3'
 
+env.appendDefineFlags( [
+    'CMD_I2C_SDA_PORT=2', 'CMD_I2C_SDA_PIN=0',
+    'CMD_I2C_SCL_PORT=2', 'CMD_I2C_SCL_PIN=1',
+    'CMD_SPI_SDI_PORT=2', 'CMD_SPI_SDI_PIN=0',
+    'CMD_SPI_SDO_PORT=2', 'CMD_SPI_SDO_PIN=1',
+    'CMD_SPI_SCK_PORT=2', 'CMD_SPI_SCK_PIN=2',
+    'CMD_SPI_CS_PORT=2',  'CMD_SPI_CS_PIN=3',
+     ] )
     
 #env.appendDefineFlags( [ 'SUSPEND_ENABLED=1' ] )
 env.appendDefineFlags( [ 'MCUSH_VFS=1', 'MCUSH_ROMFS=1' ] )
