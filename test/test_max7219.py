@@ -35,6 +35,7 @@ class MAX7219(Mcush.Mcush):
 
     def reset(self):
         self.write( ADDR_SHUTDOWN, 1 )
+        self.write( ADDR_SCAN_LIMIT, 7 )
         self.write( ADDR_DECODE_MODE, 0 )
         self.write( ADDR_INTENSITY, 0x0A )
         self.write( ADDR_D0, 0x55 )
