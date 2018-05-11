@@ -8,10 +8,10 @@ if CHIP is None:
     chip='stm32l152rb'
     chip='stm32f103ze'
     chip='stm32f103rb'
-    chip='stm32f407zg'
     chip='stm32f407ve'
     chip='lpc4337'
     chip='stm32f429ig'
+    chip='stm32f407zg'
 else:
     chip = CHIP
 print 'set chip as %s'% chip
@@ -137,11 +137,11 @@ chip_mem_configs = {
 ],
 
 'stm32f407zg': [
-[ 0x00000000, 0x000FFFFF, 'ro', 32, True,  'Flash 1M', ],
-[ 0x08000000, 0x080FFFFF, 'ro', 32, True,  '', ],
-[ 0x20000000, 0x2001FFFF, 'rw', 32, False, 'SRAM 128k', ],
-[ 0x10000000, 0x1000FFFF, 'rw', 32, False, 'CCM SRAM 64k', ],
-[ 0x40000000, 0x4007FFFF, 'rw', 32, False, 'Peripherals', ],
+[ 0x00000000, 0x000FFFFC, 'ro', 32, True,  'Flash 1M', ],
+[ 0x08000000, 0x080FFFFC, 'ro', 32, True,  '', ],
+[ 0x20000000, 0x2001FFFC, 'rw', 32, False, 'SRAM 128k', ],
+[ 0x10000000, 0x1000FFFC, 'rw', 32, False, 'CCM SRAM 64k', ],
+[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 [ 0x60000000, 0x63FFFFFE, 'rw', 16, False, 'FSMC/bank1', ],
 [ 0x64000000, 0x67FFFFFE, 'rw', 16, False, 'FSMC/bank2', ],
 [ 0x68000000, 0x6BFFFFFE, 'rw', 16, False, 'FSMC/bank3', ],
