@@ -59,6 +59,12 @@ RESOURCES
 * Windows/VCP(Virtual Com Port) driver: <https://github.com/pengshulin/mcush/tree/master/vcp_driver>
 
 
+HARDWARE
+========
+* tiny controller: <https://github.com/pengshulin/mcush/tree/master/hardware_tiny>
+* tiny usb stick: <https://github.com/pengshulin/mcush/tree/master/hardware_tiny_usb_stick>
+
+
 LICENSE
 =======
 * source codes:
