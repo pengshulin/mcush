@@ -66,6 +66,8 @@ LICENSE
   * Contact the author for commercial authorization, or it's NOT AUTHORIZED.
 * binary executables:
   * images provided in build directory are free as BSD
+* hardware design files:
+  * similar to the source codes: need commercial authorization
 
 
 AUTHOR
