@@ -1,0 +1,16 @@
+#!/bin/bash
+# auto build from appBlinkErrorNumber project
+# Peng Shulin <trees_peng@163.com> 2018
+
+rm *.hex *.bin *.lst *.map *.elf
+set -e
+CWD=`pwd`
+pushd /mcush/appBlinkErrorNumber
+export HALDIR=stm32f103cb_tiny_controller
+rm *.hex *.bin *.lst *.map *.elf
+export DEBUG=0
+scons -c
+scons
+cp BlinkErrorNumber* $CWD
+popd
+
