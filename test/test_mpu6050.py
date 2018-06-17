@@ -11,8 +11,8 @@ from mcush import *
 
 def main(argv=None):
     s = Mcush.Mcush()
-    #s.i2c_init(0x68, scl='1.6', sda='1.7')
-    s.i2c_init(0x68)
+    s.i2c_init(0x68, scl='1.6', sda='1.7', delay=50 )
+    #s.i2c_init(0x68)
     s.i2c( [0x6B, 0x00] )  # 解除休眠状态
     s.i2c( [0x19, 0x07] )  # 陀螺仪采样率，典型值：0x07(125Hz)
     s.i2c( [0x1A, 0x06] )  # 低通滤波频率，典型值：0x06(5Hz)
@@ -24,6 +24,7 @@ def main(argv=None):
     while True:
         a,b = s.i2c( [0x41], 2 )
         #temp = 35 + (Utils.s2h( chr(b) + chr(a) ) + 13200)/280.0
+        #print temp
         temp = Utils.s2h( chr(b) + chr(a) ) 
         a,b = s.i2c( [0x3B], 2 )
         ax = Utils.s2h( chr(b) + chr(a) )

@@ -1,0 +1,72 @@
+from VEnvironment import *
+
+haldir='stm32f407zg_eu'
+config = loadHalConfig( haldir )
+env = config.env
+
+env.appendDefineFlags( [
+    'MCUSH_TASK_REGISTRY_SIZE=20',
+    'SHELL_CMD_TABLE_LEN=8',
+    'MCUSH_ROMFS_USER=1',
+    'configTIMER_TASK_STACK_DEPTH=200',
+    'PING_USE_SOCKETS=0',
+    #'CHECKSUM_BY_HARDWARE',
+    ] ) 
+
+#if not env.DEBUG:
+#    env.appendDefineFlags( [
+#        'LWIP_DEBUG=0',
+#        ] )
+#
+
+env.appendPath([
+    '.',
+    '/libFreeRTOS',
+    '/libFreeRTOS/include',
+    '/libFreeRTOS/portable/GCC/%s'% config.port,
+    '/mcush',
+    '/hal%s'% haldir,
+    '/hal%s/LAN8742A'% haldir,
+    '/liblwip/lwip-2.0.3/port',
+    '/liblwip/lwip-2.0.3/port/Standalone',
+    '/liblwip/lwip-2.0.3/src/include',
+    '/liblwip/contrib-2.0.1/apps/socket_examples',
+    #'/liblwip/contrib-2.0.1/apps/httpserver',  # demo
+    '/liblwip/contrib-2.0.1/apps/tcpecho',
+    '/liblwip/contrib-2.0.1/apps/udpecho',
+    '/liblwip/contrib-2.0.1/apps/shell',
+    '/liblwip/lwip-2.0.3/src/include/lwip/apps',
+    ])
+
+
+env.appendGlobSource([
+    '*.c',
+    '/mcush/*.c',
+    '/libFreeRTOS/*.c',
+    '/libFreeRTOS/portable/MemMang/heap_3.c',
+    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
+    '/hal%s/*.c'% haldir,
+    '/hal%s/LAN8742A/*.c'% haldir,
+    '/liblwip/lwip-2.0.3/src/core/*.c',
+    '/liblwip/lwip-2.0.3/src/core/ipv4/*.c',
+    '/liblwip/lwip-2.0.3/src/netif/ethernet.c',
+    '/liblwip/lwip-2.0.3/src/api/*.c',
+    '/liblwip/lwip-2.0.3/src/apps/tftp/*.c',
+    '/liblwip/lwip-2.0.3/port/arch/*.c',
+    '/liblwip/lwip-2.0.3/port/Standalone/*.c',
+    #'/liblwip/contrib-2.0.1/apps/socket_examples/*.c',
+    #'/liblwip/contrib-2.0.1/apps/httpserver/httpserver-netconn.c',  # demo
+    #'/liblwip/contrib-2.0.1/apps/ping/*.c',
+    '/liblwip/contrib-2.0.1/apps/tcpecho/*.c',
+    '/liblwip/contrib-2.0.1/apps/udpecho/*.c',
+    '/liblwip/contrib-2.0.1/apps/shell/*.c',
+    #'/liblwip/lwip-2.0.3/src/apps/mqtt/*.c',
+    #'/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
+    #'/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
+    '/liblwip/lwip-2.0.3/src/apps/netbiosns/netbiosns.c',
+])
+
+
+
+env.makeApp()
+

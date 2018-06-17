@@ -13,6 +13,7 @@ if haldir is None:
     #haldir='stm32f407zg_eu'
     #haldir='stm32f429ig_challenger'
     #haldir='stm32f767zi_nucleo'
+    #haldir='stm32f207ve'
 
 
 config = loadHalConfig( haldir )
