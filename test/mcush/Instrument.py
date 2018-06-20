@@ -182,6 +182,7 @@ class Instrument:
                     raise CommandTimeoutError( ' | '.join(contents) )
                 else:
                     raise CommandTimeoutError( 'No response' )
+            #print newline_str  # for port debug
             match = self.prompts.match( newline_str )
             if match:
                 contents.append( newline_str )

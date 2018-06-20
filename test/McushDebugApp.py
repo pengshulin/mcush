@@ -247,11 +247,11 @@ class PutFileTask(MyTask):
         try:
             cnt = 0
             buf0 = raw_split.pop(0)
-            self.info( u"Transfering file %s, 0 / %d bytes"% (fname, raw_len) )
+            self.info( u"Transfering file %s, 0 / %d bytes (0 %%)"% (fname, raw_len) )
             s.cat( fname, write=True, b64=True, buf=buf0 )
             cnt += len(buf0)
             for buf in raw_split:
-                self.info( u"Transfering file %s, %d / %d bytes"% (fname, cnt, raw_len) )
+                self.info( u"Transfering file %s, %d / %d bytes (%d %%)"% (fname, cnt, raw_len, int(cnt*100/raw_len)) )
                 s.cat( fname, write=True, append=True, b64=True, buf=buf )
                 cnt += len(buf)
             self.info( u"File %s written, size %d."% (fname, len(raw)) )

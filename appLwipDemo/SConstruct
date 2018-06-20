@@ -4,6 +4,10 @@ haldir='stm32f407zg_eu'
 config = loadHalConfig( haldir )
 env = config.env
 
+env.appendDefineFlags( [ 'USE_LWIP_DEMO' ] )
+#env.appendDefineFlags( [ 'USE_LWIP_HTTPSERVER_SIMPLE' ] )
+
+
 env.appendDefineFlags( [
     'MCUSH_TASK_REGISTRY_SIZE=20',
     'SHELL_CMD_TABLE_LEN=8',
@@ -12,6 +16,7 @@ env.appendDefineFlags( [
     'PING_USE_SOCKETS=0',
     #'CHECKSUM_BY_HARDWARE',
     ] ) 
+    
 
 #if not env.DEBUG:
 #    env.appendDefineFlags( [
@@ -31,7 +36,7 @@ env.appendPath([
     '/liblwip/lwip-2.0.3/port/Standalone',
     '/liblwip/lwip-2.0.3/src/include',
     '/liblwip/contrib-2.0.1/apps/socket_examples',
-    #'/liblwip/contrib-2.0.1/apps/httpserver',  # demo
+    '/liblwip/contrib-2.0.1/apps/httpserver',
     '/liblwip/contrib-2.0.1/apps/tcpecho',
     '/liblwip/contrib-2.0.1/apps/udpecho',
     '/liblwip/contrib-2.0.1/apps/shell',
@@ -55,14 +60,14 @@ env.appendGlobSource([
     '/liblwip/lwip-2.0.3/port/arch/*.c',
     '/liblwip/lwip-2.0.3/port/Standalone/*.c',
     #'/liblwip/contrib-2.0.1/apps/socket_examples/*.c',
-    #'/liblwip/contrib-2.0.1/apps/httpserver/httpserver-netconn.c',  # demo
+    '/liblwip/contrib-2.0.1/apps/httpserver/httpserver-netconn.c',
     #'/liblwip/contrib-2.0.1/apps/ping/*.c',
     '/liblwip/contrib-2.0.1/apps/tcpecho/*.c',
     '/liblwip/contrib-2.0.1/apps/udpecho/*.c',
     '/liblwip/contrib-2.0.1/apps/shell/*.c',
     #'/liblwip/lwip-2.0.3/src/apps/mqtt/*.c',
-    #'/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
-    #'/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
+    '/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
+    '/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
     '/liblwip/lwip-2.0.3/src/apps/netbiosns/netbiosns.c',
 ])
 

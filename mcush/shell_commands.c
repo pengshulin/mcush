@@ -14,6 +14,9 @@
 #ifndef USE_CMD_REBOOT
     #define USE_CMD_REBOOT  1
 #endif
+#ifndef USE_CMD_UPGRADE
+    #define USE_CMD_UPGRADE  0
+#endif
 #ifndef USE_CMD_GPIO
     #define USE_CMD_GPIO  1
 #endif
@@ -141,6 +144,9 @@
         #undef USE_CMD_LOAD
     #endif
     #define USE_CMD_LOAD  0
+    
+    #undef USE_CMD_UPGRADE
+    #define USE_CMD_UPGRADE  0
 #endif
 
 
@@ -148,6 +154,7 @@ int cmd_help( int argc, char *argv[] );
 int cmd_scpi_idn( int argc, char *argv[] );
 int cmd_scpi_rst( int argc, char *argv[] );
 int cmd_reboot( int argc, char *argv[] );
+int cmd_upgrade( int argc, char *argv[] );
 int cmd_gpio( int argc, char *argv[] );
 int cmd_led( int argc, char *argv[] );
 int cmd_dump( int argc, char *argv[] );
@@ -167,7 +174,6 @@ int cmd_i2c( int argc, char *argv[] );
 int cmd_spi( int argc, char *argv[] );
 int cmd_counter( int argc, char *argv[] );
 int cmd_rtc( int argc, char *argv[] );
-
 int cmd_spiffs( int argc, char *argv[] );
 int cmd_cat( int argc, char *argv[] );
 int cmd_rm( int argc, char *argv[] );
@@ -198,6 +204,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   CMD_HIDDEN, 0,  "reboot",  cmd_reboot, 
     "reboot device",
     "reboot" },
+#endif
+#if USE_CMD_UPGRADE
+{   CMD_HIDDEN, 0,  "upgrade",  cmd_upgrade, 
+    "upgrade firmware and restart",
+    "upgrade -f filename" },
 #endif
 #if USE_CMD_DUMP
 {   CMD_HIDDEN,  'x',  "dump",  cmd_dump, 
@@ -395,6 +406,39 @@ int cmd_reboot( int argc, char *argv[] )
     hal_reboot();
     while( 1 );
     //return 0;
+}
+#endif
+
+
+#if USE_CMD_UPGRADE
+int cmd_upgrade( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, "file", 'f', "upgrade file", "binary file name", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, "sign", 's', "signature", "CRC signature", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    char fname[32];
+    
+    fname[0] = 0;
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "file" ) == 0 )
+                strcpy( fname, (char*)opt.value );
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( strlen(fname) == 0 )
+        return 1;
+
+    //while( 1 );
+    return 0;
 }
 #endif
 

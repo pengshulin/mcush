@@ -1,7 +1,7 @@
 from Arm.Stm32 import *
 
 env = Stm32f407xx()
-env.setLinkfile( '/ld/stm32f407ve_min.ld' )
+env.setLinkfile( '/ld/stm32f407xe_min.ld' )
 port = 'ARM_CM4F'
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 

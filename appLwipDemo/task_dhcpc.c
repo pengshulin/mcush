@@ -13,7 +13,14 @@
 #include "lwip/dns.h"
 #include "ethernetif.h"
 #include "LAN8742A.h"
-
+#ifdef USE_LWIP_DEMO
+  uint8_t httpd_started=0;
+  #ifdef USE_LWIP_HTTPSERVER_SIMPLE
+    #include "httpserver-netconn.h"
+  #else
+    extern void httpd_init(void);
+  #endif
+#endif
 
 #define DHCP_START                  1
 #define DHCP_WAIT_ADDRESS           2
@@ -30,6 +37,7 @@ TimerHandle_t timer_dhcpc;
 
 uint8_t dhcp_state;
 struct netif gnetif;
+/* TODO: move it to hal layer */
 extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
 
 char mac_address_init[6]; 
@@ -100,7 +108,7 @@ void reset_address(void)
 }
 
 
-void log_mac( const char *prompt, char *address, int shell_mode )
+void logger_mac( const char *prompt, char *address, int shell_mode )
 {
     const char format[] = "%s %02X:%02X:%02X:%02X:%02X:%02X";
     char buf[128];
@@ -141,7 +149,7 @@ void do_lwip_init(void)
     
     if( !load_mac_from_conf_file("/s/mac") )
         load_mac_from_conf_file("/c/mac");
-    log_mac( "mac:", mac_address_init, 0 );
+    logger_mac( "mac:", mac_address_init, 0 );
     
     netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
     netif_set_default(&gnetif);
@@ -186,7 +194,7 @@ void task_dhcpc_entry(void *p)
             logger_printf( LOG_INFO, "cable disconnected");
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
-            /* TOOD: add net down event */
+            /* TODO: add net down event */
             break;
 
         case DHCPC_EVENT_CHECK_TIMER:
@@ -199,7 +207,18 @@ void task_dhcpc_entry(void *p)
                     logger_ip( "dhcp ip:", gnetif.ip_addr.addr, 0 );    
                     logger_ip( "dhcp netmask:", gnetif.netmask.addr, 0 );
                     logger_ip( "dhcp gateway:", gnetif.gw.addr, 0 );
-                    /* TOOD: add net up event */
+                    /* TODO: add net up event */
+#ifdef USE_LWIP_DEMO
+                    if( httpd_started == 0 )
+                    {
+    #ifdef USE_LWIP_HTTPSERVER_SIMPLE
+                        http_server_netconn_init();
+    #else
+                        httpd_init();
+    #endif
+                        httpd_started=1;
+                    }
+#endif
                 }
             } 
             
@@ -233,7 +252,7 @@ int cmd_netstat( int argc, char *argv[] )
         shell_write_line("DHCP waiting");
         break;
     case DHCP_ADDRESS_ASSIGNED:
-        log_mac( "mac:", mac_address_init, 1 );
+        logger_mac( "mac:", mac_address_init, 1 );
         logger_ip( "ip:", gnetif.ip_addr.addr, 1 );    
         logger_ip( "netmask:", gnetif.netmask.addr, 1 );
         logger_ip( "gateway:", gnetif.gw.addr, 1 );

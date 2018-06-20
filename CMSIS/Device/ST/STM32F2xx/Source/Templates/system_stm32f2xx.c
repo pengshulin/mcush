@@ -167,7 +167,11 @@
   * @{
   */
 
+#ifdef SYSTEM_CORE_CLOCK
+  uint32_t SystemCoreClock = SYSTEM_CORE_CLOCK;
+#else
   uint32_t SystemCoreClock = 120000000;
+#endif
 
   __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
@@ -226,7 +230,11 @@ void SystemInit(void)
          
   /* Configure the System clock source, PLL Multiplier and Divider factors, 
      AHB/APBx prescalers and Flash settings ----------------------------------*/
+#if defined(HSE_DISABLED)
+    SystemCoreClock=16000000;
+#else
   SetSysClock();
+#endif
 
   /* Configure the Vector Table location add offset address ------------------*/
 #ifdef VECT_TAB_SRAM
