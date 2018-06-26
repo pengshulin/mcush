@@ -372,10 +372,15 @@ int cmd_help( int argc, char *argv[] )
 }
 #endif
 
-
+#if USE_CMD_SCPI_IDN_CUSTOM
+int cmd_scpi_idn_custom( int argc, char *argv[] );
+#endif
 #if USE_CMD_SCPI_IDN
 int cmd_scpi_idn( int argc, char *argv[] )
 {
+#if USE_CMD_SCPI_IDN_CUSTOM
+    return cmd_scpi_idn_custom( argc, argv );
+#else
     /* *idn? command ignore all arguments */
     char buf[64];
 
@@ -385,6 +390,7 @@ int cmd_scpi_idn( int argc, char *argv[] )
         shell_write_line( buf );
 
     return 0;
+#endif
 }
 #endif
 
