@@ -6,8 +6,7 @@ from time import ctime
 from subprocess import call
 
 HEAD_NOTES = '''NOTES:
-THIS FILE IS GENERATED AUTOMATICALLY
-DO NOT MODIFY IT MANUALLY !!!'''
+THIS FILE IS GENERATED AUTOMATICALLY, DO NOT MODIFY IT MANUALLY !!!'''
 
 MAX_LINE_LEN = 78
 
@@ -24,7 +23,7 @@ class FileGenerator:
     def writeHead( self ):
         self.writeSeperator( 'BEGIN OF FILE' )
         self.writeComment( HEAD_NOTES )
-        self.writeComment( 'Modified at %s'% ctime() )
+        self.writeComment( 'Last modified at %s'% ctime() )
         self.writeSeperator( '' )
 
     def writeTail( self ):

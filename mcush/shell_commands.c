@@ -402,10 +402,47 @@ int cmd_scpi_rst( int argc, char *argv[] )
 #if USE_CMD_REBOOT
 int cmd_reboot( int argc, char *argv[] )
 {
+#ifdef HAL_REBOOT_COUNTER
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, "count", 'c', 0, "print counter", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, "reset", 'r', 0, "reset counter", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t count_flag=0, reset_flag;
+        
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "count" ) == 0 )
+                count_flag = 1;
+            if( strcmp( opt.spec->name, "reset" ) == 0 )
+                reset_flag = 1;
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( count_flag || reset_flag )
+    {
+        if( count_flag )
+            shell_printf( "%u\n", hal_reboot_counter_get() );
+        if( reset_flag )
+            hal_reboot_counter_reset();
+    }
+    else 
+    {
+        hal_reboot();
+        while( 1 );
+    }
+#else
     /* reboot command ignore all arguments */
     hal_reboot();
     while( 1 );
-    //return 0;
+#endif
+    return 0;
 }
 #endif
 

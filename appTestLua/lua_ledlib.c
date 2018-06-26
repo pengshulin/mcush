@@ -41,14 +41,14 @@ static int lua_led_toggle(lua_State *L)
 
 static const struct luaL_Reg ledlib[] =
 {
-    {"on",lua_led_on},
-    {"off",lua_led_off},
-    {"toggle",lua_led_toggle},
-    {NULL,NULL}
+    { "on", lua_led_on },
+    { "off", lua_led_off },
+    { "toggle", lua_led_toggle },
+    { NULL, NULL}
 };
 
 
-//
+
 LUAMOD_API int luaopen_ledlib(lua_State *L)
 {
     luaL_newlib(L, ledlib);

@@ -144,6 +144,7 @@ int hal_init(void)
     hal_wdg_init();
     //SetSysClock();
     hal_rcc_init();
+    hal_reboot_counter_init();
     hal_debug_init();
     hal_gpio_init();
     hal_sgpio_init();
