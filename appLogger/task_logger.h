@@ -28,7 +28,6 @@
 #define LOG_INFO    0x02
 #define LOG_WARN    0x04
 #define LOG_ERROR   0x08
-#define LOG_SYS     0x10
 
 
 

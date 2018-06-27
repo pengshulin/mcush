@@ -147,8 +147,10 @@ int hal_init(void)
     hal_reboot_counter_init();
     hal_debug_init();
     hal_gpio_init();
-    hal_sgpio_init();
     hal_led_init();
+#if USE_CMD_SGPIO
+    hal_sgpio_init();
+#endif
 #if HAL_RNG
     hal_rng_init();
 #endif

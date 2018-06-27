@@ -18,7 +18,7 @@ static uint8_t logger_enable = LOGGER_ENABLE;
                 
 char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 {
-    char tp[3];
+    char tp[2];
 
 #if HAL_RTC
     get_rtc_str( buf );
@@ -26,21 +26,17 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
     get_uptime_str( buf, 1 ); 
 #endif
     strcat( buf, " " );
-    if( evt->type & LOG_SYS )
-        tp[0] = 'S';
-    else
-        tp[0] = 'U';
     if( evt->type & LOG_ERROR )
-        tp[1] = 'E';
+        tp[0] = 'E';
     else if( evt->type & LOG_WARN )
-        tp[1] = 'W';
+        tp[0] = 'W';
     else if( evt->type & LOG_INFO )
-        tp[1] = 'I';
+        tp[0] = 'I';
     else if( evt->type & LOG_DEBUG )
-        tp[1] = 'D';
+        tp[0] = 'D';
     else
-        tp[1] = 0;
-    tp[2] = 0;
+        tp[0] = 0;
+    tp[1] = 0;
     strcat( buf, tp );
     strcat( buf, " " );
     strcat( buf, evt->str );

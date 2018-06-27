@@ -104,7 +104,8 @@ spiffs_flags parse_mode_flags( const char *mode )
 
 int mcush_spiffs_open( const char *path, const char *mode )
 {
-    return SPIFFS_open( &_fs, path, parse_mode_flags(mode), 0 );
+    int ret = SPIFFS_open( &_fs, path, parse_mode_flags(mode), 0 );
+    return ret < 0 ? 0 : ret;
 }
 
 

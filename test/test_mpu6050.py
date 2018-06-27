@@ -12,6 +12,7 @@ from mcush import *
 def main(argv=None):
     s = Mcush.Mcush()
     s.i2c_init(0x68, scl='1.6', sda='1.7', delay=50 )
+    #s.i2c_init(0x68, scl='1.10', sda='1.11' )
     #s.i2c_init(0x68)
     s.i2c( [0x6B, 0x00] )  # 解除休眠状态
     s.i2c( [0x19, 0x07] )  # 陀螺仪采样率，典型值：0x07(125Hz)
