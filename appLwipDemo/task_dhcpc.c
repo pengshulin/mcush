@@ -123,7 +123,7 @@ void logger_mac( const char *prompt, char *address, int shell_mode )
 
 void logger_ip( const char *prompt, uint32_t address, int shell_mode )
 {
-    const char format[] = "%s %d.%d.%d.%d";
+    const char format[] = "%s %u.%u.%u.%u";
     char buf[128];
     sprintf( buf, format, prompt,
             (uint8_t)(address), (uint8_t)(address >> 8),

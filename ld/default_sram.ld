@@ -11,24 +11,11 @@ SECTIONS
         KEEP(*(.isr_vector))
         _eisr_vector = . ;
     } > SRAM
- 
-    .signature :
-    {
-        KEEP(*(.mcush_signature))
-        KEEP(*(.signature))
-    } > SRAM
 
-    .init_script :
-    {
-        _isdata = . ;
-        KEEP(*(.init_script))
-        BYTE(0);
-    } > SRAM
-
-   .text :
+    .text :
     {
         . = ALIGN(4);
-        _text = . ;
+        _stext = . ;
         *(.text*)
         /**(.init)*/
         *(.rodata*)

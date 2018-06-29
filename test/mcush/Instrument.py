@@ -321,7 +321,18 @@ class Instrument:
 
     def printInfo( self ):
         print( '%s, %s'% (self.getModel(), self.getVersion()) )
-    
+
+    # NOTE: reboot counter is not supported in some platform   
+    def getRebootCounter( self ):
+        cmd = 'reboot -c'
+        ret = self.writeCommand( cmd )
+        return int(ret[0])
+
+    def resetRebootCounter( self ):
+        cmd = 'reboot -r'
+        self.writeCommand( cmd )
+
+
 
 class Port:
     

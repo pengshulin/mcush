@@ -480,6 +480,12 @@ int cmd_upgrade( int argc, char *argv[] )
     if( strlen(fname) == 0 )
         return 1;
 
+    shell_printf("Loading firmware from %s...\n", fname);
+    if( !hal_upgrade_prepare_swap( fname, 0 ) )
+        return 1; 
+    shell_printf("Upgrading...\n");
+    vTaskDelay(configTICK_RATE_HZ/10);  // 0.1s to confirm the uart output
+    hal_upgrade_run_stage2();
     //while( 1 );
     return 0;
 }
@@ -2479,9 +2485,14 @@ int cmd_spiffs( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
-    if( !cmd )
-        return 1;
-
+    if( !cmd || strcmp( cmd, shell_str_info ) == 0 )
+    {
+        if( ! mcush_spiffs_mounted() )
+            goto not_mounted;
+        mcush_spiffs_info( &i, &j );
+        shell_printf( "total: %d  used: %d\n", i, j );
+        return 0;
+    }
     if( strcmp( cmd, shell_str_erase ) == 0 )
     {
         sFLASH_EraseBulk();
@@ -2563,17 +2574,11 @@ int cmd_spiffs( int argc, char *argv[] )
         shell_printf( "%d\n", i );
         return 0;
     }
-    else if( strcmp( cmd, shell_str_info ) == 0 )
+    else
     {
-        if( ! mcush_spiffs_mounted() )
-            goto not_mounted;
-        mcush_spiffs_info( &i, &j );
-        shell_printf( "total: %d  used: %d\n", i, j );
-        return 0;
+        shell_write_err( shell_str_command );
+        return -1;
     }
-
-
-
     return 0;
 
 not_mounted:
@@ -2865,7 +2870,7 @@ int cmd_copy( int argc, char *argv[] )
 #if USE_CMD_LS
 void cb_print_file(const char *name, int size, int mode)
 {
-    shell_printf(" %5d  %s\n", size, name );
+    shell_printf("%6d  %s\n", size, name );
 }
 
 extern mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];

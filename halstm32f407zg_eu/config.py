@@ -7,9 +7,11 @@ env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 env.appendDefineFlags( [ 'USE_CMD_UPGRADE=1' ] )
 env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
-# NOTE:
+
 # FCFS from 0x080E0000 ~ 0x080FFFFF contains 128Kbytes, this wastes a lot
 env.appendDefineFlags( [ 'MCUSH_FCFS=1', 'FCFS_ADDR=0x080E0000', ] )
+# FCFS from 0x1FFF7800 ~ 0x1FFF79FF contains 512bytes (OTP area)
+#env.appendDefineFlags( [ 'MCUSH_FCFS=1', 'FCFS_ADDR=0x1FFF7800', ] )
 
 
 USE_VFS=False

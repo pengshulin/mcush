@@ -28,7 +28,7 @@ SECTIONS
    .text :
     {
         . = ALIGN(4);
-        _text = . ;
+        _stext = . ;
         *(.text*)
         /**(.init)*/
         *(.rodata*)

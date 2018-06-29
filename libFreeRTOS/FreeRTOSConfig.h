@@ -64,7 +64,7 @@ extern uint32_t SystemCoreClock;
 #define configQUEUE_REGISTRY_SIZE               8
 
 #define INCLUDE_vTaskDelay                      1
-#define INCLUDE_vTaskDelayUntil                 0
+#define INCLUDE_vTaskDelayUntil                 1
 #ifndef INCLUDE_vTaskSuspend  
     #define INCLUDE_vTaskSuspend                0
 #endif

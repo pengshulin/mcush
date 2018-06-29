@@ -5,14 +5,17 @@ const unsigned int baudrate=9600;
 
 void hal_delay_us(uint32_t us)
 {
+    volatile uint32_t a;
     while( us-- )
     {
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+        for( a=0; a<4; a++ )
+        {
+            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
+            __NOP(); __NOP(); __NOP();
+        }
     }
 }
 
@@ -22,7 +25,7 @@ void hal_delay_ms(uint32_t ms)
     volatile uint32_t a;
     while(ms--)
     {
-        for(a=4000; a; a--); 
+        for(a=12000; a; a--); 
     }
 }
 
