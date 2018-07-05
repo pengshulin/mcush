@@ -481,10 +481,11 @@ int cmd_upgrade( int argc, char *argv[] )
         return 1;
 
     shell_printf("Loading firmware from %s...\n", fname);
+    vTaskDelay(configTICK_RATE_HZ/5);  // 0.2s to confirm the uart output
     if( !hal_upgrade_prepare_swap( fname, 0 ) )
         return 1; 
     shell_printf("Upgrading...\n");
-    vTaskDelay(configTICK_RATE_HZ/10);  // 0.1s to confirm the uart output
+    vTaskDelay(configTICK_RATE_HZ/5);  // 0.2s to confirm the uart output
     hal_upgrade_run_stage2();
     //while( 1 );
     return 0;

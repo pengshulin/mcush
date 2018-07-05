@@ -273,9 +273,9 @@ class Mcush( Instrument.SerialInstrument ):
             else:
                 cmd = 'cat '
             cmd += pathname
-            ret = self.writeCommand( cmd )
+            ret = '\n'.join(self.writeCommand( cmd ))
             if b64:
-                ret = base64.decodestring( '\n'.join(ret) )
+                ret = base64.decodestring( ret )
             return ret
 
     def remove( self, pathname ):

@@ -54,7 +54,7 @@ void hal_gpio_set_input(int port, int bits)
 
 void hal_gpio_set_input_pull(int port, int bits, int pull)
 {
-    _set_dir( port, bits, GPIO_Mode_IN, pull ? GPIO_PuPd_UP : GPIO_PuPd_DOWN, GPIO_OType_PP );
+    _set_dir( port, bits, GPIO_Mode_IN, pull ? GPIO_PuPd_UP : GPIO_PuPd_DOWN, GPIO_OType_OD );
 }
 
 

@@ -195,7 +195,6 @@ class ViewTask(MyTask):
         self.info( u"download file %s..."% (fname) )
         try:
             r = s.cat( fname, b64=True )
-            #print type(r), r
             self.queue.put( ('view_file', (fname, r)) )
             self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
@@ -209,8 +208,6 @@ class GetFileTask(MyTask):
         self.info( u"download file %s..."% (fname) )
         try:
             r = s.cat( fname, b64=True )
-            r = base64.b64decode('\n'.join(r))
-            #self.queue.put( ('view_file', (fname, r)) )
         except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
         self.info( 'save as %s...'% savename )

@@ -12,9 +12,15 @@
 #define DHCPC_EVENT_NETIF_DOWN   2
 #define DHCPC_EVENT_CHECK_TIMER  3
 
+#if USE_NET_CHANGE_HOOK
+void net_state_change_hook(int connected);
+#endif
+ 
 void send_dhcpc_event(uint8_t event); 
 
 void task_dhcpc_init(void);
+void logger_ip( const char *prompt, uint32_t address, int shell_mode );
+void logger_mac( const char *prompt, char *address, int shell_mode );
 
 #endif
 

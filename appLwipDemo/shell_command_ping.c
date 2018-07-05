@@ -58,20 +58,20 @@ typedef struct _ping_cb_t
     uint8_t dns_resolved;
 } ping_cb_t;
 
-ping_cb_t *gpcb;
+ping_cb_t *ping_pcb;
 
             
 extern void logger_ip( const char *prompt, uint32_t address, int shell_mode );
 
 void dns_ping_hostname_check_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 {
-    if( gpcb )
+    if( ping_pcb )
     {
         if( ipaddr )
-            gpcb->ping_target = *ipaddr;
+            ping_pcb->ping_target = *ipaddr;
         else
-            gpcb->ping_target.addr = 0;
-        gpcb->dns_resolved = 1;
+            ping_pcb->ping_target.addr = 0;
+        ping_pcb->dns_resolved = 1;
     }
 }
 
@@ -86,7 +86,7 @@ void ping_prepare_echo(struct icmp_echo_hdr *iecho, u16_t len)
     ICMPH_CODE_SET(iecho, 0);
     iecho->chksum = 0;
     iecho->id     = PING_ID;
-    iecho->seqno  = lwip_htons(++(gpcb->ping_seq_num));
+    iecho->seqno  = lwip_htons(++(ping_pcb->ping_seq_num));
 
     /* fill the additional data buffer with some data */
     for(i = 0; i < data_len; i++) {
@@ -109,10 +109,10 @@ u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *
         pbuf_header(p, -PBUF_IP_HLEN) == 0) {
       iecho = (struct icmp_echo_hdr *)p->payload;
 
-      if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(gpcb->ping_seq_num))) {
+      if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(ping_pcb->ping_seq_num))) {
         LWIP_DEBUGF( PING_DEBUG, ("ping: recv "));
         ip_addr_debug_print(PING_DEBUG, addr);
-        LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (unsigned int)(sys_now()-gpcb->ping_time)));
+        LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (unsigned int)(sys_now()-ping_pcb->ping_time)));
 
         /* do some ping result processing */
         PING_RESULT(1);
@@ -146,7 +146,7 @@ void ping_send(struct raw_pcb *raw, ip_addr_t *addr)
         ping_prepare_echo(iecho, (u16_t)ping_size);
 
         raw_sendto(raw, p, addr);
-        gpcb->ping_time = sys_now();
+        ping_pcb->ping_time = sys_now();
     }
     pbuf_free(p);
 }
@@ -158,8 +158,8 @@ void ping_timeout(void *arg)
 
     LWIP_ASSERT("ping_timeout: no pcb given!", pcb != NULL);
 
-    //ip_addr_copy_from_ip4(ping_target, gpcb->ping_target);
-    ping_send(pcb, &(gpcb->ping_target));
+    //ip_addr_copy_from_ip4(ping_target, ping_pcb->ping_target);
+    ping_send(pcb, &(ping_pcb->ping_target));
     sys_timeout(PING_DELAY, ping_timeout, pcb);
 }
 
@@ -167,9 +167,9 @@ void ping_timeout(void *arg)
 void ping_send_now(void)
 {
     //ip_addr_t ping_target;
-    LWIP_ASSERT("ping_pcb != NULL", gpcb->ping_pcb != NULL);
-    //ip_addr_copy_from_ip4(ping_target, gpcb->ping_target);
-    ping_send(gpcb->ping_pcb, &(gpcb->ping_target));
+    LWIP_ASSERT("ping_pcb != NULL", ping_pcb->ping_pcb != NULL);
+    //ip_addr_copy_from_ip4(ping_target, ping_pcb->ping_target);
+    ping_send(ping_pcb->ping_pcb, &(ping_pcb->ping_target));
 }
 
 
@@ -186,7 +186,7 @@ int cmd_ping( int argc, char *argv[] )
     char chr;
     ip_addr_t ipaddr;
 
-    gpcb = 0;
+    ping_pcb = 0;
     memset( &pcb, 0, sizeof(ping_cb_t) );
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -219,7 +219,7 @@ int cmd_ping( int argc, char *argv[] )
         return 1;
     }
 
-    gpcb = &pcb;
+    ping_pcb = &pcb;
     if( hostname_set )
     {
         shell_printf("dns resolve: %s\n", pcb.ping_hostname);
@@ -239,7 +239,7 @@ int cmd_ping( int argc, char *argv[] )
                 {
                     if( chr == 0x03 ) /* Ctrl-C for stop */
                     {
-                        gpcb = 0;
+                        ping_pcb = 0;
                         return 0;
                     }
                 }
@@ -247,7 +247,7 @@ int cmd_ping( int argc, char *argv[] )
             if( i == 0 )
             {
                 shell_printf("dns timeout\n");
-                gpcb = 0;
+                ping_pcb = 0;
                 return 1;
             }
         }
@@ -258,7 +258,7 @@ int cmd_ping( int argc, char *argv[] )
         else
         {
             shell_write_line("dns resolve failed");
-            gpcb = 0;
+            ping_pcb = 0;
             return 1;
         }
     } 
@@ -285,7 +285,7 @@ int cmd_ping( int argc, char *argv[] )
  
     sys_untimeout(ping_timeout, pcb.ping_pcb);
     raw_remove(pcb.ping_pcb);
-    gpcb = 0;
+    ping_pcb = 0;
     return 0;
 }
 

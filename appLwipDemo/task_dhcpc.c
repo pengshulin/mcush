@@ -20,6 +20,7 @@
   #else
     extern void httpd_init(void);
   #endif
+    #include "shell_example.h"
 #endif
 
 #define DHCP_START                  1
@@ -194,7 +195,9 @@ void task_dhcpc_entry(void *p)
             logger_printf( LOG_INFO, "cable disconnected");
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
-            /* TODO: add net down event */
+#if USE_NET_CHANGE_HOOK
+            net_state_change_hook(0);
+#endif
             break;
 
         case DHCPC_EVENT_CHECK_TIMER:
@@ -207,7 +210,9 @@ void task_dhcpc_entry(void *p)
                     logger_ip( "dhcp ip:", gnetif.ip_addr.addr, 0 );    
                     logger_ip( "dhcp netmask:", gnetif.netmask.addr, 0 );
                     logger_ip( "dhcp gateway:", gnetif.gw.addr, 0 );
-                    /* TODO: add net up event */
+#if USE_NET_CHANGE_HOOK
+                    net_state_change_hook(1);
+#endif
 #ifdef USE_LWIP_DEMO
                     if( httpd_started == 0 )
                     {
@@ -217,6 +222,7 @@ void task_dhcpc_entry(void *p)
                         httpd_init();
     #endif
                         httpd_started=1;
+                        shell_example_init();
                     }
 #endif
                 }
@@ -266,6 +272,7 @@ int cmd_netstat( int argc, char *argv[] )
 
 
 extern int cmd_ping( int argc, char *argv[] );
+extern int cmd_wget( int argc, char *argv[] );
 
 const shell_cmd_t cmd_tab_lwip[] = {
 {   0, 0, "lwip",  cmd_lwip, 
@@ -274,9 +281,16 @@ const shell_cmd_t cmd_tab_lwip[] = {
 {   0, 'n', "netstat",  cmd_netstat, 
     "show net status",
     "netstat"  },
+#if USE_CMD_PING
 {   0, 'p', "ping",  cmd_ping, 
     "ping remote host",
     "ping host/ip"  },
+#endif
+#if USE_CMD_WGET
+{   0, 0, "wget",  cmd_wget, 
+    "get file by url",
+    "wget -u <url> -f <file>"  },
+#endif
 {   CMD_END  } };
 
 
