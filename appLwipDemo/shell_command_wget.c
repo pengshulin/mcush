@@ -88,46 +88,8 @@ err_t wget_http_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t er
         }
         else  /* connection closed */
         {
-            // Simple code for checking 200 OK
-            //for(i=0; i < wcb->len; i++)
-            //{
-            //    if(errormsg == GEN_ERROR)
-            //    {
-            //        // Check for 200 OK
-            //        if((*(wcb->received_data+i) == '2') && (*(wcb->received_data+ ++i) == '0') && (*(wcb->received_data+ ++i) == '0')) 
-            //            errormsg = OK;
-            //        if(*(wcb->received_data+i) == '\n') 
-            //            errormsg = NOT_FOUND;
-            //    }
-            //    else
-            //    {
-            //        // Remove headers
-            //        if((*(wcb->received_data+i) == '\r') && (*(wcb->received_data+ ++i) == '\n') && (*(wcb->received_data+ ++i) == '\r') && (*(wcb->received_data + ++i) == '\n'))
-            //        {
-            //            i++;
-            //            page = malloc(strlen(wcb->received_data+i));
-            //            strcpy(page, wcb->received_data+i);
-            //            break;
-            //        }
-            //    }
-            //}
-            //if(errormsg == OK)
-            //{
-            //    // Put recv data to ---> p->return_page
-            //    (*wcb->return_page)(wcb->num, OK, page, wcb->len);
-            //}
-            //else
-            //{
-            //    // 200 OK not found Return NOT_FOUND (WARNING: NOT_FOUND COULD ALSO BE 5xx SERVER ERROR, ...)
-            //    (*wcb->return_page)(wcb->num, errormsg, NULL, 0);
-            //}
-    
-            //// Clear the PCB
-            //wget_http_destroy_pcb(pcb);
             tcp_close(pcb);
             wcb->done = 1; 
-            //// free the memory containing state
-            //free(wcb->received_data);
         }
     }
     return ERR_OK;
@@ -443,8 +405,6 @@ int cmd_wget( int argc, char *argv[] )
         }
         else
             shell_write_line( "received data invalid" );
-
-
         //raw_remove(pcb.ping_pcb);
     }
     else
