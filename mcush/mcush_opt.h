@@ -57,13 +57,18 @@ typedef enum {
 /** Specification for an available option. */
 typedef struct mcush_opt_spec {
 	/** Type of option expected. */
-	const mcush_opt_type_t type;
+	const char type;
 
-	/** Name of the long option. */
-	const char *name;
+	/**
+	 * `mcush_opt_usage_t`, used when creating usage information.
+	 */
+    const char usage;
 
 	/** The alias is the short (one-character) option alias. */
 	const char alias;
+
+	/** Name of the long option. */
+	const char *name;
 
 	/** The name of the value, provided when creating usage information. */
 	const char *value;
@@ -74,11 +79,6 @@ typedef struct mcush_opt_spec {
 	 */
 	const char *help;
 
-	/**
-	 * Optional `mcush_opt_usage_t`, used when creating usage information.
-	 */
-	//const mcush_opt_usage_t usage;
-    const int usage;
 } mcush_opt_spec;
 
 /** An option provided on the command-line. */

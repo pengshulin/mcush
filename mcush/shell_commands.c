@@ -348,8 +348,9 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_HELP
 int cmd_help( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "all", 'a', 0, "show all", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'a', "all", 0, "show all" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -409,9 +410,11 @@ int cmd_scpi_rst( int argc, char *argv[] )
 int cmd_reboot( int argc, char *argv[] )
 {
 #ifdef HAL_REBOOT_COUNTER
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "count", 'c', 0, "print counter", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "reset", 'r', 0, "reset counter", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'c', "count", 0, "print counter" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'r', "reset", 0, "reset counter" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -456,9 +459,11 @@ int cmd_reboot( int argc, char *argv[] )
 #if USE_CMD_UPGRADE
 int cmd_upgrade( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "file", 'f', "upgrade file", "binary file name", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "sign", 's', "signature", "CRC signature", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'f', "file", "upgrade file", "binary file name" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED, 
+          's', "sign", "signature", "CRC signature" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -496,18 +501,29 @@ int cmd_upgrade( int argc, char *argv[] )
 #if USE_CMD_GPIO
 int cmd_gpio( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "loop", 'l', 0, "loop mode", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "loop_delay", 0, "loop delay value", "default 1000ms", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "port", 'p', "port_bit_name", "port[.bit] name, eg 0[.0]", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "input", 'i', "input_mode", "set input mode mask", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "output", 'o', "output_mode", "set output mode mask", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "set", 's', "set_high_val", "set output high mask", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "clr", 'c', "set_low_val", "set output low mask", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "toggle", 't', "toggle_val", "toggle output mask", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "port_num", 'n', 0, "query number", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "pullup", 'U', 0, "with pullup resister", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "pulldown", 'D', 0, "with pulldown resister", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'l', "loop", 0, "loop mode" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          0, "loop_delay", "loop delay value", "default 1000ms" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'p', "port", "port_bit_name", "port[.bit] name, eg 0[.0]" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          'i', "input", "input_mode", "set input mode mask" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          'o', "output", "output_mode", "set output mode mask" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          's', "set", "set_high_val", "set output high mask" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          'c', "clr", "set_low_val", "set output low mask" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          't', "toggle", "toggle_val", "toggle output mask" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'n', "port_num", 0, "query number" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'U', "pullup", 0, "with pullup resister" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'D', "pulldown", 0, "with pulldown resister" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -703,13 +719,19 @@ parm_error:
 #if USE_CMD_LED
 int cmd_led( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "set", 's', 0, "set on", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "toggle", 't', 0, "invert", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "clr", 'c', 0, "set off", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "index", 'i', "led_index", "idx from 0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "led_num", 'n', 0, "query number", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "test", 'T', 0, "blink all", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          's', "set", 0, "set on" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          't', "toggle", 0, "invert" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'c', "clr", 0, "set off" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'i', "index", "led_index", "idx from 0" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'n', "led_num", 0, "query number" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'T', "test", 0, "blink all" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -787,15 +809,23 @@ int cmd_led( int argc, char *argv[] )
 #if USE_CMD_DUMP
 int cmd_dump( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, shell_str_address, 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_length, 'l', shell_str_length, "default 16", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_width, 'w', shell_str_width, "1(default)|2|4", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "compact", 'c', 0, "compact output", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "float", 'f', 0, "float output (width=4)", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "ascii", 'C', 0, "ascii output (width=1)", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "int", 'i', 0, "signed integer output", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "uint", 'I', 0, "unsigned integer output", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'b', shell_str_address, "address", "base address" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'l', shell_str_length, shell_str_length, "default 16" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'w', shell_str_width, shell_str_width, "1(default)|2|4" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'c', "compact", 0, "compact output" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'f', "float", 0, "float output (width=4)" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'C', "ascii", 0, "ascii output (width=1)" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'i', "int", 0, "signed integer output" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'I', "uint", 0, "unsigned integer output" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1014,10 +1044,13 @@ int cmd_dump( int argc, char *argv[] )
 #if USE_CMD_WRITE
 int cmd_write( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, shell_str_address, 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_width, 'w', "bus width", "1(default)|2|4", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_ARG, "data", 0, 0, "data to be written", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'b', shell_str_address, "address", "base address" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'w', shell_str_width, "bus width", "1(default)|2|4" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "data", 0, "data to be written" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1090,12 +1123,17 @@ int cmd_write( int argc, char *argv[] )
 #if USE_CMD_MFILL
 int cmd_mfill( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, shell_str_address, 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_length, 'l', shell_str_length, "memory length", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_width, 'w', "bus width", "1(default)|2|4", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "pattern", 'p', "pattern", "data to be written", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "test", 't', 0, "test mode", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'b', shell_str_address, "address", "base address" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'l', shell_str_length, shell_str_length, "memory length" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'w', shell_str_width, "bus width", "1(default)|2|4" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'p', "pattern", "pattern", "data to be written" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          't', "test", 0, "test mode" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1198,8 +1236,9 @@ test_failed:
 #if USE_CMD_WAIT
 int cmd_wait( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "time", 0, 0, "default 1000ms", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "time", 0, "default 1000ms" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1248,8 +1287,9 @@ int cmd_echo( int argc, char *argv[] )
 #if USE_CMD_WDG
 int cmd_wdg( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "cmd", 0, 0, "enable|disable|clear|reset", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
+          0, "cmd", 0, "enable|disable|clear|reset" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1301,7 +1341,7 @@ int cmd_wdg( int argc, char *argv[] )
 #if USE_CMD_UPTIME
 int cmd_uptime( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
+    static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1323,8 +1363,9 @@ int cmd_uptime( int argc, char *argv[] )
 #if USE_CMD_SYSTEM
 int cmd_system( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "type", 0, 0, "(t)ask|(q)ueue|(k)ern|heap|stack|trace", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "type", 0, "(t)ask|(q)ueue|(k)ern|heap|stack|trace" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1435,15 +1476,23 @@ int cmd_system( int argc, char *argv[] )
 #include <malloc.h>
 int cmd_mapi( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "test", 't', 0, "test heap memory", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "fill", 0, 0, "fill heap memory", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "info", 'i', 0, "print mallinfo", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "malloc", 'm', 0, "allocate new memory", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "realloc", 'r', 0, "re-allocate memory", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "free", 'f', 0, "free memory", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_address, 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_length, 'l', shell_str_length, "memory length", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          't', "test", 0, "test heap memory" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "fill", 0, "fill heap memory" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'i', "info", 0, "print mallinfo" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'm', "malloc", 0, "allocate new memory" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'r', "realloc", 0, "re-allocate memory" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'f', "free", 0, "free memory" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'b', shell_str_address, "address", "base address" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'l', shell_str_length, shell_str_length, "memory length" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1585,9 +1634,11 @@ usage_error:
 #if USE_CMD_BEEP
 int cmd_beep( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, shell_str_frequency, 'f', "frequency", "20~10000(default 4000)hz", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_ARG, "ms", 0, 0, "default 50ms", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'f', shell_str_frequency, "frequency", "20~10000(default 4000)hz" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
+          0, "ms", 0, "default 50ms" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1629,8 +1680,9 @@ int cmd_beep( int argc, char *argv[] )
 #if USE_CMD_MKBUF
 int cmd_mkbuf( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "float", 'f', 0, "float mode", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'f', "float", 0, "float mode" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1670,16 +1722,25 @@ int cmd_mkbuf( int argc, char *argv[] )
 #if USE_CMD_SGPIO
 int cmd_sgpio( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "port", 'p', "port_index", "index from 0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "output", 'o', "output_mode", "set output mode mask", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "input", 'i', "input_mode", "set input mode mask", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "input_len", 0, "input_buf_len", "length of input buffer", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_frequency, 'f', "frequency", "1~1000000hz", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "loop", 'l', 0, "loop mode", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "start", 'r', 0, "run", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "stop", 's', 0, "stop", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "info", 0, 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+         'p', "port", "port_index", "index from 0" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'o', "output", "output_mode", "set output mode mask" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'i', "input", "input_mode", "set input mode mask" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "input_len", "input_buf_len", "length of input buffer" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'f', shell_str_frequency, "frequency", "1~1000000hz" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'l', "loop", 0, "loop mode" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'r', "start", 0, "run" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          's', "stop", 0, "stop" }, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+           0, "info", 0, "print info" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1800,8 +1861,8 @@ int cmd_sgpio( int argc, char *argv[] )
 #if USE_CMD_POWER
 int cmd_power( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "val", 0, 0, "0|1|on|off", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, 0, "val", 0, "0|1|on|off", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1939,15 +2000,23 @@ static int i2c_write_byte(uint8_t chr)
 
 int cmd_i2c( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "delay", 0, "delay_us", "default 5", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, shell_str_address, 'a', "address", "default 0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "sda", 0, "sda_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "scl", 0, "scl_pin", "default 0.1", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "init", 'i', 0, "init pins", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "deinit", 'd', 0, "deinit pins", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "read", 'r', "read_cycle", "default 1", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED  },
-        { MCUSH_OPT_ARG, "val", 0, 0, "data", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "delay", "delay_us", "default 5" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'a', shell_str_address, "address", "default 0" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "sda", "sda_pin", "default 0.0" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "scl", "scl_pin", "default 0.1" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'i', "init", 0, "init pins" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'd', "deinit", 0, "deinit pins" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'r', "read", "read_cycle", "default 1" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "val", 0, "data" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2142,20 +2211,33 @@ static uint32_t spi_rw(uint32_t dat)
 
 int cmd_spi( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, shell_str_width, 'w', "bits", "default 8", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "delay", 0, "delay_us", "default 5", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "sdi", 0, "sdi_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "sdo", 0, "sdo_pin", "default 0.1", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "sck", 0, "sck_pin", "default 0.2", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "cs", 0, "cs_pin", "default 0.3", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "init", 'i', 0, "init pins", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "deinit", 'd', 0, "deinit pins", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "read", 'r', 0, "print readout", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "cpol", 0, 0, "clk polarity", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "cpha", 0, 0, "clk phase", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "lsb", 0, 0, "lsb first", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_ARG, "val", 0, 0, "data", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'w', shell_str_width, "bits", "default 8" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "delay", "delay_us", "default 5" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "sdi", "sdi_pin", "default 0.0" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "sdo", "sdo_pin", "default 0.1" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "sck", "sck_pin", "default 0.2" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, "cs", "cs_pin", "default 0.3" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'i', "init", 0, "init pins" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'd', "deinit", 0, "deinit pins" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'r', "read", 0, "print readout" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "cpol", 0, "clk polarity" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "cpha", 0, "clk phase" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "lsb", 0, "lsb first" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "val", 0, "data" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2317,11 +2399,11 @@ static uint32_t counter_val=0;
 
 int cmd_counter( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "pin", 0, "input_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "init", 'i', 0, "init pin", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "deinit", 0, 0, "deinit pin", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "reset", 'r', 0, "reset zero", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, 0, "pin", "input_pin", "default 0.0", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, 'i', "init", 0, "init pin", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, 0, "deinit", 0, "deinit pin", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, 'r', "reset", 0, "reset zero", MCUSH_OPT_USAGE_REQUIRED },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2389,9 +2471,11 @@ int cmd_rtc( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
     mcush_opt opt;
-    const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "set", 's', 0, "set rtc", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_ARG, "setting", 0, 0, "format: YYYY-MM-DD HH:MM:SS", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          's', "set", 0, "set rtc" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "setting", 0, "format: YYYY-MM-DD HH:MM:SS" },
         { MCUSH_OPT_NONE } };
     int8_t set=-1;
     struct tm t;
@@ -2458,9 +2542,11 @@ int cmd_rtc( int argc, char *argv[] )
 #include "spi_flash.h"
 int cmd_spiffs( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, shell_str_address, 'b', "address", "base address", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "command", 'c', "cmd_name", "erase|read|write|mount|umount|test|format|check|info", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'b', shell_str_address, "address", "base address" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', "command", "cmd_name", "erase|read|write|mount|umount|test|format|check|info" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2595,11 +2681,15 @@ not_mounted:
 #define CAT_BUF_LEN  (CAT_BUF_RAW+CAT_BUF_B64)
 int cmd_cat( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "b64", 'b', 0, "base 64 code", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "write", 'w', 0, "write mode", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "append", 'a', 0, "append mode", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'b', "b64", 0, "base 64 code" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'w', "write", 0, "write mode" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'a', "append", 0, "append mode" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "file", 0, "file name" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2742,8 +2832,9 @@ int cmd_cat( int argc, char *argv[] )
 #if USE_CMD_RM
 int cmd_rm( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "file", 0, "file name" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2772,8 +2863,9 @@ int cmd_rm( int argc, char *argv[] )
 #if USE_CMD_RENAME
 int cmd_rename( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "file", 0, 0, "old -> new", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "file", 0, "old -> new" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2807,8 +2899,9 @@ int cmd_rename( int argc, char *argv[] )
 #if USE_CMD_CP
 int cmd_copy( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "file", 0, "file name" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2878,8 +2971,9 @@ extern mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];
 
 int cmd_list( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "path", 0, 0, "path name", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "path", 0, "path name" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2929,8 +3023,9 @@ int cmd_list( int argc, char *argv[] )
 #if USE_CMD_LOAD
 int cmd_load( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, "file", 0, 0, "file name", MCUSH_OPT_USAGE_REQUIRED },
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "file", 0, "file name" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

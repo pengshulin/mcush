@@ -48,10 +48,14 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 int cmd_logger( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "disable", 'd', 0, "disable logging to file", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "enable", 'e', 0, "enable logging to file", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "history", 'h', 0, "list history from log file", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "msg", 'm', "message", "log message", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'd', "disable", 0, "disable logging to file" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'e', "enable", 0, "enable logging to file" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'h', "history", 0, "list history from log file" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'm', "msg", "message", "log message" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

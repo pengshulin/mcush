@@ -236,8 +236,8 @@ int post_process_temp_file(void)
 int cmd_wget( int argc, char *argv[] )
 {
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "url", 'u', "url", "http://...", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "file", 'f', "output file", "output file name", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, 'u', "url", "url", "http://...", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, 'f', "file", "output file", "output file name", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

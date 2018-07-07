@@ -1,10 +1,1 @@
-#include "hal.h"
-
-
-
-void hal_reboot(void)
-{
-    NVIC_SystemReset();
-    while(1);  /* should not run to here */
-}
-
+../halstm32f407zg_eu/hal_reboot.c

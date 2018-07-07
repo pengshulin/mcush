@@ -248,10 +248,14 @@ void hal_dac_init(void)
 int cmd_fgen( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "freq", 'f', "trig_freq", "dma trig freq 100~6000000", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "channel2", '2', 0, "apply to channel 2", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "mode", 'm', "waveform_mode", "sine[10|100]|triangle|random|impulse[10]|sawtooth|half_sine|envelope|shock(10|20|50|100|200)|custom", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "info", 'i', 0, "print info", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'f', "freq", "trig_freq", "dma trig freq 100~6000000" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          '2', "channel2", 0, "apply to channel 2" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'm', "mode", "waveform_mode", "sine[10|100]|triangle|random|impulse[10]|sawtooth|half_sine|envelope|shock(10|20|50|100|200)|custom" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'i', "info", 0, "print info" },
         { MCUSH_OPT_NONE }
     };
     mcush_opt_parser parser;
