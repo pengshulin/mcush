@@ -7,6 +7,24 @@
 int running=1;
 SemaphoreHandle_t *lock;
 
+void test_shell_output(char *task)
+{
+    shell_write_line( task ); 
+}
+
+void test_spiffs(char *task)
+{
+    int fd;
+    fd = mcush_open("/s/test_reentrant","a+");
+    if( fd )
+    {
+        strcat( task, "\n" );
+        mcush_write( fd, task, strlen(task) );
+        mcush_close( fd );
+    }
+}
+
+
 void task_test_entry(void *p)
 {
     int id=(int)p;
@@ -16,18 +34,17 @@ void task_test_entry(void *p)
         if( running )
         {
             sprintf( buf, "task_%d", id );
-            if(lock)
-            {
+
 #if defined(USE_LOCK)
-                xSemaphoreTake( lock, portMAX_DELAY );
+            xSemaphoreTake( lock, portMAX_DELAY );
 #endif
-                shell_write_line( buf ); 
+
+            //test_shell_output( buf ); 
+            test_spiffs( buf ); 
+
 #if defined(USE_LOCK)
-                xSemaphoreGive( lock );
+            xSemaphoreGive( lock );
 #endif
-            }
-            else
-                shell_write_line( buf ); 
             taskYIELD();
             //vTaskDelay( 1 );
             //vTaskDelay(10*configTICK_RATE_HZ/1000);
@@ -91,6 +108,8 @@ int main(void)
 
     shell_add_cmd_table( cmd_tab );
     lock = xSemaphoreCreateMutex();
+    if( !lock )
+        halt("create mutex");
     create_test_tasks(10);
 
     mcush_start();
