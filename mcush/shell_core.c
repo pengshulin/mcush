@@ -128,7 +128,15 @@ void shell_write_float( float f )
 
 void shell_write_hex( int x )
 {
-    shell_printf( "0x%08x", x );
+    shell_printf( "0x%08X", x );
+}
+
+void shell_write_mem( const char *mem, int length )
+{
+    while( length-- )
+    {
+        shell_printf( "%02X", *mem++ );
+    }
 }
 #endif
 

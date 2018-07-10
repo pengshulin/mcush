@@ -68,7 +68,7 @@ int get_mount_point( const char *pathname, char *mount_point )
 {
     if( *pathname++ != '/' )
         return 0;
-    while( *pathname && isalnum((int)*pathname) )
+    while( *pathname && isalnum((int)*pathname) && *pathname != '/' )
         *mount_point++ = *pathname++;
     *mount_point = 0;
     return 1;
@@ -79,7 +79,7 @@ int get_file_name( const char *pathname, char *file_name )
 {
     if( *pathname++ != '/' )
         return 0;
-    while( *pathname && isalnum((int)*pathname) )
+    while( *pathname && isalnum((int)*pathname) && *pathname != '/' )
         pathname++;
     if( *pathname++ != '/' )
         return 0;

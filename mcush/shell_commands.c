@@ -2962,8 +2962,11 @@ int cmd_copy( int argc, char *argv[] )
 
 
 #if USE_CMD_LS
+static char *cmd_list_match_file_name;
 void cb_print_file(const char *name, int size, int mode)
 {
+    if( cmd_list_match_file_name && strcmp(cmd_list_match_file_name, name) != 0 )
+        return;
     shell_printf("%6d  %s\n", size, name );
 }
 
@@ -2978,7 +2981,7 @@ int cmd_list( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     char *path=0;
-    char mount_point[16];
+    char mount_point[8], file_name[32];
     int i;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -2993,25 +2996,21 @@ int cmd_list( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
+    file_name[0] = 0;
     if( path && ! get_mount_point( path, mount_point ) )
         return 1;
-    
+    get_file_name( path, file_name );
+     
     for( i=0; i< MCUSH_VFS_VOLUME_NUM; i++ )
     {
         if( !vfs_vol_tab[i].mount_point )
             continue;
         if( !path || strcmp(vfs_vol_tab[i].mount_point, mount_point)==0 )
         {
-            if( path )
-            {
-                strcpy( mount_point, path );
-            }
-            else
-            {
-                strcpy( mount_point, "/" );
-                strcat( mount_point, vfs_vol_tab[i].mount_point );
-            }
-            shell_printf("%s:\n", mount_point );
+            cmd_list_match_file_name = file_name[0] ? file_name : 0;
+            strcpy( mount_point, "/" );
+            strcat( mount_point, vfs_vol_tab[i].mount_point );
+            shell_printf("/%s:\n", vfs_vol_tab[i].mount_point );
             mcush_list( mount_point, cb_print_file );
         }
     }

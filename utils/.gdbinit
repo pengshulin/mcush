@@ -3,6 +3,11 @@
 
 python 
 import os
+_bool_true_list = ['1', 'Y', 'y', 'T', 't', 'yes', 'Yes', 'YES', 'true', 'True', 'TRUE']
+def getenv_bool( key, default=None ):
+    ret = os.getenv(key, default)
+    return False if ret is None else bool(ret in _bool_true_list)
+DEBUG=getenv_bool("DEBUG")
 CHIP=os.getenv("CHIP")
 if CHIP is None:
     chip='stm32l152rb'
@@ -19,9 +24,12 @@ print 'set chip as %s'% chip
 import glob
 import os, os.path
 try:
-    dbg_file=glob.glob('*_dbg.elf')[0]
+    if DEBUG:
+        dbg_file=glob.glob('*_dbg.elf')[0]
+    else:
+        dbg_file=glob.glob('*.elf')[0]
     print "found debug file %s..."% dbg_file
-except: 
+except Exception as e: 
     dbg_file=None
     print "not debug file found."
     

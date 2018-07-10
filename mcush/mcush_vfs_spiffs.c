@@ -48,7 +48,7 @@ int mcush_spiffs_umount( void )
     if( !SPIFFS_mounted(&_fs) )
         return 1;
     SPIFFS_unmount( &_fs );
-    return SPIFFS_mounted(&_fs) ? 1 : 0;
+    return SPIFFS_mounted(&_fs) ? 0 : 1;
 }
 
 

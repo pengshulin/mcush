@@ -159,7 +159,7 @@ int wget_http_get_file(void)
 #define CACHE_SIZE  128
 int post_process_temp_file(void)
 {
-    int fd1, fd2, success=0, r;
+    int fd1, fd2=0, success=0, r;
     char c, state=0, sync=0;
     char buf[CACHE_SIZE];
 
@@ -236,8 +236,10 @@ int post_process_temp_file(void)
 int cmd_wget( int argc, char *argv[] )
 {
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, 'u', "url", "url", "http://...", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, 'f', "file", "output file", "output file name", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'u', "url", "url", "http://..." },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'f', "file", "output file", "output file name" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

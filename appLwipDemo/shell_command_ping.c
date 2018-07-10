@@ -176,7 +176,8 @@ void ping_send_now(void)
 int cmd_ping( int argc, char *argv[] )
 {
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, 0, "host", 0, "hostname or ip addr", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
+          0, "host", 0, "hostname or ip addr" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

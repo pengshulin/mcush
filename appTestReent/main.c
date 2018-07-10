@@ -18,7 +18,7 @@ void test_spiffs(char *task)
     fd = mcush_open("/s/test_reentrant","a+");
     if( fd )
     {
-        strcat( task, "\n" );
+        strcat( task, "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n" );
         mcush_write( fd, task, strlen(task) );
         mcush_close( fd );
     }
@@ -86,7 +86,7 @@ int create_test_tasks(int num)
 
     while( cnt < num )
     {
-        sprintf( buf, "test%dT", cnt );
+        sprintf( buf, "t%dT", cnt );
         xTaskCreate(task_test_entry, (const char *)buf,
                     2048 / sizeof(portSTACK_TYPE), 
                     (void*)cnt, MCUSH_PRIORITY-1, &task);
