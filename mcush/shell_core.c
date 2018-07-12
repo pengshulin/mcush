@@ -585,7 +585,7 @@ static int shell_process_command( void )
             i = shell_search_command( j, cb.argv[0] );
             if( i == -1 )
                 continue;
-            else;
+            else
                 break;
         }
         if( i == -1 )

@@ -5,6 +5,7 @@ extern shell_cmd_t CMD_TAB[];
 extern char _isdata;
 
 __attribute__((section(".mcush_signature")))
+__attribute__((unused))
 static const char mcush_signature[] = "<MCUSH designed by pengshulin>";
 
 

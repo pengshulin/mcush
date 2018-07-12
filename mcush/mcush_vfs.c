@@ -358,10 +358,12 @@ int fputc(int c, FILE *stream)
 }
 
 
+/* TODO: check if 's' is defined as __nonnull__ */
 int fputs(const char *s, FILE *stream)
 {
     int l;
-    if( s && (stream == stdout || stream == stderr) )
+
+    if( stream == stdout || stream == stderr )
     {
         l = strlen(s);
         shell_write(s, l);

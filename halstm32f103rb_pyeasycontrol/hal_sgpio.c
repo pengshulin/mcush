@@ -60,9 +60,9 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
 	
     if( sgpio_cfg.inited )
     {
-        if( sgpio_cfg.buf_out );
+        if( sgpio_cfg.buf_out )
             free(sgpio_cfg.buf_out);
-        if( sgpio_cfg.buf_in );
+        if( sgpio_cfg.buf_in )
             free(sgpio_cfg.buf_in);
         sgpio_cfg.buf_out = sgpio_cfg.buf_in = 0;
     }
@@ -106,8 +106,10 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
 	    dma.DMA_DIR = DMA_DIR_PeripheralDST;
 	    dma.DMA_BufferSize = sgpio_cfg.buf_len;
 	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
-        if( ! sgpio_cfg.loop_mode  )
+        if( ! sgpio_cfg.loop_mode )
+        {
             DMA_ITConfig( DMA1_Channel2, DMA_IT_TC, ENABLE );
+        }
 	    DMA_Init( DMA1_Channel2, &dma );
 	    DMA_Cmd( DMA1_Channel2, ENABLE );
     }
@@ -158,13 +160,14 @@ int hal_sgpio_set_freq( float freq )
 int hal_sgpio_start( void )
 {
     if( ! sgpio_cfg.inited )
-        return 0; 
-	if( sgpio_cfg.buf_len )
-	{
-	    //DMA_Cmd( DMA1_Channel2, ENABLE );
-	    //DMA_Cmd( DMA1_Channel3, ENABLE );
+        return 0;
+
+    if( sgpio_cfg.buf_len )
+    {
+        //DMA_Cmd( DMA1_Channel2, ENABLE );
+        //DMA_Cmd( DMA1_Channel3, ENABLE );
         sgpio_cfg.run = 1;
-		TIM_Cmd( TIM1, ENABLE );
+        TIM_Cmd( TIM1, ENABLE );
         return 1;
 	}
     return 0;

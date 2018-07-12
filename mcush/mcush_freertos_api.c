@@ -11,7 +11,7 @@ int mcushGetQueueRegistered( int index, void **pxHandle, const char **pcQueueNam
     if( (index < 0) || (index >= configQUEUE_REGISTRY_SIZE) )
         return 0;
 
-	if( xQueueRegistry[index].xHandle && xQueueRegistry[index].pcQueueName )
+    if( xQueueRegistry[index].xHandle && xQueueRegistry[index].pcQueueName )
     {
         *pxHandle = (void*)xQueueRegistry[index].xHandle;
         *pcQueueName = xQueueRegistry[index].pcQueueName;

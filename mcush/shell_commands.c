@@ -914,7 +914,7 @@ int cmd_dump( int argc, char *argv[] )
                 count += 1;
                 if( count >= length )
                 {
-                    if( need_fill_line );
+                    if( need_fill_line )
                     {
                         for( i++; i<16; i++ )
                             shell_write_str( "   " ); 
@@ -965,7 +965,7 @@ int cmd_dump( int argc, char *argv[] )
                 count += 2;
                 if( count >= length )
                 {
-                    if( need_fill_line );
+                    if( need_fill_line )
                     {
                         for( i++; i<8; i++ )
                             shell_write_str( "     " ); 
@@ -1000,7 +1000,7 @@ int cmd_dump( int argc, char *argv[] )
                 count += 4;
                 if( count >= length )
                 {
-                    if( need_fill_line );
+                    if( need_fill_line )
                     {
                         for( i++; i<4; i++ )
                             shell_write_str( "         " ); 
@@ -1862,7 +1862,8 @@ int cmd_sgpio( int argc, char *argv[] )
 int cmd_power( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
-        { MCUSH_OPT_ARG, 0, "val", 0, "0|1|on|off", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
+          0, "val", 0, "0|1|on|off" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

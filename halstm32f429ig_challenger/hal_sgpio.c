@@ -60,9 +60,9 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
     hal_sgpio_stop();
     if( sgpio_cfg.inited )
     {
-        if( sgpio_cfg.buf_out );
+        if( sgpio_cfg.buf_out )
             free(sgpio_cfg.buf_out);
-        if( sgpio_cfg.buf_in );
+        if( sgpio_cfg.buf_in )
             free(sgpio_cfg.buf_in);
         sgpio_cfg.buf_out = sgpio_cfg.buf_in = 0;
     }
@@ -164,15 +164,15 @@ int hal_sgpio_start( void )
 {
     if( ! sgpio_cfg.inited )
         return 0; 
-	if( ! sgpio_cfg.buf_len )
+    if( ! sgpio_cfg.buf_len )
         return 0;
 	
-	DMA_Cmd( DMA1_Stream0, ENABLE );
-	DMA_Cmd( DMA1_Stream3, ENABLE );
+    DMA_Cmd( DMA1_Stream0, ENABLE );
+    DMA_Cmd( DMA1_Stream3, ENABLE );
     TIM_Cmd( TIM4, ENABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC1, ENABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC2, ENABLE );
-
+    
     sgpio_cfg.run = 1;
     return 1;
 }
@@ -183,9 +183,9 @@ void hal_sgpio_stop( void )
     if( ! sgpio_cfg.inited )
         return; 
 
-	DMA_Cmd( DMA1_Stream0, DISABLE );
-	DMA_Cmd( DMA1_Stream3, DISABLE );
-	TIM_Cmd( TIM4, DISABLE );
+    DMA_Cmd( DMA1_Stream0, DISABLE );
+    DMA_Cmd( DMA1_Stream3, DISABLE );
+    TIM_Cmd( TIM4, DISABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC1, DISABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC2, DISABLE );
     sgpio_cfg.run = 0;

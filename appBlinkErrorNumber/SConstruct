@@ -5,16 +5,16 @@ NON_OS = getBoolEnv("NON_OS")
 haldir = getenv('HALDIR', None)
 if haldir is None:
     haldir='stm32f030xx'
-    haldir='stm32f103xb'
-    haldir='stm32f103ze_redbull'
-    haldir='stm32f103rb_pyeasycontrol'
     haldir='stm32f103c8_xtw'
-    haldir='stm32f429ig_challenger'
     haldir='stm32f767zi_nucleo'
-    haldir='stm32f207ve'
     haldir='stm32f207zg_nucleo'
-    haldir='stm32f407zg_eu'
+    haldir='stm32f103ze_redbull'
     haldir='stm32f103cb_tiny_controller'
+    haldir='stm32f103rb_pyeasycontrol'
+    haldir='stm32f429ig_challenger'
+    haldir='stm32f207ve'
+    haldir='stm32f103xb'
+    haldir='stm32f407zg_eu'
 
 
 config = loadHalConfig( haldir )
