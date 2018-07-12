@@ -2,7 +2,7 @@
 #include "hal.h"
 
 
-const unsigned int baudrate=9600;
+static const unsigned int baudrate=9600;
 
 void hal_delay_us(uint32_t us)
 {
@@ -58,7 +58,9 @@ int hal_init(void)
     hal_debug_init();
     hal_gpio_init();
     hal_led_init();
-    //hal_rtc_init();
+#if HAL_RTC
+    hal_rtc_init();
+#endif
     if( !hal_uart_init(baudrate) )
         return 0;
     return 1;

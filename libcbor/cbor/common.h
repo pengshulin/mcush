@@ -45,13 +45,7 @@ static const uint8_t cbor_patch_version = CBOR_PATCH_VERSION;
 /* http://stackoverflow.com/questions/1644868/c-define-macro-for-debug-printing */
 #ifdef DEBUG
 #include <stdio.h>
-//#define debug_print(fmt, ...) do { \
-//	if (DEBUG) \
-//		fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__, __VA_ARGS__); \
-//	} while (0)
-#define debug_print(fmt, ...) do { \
-    shell_printf(fmt, __VA_ARGS__); \
-    } while(0)
+#define debug_print(fmt, ...) do { shell_printf(fmt, __VA_ARGS__); } while(0)
 #else
 #define debug_print(fmt, ...) do {} while (0)
 #endif
