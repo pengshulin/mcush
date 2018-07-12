@@ -15,9 +15,12 @@ int cmd_fft( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "loop", 'l', "lopp times", "loop times", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "size", 's', "fft size", "fft size", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_SWITCH, "ifft", 'i', 0, "inverse fft", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          'l', "loop", "lopp times", "loop times" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          's', "size", "fft size", "fft size" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'i', "ifft", 0, "inverse fft" },
         { MCUSH_OPT_NONE } };
     int loop=1;
     int fft_size = FFTLEN;

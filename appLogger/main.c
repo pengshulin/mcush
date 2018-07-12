@@ -14,7 +14,7 @@ static void cb_timer_event_generator(TimerHandle_t *xTimer)
     char buf[50];
     //hal_led_toggle(1);
     sprintf( buf, "This is a demo log event %d!", msgid++ );
-    logger_str( LOGGER_INFO, buf );
+    logger_str( LOG_INFO, buf );
 }
 
 

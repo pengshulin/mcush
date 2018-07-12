@@ -12,8 +12,10 @@ int trig_running=1;
 int cmd_trig( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "command", 'c', "command name", "info|start|stop|set_width|set_delay|set_counter", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "val", 'v', "value", "setting value", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'c', "command", "command name", "info|start|stop|set_width|set_delay|set_counter" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'v', "val", "value", "setting value" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
