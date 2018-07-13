@@ -1,5 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
+#include "hal.h"
 #include <sys/types.h>
 
 #ifndef HALT_ON_SBRK_FAIL
@@ -26,13 +27,10 @@ caddr_t _sbrk(int incr) {
 }
 
  
-#ifdef DEBUG
-#include "hal.h"
-volatile char *halt_message = 0;
-void halt(const char *message)
+void _halt(void)
 {
     int i, led_num=hal_led_get_num();
-    halt_message = (char*)message;
+
     for( i=0; i<led_num; i++ )
         hal_led_clr(i);
     while(1)
@@ -42,7 +40,14 @@ void halt(const char *message)
         hal_delay_ms( 500 );
     }
 }
-#endif
+
+volatile char *halt_message;
+void _halt_with_message(const char *message)
+{
+    halt_message = (char*)message;
+    _halt();
+}
+
 
 int _open( const char *name, int flag, int m )
 {
