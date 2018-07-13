@@ -29,6 +29,10 @@ void USB_FS_WKUP_IRQHandler(void)
 }
 
 
+void USART2_IRQHandler(void)
+{
+}
+
 void USART3_IRQHandler(void)
 {
 }
@@ -46,6 +50,10 @@ void TIM3_IRQHandler(void)
 }
 
 void TIM4_IRQHandler(void)
+{
+}
+
+void TIM5_IRQHandler(void)
 {
 }
 

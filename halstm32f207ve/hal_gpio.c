@@ -33,15 +33,12 @@ int hal_gpio_get_port_num(void)
 
 void hal_gpio_init(void)
 {
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOA, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOB, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOC, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOD, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOE, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOF, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOG, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOH, ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOI, ENABLE);
+    RCC_AHB1PeriphClockCmd( \
+        RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | \
+        RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | \
+        RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | \
+        RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | \
+        RCC_AHB1Periph_GPIOI, ENABLE );
 }
 
 

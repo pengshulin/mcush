@@ -163,16 +163,16 @@ int hal_sgpio_set_freq( float freq )
 int hal_sgpio_start( void )
 {
     if( ! sgpio_cfg.inited )
-        return 0; 
+        return 0;
     if( ! sgpio_cfg.buf_len )
         return 0;
-	
+
     DMA_Cmd( DMA1_Stream0, ENABLE );
     DMA_Cmd( DMA1_Stream3, ENABLE );
     TIM_Cmd( TIM4, ENABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC1, ENABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC2, ENABLE );
-    
+
     sgpio_cfg.run = 1;
     return 1;
 }

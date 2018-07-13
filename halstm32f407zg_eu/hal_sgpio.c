@@ -163,11 +163,10 @@ int hal_sgpio_set_freq( float freq )
 int hal_sgpio_start( void )
 {
     if( ! sgpio_cfg.inited )
-    {
         return 0;
-    }
-	if( ! sgpio_cfg.buf_len )
+    if( ! sgpio_cfg.buf_len )
         return 0;
+
     DMA_Cmd( DMA1_Stream0, ENABLE );
     DMA_Cmd( DMA1_Stream3, ENABLE );
     TIM_Cmd( TIM4, ENABLE );
@@ -182,13 +181,11 @@ int hal_sgpio_start( void )
 void hal_sgpio_stop( void )
 {
     if( ! sgpio_cfg.inited )
-    {
         return; 
-    }
 
-	DMA_Cmd( DMA1_Stream0, DISABLE );
-	DMA_Cmd( DMA1_Stream3, DISABLE );
-	TIM_Cmd( TIM4, DISABLE );
+    DMA_Cmd( DMA1_Stream0, DISABLE );
+    DMA_Cmd( DMA1_Stream3, DISABLE );
+    TIM_Cmd( TIM4, DISABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC1, DISABLE );
     TIM_DMACmd( TIM4, TIM_DMA_CC2, DISABLE );
     sgpio_cfg.run = 0;
