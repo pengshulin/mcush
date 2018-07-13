@@ -31,6 +31,7 @@ void _halt(void)
 {
     int i, led_num=hal_led_get_num();
 
+    portENTER_CRITICAL();
     for( i=0; i<led_num; i++ )
         hal_led_clr(i);
     while(1)
