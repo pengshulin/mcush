@@ -106,9 +106,6 @@ int  shell_printf( char *fmt, ... );
 int  shell_eval_int( const char *str, int *i );
 int  shell_eval_float( const char *str, float *f );
 const char *shell_get_prompt( void );
-#if defined(MCUSH_NON_OS)
-void shell_proc_event_char(void);
-#endif
 int shell_make_16bits_data_buffer( void **pbuf, int *len );
 int shell_make_float_data_buffer( void **pbuf, int *len );
 

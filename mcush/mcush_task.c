@@ -9,29 +9,6 @@ __attribute__((used))
 static const char mcush_signature[] = "<mcush>";
 
 
-#if defined(MCUSH_NON_OS)
-event_t event_mcush = EVT_INIT;
-
-void task_mcush_entry(void)
-{
-    if( event_mcush & EVT_INIT )
-    {
-        if( !hal_init() )
-            halt("hal init");
-        if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
-            halt("shell init");
-        shell_write_str("\r\n");
-        shell_write_str( shell_get_prompt() );
-        event_mcush &= ~EVT_INIT;
-    }
-    else if( event_mcush & EVT_MCUSH_CHAR )
-    {
-        event_mcush &= ~EVT_MCUSH_LINE;
-        shell_proc_event_char();
-    }
-}
-#else
-
 TaskHandle_t  task_mcush;
 //QueueHandle_t queue_mcush;
 static uint8_t mcush_inited = 0;
@@ -83,5 +60,3 @@ void mcush_start(void)
     vTaskStartScheduler();
     halt("stopped");
 }
-
-#endif

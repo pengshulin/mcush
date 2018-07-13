@@ -45,34 +45,6 @@ void hal_debug_init(void)
 {
 }
 
-#ifdef MCUSH_NON_OS
-#define configTICK_RATE_HZ  250
-extern uint32_t SystemCoreClock;
-unsigned int sys_tick_cnt;
-void init_sys_tick(void)
-{
-    #define portNVIC_SYSTICK_CTRL_REG     ( * ( ( volatile uint32_t * ) 0xe000e010 ) )
-    #define portNVIC_SYSTICK_LOAD_REG     ( * ( ( volatile uint32_t * ) 0xe000e014 ) )
-	#define portNVIC_SYSTICK_CLK_BIT      ( 1UL << 2UL )
-    #define portNVIC_SYSTICK_INT_BIT      ( 1UL << 1UL )
-    #define portNVIC_SYSTICK_ENABLE_BIT   ( 1UL << 0UL )
-    portNVIC_SYSTICK_LOAD_REG = ( SystemCoreClock / configTICK_RATE_HZ ) - 1UL;
-    portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT );
-    sys_tick_cnt = 0;
-}
-
-unsigned int get_sys_tick_count(void)
-{
-    return sys_tick_cnt;
-}
-
-void SysTick_Handler(void)
-{
-    sys_tick_cnt += 1;
-}
- 
-#endif
-
 
 int hal_init(void)
 {

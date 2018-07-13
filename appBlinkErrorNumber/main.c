@@ -7,19 +7,11 @@ const char init_script[] = "";
 
 int main(void)
 {
-#if defined(MCUSH_NON_OS)
-    while(1)
-    {
-        task_blink_entry();
-        task_mcush_entry();
-    }
-#else
     mcush_init();
     //test_delay_us();
     task_blink_init(); 
     mcush_start();
     while(1);
-#endif
 }
 
  

@@ -1,4 +1,3 @@
-#if !defined(MCUSH_NON_OS)
 #include "mcush.h"
 
 #define QUEUE_UART_RX_LEN    128
@@ -195,4 +194,3 @@ void shell_driver_write_char( char c )
         vTaskDelay(1);
 }
 
-#endif

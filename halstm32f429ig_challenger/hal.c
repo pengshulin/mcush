@@ -97,34 +97,6 @@ void hal_rcc_init(void)
 }
 
 
-#ifdef MCUSH_NON_OS
-extern uint32_t SystemCoreClock;
-unsigned int _sys_tick_cnt;
-void init_sys_tick(void)
-{
-    #define portNVIC_SYSTICK_CTRL_REG     ( * ( ( volatile uint32_t * ) 0xe000e010 ) )
-    #define portNVIC_SYSTICK_LOAD_REG     ( * ( ( volatile uint32_t * ) 0xe000e014 ) )
-	#define portNVIC_SYSTICK_CLK_BIT      ( 1UL << 2UL )
-    #define portNVIC_SYSTICK_INT_BIT      ( 1UL << 1UL )
-    #define portNVIC_SYSTICK_ENABLE_BIT   ( 1UL << 0UL )
-    portNVIC_SYSTICK_LOAD_REG = ( SystemCoreClock / configTICK_RATE_HZ ) - 1UL;
-    portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT );
-    _sys_tick_cnt = 0;
-}
-
-
-unsigned int get_sys_tick_count(void)
-{
-    return _sys_tick_cnt;
-}
-
-void SysTick_Handler( void )
-{
-    _sys_tick_cnt += 1;
-}
-
-#endif
-
 void hal_debug_init(void)
 {
 }
@@ -154,9 +126,6 @@ int hal_init(void)
 #endif
     if( !hal_uart_init(baudrate) )
         return 0;
-#ifdef MCUSH_NON_OS
-    init_sys_tick();
-#endif
     return 1;
 }
 

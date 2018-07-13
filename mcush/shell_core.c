@@ -668,40 +668,6 @@ int shell_set_script( const char *script, int need_free )
 }
 
 
-
-#if defined(MCUSH_NON_OS)
-#include "mcush_event.h"
-#include "shell.h"
-extern event_t event_mcush;
-
-void shell_proc_event_char(void)
-{
-    char c;
-    if( shell_read_char(&c) == -1 )
-        return;
-    
-    switch( shell_process_char(c) ) 
-    {
-    case 1:  /* end of line */
-        cb.cmdline[cb.cmdline_len] = 0;
-        if( cb.cmdline_len )
-        {
-            shell_add_cmd_to_history();
-            shell_process_command();
-        }
-        shell_write_str( shell_get_prompt() );
-        break;
-    case -1:  /* Ctrl-C */
-    case -2:  /* Ctrl-Z, end of input */
-        shell_write_str("\r\n");
-        shell_write_str( shell_get_prompt() );
-        break;
-    }
-}
-
-#else
-
- 
 int shell_read_line( char *buf, const char *prompt )
 {
     char c;
@@ -901,7 +867,4 @@ void shell_run( void )
     }
 }
 
-
-
-#endif
 

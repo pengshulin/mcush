@@ -128,11 +128,7 @@ void test_delay_ms(void)
 
 char *get_uptime_str(char *buf, int ms)
 {
-#if defined(MCUSH_NON_OS)
-    unsigned int t = get_sys_tick_count();
-#else
     unsigned int t = xTaskGetTickCount();
-#endif
     unsigned int s = t / configTICK_RATE_HZ;
     if( ms )
     {

@@ -87,8 +87,6 @@ const shell_cmd_t cmd_tab_blink[] = {
 {   CMD_END  } };
 
 
-#if !defined(MCUSH_NON_OS)
-
 #define DELAY_A   200*configTICK_RATE_HZ/1000  /* on for 1~9 */
 #define DELAY_B   500*configTICK_RATE_HZ/1000  /* off for 1~9 */
 #define DELAY_C  1000*configTICK_RATE_HZ/1000  /* on for 0 */
@@ -173,35 +171,4 @@ void task_blink_init(void)
         halt("create blink task");
     mcushTaskAddToRegistered((void*)task_blink);
 }
-#else
 
-event_t event_blink = EVT_INIT;
-
-
-
-void task_blink_entry(void)
-{
-    if( event_blink & EVT_INIT )
-    {
-        shell_add_cmd_table( cmd_tab_blink );
-        event_blink &= ~EVT_INIT;
-    }
-    else if( event_blink & EVT_TIMER )
-    {
-        event_blink &= ~EVT_TIMER;
-    //    if( _errno )
-    //    {
-    //        blink_errorno();
-    //        vTaskDelay(2000*configTICK_RATE_HZ/1000);
-    //    }
-    //    else
-    //    {
-    //        hal_led_toggle(0);
-    //        vTaskDelay(1000*configTICK_RATE_HZ/1000);
-    //    }
-    }
-}
-
-
-
-#endif

@@ -57,10 +57,6 @@
         #define USE_CMD_SYSTEM_STACK  1
     #endif
 #endif
-#if defined(MCUSH_NON_OS)
-    #undef USE_CMD_SYSTEM
-    #define USE_CMD_SYSTEM  0
-#endif
 
 #ifndef USE_CMD_MAPI
     #define USE_CMD_MAPI  1
@@ -688,13 +684,8 @@ loop_start:
  
     if( loop )
     {
-#if defined(MCUSH_NON_OS)
-        tick = get_sys_tick_count();
-        while( get_sys_tick_count() < tick + loop_delay*configTICK_RATE_HZ/1000 )
-#else
         tick = xTaskGetTickCount();
         while( xTaskGetTickCount() < tick + loop_delay*configTICK_RATE_HZ/1000 )
-#endif
         {
             if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 )
             {
@@ -1256,11 +1247,7 @@ int cmd_wait( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
-#if defined(MCUSH_NON_OS)
-    hal_delay_ms( ms );
-#else 
     vTaskDelay( ms * configTICK_RATE_HZ / 1000  );
-#endif
     return 0;
 }
 #endif
@@ -1325,9 +1312,7 @@ int cmd_wdg( int argc, char *argv[] )
     }
     else if( strcmp( cmd, "reset" ) == 0 )
     {
-#if !defined( MCUSH_NON_OS )
         portENTER_CRITICAL();
-#endif
         while(1);
     }
     else

@@ -2,18 +2,14 @@
 #ifndef __MCUSH_H__
 #define __MCUSH_H__
 #include <stdint.h>
-//#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#if defined(MCUSH_NON_OS)
-  #include "mcush_event.h"
-#else
-  #include "FreeRTOS.h"
-  #include "task.h"
-  #include "queue.h"
-  #include "mcush_freertos_api.h"
-#endif
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "mcush_freertos_api.h"
 #include "hal.h"
 #include "shell.h"
 #include "mcush_ver.h"
@@ -23,16 +19,6 @@
 #include "mcush_base64.h"
 
 
-#if defined(MCUSH_NON_OS)
-
-#ifndef configTICK_RATE_HZ
-    #define configTICK_RATE_HZ  250
-#endif
-
-void task_mcush_entry(void);
-unsigned int get_sys_tick_count(void);
-
-#else
 
 /* task priority
  * 6 -- highest (timer task)
@@ -105,7 +91,6 @@ unsigned int get_sys_tick_count(void);
 extern void mcush_init(void);
 extern void mcush_start(void);
 extern TaskHandle_t task_mcush;
-#endif
 
 
 #ifndef NULL

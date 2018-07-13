@@ -5,8 +5,6 @@
 #include "usb_pwr.h"
 
 
-#if !defined(MCUSH_NON_OS)
-
 extern uint8_t  USART_Rx_Buffer[USART_RX_DATA_SIZE]; 
 extern uint32_t USART_Rx_ptr_in;
 extern uint32_t USART_Rx_ptr_out;
@@ -141,6 +139,4 @@ void shell_driver_write_char( char c )
             return;
     }
 }
-
-#endif
 
