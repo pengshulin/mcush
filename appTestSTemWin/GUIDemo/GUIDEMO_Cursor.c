@@ -99,12 +99,15 @@ typedef struct {
 */
 
 static const CURSORTYPE_INFO _CursorArrow = {
-  &GUI_CursorArrowS, 'S',
-  &GUI_CursorArrowM, 'M',
+    {
+        {&GUI_CursorArrowS, 'S'},
+        {&GUI_CursorArrowM, 'M'},
   #if (NUM_CURSORS == 3)
-    &GUI_CursorArrowL, 'L',
-    "arrow cursors"
+        {&GUI_CursorArrowL, 'L'},
+    },
+  "arrow cursors"
   #else
+    },
     "arrow\ncursors"
   #endif
 };

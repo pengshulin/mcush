@@ -5,28 +5,17 @@ from VEnvironment import *
 haldir='stm32f407zg_eu'
 #haldir='stm32f767zi_nucleo'
 
-config = loadHalConfig( haldir )
-env = config.env
+env = loadHalConfig( haldir ).env
 
 env.appendOptimizeFlags()
 
 env.appendPath([
     '.',
-    '/libFreeRTOS',
-    '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% config.port,
-    '/mcush',
-    '/hal%s'% haldir,
 ])
 
 
 env.appendGlobSource([
     '*.c',
-    '/mcush/*.c',
-    '/hal%s/*.c'% haldir,
-    '/libFreeRTOS/*.c',
-    '/libFreeRTOS/portable/MemMang/heap_3.c',
-    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 

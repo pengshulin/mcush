@@ -5,28 +5,14 @@ haldir='stm32f103rb_pyeasycontrol'
 #haldir='stm32f103cb_tiny_controller'
 #haldir='stm32f407zg_eu'
 
-config = loadHalConfig( haldir )
-env = config.env
-
-
+env = loadHalConfig( haldir ).env
 
 env.appendPath([
     '.',
-    '/libFreeRTOS',
-    '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% config.port,
-    '/mcush',
-    '/hal%s'% haldir,
 ])
-
 
 env.appendGlobSource([
     '*.c',
-    '/mcush/*.c',
-    '/hal%s/*.c'% haldir,
-    '/libFreeRTOS/*.c',
-    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 env.makeApp()

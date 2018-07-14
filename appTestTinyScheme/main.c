@@ -2,13 +2,14 @@
 #include "task_blink.h"
 #include "scheme-private.h"
 
-void test_tinyscheme(int argc, char **argv)
+int test_tinyscheme(int argc, char **argv)
 {
     scheme sc;
     if( scheme_init(&sc) )
     {
         scheme_deinit(&sc);
     }
+    return 0;
 }
 
 int stat(void)
@@ -23,7 +24,7 @@ static shell_cmd_t cmd_tab[] = {
 //{   0, 't', "ts", tinyscheme_main, 
     "run tinyscheme interpreter",
     "ts <fname>"  },
-{   0,  0,  0,  0  } };
+{   CMD_END  } };
 
 
 

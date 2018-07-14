@@ -19,9 +19,11 @@ int cmd_disp( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_VALUE, "int", 'i', "int", "disp an integer", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
+          'i', "int", "int", "disp an integer" },
         { MCUSH_OPT_LITERAL },
-        { MCUSH_OPT_ARG, "data", 0, "data", "new data buffer", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
+          0, "data", "data", "new data buffer" },
         { MCUSH_OPT_NONE } };
     int integer=-1;
     int has_data=0;

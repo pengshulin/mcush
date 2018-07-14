@@ -4,12 +4,9 @@ from VEnvironment import *
 haldir='stm32f103rb_pyeasycontrol'
 #env = Stm32f407xx()
 
-config = loadHalConfig( haldir )
-env = config.env
-
+env = loadHalConfig( haldir ).env
 
 env.appendOptimizeFlags()
-
 
 env.appendDefineFlags( ['LED595_PORT=GPIOA', 'LED595_DAT=GPIO_Pin_0', 'LED595_SCK=GPIO_Pin_1', 'LED595_RCK=GPIO_Pin_2'] )
 env.appendDefineFlags( ['OW_GPIO=GPIOB', 'OW_PIN=14'] )
@@ -17,22 +14,12 @@ env.appendDefineFlags( ['OW_GPIO=GPIOB', 'OW_PIN=14'] )
 env.appendPath([
     '.',
     '/libow',
-    '/libFreeRTOS',
-    '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% config.port,
-    '/mcush',
-    '/hal%s'% haldir,
 ])
 
 
 env.appendGlobSource([
     '*.c',
     '/libow/*.c',
-    '/mcush/*.c',
-    '/hal%s/*.c'% haldir,
-    '/libFreeRTOS/*.c',
-    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 

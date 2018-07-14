@@ -1,8 +1,8 @@
 from VEnvironment import *
 
 haldir='stm32f407zg_eu'
-config = loadHalConfig( haldir )
-env = config.env
+
+env = loadHalConfig( haldir ).env
 
 env.appendDefineFlags( [ 'USE_LWIP_DEMO' ] )
 #env.appendDefineFlags( [ 'USE_LWIP_HTTPSERVER_SIMPLE' ] )
@@ -27,12 +27,6 @@ env.appendDefineFlags( [
 
 env.appendPath([
     '.',
-    '/libFreeRTOS',
-    '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% config.port,
-    '/mcush',
-    '/hal%s'% haldir,
-    '/hal%s/LAN8742A'% haldir,
     '/liblwip/lwip-2.0.3/port',
     '/liblwip/lwip-2.0.3/port/Standalone',
     '/liblwip/lwip-2.0.3/src/include',
@@ -47,12 +41,6 @@ env.appendPath([
 
 env.appendGlobSource([
     '*.c',
-    '/mcush/*.c',
-    '/libFreeRTOS/*.c',
-    '/libFreeRTOS/portable/MemMang/heap_3.c',
-    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
-    '/hal%s/*.c'% haldir,
-    '/hal%s/LAN8742A/*.c'% haldir,
     '/liblwip/lwip-2.0.3/src/core/*.c',
     '/liblwip/lwip-2.0.3/src/core/ipv4/*.c',
     '/liblwip/lwip-2.0.3/src/netif/ethernet.c',
@@ -71,7 +59,6 @@ env.appendGlobSource([
     '/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
     '/liblwip/lwip-2.0.3/src/apps/netbiosns/netbiosns.c',
 ])
-
 
 
 env.makeApp()

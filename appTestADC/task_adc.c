@@ -27,9 +27,12 @@ int cmd_adc( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "loop", 'l', 0, "loop mode", MCUSH_OPT_USAGE_REQUIRED },
-        { MCUSH_OPT_VALUE, "loop_delay", 0, "loop delay adc_value", "adc_value in ms", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
-        { MCUSH_OPT_VALUE, "index", 'i', "channel_index", "select channel", MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'l', "loop", 0, "loop mode" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          0, "loop_delay", "loop delay adc_value", "adc_value in ms" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'i', "index", "channel_index", "select channel" },
         { MCUSH_OPT_NONE } };
     int loop=0, loop_delay=-1;
     TickType_t tick;

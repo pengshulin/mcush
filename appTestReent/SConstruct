@@ -2,36 +2,20 @@ from VEnvironment import *
 
 haldir='stm32f407zg_eu'
 
-config = loadHalConfig( haldir )
-env = config.env
-
-
+env = loadHalConfig( haldir ).env
 
 env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     'MCUSH_TASK_REGISTRY_SIZE=20',
     ] ) 
 
-
 env.appendPath([
     '.',
-    '/libFreeRTOS',
-    '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% config.port,
-    '/mcush',
-    '/hal%s'% haldir,
 ])
 
 
 env.appendGlobSource([
     '*.c',
-    '/mcush/*.c',
-    '/hal%s/*.c'% haldir,
-    '/libFreeRTOS/*.c',
-    #'/libFreeRTOS/portable/MemMang/heap_1.c',  # simple malloc, not free
-    #'/libFreeRTOS/portable/MemMang/heap_2.c',  # simple malloc, with free, not combine
-    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
 ])
 
 env.makeApp()

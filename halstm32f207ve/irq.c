@@ -27,6 +27,10 @@ void USBWakeUp_IRQHandler(void)
 {
 }
 
+void USART1_IRQHandler(void)
+{
+}
+
 void USART2_IRQHandler(void)
 {
 }

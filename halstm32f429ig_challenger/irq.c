@@ -3,13 +3,10 @@
 
 void EXTI0_IRQHandler(void)
 {
-    //EXTI_ClearITPendingBit(EXTI_Line0);
 }
 
 void RTC_WKUP_IRQHandler (void)
 {
-    //RTC_ClearITPendingBit(RTC_IT_WUT);
-    //EXTI_ClearITPendingBit(EXTI_Line20);
 }
 
 void WWDG_IRQHandler(void)
@@ -27,7 +24,6 @@ void USB_LP_IRQHandler(void)
 void USB_FS_WKUP_IRQHandler(void)
 {
 }
-
 
 void USART2_IRQHandler(void)
 {

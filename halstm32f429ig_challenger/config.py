@@ -2,7 +2,6 @@ from Arm.Stm32 import *
 
 env = Stm32f429xx()
 env.setLinkfile( '/ld/stm32f429ig_sdram.ld' )
-port = 'ARM_CM4F'
 env.appendDefineFlags( [ 'HSE_VALUE=25000000', 'NEED_FMC' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 # NOTE:

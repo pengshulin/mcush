@@ -2,7 +2,6 @@ from Arm.Stm32 import *
 
 env = Stm32f407xx()
 env.setLinkfile( '/ld/stm32f407xg_min.ld' )
-port = 'ARM_CM4F'
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 env.appendDefineFlags( [ 'USE_CMD_UPGRADE=1' ] )
@@ -31,7 +30,7 @@ if USE_VFS:
         env.appendDefineFlags( [ 'MCUSH_SPIFFS=0' ] )
 
 
-
- 
-
+# additional hal path/sources
+#paths = ['LAN8742A']
+#sources = ['LAN8742A/*.c']
 

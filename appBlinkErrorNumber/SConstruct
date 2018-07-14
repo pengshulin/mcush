@@ -7,16 +7,14 @@ if haldir is None:
     haldir='stm32f767zi_nucleo'
     haldir='stm32f207zg_nucleo'
     haldir='stm32f103ze_redbull'
-    haldir='stm32f103cb_tiny_controller'
     haldir='stm32f103rb_pyeasycontrol'
-    haldir='stm32f429ig_challenger'
     haldir='stm32f207ve'
     haldir='stm32f103xb'
+    haldir='stm32f103cb_tiny_controller'
     haldir='stm32f407zg_eu'
+    haldir='stm32f429ig_challenger'
 
-
-config = loadHalConfig( haldir )
-env = config.env
+env = loadHalConfig( haldir ).env
 
 # disable some commands and reduce flash size
 env.appendDefineFlags( [
@@ -49,28 +47,12 @@ env.appendDefineFlags( [
 
 env.appendPath([
     '.',
-    '/libFreeRTOS',
-    '/libFreeRTOS/include',
-    '/libFreeRTOS/portable/GCC/%s'% config.port,
-    '/mcush',
-    '/hal%s'% haldir,
 ])
 
 
 env.appendGlobSource([
     './*.c',
-    '/mcush/*.c',
-    '/hal%s/*.c'% haldir,
 ])
-
-env.appendGlobSource([
-    '/libFreeRTOS/*.c',
-    #'/libFreeRTOS/portable/MemMang/heap_1.c',  # simple malloc, no free
-    #'/libFreeRTOS/portable/MemMang/heap_2.c',  # simple malloc, with free, no combine
-    '/libFreeRTOS/portable/MemMang/heap_3.c',  # normal
-    '/libFreeRTOS/portable/GCC/%s/port.c'% config.port,
-    ])
-
 
 
 #env.appendCompilerFlag(['-std=gnu90'])
