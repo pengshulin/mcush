@@ -10,16 +10,18 @@ def getenv_bool( key, default=None ):
 DEBUG=getenv_bool("DEBUG")
 CHIP=os.getenv("CHIP")
 if CHIP is None:
-    chip='stm32l152rb'
-    chip='stm32f103ze'
-    chip='stm32f103rb'
-    chip='stm32f407ve'
     chip='lpc4337'
-    chip='stm32f429ig'
-    chip='stm32f407zg'
+    chip='stm32l152'
+    chip='stm32f103'
+    chip='stm32f407'
+    chip='stm32f429'
 else:
     chip = CHIP
-print 'set chip as %s'% chip
+if chip is None:
+    raise Exception('CHIP not assigned')
+else:
+    print 'set chip as %s'% chip
+
 
 import glob
 import os, os.path
@@ -108,14 +110,13 @@ define init_regs
 python
 chip_mem_configs = {
 
-'stm32f030f4': [
+'stm32f030': [
 [ 0x08000000, 0x08003FFC, 'ro', 32, True,  'Flash 16k' ],
 [ 0x20000000, 0x20000FFC, 'rw', 32, False, 'SRAM 4k' ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 ],
 
-
-'stm32l152rb': [
+'stm32l152': [
 [ 0x08000000, 0x0801FFFC, 'ro', 32, True,  'Flash 128k' ],
 [ 0x20000000, 0x20003FFC, 'rw', 32, False, 'SRAM 16k' ],
 [ 0x22000000, 0x23FFFFFC, 'rw', 32, False, '' ],
@@ -123,13 +124,7 @@ chip_mem_configs = {
 [ 0x08080000, 0x08080FFF, 'rw', 8,  False, 'EEPROM 4k' ],
 ],
 
-'stm32f103rb': [
-[ 0x08000000, 0x0801FFFC, 'ro', 32, True,  'Flash 128k' ],
-[ 0x20000000, 0x20004FFC, 'rw', 32, False, 'SRAM 20k' ],
-[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
-],
-
-'stm32f103ze': [
+'stm32f103': [
 [ 0x08000000, 0x0807FFFC, 'ro', 32, True,  'Flash 512k' ],
 [ 0x20000000, 0x20013FFC, 'rw', 32, False, 'SRAM 80k' ],
 [ 0x22000000, 0x23FFFFFC, 'rw', 32, False, '', ],
@@ -144,15 +139,14 @@ chip_mem_configs = {
 [ 0x6C000000, 0x6FFFFFFE, 'rw', 16, False, 'FSMC/bank4' ],
 ],
 
-'stm32f207ve': [
-[ 0x08000000, 0x081FFFFC, 'ro', 32, True,  'Flash 1024k' ],
+'stm32f207': [
+[ 0x08000000, 0x081FFFFC, 'ro', 32, True,  'Flash 2M' ],
 [ 0x20000000, 0x2001FFFC, 'rw', 32, False, 'SRAM 128k' ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 ],
 
-'stm32f407zg': [
-[ 0x00000000, 0x000FFFFC, 'ro', 32, True,  'Flash 1M', ],
-[ 0x08000000, 0x080FFFFC, 'ro', 32, True,  '', ],
+'stm32f407': [
+[ 0x08000000, 0x081FFFFC, 'ro', 32, True,  'Flash 2M', ],
 [ 0x20000000, 0x2001FFFC, 'rw', 32, False, 'SRAM 128k', ],
 [ 0x10000000, 0x1000FFFC, 'rw', 32, False, 'CCM SRAM 64k', ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
@@ -162,16 +156,14 @@ chip_mem_configs = {
 [ 0x6C000000, 0x6FFFFFFE, 'rw', 16, False, 'FSMC/bank4', ],
 ],
 
-'stm32f429ig': [
-[ 0x00000000, 0x000FFFFC, 'ro', 32, True,  'Flash 1M', ],
-[ 0x08000000, 0x080FFFFC, 'ro', 32, True,  '', ],
+'stm32f429': [
+[ 0x08000000, 0x081FFFFC, 'ro', 32, True,  'Flash 2M', ],
 [ 0x20000000, 0x2002FFFC, 'rw', 32, False, 'SRAM 192k', ],
 [ 0x10000000, 0x1000FFFC, 'rw', 32, False, 'CCM SRAM 64k', ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 [ 0xD0000000, 0xD07FFFFE, 'rw', 16, False, 'FMS/Bank6 SDRAM 8M', ],
 [ 0xA0000000, 0xA0000FFE, 'rw', 16, False, 'FMC control register', ],
 ],
-
 
 'lpc4337': [
 [ 0x1A000000, 0x1A07FFFC, 'ro', 32, True,   'FLASH A', ],

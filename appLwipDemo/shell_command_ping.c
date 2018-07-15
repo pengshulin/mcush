@@ -1,4 +1,5 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
+#if USE_CMD_PING
 #include "mcush.h"
 #include "timers.h"
 #include "task_logger.h"
@@ -290,4 +291,4 @@ int cmd_ping( int argc, char *argv[] )
     return 0;
 }
 
-
+#endif

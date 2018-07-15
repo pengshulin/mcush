@@ -12,7 +12,7 @@
 #include "lwip/tcpip.h"
 #include "lwip/dns.h"
 #include "ethernetif.h"
-#include "LAN8742A.h"
+#include "hal_eth.h"
 #ifdef USE_LWIP_DEMO
   uint8_t httpd_started=0;
   #ifdef USE_LWIP_HTTPSERVER_SIMPLE

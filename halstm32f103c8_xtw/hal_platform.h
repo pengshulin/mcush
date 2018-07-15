@@ -7,7 +7,7 @@
 #define HAL_LED_REV
 
 
-#define USE_CMD_SGPIO  1
+#define USE_CMD_SGPIO  0
 
 #define SGPIO_FREQ_MIN  1.0
 #define SGPIO_FREQ_DEF  1000000.0

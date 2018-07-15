@@ -56,7 +56,9 @@ int hal_init(void)
     hal_debug_init();
     hal_gpio_init();
     hal_led_init();
+#if USE_CMD_SGPIO
     hal_sgpio_init();
+#endif
     if( !hal_uart_init(baudrate) )
         return 0;
     return 1;

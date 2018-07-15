@@ -1,4 +1,5 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
+#if USE_CMD_WGET
 #include "mcush.h"
 #include "timers.h"
 #include "task_logger.h"
@@ -416,4 +417,4 @@ int cmd_wget( int argc, char *argv[] )
     return lwcb.file_saved ? 0 : 1;
 }
 
-
+#endif

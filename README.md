@@ -39,6 +39,7 @@ ROADMAP
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
 * add bootloader and upgrade support
 * add practical utilities for network (lwip used), such as traceroute, ntp update...
+* add remote debug support
 
 
 ENVIRONMENT

@@ -4,16 +4,6 @@ env = Stm32f1md()
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDriver(STM32_USB_FS_Driver())
 
-env.appendDefineFlags( [ 'MCUSH_VFS=1', 'MCUSH_ROMFS=1' ] )
-
-USE_SPIFFS=True
-USE_SPIFFS=False
-
-if USE_SPIFFS:
-    env.appendDefineFlags( [ 'MCUSH_SPIFFS=1' ] )
-    env.appendPath([ '/libspiffs' ])
-    env.appendGlobSource([ '/libspiffs/*.c' ])
-
 env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
 
     

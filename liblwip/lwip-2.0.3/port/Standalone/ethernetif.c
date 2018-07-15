@@ -51,14 +51,14 @@
 #include "lwip/err.h"
 #include "netif/etharp.h"
 #include "ethernetif.h"
-//#include "includes.h"
-#if defined(STM32F40_41xxx)
-    #include "stm32f4x7_eth.h"
-#elif defined(STM32F429_439xx)
-    #include "stm32f429_eth.h"
-#else
-    #error "unknown platform"
-#endif
+#include "hal_eth.h"
+//#if defined(STM32F40_41xxx)
+//    #include "stm32f4x7_eth.h"
+//#elif defined(STM32F429_439xx)
+//    #include "stm32f429_eth.h"
+//#else
+//    #error "unknown platform"
+//#endif
 #include <string.h>
 #include "lwip_config.h"
 #include "mcush.h"
