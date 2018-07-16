@@ -3,7 +3,7 @@ from Arm.Stm32 import *
 
 haldir='stm32f407zg_eu'
 
-env = loadHalConfig( haldir ).env
+env = loadHalConfig( haldir, use_emwin=True ).env
 
 env.appendDefineFlags( [
     'MCUSH_STACK_SIZE=10240',
@@ -16,13 +16,11 @@ env.appendDefineFlags( [
 
 env.appendPath([
     '.',
-    '/hal%s/emwin_driver'% env.haldir,
     'GUIDemo',
 ])
 
 env.appendGlobSource([
     '*.c',
-    '/hal%s/emwin_driver/*.c'% env.haldir,
     'GUIDemo/*.c',
 ])
 
