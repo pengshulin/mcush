@@ -51,7 +51,6 @@ void hal_sgpio_stop( void );
 int hal_sgpio_set_freq( float freq );
 sgpio_cfg_t *hal_sgpio_info( void );
 
-#include "mcush_vfs.h"
 
 #ifndef MCUSH_SPIFFS
 #define MCUSH_SPIFFS  1
@@ -84,10 +83,12 @@ sgpio_cfg_t *hal_sgpio_info( void );
 #define sFLASH_CS_GPIO_PORT                  GPIOF
 #define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOF
 
+#include "mcush_vfs.h"
+
+
 
 #define LCD_ROW_NUM    320
 #define LCD_COL_NUM    240
-
 
 void hal_lcd_init(void);
 void hal_lcd_backlight(int on);

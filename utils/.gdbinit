@@ -9,14 +9,15 @@ def getenv_bool( key, default=None ):
     return False if ret is None else bool(ret in _bool_true_list)
 DEBUG=getenv_bool("DEBUG")
 CHIP=os.getenv("CHIP")
-if CHIP is None:
-    chip='lpc4337'
-    chip='stm32l152'
-    chip='stm32f103'
-    chip='stm32f407'
-    chip='stm32f429'
-else:
-    chip = CHIP
+#if CHIP is None:
+#    chip='lpc4337'
+#    chip='stm32l152'
+#    chip='stm32f103'
+#    chip='stm32f407'
+#    chip='stm32f429'
+#else:
+#    chip = CHIP
+chip = CHIP
 if chip is None:
     raise Exception('CHIP not assigned')
 else:

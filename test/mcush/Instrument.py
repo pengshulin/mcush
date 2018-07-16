@@ -293,6 +293,10 @@ class Instrument:
         else:
             time.sleep( delay )
 
+    def getRebootTimes( self ):
+        cmd = 'reboot -c'
+        self.writeCommand( cmd )
+
     def getModel( self ):
         if self.idn is None:
             self.scpiIdn()
