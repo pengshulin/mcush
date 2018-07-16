@@ -31,6 +31,7 @@
  */
 #ifndef __CC_H__
 #define __CC_H__
+#include <sys/time.h>
 
 #include "cpu.h"
 
