@@ -114,34 +114,43 @@ static const CURSORTYPE_INFO _CursorArrow = {
 
 
 static const CURSORTYPE_INFO _CursorArrowI = {
-  &GUI_CursorArrowSI, 'S',
-  &GUI_CursorArrowMI, 'M',
+    {
+        { &GUI_CursorArrowSI, 'S' },
+        { &GUI_CursorArrowMI, 'M' },
   #if (NUM_CURSORS == 3)
-    &GUI_CursorArrowLI, 'L',
+        { &GUI_CursorArrowLI, 'L' },
+    },
     "inverted arrow cursors"
   #else
+    },
     "inverted\narrow cursors"
   #endif
 };
 
 static const CURSORTYPE_INFO _CursorCross = {
-  &GUI_CursorCrossS, 'S',
-  &GUI_CursorCrossM, 'M',
+    {
+        { &GUI_CursorCrossS, 'S' },
+        { &GUI_CursorCrossM, 'M' },
   #if (NUM_CURSORS == 3)
-    &GUI_CursorCrossL, 'L',
+        { &GUI_CursorCrossL, 'L' },
+    },
     "cross cursors"
   #else
+    },
     "cross\ncursors"
   #endif
 };
 
 static const CURSORTYPE_INFO _CursorCrossI = {
-  &GUI_CursorCrossSI, 'S',
-  &GUI_CursorCrossMI, 'M',
+    {
+        { &GUI_CursorCrossSI, 'S' },
+        { &GUI_CursorCrossMI, 'M' },
   #if (NUM_CURSORS == 3)
-    &GUI_CursorCrossLI, 'L',
+        { &GUI_CursorCrossLI, 'L' },
+    },
     "inverted cross cursors"
   #else
+    },
     "inverted\ncross cursors"
   #endif
 };
