@@ -13,6 +13,11 @@ void test_delay_ms(void);
 char *get_uptime_str(char *buf, int ms);
 char *get_rtc_str(char *buf);
 
+char *rstrip( char *s );
+char *lstrip( char *s );
+char *strip( char *s );
+
+
 #endif
 
 

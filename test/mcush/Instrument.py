@@ -64,6 +64,9 @@ class Instrument:
         else:
             logging.basicConfig( level=logging.FATAL )
         self.logger = logging.getLogger( self.DEFAULT_NAME )
+        self.check_return_command = self.DEFAULT_CHECK_RETURN_COMMAND
+        self.returned_cmd = None
+        self.returned_prompt = None
 
         # load from parms/env/default and saved as attributes
         self.logger.debug( '__init__: args: %s'% str(args) )
@@ -203,7 +206,7 @@ class Instrument:
             if line:
                 self.logger.debug( line )
         self.checkReturnedPrompt( ret )
-        if self.DEFAULT_CHECK_RETURN_COMMAND:
+        if self.check_return_command:
             self.checkReturnedCommand( ret, cmd )
         return ret[1:-1] 
     
@@ -231,8 +234,8 @@ class Instrument:
 
     def checkReturnedPrompt( self, ret ):
         '''assert prompt is valid'''
-        cmd = ret[0]
-        prompt = ret[-1]
+        self.returned_cmd = cmd = ret[0].strip()
+        self.returned_prompt = prompt = ret[-1].strip()
         if prompt in ['?>', '?']:
             raise CommandSyntaxError( cmd )
         elif prompt == '!>':
@@ -338,7 +341,7 @@ class Instrument:
 
 
 
-class Port:
+class Port(object):
     
     def __init__( self, parent, *args, **kwargs ):
         self.parent = parent
@@ -368,7 +371,10 @@ class Port:
     def flush( self ):
         pass
 
-    @property        
+    def readall( self ):
+        raise
+
+    @property
     def timeout( self ):
         return None
 
@@ -425,6 +431,9 @@ class SerialPort(Port):
             return self.ser.read(read_bytes)
         except self.serial_exception as e:
             raise UnknownPortError( str(e) )
+    
+    def readall( self ):
+        return self.read( self.ser.in_waiting )
 
     def write( self, buf ):
         try:
@@ -460,6 +469,7 @@ class SerialPort(Port):
         except self.serial_exception as e:
             raise UnknownPortError( str(e) )
  
+
 
 class SerialInstrument(Instrument):
     '''Serial port based instruments'''

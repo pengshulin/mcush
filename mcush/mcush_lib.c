@@ -160,3 +160,51 @@ char *get_rtc_str(char *buf)
 }
 
 
+char *rstrip( char *s )
+{
+    unsigned int l = strlen(s);
+    while( l )
+    {
+        switch( s[l-1] )
+        {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            s[l-1] = 0;
+            l -= 1;
+            break;
+        case 0:
+        default:
+            return s;
+        }
+    }
+    return s;
+}
+
+
+char *lstrip( char *s )
+{
+    while( 1 )
+    {
+        switch( *s )
+        {
+        case ' ':
+        case '\t':
+        case '\r':
+        case '\n':
+            s++;
+            break;
+        case 0:
+        default:
+            return s;
+        }
+    }
+}
+
+
+char *strip( char *s )
+{
+    return rstrip(lstrip(s));
+}
+
