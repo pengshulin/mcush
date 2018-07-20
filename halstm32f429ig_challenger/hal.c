@@ -121,7 +121,7 @@ int hal_init(void)
 #if HAL_RTC
     hal_rtc_init();
 #endif
-#if defined(HAL_LCD) && HAL_LCD
+#if HAL_LCD
     hal_lcd_init();
 #endif
     if( !hal_uart_init(baudrate) )

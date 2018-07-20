@@ -118,6 +118,7 @@ extern int  shell_driver_read_char_blocked( char *c, int block_time );
 extern int  shell_driver_read_is_empty( void );
 extern int  shell_driver_write( const char *buffer, int len );
 extern void shell_driver_write_char( char c );
+extern void shell_driver_write_flush( void );
 
 
 /* constant strings */

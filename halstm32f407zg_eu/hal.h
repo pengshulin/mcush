@@ -1,7 +1,6 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 #include <stdint.h>
-#define HSE_VALUE  8000000
 
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"

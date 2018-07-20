@@ -1,6 +1,7 @@
 from VEnvironment import *
 
-haldir='stm32f407zg_eu'
+if not haldir:
+    haldir='stm32f407zg_eu'
 
 env = loadHalConfig( haldir, use_vfs=True, use_romfs=True, use_spiffs=True, use_eth=True ).env
 

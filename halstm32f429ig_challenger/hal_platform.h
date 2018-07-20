@@ -1,6 +1,8 @@
 #ifndef __HAL_PLATFORM_H__
 #define __HAL_PLATFORM_H__
 
+#define HSE_VALUE  25000000
+
 #define HAL_LED_REV
 #define HAL_LED_NUM   4
 #define HAL_LED_PORTS  { GPIOD, GPIOH, GPIOH, GPIOH } 

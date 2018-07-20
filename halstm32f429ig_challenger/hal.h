@@ -1,7 +1,6 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 #include <stdint.h>
-#define HSE_VALUE  25000000
 
 #include "stm32f4xx.h"
 #include "stm32f4xx_conf.h"
@@ -29,6 +28,7 @@ void hal_reboot(void);
 void hal_reboot_counter_init(void);
 void hal_reboot_counter_reset(void);
 unsigned int hal_reboot_counter_get(void);
+
 
 
 int hal_gpio_get_port_num(void);
