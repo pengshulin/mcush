@@ -6,7 +6,6 @@
 
 #define DEBUG_ROTATE  0
 
-TaskHandle_t  task_logger;
 QueueHandle_t queue_logger;
 QueueHandle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
@@ -309,8 +308,9 @@ void task_logger_entry(void *p)
 
 void task_logger_init(void)
 {
-    shell_add_cmd_table( cmd_tab_logger );
+    TaskHandle_t task_logger;
 
+    shell_add_cmd_table( cmd_tab_logger );
     xTaskCreate(task_logger_entry, (const char *)"logT", TASK_LOGGER_STACK_SIZE, NULL, TASK_LOGGER_PRIORITY, &task_logger);
     if( task_logger == NULL )
         halt("create logger task");

@@ -119,8 +119,6 @@ void blink_digit( int digit, int led )
 
 
 
-TaskHandle_t  task_blink;
-
 void task_blink_entry(void *p)
 {
     int i, digit, pos, skip;
@@ -163,6 +161,7 @@ void task_blink_entry(void *p)
 
 void task_blink_init(void)
 {
+    TaskHandle_t task_blink;
     shell_add_cmd_table( cmd_tab_blink );
     (void)xTaskCreate(task_blink_entry, (const char *)"blinkT", 
                 TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),

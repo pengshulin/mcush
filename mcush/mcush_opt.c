@@ -19,6 +19,7 @@
 
 #define INLINE(type) static inline type
 
+const char str_1[] = "1";
 
 INLINE(const mcush_opt_spec *) spec_byname(
     mcush_opt_parser *parser, const char *name, size_t namelen)
@@ -93,12 +94,18 @@ static void parse_long(mcush_opt *opt, mcush_opt_parser *parser)
         parser->in_literal = 1;
     }
 
-    /* Parse values as "--foo=bar" or "--foo bar" */
-    if (spec->type == MCUSH_OPT_VALUE) {
-        if (eql)
-            opt->value = eql + 1;
-        else if ((parser->idx + 1) <= parser->args_len)
-            opt->value = parser->args[parser->idx++];
+    /* Parse values as "--foo=bar", "--foo bar" or "-foo" */
+    if (spec->type == MCUSH_OPT_VALUE)
+    {
+        if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+        {
+            if (eql)
+                opt->value = eql + 1;  /* "--foo=bar" */
+            else if ((parser->idx + 1) <= parser->args_len)
+                opt->value = parser->args[parser->idx++];  /* "--foo bar" */
+        }
+        else
+            opt->value = str_1;  /* "--foo" */
     }
 }
 
@@ -116,12 +123,18 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
 
     opt->spec = spec;
 
-    /* Parse values as "-ifoo" or "-i foo" */
-    if (spec->type == MCUSH_OPT_VALUE) {
-        if (strlen(arg) > 2)
-            opt->value = arg + 2;
-        else if ((parser->idx + 1) <= parser->args_len)
-            opt->value = parser->args[parser->idx++];
+    /* Parse values as "-ifoo", "-i foo" or "-i" */
+    if (spec->type == MCUSH_OPT_VALUE)
+    {
+        if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+        {
+            if (strlen(arg) > 2)
+                opt->value = arg + 2;  /* "-ifoo" */
+            else if ((parser->idx + 1) <= parser->args_len)
+                opt->value = parser->args[parser->idx++];  /* "-i foo" */
+        }
+        else
+            opt->value = str_1;  /* "-i" */
     }
 }
 

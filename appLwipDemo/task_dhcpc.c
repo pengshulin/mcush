@@ -297,9 +297,9 @@ const shell_cmd_t cmd_tab_lwip[] = {
 
 void task_dhcpc_init(void)
 {
-    shell_add_cmd_table( cmd_tab_lwip );
     TaskHandle_t  task_dhcpc;
 
+    shell_add_cmd_table( cmd_tab_lwip );
     queue_dhcpc = xQueueCreate( TASK_DHCPC_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(uint8_t) );
     if( !queue_dhcpc )
         halt( "create dhdpc queue" );
