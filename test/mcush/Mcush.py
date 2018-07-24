@@ -399,4 +399,13 @@ class Mcush( Instrument.SerialInstrument ):
         HOUR, MIN, SEC = t.split(':')
         return (int(YEAR), int(MONTH), int(MDAY), int(HOUR), int(MIN), int(SEC), 0, 1, -1)
 
- 
+    def log( self, message=None, enable=None ):
+        cmdline = 'log'
+        if enable is not None:
+            cmdline += ' -e' if enable else ' -d'
+        if message is not None:
+            cmdline += ' -m \"%s\"'% str(message)
+        return self.writeCommand( cmdline )
+
+
+

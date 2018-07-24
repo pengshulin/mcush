@@ -311,10 +311,6 @@ void task_logger_init(void)
     TaskHandle_t task_logger;
 
     shell_add_cmd_table( cmd_tab_logger );
-    xTaskCreate(task_logger_entry, (const char *)"logT", TASK_LOGGER_STACK_SIZE, NULL, TASK_LOGGER_PRIORITY, &task_logger);
-    if( task_logger == NULL )
-        halt("create logger task");
-    mcushTaskAddToRegistered((void*)task_logger);
 
     queue_logger = xQueueCreate(TASK_LOGGER_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));  
     if( queue_logger == NULL )
@@ -325,5 +321,10 @@ void task_logger_init(void)
     if( queue_logger_monitor == NULL )
         halt("create logger monitor queue");
     vQueueAddToRegistry( queue_logger_monitor, "logMQ" );
+
+    xTaskCreate(task_logger_entry, (const char *)"logT", TASK_LOGGER_STACK_SIZE, NULL, TASK_LOGGER_PRIORITY, &task_logger);
+    if( task_logger == NULL )
+        halt("create logger task");
+    mcushTaskAddToRegistered((void*)task_logger);
 }
 

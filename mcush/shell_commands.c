@@ -458,7 +458,7 @@ int cmd_upgrade( int argc, char *argv[] )
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'f', "file", "upgrade file", "binary file name" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           's', "sign", "signature", "CRC signature" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;

@@ -162,7 +162,9 @@ void task_blink_entry(void *p)
 void task_blink_init(void)
 {
     TaskHandle_t task_blink;
+
     shell_add_cmd_table( cmd_tab_blink );
+
     (void)xTaskCreate(task_blink_entry, (const char *)"blinkT", 
                 TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
                 NULL, TASK_BLINK_PRIORITY, &task_blink);

@@ -94,18 +94,46 @@ static void parse_long(mcush_opt *opt, mcush_opt_parser *parser)
         parser->in_literal = 1;
     }
 
-    /* Parse values as "--foo=bar", "--foo bar" or "-foo" */
-    if (spec->type == MCUSH_OPT_VALUE)
+    /* parse values in this order:
+         (single argument mode)
+       1. "--foo=bar" 
+       2. "--foo=" --> "--foo=(NULL)" (VALUE_REQUIRED set)
+                   --> "--foo=1" (VALUE_REQUIRED not set)
+         (VALUE_REQUIRED is set)
+       3. "--foo bar" 
+       4. "--foo (NULL)" if value is not found, usually end of line (EOL)
+         (VALUE_REQUIRED not set)
+       5. "--foo foo" if next argument does not starts with '-'
+       6. "--foo" treat as "--foo 1" if EOL or next argument starts with '-'
+     */
+    if( spec->type == MCUSH_OPT_VALUE )
     {
-        if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+        if( eql )
         {
-            if (eql)
-                opt->value = eql + 1;  /* "--foo=bar" */
-            else if ((parser->idx + 1) <= parser->args_len)
+            opt->value = eql + 1;  /* "--foo=bar" */
+            if( *opt->value == 0 )
+            {
+                if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+                    opt->value = 0;  /* "--foo=" -> "--foo=(NULL)" */
+                else
+                    opt->value = str_1;  /* "--foo=", treated as "--foo=1" */
+            }
+        }
+        else if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+        {
+            if ((parser->idx + 1) <= parser->args_len)
                 opt->value = parser->args[parser->idx++];  /* "--foo bar" */
+            else
+                opt->value = 0;  /* "--foo (NULL)" is the last arguments */
         }
         else
-            opt->value = str_1;  /* "--foo" */
+        {
+            if( ((parser->idx + 1) <= parser->args_len)
+                && (parser->args[parser->idx][0] != '-') )
+                opt->value = parser->args[parser->idx++];  /* "--foo bar" */
+            else
+                opt->value = str_1;  /* "--foo", treated as "--foo 1" */
+        }
     }
 }
 
@@ -114,35 +142,69 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
     const mcush_opt_spec *spec;
     const char *arg = parser->args[parser->idx++], alias = *(arg + 1);
 
-    if ((spec = spec_byalias(parser, alias)) == NULL) {
+    if( (spec = spec_byalias(parser, alias)) == NULL )
+    {
         opt->spec = NULL;
         opt->value = arg;
-
         return;
     }
 
     opt->spec = spec;
 
-    /* Parse values as "-ifoo", "-i foo" or "-i" */
-    if (spec->type == MCUSH_OPT_VALUE)
+    /* parse values in this order:
+         (single argument mode)
+       1. "-ifoo"  "-i=foo"
+       2. "-i=" --> "-i=(NULL)" (VALUE_REQUIRED set)
+                --> "-i=1" (VALUE_REQUIRED not set)
+         (VALUE_REQUIRED is set)
+       3. "-i foo" 
+       4. "-i (NULL)" if value is not found, usually end of line (EOL)
+         (VALUE_REQUIRED not set)
+       5. "-i foo" if next argument does not starts with '-'
+       6. "-i" treat as "-i 1" if EOL or next argument starts with '-'
+     */
+    if( spec->type == MCUSH_OPT_VALUE )
     {
-        if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+        if( strlen(arg) > 2 )
         {
-            if (strlen(arg) > 2)
-                opt->value = arg + 2;  /* "-ifoo" */
-            else if ((parser->idx + 1) <= parser->args_len)
+            opt->value = arg + 2;  /* "-ifoo" */
+            if( *opt->value == '=' )
+            {
+                opt->value++;  /* "-i=foo" */
+                if( *opt->value == 0 )
+                {
+                    if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+                        opt->value = 0;  /* "-i=" -> "-i (NULL)" */
+                    else
+                        opt->value = str_1;  /* "-i", treated as "-i 1" */
+                }
+            }
+        }
+        else if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
+        {
+            if( (parser->idx + 1) <= parser->args_len )
                 opt->value = parser->args[parser->idx++];  /* "-i foo" */
+            else
+                opt->value = 0;  /* "-i" is the last arguments */
         }
         else
-            opt->value = str_1;  /* "-i" */
+        {
+            if( ((parser->idx + 1) <= parser->args_len)
+                && (parser->args[parser->idx][0] != '-') )
+                opt->value = parser->args[parser->idx++];  /* "-i foo" */
+            else
+                opt->value = str_1;  /* "-i", treated as "-i 1" */
+        }
     }
 }
+
 
 static void parse_arg(mcush_opt *opt, mcush_opt_parser *parser)
 {
     opt->spec = spec_nextarg(parser);
     opt->value = parser->args[parser->idx++];
 }
+
 
 void mcush_opt_parser_init(
     mcush_opt_parser *parser,
@@ -158,6 +220,7 @@ void mcush_opt_parser_init(
     parser->args = args;
     parser->args_len = args_len;
 }
+
 
 int mcush_opt_parser_next(mcush_opt *opt, mcush_opt_parser *parser)
 {
@@ -184,6 +247,7 @@ int mcush_opt_parser_next(mcush_opt *opt, mcush_opt_parser *parser)
 
     return 1;
 }
+
 
 int mcush_opt_usage_print(
     const char *command,
