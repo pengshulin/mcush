@@ -191,16 +191,59 @@ static int _logger_str( int type, const char *str, int isr_mode )
     return err ? 0 : 1;
 }
 
-int logger_str( int type, const char *str )
-{
-    return _logger_str( type, str, 0 );
-}
-
+/* isr APIs */
 int logger_str_isr( int type, const char *str )
 {
     return _logger_str( type, str, 1 );
 }
 
+int logger_debug_isr( const char *str )
+{
+    return _logger_str( LOG_DEBUG, str, 1 );
+}
+
+int logger_info_isr( const char *str )
+{
+    return _logger_str( LOG_INFO, str, 1 );
+}
+
+int logger_warn_isr( const char *str )
+{
+    return _logger_str( LOG_WARN, str, 1 );
+}
+
+int logger_error_isr( const char *str )
+{
+    return _logger_str( LOG_ERROR, str, 1 );
+}
+
+/* normal APIs */
+int logger_str( int type, const char *str )
+{
+    return _logger_str( type, str, 0 );
+}
+
+int logger_debug( const char *str )
+{
+    return _logger_str( LOG_DEBUG, str, 0 );
+}
+
+int logger_info( const char *str )
+{
+    return _logger_str( LOG_INFO, str, 0 );
+}
+
+int logger_warn( const char *str )
+{
+    return _logger_str( LOG_WARN, str, 0 );
+}
+
+int logger_error( const char *str )
+{
+    return _logger_str( LOG_ERROR, str, 0 );
+}
+
+/* printf APIs */
 int logger_printf( int type, char *fmt, ... )
 {
     va_list ap;

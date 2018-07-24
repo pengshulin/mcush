@@ -41,7 +41,17 @@ typedef struct _logger_event_t
 void task_logger_init(void);
 
 int logger_str( int type, const char *str );
+int logger_debug( const char *str );
+int logger_info( const char *str );
+int logger_warn( const char *str );
+int logger_error( const char *str );
+
 int logger_str_isr( int type, const char *str );
+int logger_debug_isr( const char *str );
+int logger_info_isr( const char *str );
+int logger_warn_isr( const char *str );
+int logger_error_isr( const char *str );
+
 int logger_printf( int type, char *fmt, ... );
 
 #endif
