@@ -131,13 +131,15 @@ int mcush_spiffs_seek( int fh, int offs, int where )
 
 int mcush_spiffs_flush( int fh )
 {
-    return SPIFFS_fflush( &_fs, fh );
+    int ret = SPIFFS_fflush( &_fs, fh );
+    return ret < 0 ? 0 : ret;
 }
 
 
 int mcush_spiffs_close( int fh )
 {
-    return SPIFFS_close( &_fs, fh );
+    int ret = SPIFFS_close( &_fs, fh );
+    return ret < 0 ? 0 : ret;
 }
 
 

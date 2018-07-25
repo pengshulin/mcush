@@ -54,7 +54,9 @@ int hal_init(void)
 {
     hal_wdg_init();
     hal_rcc_init();
+#if HAL_REBOOT_COUNTER
     hal_reboot_counter_init();
+#endif
     hal_debug_init();
     hal_gpio_init();
     hal_led_init();

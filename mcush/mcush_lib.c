@@ -150,13 +150,49 @@ char *get_rtc_str(char *buf)
     {
         sprintf( buf, "%d-%d-%d %02d:%02d:%02d", t.tm_year, t.tm_mon, t.tm_mday,
                         t.tm_hour, t.tm_min, t.tm_sec );
+        return buf;
     }
-    else
-        strcpy( buf, "RTC ERR" );
-#else
-    strcpy( buf, "NO RTC" );
 #endif
-    return buf;
+    return 0;
+}
+
+
+int set_rtc_by_str( char *s )
+{
+#if HAL_RTC
+    struct tm t;
+    if( 6 == sscanf( s, "%d-%d-%d %d:%d:%d", 
+                     &t.tm_year, &t.tm_mon, &t.tm_mday,
+                     &t.tm_hour, &t.tm_min, &t.tm_sec ) )
+    {
+        t.tm_wday = 0;
+        t.tm_yday = 0;
+        t.tm_isdst = 0;
+        if( hal_rtc_set( &t ) )
+            return 1;
+    }
+#endif
+    return 0;
+}
+
+
+int set_rtc_by_val( int year, int mon, int mday, int hour, int min, int sec )
+{
+#if HAL_RTC
+    struct tm t;
+    t.tm_year = year;
+    t.tm_mon = mon;
+    t.tm_mday = mday;
+    t.tm_hour = hour;
+    t.tm_min = min;
+    t.tm_sec = sec;
+    t.tm_wday = 0;
+    t.tm_yday = 0;
+    t.tm_isdst = 0;
+    if( hal_rtc_set( &t ) )
+        return 1;
+#endif
+    return 0;
 }
 
 

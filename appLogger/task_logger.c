@@ -20,7 +20,8 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
     char tp[2];
 
 #if HAL_RTC
-    get_rtc_str( buf );
+    if( ! get_rtc_str( buf ) )
+        get_uptime_str( buf, 1 ); 
 #else
     get_uptime_str( buf, 1 ); 
 #endif
