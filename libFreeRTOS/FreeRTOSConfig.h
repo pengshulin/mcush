@@ -61,7 +61,9 @@ extern uint32_t SystemCoreClock;
     #define configCHECK_FOR_STACK_OVERFLOW      2
 #endif
 
-#define configQUEUE_REGISTRY_SIZE               8
+#ifndef configCHECK_FOR_STACK_OVERFLOW
+    #define configQUEUE_REGISTRY_SIZE           8
+#endif
 
 #define INCLUDE_vTaskDelay                      1
 #define INCLUDE_vTaskDelayUntil                 1

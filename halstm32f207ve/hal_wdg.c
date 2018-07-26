@@ -14,8 +14,10 @@ void hal_wdg_init(void)
     //IWDG_SetPrescaler( IWDG_Prescaler_128 );  /* 128 * 0xfff / 32768 -> 16s */
     //IWDG_SetPrescaler( IWDG_Prescaler_256 );  /* 256 * 0xfff / 32768 -> 32s */
 
-    /* TODO: enable if necessary */
-    //hal_wdg_enable();
+    /* enable if necessary */
+#if HAL_WDG_ENABLE
+    hal_wdg_enable();
+#endif
 }
 
 int hal_wdg_is_enable(void)
