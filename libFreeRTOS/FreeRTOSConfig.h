@@ -61,7 +61,7 @@ extern uint32_t SystemCoreClock;
     #define configCHECK_FOR_STACK_OVERFLOW      2
 #endif
 
-#ifndef configCHECK_FOR_STACK_OVERFLOW
+#ifndef configQUEUE_REGISTRY_SIZE
     #define configQUEUE_REGISTRY_SIZE           8
 #endif
 
