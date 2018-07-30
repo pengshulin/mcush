@@ -1,40 +1,5 @@
 #include "mcush.h"
 
-const unsigned int baudrate=9600;
-
-
-void hal_delay_us(uint32_t us)
-{
-    volatile uint32_t a;
-    while( us-- )
-    {
-        for( a=0; a<4; a++ )
-        {
-            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-            __NOP(); __NOP(); __NOP();
-        }
-    }
-}
-
-
-void hal_delay_ms(uint32_t ms)
-{
-    volatile uint32_t a;
-    while(ms--)
-    {
-        for(a=12000; a; a--); 
-    }
-}
-
-
-void hal_delay_10ms(uint32_t ms)
-{
-    hal_delay_ms( ms*10 );
-}
-
 
 void _test_clk_output(void)
 {
@@ -72,9 +37,9 @@ void hal_rcc_init(void)
         RCC_HCLKConfig(RCC_SYSCLK_Div1);
         RCC_PCLK1Config(RCC_HCLK_Div4);
         RCC_PCLK2Config(RCC_HCLK_Div2);
-        //RCC_PLLConfig(RCC_PLLSource_HSE, 8, 336, 2, 7);   /* 8M / 8 * 336 / 2 = 168M */
-        RCC_PLLConfig(RCC_PLLSource_HSE, 8, 320, 2, 7);   /* 8M / 8 * 320 / 2 = 160M */
-        //RCC_PLLConfig(RCC_PLLSource_HSE, 8, 300, 2, 7);   /* 8M / 8 * 300 / 2 = 150M */
+        //RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000, 336, 2, 7);   /* 1M * 336 / 2 = 168M */
+        RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000, 320, 2, 7);   /* 1M * 320 / 2 = 160M */
+        //RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000, 300, 2, 7);   /* 1M * 300 / 2 = 150M */
         RCC_PLLCmd(ENABLE);
         while( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) { }
      
@@ -115,13 +80,15 @@ void hal_reset(void)
 
 int hal_init(void)
 {
-    hal_wdg_init();
-    //SetSysClock();
     hal_rcc_init();
+    hal_wdg_init();
+#if HAL_REBOOT_COUNTER
     hal_reboot_counter_init();
+#endif
     hal_debug_init();
     hal_gpio_init();
     hal_led_init();
+    //test_delay_us();
 #if USE_CMD_SGPIO
     hal_sgpio_init();
 #endif
@@ -134,7 +101,7 @@ int hal_init(void)
 #if HAL_LCD
     hal_lcd_init();
 #endif
-    if( !hal_uart_init(baudrate) )
+    if( !hal_uart_init(SHELL_DEFAULT_BAUDRATE) )
         return 0;
     return 1;
 }

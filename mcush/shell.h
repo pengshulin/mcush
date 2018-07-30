@@ -2,6 +2,9 @@
 #ifndef _SHELL_H_
 #define _SHELL_H_
 
+#ifndef SHELL_DEFAULT_BAUDRATE
+    #define SHELL_DEFAULT_BAUDRATE  9600
+#endif
 #ifndef SHELL_CMDLINE_LEN
     #define SHELL_CMDLINE_LEN    128
 #endif

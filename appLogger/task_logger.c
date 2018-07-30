@@ -54,13 +54,25 @@ int cmd_logger( int argc, char *argv[] )
           'e', "enable", 0, "enable logging to file" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'h', "history", 0, "list history from log file" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'D', "debug", 0, "DEBUG type filter" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'I', "info", 0, "INFO type filter" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'W', "warn", 0, "WARN type filter" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'E', "error", 0, "ERROR type filter" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'H', "head", "head", "message head filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'm', "msg", "message", "log message" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int8_t enable, enable_set=0, history_set=0;
-    const char *msg=0;
+    int8_t enable, enable_set=0, history_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0;
+    int8_t filter_mode=0;
+    const char *msg=0, *head=0;
+    uint8_t head_len=0;
     logger_event_t evt;
     char c;
     char buf[256];
@@ -82,6 +94,25 @@ int cmd_logger( int argc, char *argv[] )
             }
             else if( strcmp( opt.spec->name, "history" ) == 0 )
                 history_set = 1;
+            else if( strcmp( opt.spec->name, "debug" ) == 0 )
+                debug_set = 1;
+            else if( strcmp( opt.spec->name, "info" ) == 0 )
+                info_set = 1;
+            else if( strcmp( opt.spec->name, "warn" ) == 0 )
+                warn_set = 1;
+            else if( strcmp( opt.spec->name, "error" ) == 0 )
+                error_set = 1;
+            else if( strcmp( opt.spec->name, "head" ) == 0 )
+            {
+                head = opt.value;
+                if( head == 0 )
+                {
+                    shell_write_err("head");
+                    return -1;
+                }
+                else
+                    head_len = strlen(head);
+            }
             else if( strcmp( opt.spec->name, "msg" ) == 0 )
             {
                 msg = opt.value;
@@ -91,6 +122,7 @@ int cmd_logger( int argc, char *argv[] )
                     return -1;
                 }
             }
+ 
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -119,12 +151,28 @@ int cmd_logger( int argc, char *argv[] )
     else
     {
         monitoring_mode = 1;
+        if( debug_set )
+            filter_mode |= LOG_DEBUG;
+        if( info_set )
+            filter_mode |= LOG_INFO;
+        if( warn_set )
+            filter_mode |= LOG_WARN;
+        if( error_set )
+            filter_mode |= LOG_ERROR;
+        if( filter_mode == 0 )
+            filter_mode = LOG_DEBUG | LOG_INFO | LOG_WARN | LOG_ERROR;  /* all messages allowed */
         while( 1 )
         {
             if( xQueueReceive( queue_logger_monitor, &evt, 100*configTICK_RATE_HZ/1000 ) == pdTRUE )
             {
-                convert_logger_event_to_str( &evt, buf );
-                shell_write_str( buf );
+                if( evt.type & filter_mode )
+                {
+                    if( (head==0) || (strncmp(evt.str, head, head_len) == 0) )
+                    {
+                        convert_logger_event_to_str( &evt, buf );
+                        shell_write_str( buf );
+                    }
+                }
                 free( evt.str );
             }
 
@@ -290,15 +338,18 @@ int rotate_log_files( const char *src_fname, int level )
 void task_logger_entry(void *p)
 {
     logger_event_t evt;
+#if MCUSH_SPIFFS
     int fd = 0;
     char buf[256];
     int size = -1;
     int i, j;
+#endif
 
     while( 1 )
     {
         if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) == pdTRUE )
         {
+#if MCUSH_SPIFFS
             /* check file size from filesystem only once */ 
             if( size < 0 )
             {
@@ -331,7 +382,8 @@ void task_logger_entry(void *p)
                 else
                     set_errno( 11 );
             }
-               
+#endif
+   
             /* forward event to shell_monitor or clean up directly */ 
             if( monitoring_mode )
             {

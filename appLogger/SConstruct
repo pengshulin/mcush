@@ -1,7 +1,9 @@
 from VEnvironment import *
 
-haldir='stm32f407zg_eu'
-haldir='stm32f429ig_challenger'
+if haldir is None:
+    # the last one is selected
+    haldir='stm32f407zg_eu'
+    haldir='stm32f429ig_challenger'
 
 env = loadHalConfig( haldir ).env
 

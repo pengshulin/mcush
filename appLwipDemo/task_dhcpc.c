@@ -149,7 +149,13 @@ void do_lwip_init(void)
     gw.addr = 0;
     
     if( !load_mac_from_conf_file("/s/mac") )
-        load_mac_from_conf_file("/c/mac");
+    {
+        if( !load_mac_from_conf_file("/c/mac") )
+        {
+            logger_error( "no mac addr" );
+            memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
+        }
+    }
     logger_mac( "mac:", mac_address_init, 0 );
     
     netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
@@ -179,7 +185,7 @@ void task_dhcpc_entry(void *p)
     while(1)
     {
         if( pdPASS != xQueueReceive( queue_dhcpc, &evt, portMAX_DELAY ) )
-            halt( "dhcpc queue receive" );
+            continue;
 
         switch( evt )
         {

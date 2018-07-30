@@ -65,10 +65,10 @@ void hal_rcc_init(void)
         RCC_HCLKConfig(RCC_SYSCLK_Div1);
         RCC_PCLK1Config(RCC_HCLK_Div4);
         RCC_PCLK2Config(RCC_HCLK_Div2);
-        RCC_PLLConfig(RCC_PLLSource_HSE, 25, 360, 2, 7);   /* 25M / 25 * 360 / 2 = 180M */
-        //RCC_PLLConfig(RCC_PLLSource_HSE, 25, 336, 2, 7);   /* 25M / 25 * 336 / 2 = 168M */
-        //RCC_PLLConfig(RCC_PLLSource_HSE, 25, 320, 2, 7);   /* 25M / 25 * 320 / 2 = 160M */
-        //RCC_PLLConfig(RCC_PLLSource_HSE, 25, 300, 2, 7);   /* 25M / 25 * 300 / 2 = 150M */
+        RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000, 360, 2, 7);   /* 1M * 360 / 2 = 180M */
+        //RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000 336, 2, 7);   /* 1M * 336 / 2 = 168M */
+        //RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000 320, 2, 7);   /* 1M * 320 / 2 = 160M */
+        //RCC_PLLConfig(RCC_PLLSource_HSE, HSE_VALUE/1000000 300, 2, 7);   /* 1M * 300 / 2 = 150M */
         RCC_PLLCmd(ENABLE);
         while( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) { }
      

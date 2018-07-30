@@ -103,7 +103,6 @@ uint32_t calc_checksum(void *p, uint32_t len)
 }
 
 
-
 void test_delay_us(void)
 {
     int i;
