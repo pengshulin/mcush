@@ -133,7 +133,7 @@ chip_mem_configs = {
 [ 0x1FFF0000, 0x1FFF7A10, 'ro', 32, False, 'System Memory', ],
 [ 0x1FFF7A10, 0x1FFF7A1C, 'ro', 32, True,  'UID', ],
 [ 0x1FFFC000, 0x1FFFC008, 'ro', 32, False, 'Option Bytes', ],
-[ 0xE0000000, 0xFFFFFFFF, 'rw', 32, False, 'Cortex-M3 Peripherals', ],
+[ 0xE0000000, 0xFFFFFFFC, 'rw', 32, False, 'Cortex-M3 Peripherals', ],
 [ 0x60000000, 0x63FFFFFE, 'rw', 16, False, 'FSMC/bank1' ],
 [ 0x64000000, 0x67FFFFFE, 'rw', 16, False, 'FSMC/bank2' ],
 [ 0x68000000, 0x6BFFFFFE, 'rw', 16, False, 'FSMC/bank3' ],
