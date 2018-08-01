@@ -414,7 +414,7 @@ int cmd_reboot( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t count_flag=0, reset_flag;
+    uint8_t count_flag=0, reset_flag=0;
         
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
