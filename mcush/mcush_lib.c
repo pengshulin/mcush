@@ -195,6 +195,32 @@ int set_rtc_by_val( int year, int mon, int mday, int hour, int min, int sec )
 }
 
 
+int get_rtc_tick( uint32_t *tick )
+{
+    struct tm t;
+    if( ! hal_rtc_get( &t ) )
+        return 0;
+    t.tm_mon -= 1;
+    t.tm_year -= 1900;
+    *tick = mktime( &t );
+    *tick -= 8*60*60;
+    return 1; 
+}
+
+
+int get_rtc_tick64( uint64_t *tick )
+{
+    struct tm t;
+    if( ! hal_rtc_get( &t ) )
+        return 0;
+    t.tm_mon -= 1;
+    t.tm_year -= 1900;
+    *tick = mktime( &t );
+    *tick -= 8*60*60;
+    return 1; 
+}
+
+
 char *rstrip( char *s )
 {
     unsigned int l = strlen(s);
