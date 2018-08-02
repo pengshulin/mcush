@@ -1,4 +1,4 @@
-#if defined(MCUSH_SPIFFS) && MCUSH_SPIFFS
+#if MCUSH_SPIFFS
 #include <stdarg.h>
 #include "hal.h"
 #include "spi_flash.h"

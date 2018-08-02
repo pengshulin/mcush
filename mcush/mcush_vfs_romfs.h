@@ -35,6 +35,6 @@ int mcush_romfs_close( int fh );
 int mcush_romfs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) );
 
 
-const mcush_vfs_driver_t mcush_romfs_driver;
+extern const mcush_vfs_driver_t mcush_romfs_driver;
 
 #endif

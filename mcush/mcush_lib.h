@@ -21,6 +21,9 @@ char *rstrip( char *s );
 char *lstrip( char *s );
 char *strip( char *s );
 
+int split_url( const char *url, char **protocol, char **server, int *port, char **pathfile );
+
+
 #endif
 
 

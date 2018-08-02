@@ -38,6 +38,6 @@ int mcush_fcfs_close( int fh );
 int mcush_fcfs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) );
 
 
-const mcush_vfs_driver_t mcush_fcfs_driver;
+extern const mcush_vfs_driver_t mcush_fcfs_driver;
 
 #endif

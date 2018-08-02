@@ -6,7 +6,6 @@
 
 uint16_t tcp_bind_random_port( struct tcp_pcb *pcb );
 
-int split_url( const char *url, char **protocol, char **server, int *port, char **pathfile );
 
 
 
