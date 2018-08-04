@@ -197,6 +197,7 @@ int set_rtc_by_val( int year, int mon, int mday, int hour, int min, int sec )
 
 int get_rtc_tick( uint32_t *tick )
 {
+#if HAL_RTC
     struct tm t;
     if( ! hal_rtc_get( &t ) )
         return 0;
@@ -205,11 +206,15 @@ int get_rtc_tick( uint32_t *tick )
     *tick = mktime( &t );
     *tick -= 8*60*60;
     return 1; 
+#else
+    return 0; 
+#endif
 }
 
 
 int get_rtc_tick64( uint64_t *tick )
 {
+#if HAL_RTC
     struct tm t;
     if( ! hal_rtc_get( &t ) )
         return 0;
@@ -218,6 +223,9 @@ int get_rtc_tick64( uint64_t *tick )
     *tick = mktime( &t );
     *tick -= 8*60*60;
     return 1; 
+#else
+    return 0;
+#endif
 }
 
 
@@ -267,6 +275,54 @@ char *lstrip( char *s )
 char *strip( char *s )
 {
     return rstrip(lstrip(s));
+}
+
+
+char *hexlify( const char *buf_in, char *buf_out, int len, int add_null_end )
+{
+    char *p=buf_out, c;
+    while( len-- )
+    {
+        c = (*buf_in >> 4) & 0x0F;
+        *p++ = (c < 0x0A) ? ('0'+c) : ('A'+c-0x0A);
+        c = *buf_in++ & 0x0F;
+        *p++ = (c < 0x0A) ? ('0'+c) : ('A'+c-0x0A);
+    }
+    if( add_null_end )
+        *p = 0;
+    return buf_out;
+}
+
+
+char c2i(char c)
+{
+    if( (c >= '0') && (c <= '9') )
+        return c - '0';
+    else if( (c >= 'A') && (c <= 'F') ) 
+        return c - 'A';
+    else if( (c >= 'a') && (c <= 'f') ) 
+        return c - 'a';
+    return -1;
+}
+
+
+int unhexlify( const char *buf_in, char *buf_out, int len )
+{
+    char c, c2;
+    int bytes=0;
+
+    while( len-- )
+    {
+        c = c2i(*buf_in++);
+        if( c == -1 )
+            break;
+        c2 = c2i(*buf_in++);
+        if( c2 == -1 )
+            break;
+        *buf_out++ = (c<<4) + c2;
+        bytes++;
+    }
+    return bytes;
 }
 
 

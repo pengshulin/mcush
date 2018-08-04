@@ -21,6 +21,10 @@ char *rstrip( char *s );
 char *lstrip( char *s );
 char *strip( char *s );
 
+char *hexlify( const char *buf_in, char *buf_out, int len, int add_null_end );
+int unhexlify( const char *buf_in, char *buf_out, int len );
+
+
 int split_url( const char *url, char **protocol, char **server, int *port, char **pathfile );
 
 

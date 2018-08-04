@@ -1,14 +1,10 @@
 #include "hal.h"
-#include <stdio.h>
+#include "mcush.h"
 
 
 int hal_get_serial_number( char *buf )
 {
-    sprintf( buf, "%08X%08X%08X", 
-        *(unsigned int *)UNIQUE_ID0,
-        *(unsigned int *)UNIQUE_ID1,
-        *(unsigned int *)UNIQUE_ID2 );
-
+    hexlify( (const char*)UNIQUE_ID0, buf, 12, 1 );
     return 1;
 }
 

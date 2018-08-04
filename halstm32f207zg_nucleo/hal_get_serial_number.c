@@ -1,1 +1,1 @@
-../halstm32f207ve/hal_get_serial_number.c
+../halstm32f103xb/hal_get_serial_number.c

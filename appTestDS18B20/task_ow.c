@@ -14,7 +14,8 @@ int cmd_ow( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, "loop", 'l', 0, "default 1s", MCUSH_OPT_USAGE_REQUIRED },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'l', "loop",  0, "default 1s" },
         { MCUSH_OPT_NONE } };
     uint32_t tick;
     int loop = 0;

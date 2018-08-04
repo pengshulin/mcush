@@ -1,0 +1,23 @@
+from VEnvironment import *
+from Arm.Stm32 import *
+
+#env = Stm32f1hd()
+#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+    
+haldir = 'stm32f103xb'
+env = loadHalConfig( haldir ).env
+
+env.appendPath([
+    '.',
+])
+
+
+env.appendGlobSource([
+    '*.c',
+])
+
+#env.appendLinkerFlag(['-nostartfiles', '-nostdlib'])
+env.appendCompilerFlag(['-ffunction-sections','-fdata-sections'])
+
+env.makeApp()
+
