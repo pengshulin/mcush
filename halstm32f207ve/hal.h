@@ -54,6 +54,9 @@ int hal_get_serial_number( char *buf );
 
 int hal_init(void);
 
+int hal_upgrade_prepare_swap( const char *filename, int debug_mode );
+void hal_upgrade_run_stage2(void);
+
 
 #include "hal_platform.h"
 

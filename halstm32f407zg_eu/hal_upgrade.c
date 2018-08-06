@@ -113,6 +113,8 @@ int hal_upgrade_prepare_swap( const char *filename, int debug_mode )
         br = mcush_read( fd, (void*)&data, 4 );
         if( (br > 0) && (br < 4) )
             br = 4;  // addr align
+        else if( br == 0 )
+            goto file_error;
         // copy data from upgrade file
         status = FLASH_ProgramWord( addr, data );
         if( FLASH_COMPLETE != status )
@@ -135,6 +137,7 @@ int hal_upgrade_prepare_swap( const char *filename, int debug_mode )
     //    return 0;
     return 1;
 
+file_error:
 flash_error:
     mcush_close( fd );
     end_flash_operation();

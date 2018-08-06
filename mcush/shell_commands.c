@@ -408,7 +408,7 @@ int cmd_reboot( int argc, char *argv[] )
 #ifdef HAL_REBOOT_COUNTER
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'c', "count", 0, "print counter" },
+          'c', shell_str_count, 0, "print counter" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'r', shell_str_reset, 0, "reset counter" },
         { MCUSH_OPT_NONE } };
@@ -421,9 +421,9 @@ int cmd_reboot( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "count" ) == 0 )
+            if( strcmp( opt.spec->name, shell_str_count ) == 0 )
                 count_flag = 1;
-            if( strcmp( opt.spec->name, "reset" ) == 0 )
+            if( strcmp( opt.spec->name, shell_str_reset ) == 0 )
                 reset_flag = 1;
         }
         else
@@ -457,7 +457,7 @@ int cmd_upgrade( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'f', "file", "upgrade file", "binary file name" },
+          'f', shell_str_file, "upgrade file", "binary file name" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           's', "sign", "signature", "CRC signature" },
         { MCUSH_OPT_NONE } };
@@ -471,7 +471,7 @@ int cmd_upgrade( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "file" ) == 0 )
+            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
         }
         else
@@ -499,21 +499,21 @@ int cmd_gpio( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'l', "loop", 0, "loop mode" },
+          'l', shell_str_loop, 0, "loop mode" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           0, "loop_delay", "loop delay value", "default 1000ms" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
-          'p', "port", "port_bit_name", "port[.bit] name, eg 0[.0]" },
+          'p', shell_str_port, "port_bit_name", "port[.bit] name, eg 0[.0]" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
-          'i', "input", "input_mode", "set input mode mask" },
+          'i', shell_str_input, "input_mode", "set input mode mask" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
-          'o', "output", "output_mode", "set output mode mask" },
+          'o', shell_str_output, "output_mode", "set output mode mask" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
-          's', "set", "set_high_val", "set output high mask" },
+          's', shell_str_set, "set_high_val", "set output high mask" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
-          'c', "clr", "set_low_val", "set output low mask" },
+          'c', shell_str_clr, "set_low_val", "set output low mask" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
-          't', "toggle", "toggle_val", "toggle output mask" },
+          't', shell_str_toggle, "toggle_val", "toggle output mask" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'n', "port_num", 0, "query number" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
@@ -539,29 +539,29 @@ int cmd_gpio( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "port" ) == 0 )
+            if( strcmp( opt.spec->name, shell_str_port ) == 0 )
                 pport = opt.value;
-            else if( strcmp( opt.spec->name, "input" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_input ) == 0 )
             {
                 input_set = 1;
                 pinput = opt.value;
             }
-            else if( strcmp( opt.spec->name, "output" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_output ) == 0 )
             {
                 output_set = 1;
                 poutput = opt.value;
             }
-            else if( strcmp( opt.spec->name, "set" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_set ) == 0 )
             {
                 set_set = 1;
                 pset = opt.value;
             }
-            else if( strcmp( opt.spec->name, "clr" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_clr ) == 0 )
             {
                 clr_set = 1;
                 pclr = opt.value;
             }
-            else if( strcmp( opt.spec->name, "toggle" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_toggle ) == 0 )
             {
                 toggle_set = 1;
                 ptoggle = opt.value;
@@ -575,7 +575,7 @@ int cmd_gpio( int argc, char *argv[] )
                 pull = 1;
             else if( strcmp( opt.spec->name, "pulldown" ) == 0 )
                 pull = 0;
-            else if( strcmp( opt.spec->name, "loop" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_loop ) == 0 )
                 loop=1;
             else if( strcmp( opt.spec->name, "loop_delay" ) == 0 )
                 shell_eval_int(opt.value, (int*)&loop_delay);
@@ -712,17 +712,17 @@ int cmd_led( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          's', "set", 0, "set on" },
+          's', shell_str_set, 0, "set on" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          't', "toggle", 0, "invert" },
+          't', shell_str_toggle, 0, "invert" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'c', "clr", 0, "set off" },
+          'c', shell_str_clr, 0, "set off" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'i', "index", "led_index", "idx from 0" },
+          'i', shell_str_index, "led_index", "idx from 0" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'n', "led_num", 0, "query number" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'T', "test", 0, "blink all" },
+          'T', shell_str_test, 0, "blink all" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -736,20 +736,20 @@ int cmd_led( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "clr" ) == 0 )
+            if( strcmp( opt.spec->name, shell_str_clr ) == 0 )
                 cmd = 0;
-            else if( strcmp( opt.spec->name, "set" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_set ) == 0 )
                 cmd = 1;
-            else if( strcmp( opt.spec->name, "toggle" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_toggle ) == 0 )
                 cmd = 2;
-            else if( strcmp( opt.spec->name, "index" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_index ) == 0 )
                 shell_eval_int(opt.value, (int*)&index);
             else if( strcmp( opt.spec->name, "led_num" ) == 0 )
             {
                 shell_printf( "%d\n", led_num );
                 return 0;
             }
-            else if( strcmp( opt.spec->name, "test" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
         }
         else
@@ -802,7 +802,7 @@ int cmd_dump( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'b', shell_str_address, "address", "base address" },
+          'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'l', shell_str_length, shell_str_length, "default 16" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -810,7 +810,7 @@ int cmd_dump( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'c', "compact", 0, "compact output" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'f', "float", 0, "float output (width=4)" },
+          'f', shell_str_float, 0, "float output (width=4)" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'C', "ascii", 0, "ascii output (width=1)" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -854,7 +854,7 @@ int cmd_dump( int argc, char *argv[] )
                 integer_mode = 1;
                 unsigned_mode = 1;
             }
-            else if( strcmp( opt.spec->name, "float" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_float ) == 0 )
                 float_mode = 1;
         }
         else
@@ -1037,7 +1037,7 @@ int cmd_write( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'b', shell_str_address, shell_str_address, "base address" },
+          'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'w', shell_str_width, "bus width", "1(default)|2|4" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
@@ -1143,13 +1143,13 @@ int cmd_mfill( int argc, char *argv[] )
         {
             if( strcmp( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
-            else if( strcmp( opt.spec->name, "pattern" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_pattern ) == 0 )
                 shell_eval_int(opt.value, (int*)&pattern);
             else if( strcmp( opt.spec->name, shell_str_length ) == 0 )
                 shell_eval_int(opt.value, (int*)&length);
             else if( strcmp( opt.spec->name, shell_str_width ) == 0 )
                 shell_eval_int(opt.value, (int*)&width);
-            else if( strcmp( opt.spec->name, "test" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
         }
         else
@@ -1240,7 +1240,7 @@ int cmd_wait( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "time" ) == 0 )
+            if( strcmp( opt.spec->name, shell_str_time ) == 0 )
                 shell_eval_int(opt.value, (int*)&ms);
         }
         else

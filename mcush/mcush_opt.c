@@ -21,7 +21,6 @@
 
 #define INLINE(type) static inline type
 
-const char str_1[] = "1";
 
 INLINE(const mcush_opt_spec *) spec_byname(
     mcush_opt_parser *parser, const char *name, size_t namelen)
@@ -118,7 +117,7 @@ static void parse_long(mcush_opt *opt, mcush_opt_parser *parser)
                 if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
                     opt->value = 0;  /* "--foo=" -> "--foo=(NULL)" */
                 else
-                    opt->value = str_1;  /* "--foo=", treated as "--foo=1" */
+                    opt->value = shell_str_1;  /* "--foo=", treated as "--foo=1" */
             }
         }
         else if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
@@ -134,7 +133,7 @@ static void parse_long(mcush_opt *opt, mcush_opt_parser *parser)
                 && (parser->args[parser->idx][0] != '-') )
                 opt->value = parser->args[parser->idx++];  /* "--foo bar" */
             else
-                opt->value = str_1;  /* "--foo", treated as "--foo 1" */
+                opt->value = shell_str_1;  /* "--foo", treated as "--foo 1" */
         }
     }
 }
@@ -178,7 +177,7 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
                     if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
                         opt->value = 0;  /* "-i=" -> "-i (NULL)" */
                     else
-                        opt->value = str_1;  /* "-i", treated as "-i 1" */
+                        opt->value = shell_str_1;  /* "-i", treated as "-i 1" */
                 }
             }
         }
@@ -195,7 +194,7 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
                 && (parser->args[parser->idx][0] != '-') )
                 opt->value = parser->args[parser->idx++];  /* "-i foo" */
             else
-                opt->value = str_1;  /* "-i", treated as "-i 1" */
+                opt->value = shell_str_1;  /* "-i", treated as "-i 1" */
         }
     }
 }
