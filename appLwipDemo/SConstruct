@@ -17,6 +17,8 @@ env.appendDefineFlags( [
     'configTIMER_TASK_STACK_DEPTH=200',
     'PING_USE_SOCKETS=0',
     #'CHECKSUM_BY_HARDWARE',
+    'USE_CMD_PING=1',
+    'USE_CMD_WGET=1',
     ] ) 
     
 

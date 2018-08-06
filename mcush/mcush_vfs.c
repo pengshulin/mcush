@@ -213,7 +213,7 @@ int mcush_read( int fd, void *buf, int len )
         unget = 1;
     }
     ret = vfs_fd_tab[fd].driver->read( vfs_fd_tab[fd].handle, buf, len );
-    if( ret == -1 )
+    if( ret < 0 )
         return unget ? 1 : -1;
     else
         return unget ? ret+1 : ret;

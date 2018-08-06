@@ -40,6 +40,10 @@ typedef struct _logger_event_t
 
 void task_logger_init(void);
 
+void logger_enable(void);
+void logger_disable(void);
+
+
 int logger_str( int type, const char *str );
 int logger_debug( const char *str );
 int logger_info( const char *str );

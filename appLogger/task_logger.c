@@ -10,11 +10,22 @@ QueueHandle_t queue_logger;
 QueueHandle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
 
-static const char logger_fname[] = LOGGER_FNAME;
-static const uint32_t logger_fsize = LOGGER_FSIZE_LIMIT;
-static uint8_t logger_enable = LOGGER_ENABLE;
+static const char _fname[] = LOGGER_FNAME;
+static uint8_t _enable = LOGGER_ENABLE;
 
-                
+ 
+void logger_enable(void)
+{
+    _enable = 1;
+}
+
+
+void logger_disable(void)
+{
+    _enable = 0;
+}
+
+
 char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 {
     char tp[2];
@@ -130,7 +141,7 @@ int cmd_logger( int argc, char *argv[] )
 
     if( enable_set )
     {
-        logger_enable = enable;
+        _enable = enable;
         return 0;
     }
   
@@ -312,7 +323,7 @@ int rotate_log_files( const char *src_fname, int level )
     int size;
     char fname[20];
 
-    sprintf( fname, "%s.%d", logger_fname, level+1 );
+    sprintf( fname, "%s.%d", _fname, level+1 );
 
     if( mcush_size( fname, &size ) )
     {
@@ -353,21 +364,21 @@ void task_logger_entry(void *p)
             /* check file size from filesystem only once */ 
             if( size < 0 )
             {
-                if( mcush_size( logger_fname, &size ) == 0 )
+                if( mcush_size( _fname, &size ) == 0 )
                     size = 0;  /* read error, skip */
             }
  
             /* log files rotate if needed */ 
-            if( size > logger_fsize )
+            if( size > LOGGER_FSIZE_LIMIT )
             {
-                rotate_log_files( logger_fname, 0 );
+                rotate_log_files( _fname, 0 );
                 size = -1;
             }
 
             /* try to create/append logfile */
-            if( logger_enable )
+            if( _enable )
             {
-                fd = mcush_open( logger_fname, "a+" );
+                fd = mcush_open( _fname, "a+" );
                 if( fd != 0 )
                 {
                     convert_logger_event_to_str( &evt, buf );
