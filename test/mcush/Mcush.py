@@ -295,7 +295,6 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' %s'% value
         return self.writeCommand( cmd )
 
-
     def sgpio( self, port, pins, buf, freq=10, loop=True, start=True ):
         self.writeCommand( 'sgpio --stop' )
         cmd = 'sgpio -p%s -o0x%X -f%d'% (int(port), int(pins), int(freq))
@@ -315,7 +314,6 @@ class Mcush( Instrument.SerialInstrument ):
         self.writeCommand( '' )
         if start:
             self.writeCommand( 'sgpio --start' )
-        
                
     def i2c_init( self, addr, scl=None, sda=None, delay=None ):
         cmd = 'i2c -a0x%X -i' % (addr)
@@ -327,9 +325,12 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' --delay=%s'% delay
         self.writeCommand( cmd )
 
-
-    def i2c( self, write=[], read_count=None ):
+    def i2c( self, write=[], addr=None, force_addr=None, read_count=None ):
         cmd = 'i2c'
+        if addr is not None:
+            cmd += ' -a0x%X'% addr
+            if force_addr:
+                cmd += ' -f'
         if read_count:
             cmd += ' -r%d'% read_count
         if write:

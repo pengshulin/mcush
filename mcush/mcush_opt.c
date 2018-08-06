@@ -16,6 +16,8 @@
 
 #include "mcush_opt.h"
 #include "shell.h"
+#include "shell_str.h"
+
 
 #define INLINE(type) static inline type
 
@@ -256,7 +258,7 @@ int mcush_opt_usage_print(
     const mcush_opt_spec *spec;
     int error;
 
-    if ((error = shell_printf("usage: %s", command)) < 0)
+    if ((error = shell_printf("%s: %s", shell_str_usage, command)) < 0)
         goto done;
 
     for (spec = specs; spec->type; ++spec) {
@@ -294,7 +296,7 @@ int mcush_opt_usage_print(
             goto done;
     }
 
-    error = shell_printf("\noptions:\n");
+    error = shell_printf("\n%ss:\n", shell_str_option);
 
     /* print short description for each option */
     for (spec = specs; spec->type; ++spec) {
@@ -337,7 +339,7 @@ int mcush_opt_check_invalid_argument(
     }
     else
     {
-        shell_write_str( "invalid arg: " );
+        shell_printf( "%s %s: ", shell_str_invalid, shell_str_argument );
         shell_write_line( opt->value );
         mcush_opt_usage_print( command, specs );
         return -1;

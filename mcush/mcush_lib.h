@@ -1,6 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef _MCUSH_LIB_H_
-#define _MCUSH_LIB_H_
+#ifndef __MCUSH_LIB_H__
+#define __MCUSH_LIB_H__
 
 uint32_t reverse_32_bits(uint32_t v);
 uint16_t reverse_16_bits(uint16_t v);

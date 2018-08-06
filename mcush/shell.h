@@ -1,6 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef _SHELL_H_
-#define _SHELL_H_
+#ifndef __SHELL_H__
+#define __SHELL_H__
 
 #ifndef SHELL_DEFAULT_BAUDRATE
     #define SHELL_DEFAULT_BAUDRATE  9600
@@ -124,29 +124,7 @@ extern void shell_driver_write_char( char c );
 extern void shell_driver_write_flush( void );
 
 
-/* constant strings */
-extern const char shell_str_address[];
-extern const char shell_str_command[];
-extern const char shell_str_check[];
-extern const char shell_str_data[];
-extern const char shell_str_file[];
-extern const char shell_str_erase[];
-extern const char shell_str_format[];
-extern const char shell_str_frequency[];
-extern const char shell_str_index[];
-extern const char shell_str_io[];
-extern const char shell_str_info[];
-extern const char shell_str_length[];
-extern const char shell_str_eol[];
-extern const char shell_str_parameter[];
-extern const char shell_str_pattern[];
-extern const char shell_str_port[];
-extern const char shell_str_port_bit[];
-extern const char shell_str_read[];
-extern const char shell_str_script[];
-extern const char shell_str_time[];
-extern const char shell_str_width[];
-extern const char shell_str_write[];
+
 #endif
 
 

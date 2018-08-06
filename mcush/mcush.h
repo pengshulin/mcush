@@ -12,6 +12,7 @@
 #include "mcush_freertos_api.h"
 #include "hal.h"
 #include "shell.h"
+#include "shell_str.h"
 #include "mcush_ver.h"
 #include "mcush_opt.h"
 #include "mcush_vfs.h"
