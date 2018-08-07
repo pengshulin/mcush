@@ -43,6 +43,10 @@ class Mcush( Instrument.SerialInstrument ):
         m = self.readMem( r.address, length=b )
         return fget(m)
 
+    def getLedNumber(self):
+        r = self.writeCommand( 'led -n' )
+        return int(r[0])
+    
     def led( self, idx, on=None, toggle=None ):
         '''led control'''
         if on is None and toggle is None:
