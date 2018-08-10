@@ -438,5 +438,13 @@ class Mcush( Instrument.SerialInstrument ):
             cmdline += ' -m \"%s\"'% str(message)
         return self.writeCommand( cmdline )
 
+    DEFAULT_TIMEOUT_UPRADE = 20
+    def upgrade( self, upgrade_file='/s/upgrade.bin' ):
+        command = 'upgrade -f %s'% upgrade_file
+        try:
+            cube.setTimeout( self.DEFAULT_TIMEOUT_UPRADE )
+            self.writeCommand( command )
+        except Instrument.CommandTimeoutError:
+            pass
 
 

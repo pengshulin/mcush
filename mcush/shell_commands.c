@@ -381,7 +381,9 @@ int cmd_scpi_idn( int argc, char *argv[] )
     /* *idn? command ignore all arguments */
     char buf[64];
 
-    shell_write_line( "mcush," MCUSH_VERSION_STRING );
+    shell_write_str( shell_str_mcush );
+    shell_write_char( ',' );
+    shell_write_line( MCUSH_VERSION_STRING );
     buf[0] = 0;
     if( hal_get_serial_number(buf) && strlen(buf) )
         shell_write_line( buf );
@@ -511,7 +513,7 @@ int cmd_gpio( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
           't', shell_str_toggle, "toggle_val", "toggle output mask" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'n', "port_num", 0, "query number" },
+          'n', shell_str_number, 0, shell_str_query },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'U', "pullup", 0, "with pullup resister" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
@@ -561,7 +563,7 @@ int cmd_gpio( int argc, char *argv[] )
                 toggle_set = 1;
                 ptoggle = opt.value;
             }
-            else if( strcmp( opt.spec->name, "port_num" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_number ) == 0 )
             {
                 shell_printf( "%d\n", port_num );
                 return 0;
@@ -694,15 +696,15 @@ int cmd_led( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          's', shell_str_set, 0, "set on" },
+          's', shell_str_set, 0, shell_str_on },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          't', shell_str_toggle, 0, "invert" },
+          't', shell_str_toggle, 0, shell_str_invert },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'c', shell_str_clr, 0, "set off" },
+          'c', shell_str_clr, 0, shell_str_off },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'i', shell_str_index, "led_index", "idx from 0" },
+          'i', shell_str_index, "led_index", shell_str_index_from_0 },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'n', "led_num", 0, "query number" },
+          'n', shell_str_number, 0, shell_str_query },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'T', shell_str_test, 0, "blink all" },
         { MCUSH_OPT_NONE } };
@@ -726,7 +728,7 @@ int cmd_led( int argc, char *argv[] )
                 cmd = 2;
             else if( strcmp( opt.spec->name, shell_str_index ) == 0 )
                 shell_eval_int(opt.value, (int*)&index);
-            else if( strcmp( opt.spec->name, "led_num" ) == 0 )
+            else if( strcmp( opt.spec->name, shell_str_number ) == 0 )
             {
                 shell_printf( "%d\n", led_num );
                 return 0;
@@ -1691,7 +1693,7 @@ int cmd_sgpio( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-         'p', shell_str_port, "port_index", "index from 0" },
+         'p', shell_str_port, "port_index", shell_str_index_from_0 },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'o', shell_str_output, "output_mode", "set output mode mask" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
