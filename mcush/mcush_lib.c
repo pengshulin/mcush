@@ -1,7 +1,15 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 
-//#define USE_REVERSE_TAB
+
+uint32_t calc_checksum(void *p, uint32_t len)
+{
+    uint32_t sum=0;
+    while( len-- )
+        sum += *(uint8_t*)p++;
+    return sum;
+}
+
 
 #ifdef USE_REVERSE_TAB
 static uint8_t _bits_reverse_tab[256] = {
@@ -91,15 +99,6 @@ uint8_t reverse_8_bits(uint8_t v)
     v = ((v & 0xAA)>>1) | ((v & 0x55)<<1);  // X: cdab -> X: dcba
     return v;
 #endif
-}
-
-
-uint32_t calc_checksum(void *p, uint32_t len)
-{
-    uint32_t sum=0;
-    while( len-- )
-        sum += *(uint8_t*)p++;
-    return sum;
 }
 
 

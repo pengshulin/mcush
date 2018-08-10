@@ -171,6 +171,18 @@ def I2t( val, format=None ):
         format = '%y-%m-%d %H:%M:%S'
     return strftime(format, localtime(val))
 
+def dt2s( dt, need_ms=False ):
+    hour = int(dt / 3600)
+    dt -= hour*3600
+    minute = int(dt / 60)
+    dt -= minute * 60
+    sec = int(dt)
+    if need_ms:
+        ms = (dt - sec) * 1000
+        return '%d:%02d:%02d.%03d'% (hour, minute, sec, ms)
+    else:
+        return '%d:%02d:%02d'% (hour, minute, sec)
+
 
 
 def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True ):

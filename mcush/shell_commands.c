@@ -458,8 +458,6 @@ int cmd_upgrade( int argc, char *argv[] )
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'f', shell_str_file, "upgrade file", "binary file name" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          's', "sign", "signature", "CRC signature" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -498,10 +496,8 @@ int cmd_upgrade( int argc, char *argv[] )
 int cmd_gpio( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'l', shell_str_loop, 0, "loop mode" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
-          0, "loop_delay", "loop delay value", "default 1000ms" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED, 
+          'l', shell_str_loop, "loop_delay_ms", "default 1000ms period" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'p', shell_str_port, "port_bit_name", "port[.bit] name, eg 0[.0]" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
@@ -523,8 +519,7 @@ int cmd_gpio( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int loop=0, loop_delay=-1;
-    uint32_t tick;
+    unsigned int loop=0, loop_delay=1000, loop_tick;
     char c;
     int port=-1, bit=-1, bit_mode=-1, pull=-1;
     const char *pport=0, *pinput=0, *poutput=0, *pset=0, *pclr=0, *ptoggle=0;
@@ -576,9 +571,10 @@ int cmd_gpio( int argc, char *argv[] )
             else if( strcmp( opt.spec->name, "pulldown" ) == 0 )
                 pull = 0;
             else if( strcmp( opt.spec->name, shell_str_loop ) == 0 )
+            {
                 loop=1;
-            else if( strcmp( opt.spec->name, "loop_delay" ) == 0 )
                 shell_eval_int(opt.value, (int*)&loop_delay);
+            }
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -634,8 +630,6 @@ int cmd_gpio( int argc, char *argv[] )
     if( !(input_set || output_set || set_set || clr_set || toggle_set) )
         none_set = 1;
 
-    if( loop_delay <= 0 )
-        loop_delay = 1000;  /* default: 1 sec */
 loop_start:
 
     if( bit_mode )
@@ -682,19 +676,7 @@ loop_start:
         }
     }
  
-    if( loop )
-    {
-        tick = xTaskGetTickCount();
-        while( xTaskGetTickCount() < tick + loop_delay*configTICK_RATE_HZ/1000 )
-        {
-            if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 )
-            {
-                if( c == 0x03 ) /* Ctrl-C for stop */
-                    return 0;
-            }
-        }
-        goto loop_start;
-    }
+    LOOP_CHECK 
  
     return 0;
 port_error:

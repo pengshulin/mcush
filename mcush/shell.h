@@ -48,6 +48,21 @@
 #define STOP_AT_INVALID_ARGUMENT   \
         return mcush_opt_check_invalid_argument(argv[0], &opt, opt_spec);
 
+#define LOOP_CHECK \
+        if( loop ) \
+        { \
+            loop_tick = xTaskGetTickCount(); \
+            while( xTaskGetTickCount() < loop_tick + loop_delay*configTICK_RATE_HZ/1000 ) \
+            { \
+                if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 ) \
+                { \
+                    if( c == 0x03 ) /* Ctrl-C for stop */ \
+                        return 0; \
+                } \
+            } \
+            goto loop_start; \
+        }
+
 
 enum {
     CMD_NORMAL=0,

@@ -293,6 +293,32 @@ class Mcush( Instrument.SerialInstrument ):
         cmd = 'rename %s %s'% (old_pathname, new_name)
         self.writeCommand( cmd )
 
+    def getFile( self, pathname, local_pathname ):
+        # read remote_file and save locally
+        dat = self.cat( pathname, b64=True )
+        open( local_pathname, 'w+' ).write(dat)
+
+    def putFile( self, pathname, local_pathname, segment_size=1024, segment_done_callback=None ):
+        # split local_file into pieces and write
+        dat = open(local_pathname, 'rb').read()
+        dat_size = len(dat)
+        if dat_size == 0:
+            return
+        dat_segments = (dat_size-1) / segment_size + 1
+        # write the first
+        d = dat[0:segment_size]
+        self.cat( pathname, b64=True, write=True, buf=d )
+        sent = len(d)
+        if segment_done_callback:
+            segment_done_callback(1, dat_segments, sent, dat_size)
+        # append the remainings
+        for i in range(1, dat_segments):
+            d = dat[segment_size*i:segment_size*(i+1)]
+            self.cat( pathname, b64=True, write=True, append=True, buf=d )
+            sent += len(d) 
+            if segment_done_callback:
+                segment_done_callback(1+i, dat_segments, sent, dat_size)
+ 
     def spiffs( self, command, value=None ):
         cmd = 'spiffs -c %s'% command
         if value is not None:
