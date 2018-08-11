@@ -3,8 +3,8 @@
 
 #define HAL_LED_REV
 #define HAL_LED_NUM   2
-#define HAL_LED_PORTS  { GPIOA, GPIOA } 
-#define HAL_LED_PINS  { GPIO_Pin_6, GPIO_Pin_7 }
+#define HAL_LED_PORTS  { 0, 0 } 
+#define HAL_LED_PINS  { 6, 7 }
 
 #define HAL_RNG   1
 void hal_rng_init(void);

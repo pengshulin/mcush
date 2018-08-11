@@ -3,8 +3,8 @@
 
 
 #define HAL_LED_NUM   5
-#define HAL_LED_PORTS   { GPIOF, GPIOF, GPIOF, GPIOF, GPIOF }
-#define HAL_LED_PINS  { GPIO_Pin_6, GPIO_Pin_7, GPIO_Pin_8, GPIO_Pin_9, GPIO_Pin_10 }
+#define HAL_LED_PORTS   { 5, 5, 5, 5, 5 }
+#define HAL_LED_PINS  { 6, 7, 8, 9, 10 }
 #define HAL_LED_REV
 
 #define HAL_SPIFFS_CHIPID  0xEF4017  // AT45DB161B 

@@ -5,8 +5,9 @@
 #define LED_ERROR   2
 
 #define HAL_LED_NUM   4
-#define HAL_LED_PORTS  { GPIOB, GPIOB, GPIOB, GPIOB }
-#define HAL_LED_PINS  { GPIO_Pin_8, GPIO_Pin_10,  GPIO_Pin_9, GPIO_Pin_11 }
+#define HAL_LED_PORTS  { 1, 1, 1, 1 }
+#define HAL_LED_PINS  { 8, 10, 9, 11 }
+
 
 
 #define USE_CMD_BEEP  1

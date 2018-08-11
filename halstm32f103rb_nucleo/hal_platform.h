@@ -12,8 +12,8 @@
    ----------------------------- 
  */
 #define HAL_LED_NUM   1
-#define HAL_LED_PORTS  { GPIOA }
-#define HAL_LED_PINS  { GPIO_Pin_5 }
+#define HAL_LED_PORTS  { 0 }
+#define HAL_LED_PINS  { 5 }
 
 //#define HAL_UART_DEFINE 
 //#define HAL_UART_RCC_GPIO_ENABLE_CMD    RCC_APB2PeriphClockCmd

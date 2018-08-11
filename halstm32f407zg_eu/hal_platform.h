@@ -3,8 +3,8 @@
 
 #define HAL_LED_REV
 #define HAL_LED_NUM   2
-#define HAL_LED_PORTS  { GPIOC, GPIOD } 
-#define HAL_LED_PINS  { GPIO_Pin_0, GPIO_Pin_3 }
+#define HAL_LED_PORTS  { 2, 3 } 
+#define HAL_LED_PINS  { 0, 3 }
 
 #ifndef HAL_RTC
   #define HAL_RTC  1

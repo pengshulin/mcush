@@ -2,11 +2,11 @@
 #define __HAL_PLATFORM_H__
 
 #define HAL_LED_NUM  1
-//#define HAL_LED_PORTS  { GPIOB }
-//#define HAL_LED_PINS  { GPIO_Pin_12 }
+//#define HAL_LED_PORTS  { 1 }
+//#define HAL_LED_PINS  { 12 }
 //#define HAL_LED_REV
-#define HAL_LED_PORTS  { GPIOC }
-#define HAL_LED_PINS  { GPIO_Pin_13 }
+#define HAL_LED_PORTS  { 2 }
+#define HAL_LED_PINS  { 13 }
 #define HAL_LED_REV
 
 
