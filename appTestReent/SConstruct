@@ -2,7 +2,7 @@ from VEnvironment import *
 
 haldir='stm32f407zg_eu'
 
-env = loadHalConfig( haldir ).env
+env = loadHalConfig( haldir, use_spiffs=True ).env
 
 env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',

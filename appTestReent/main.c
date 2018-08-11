@@ -2,9 +2,9 @@
 #include "semphr.h"
 
 
-#define USE_LOCK
+//#define USE_LOCK
 
-int running=1;
+int running=0;
 SemaphoreHandle_t *lock;
 
 void test_shell_output(char *task)
@@ -12,14 +12,17 @@ void test_shell_output(char *task)
     shell_write_line( task ); 
 }
 
+const char line[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n";
 void test_spiffs(char *task)
 {
     int fd;
-    fd = mcush_open("/s/test_reentrant","a+");
+    char fname[20];
+    strcpy( fname, "/s/" );
+    strcat( fname, task );
+    fd = mcush_open(fname,"a+");
     if( fd )
     {
-        strcat( task, "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n" );
-        mcush_write( fd, task, strlen(task) );
+        mcush_write( fd, (char*)line, strlen(line) );
         mcush_close( fd );
     }
 }
@@ -33,7 +36,7 @@ void task_test_entry(void *p)
     {
         if( running )
         {
-            sprintf( buf, "task_%d", id );
+            sprintf( buf, "t%d", id );
 
 #if defined(USE_LOCK)
             xSemaphoreTake( lock, portMAX_DELAY );
