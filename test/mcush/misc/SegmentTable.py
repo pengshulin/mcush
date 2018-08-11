@@ -1,7 +1,7 @@
 # coding: utf8
-# 7-segment definations
-# Peng Shulin <trees_peng@163.com>
-
+__doc__ = '7-segment displayer definations'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
+__license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 
 #  
 #      a
@@ -147,7 +147,7 @@ SEGMENT_TABLE_ASCII = [
     # 43 0x2b '+' 
     0,
     # 44 0x2c ',' 
-    0,
+    SC + SD,
     # 45 0x2d '-' 
     SG,
     # 46 0x2e '.' 
@@ -179,11 +179,11 @@ SEGMENT_TABLE_ASCII = [
     # 59 0x3b ';' 
     0,
     # 60 0x3c '<' 
-    0,
+    SD + SE + SG,
     # 61 0x3d '=' 
     SG + SD,
     # 62 0x3e '>' 
-    0,
+    SC + SD + SG,
     # 63 0x3f '?' 
     0,
     # 64 0x40 '@' 
@@ -223,15 +223,15 @@ SEGMENT_TABLE_ASCII = [
     # 81 0x51 'Q' 
     0,
     # 82 0x52 'R' 
-    0,
+    SE + SG,
     # 83 0x53 'S' 
     SA + SF + SG + SC + SD,
     # 84 0x54 'T' 
-    0,
+    SA + SE + SF,
     # 85 0x55 'U' 
     SB + SC + SD + SE + SF,
     # 86 0x56 'V' 
-    0,
+    SB + SC + SD + SE + SF,
     # 87 0x57 'W' 
     0,
     # 88 0x58 'X' 
@@ -251,7 +251,7 @@ SEGMENT_TABLE_ASCII = [
     # 95 0x5f '_' 
     SD,
     # 96 0x60 '`' 
-    0,
+    SF,
     # 97 0x61 'a' 
     SA + SB + SC + SE + SF + SG,
     # 98 0x62 'b' 
@@ -269,23 +269,23 @@ SEGMENT_TABLE_ASCII = [
     # 104 0x68 'h' 
     SF + SE + SG + SC,
     # 105 0x69 'i' 
-    0,
+    SB + SC,
     # 106 0x6a 'j' 
-    0,
+    SB + SC + SD,
     # 107 0x6b 'k' 
     0,
     # 108 0x6c 'l' 
-    0,
+    SF + SE + SD,
     # 109 0x6d 'm' 
     0,
     # 110 0x6e 'n' 
-    0,
+    SC + SE + SG,
     # 111 0x6f 'o' 
     SG + SE + SD + SC,
     # 112 0x70 'p' 
-    0,
+    SA + SB + SG + SF + SE,
     # 113 0x71 'q' 
-    0,
+    SA + SB + SG + SF + SC,
     # 114 0x72 'r' 
     SE + SG,
     # 115 0x73 's' 
@@ -295,27 +295,25 @@ SEGMENT_TABLE_ASCII = [
     # 117 0x75 'u' 
     SE + SD + SC,
     # 118 0x76 'v' 
-    0,
+    SE + SD + SC,
     # 119 0x77 'w' 
     0,
     # 120 0x78 'x' 
     0,
     # 121 0x79 'y' 
-    0,
+    SB + SG + SF + SC + SD,
     # 122 0x7a 'z' 
     0,
     # 123 0x7b '{' 
-    0,
+    SE + SF + SG,
     # 124 0x7c '|' 
     SF + SE,
     # 125 0x7d '}' 
-    0,
+    SB + SC + SG,
     # 126 0x7e '~' 
-    0,
+    SA,
     # 127 0x7f DEL 
     0,
 ]
 
-
-__all__ = ['SEGMENT_TABLE_ASCII', 'SEGMENT_TABLE_HEX']
 

@@ -7,4 +7,5 @@ from . import BeepPlayer
 from . import MorseCodeBeeper
 from . import Tjc
 from . import Gratten
+from . import SegmentTable
 
