@@ -29,7 +29,7 @@ int cmd_error( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          's', "stop", 0, "stop" },
+          's', shell_str_stop, 0, shell_str_stop },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, "errno", 0, "0~100000000" },
         { MCUSH_OPT_NONE } };
@@ -48,7 +48,7 @@ int cmd_error( int argc, char *argv[] )
                 if( ! shell_eval_int(opt.value, (int*)&new) )
                     return -1;
             }
-            else if( strcmp( opt.spec->name, "stop" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_stop ) == 0 )
                 stop = 1;
         }
         else

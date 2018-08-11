@@ -2,6 +2,11 @@
 #ifndef __SHELL_STR_H__
 #define __SHELL_STR_H__
 
+/* optimized string compare, use carefully
+   1. only two shell_str_xxxxs can be compared
+   2. shell_str_xxxs must be sorted.
+ */
+#define STRCMP(a,b)  ((unsigned int)(a)-(unsigned int)(b))
 
 
 extern const char shell_str_0[];
@@ -9,11 +14,13 @@ extern const char shell_str_1[];
 extern const char shell_str_address[];
 extern const char shell_str_append[];
 extern const char shell_str_argument[];
+extern const char shell_str_ascii[];
 extern const char shell_str_base_address[];
 extern const char shell_str_check[];
 extern const char shell_str_clr[];
 extern const char shell_str_clear[];
 extern const char shell_str_count[];
+extern const char shell_str_compact[];
 extern const char shell_str_command[];
 extern const char shell_str_data[];
 extern const char shell_str_debug[];
@@ -33,6 +40,7 @@ extern const char shell_str_float[];
 extern const char shell_str_format[];
 extern const char shell_str_free[];
 extern const char shell_str_frequency[];
+extern const char shell_str_head[];
 extern const char shell_str_help[];
 extern const char shell_str_history[];
 extern const char shell_str_idle[];
@@ -40,6 +48,7 @@ extern const char shell_str_index[];
 extern const char shell_str_index_from_0[];
 extern const char shell_str_info[];
 extern const char shell_str_init[];
+extern const char shell_str_int[];
 extern const char shell_str_input[];
 extern const char shell_str_invalid[];
 extern const char shell_str_invert[];
@@ -48,10 +57,13 @@ extern const char shell_str_length[];
 extern const char shell_str_loop[];
 extern const char shell_str_malloc[];
 extern const char shell_str_mcush[];
+extern const char shell_str_msg[];
 extern const char shell_str_message[];
 extern const char shell_str_mount[];
 extern const char shell_str_ms[];
+extern const char shell_str_nil[];
 extern const char shell_str_number[];
+extern const char shell_str_null[];
 extern const char shell_str_off[];
 extern const char shell_str_on[];
 extern const char shell_str_option[];
@@ -63,6 +75,8 @@ extern const char shell_str_pattern[];
 extern const char shell_str_pin[];
 extern const char shell_str_port[];
 extern const char shell_str_port_bit[];
+extern const char shell_str_pullup[];
+extern const char shell_str_pulldown[];
 extern const char shell_str_query[];
 extern const char shell_str_read[];
 extern const char shell_str_realloc[];
@@ -84,8 +98,11 @@ extern const char shell_str_type[];
 extern const char shell_str_umount[];
 extern const char shell_str_usage[];
 extern const char shell_str_used[];
+extern const char shell_str_uint[];
 extern const char shell_str_value[];
 extern const char shell_str_width[];
+extern const char shell_str_warn[];
+extern const char shell_str_warning[];
 extern const char shell_str_write[];
 
 #endif

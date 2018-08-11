@@ -423,9 +423,9 @@ int cmd_reboot( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_count ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_count ) == 0 )
                 count_flag = 1;
-            if( strcmp( opt.spec->name, shell_str_reset ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_reset ) == 0 )
                 reset_flag = 1;
         }
         else
@@ -471,7 +471,7 @@ int cmd_upgrade( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
         }
         else
@@ -515,9 +515,9 @@ int cmd_gpio( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'n', shell_str_number, 0, shell_str_query },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'U', "pullup", 0, "with pullup resister" },
+          'U', shell_str_pullup, 0, "with pullup resister" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'D', "pulldown", 0, "with pulldown resister" },
+          'D', shell_str_pulldown, 0, "with pulldown resister" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -536,43 +536,43 @@ int cmd_gpio( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_port ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_port ) == 0 )
                 pport = opt.value;
-            else if( strcmp( opt.spec->name, shell_str_input ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_input ) == 0 )
             {
                 input_set = 1;
                 pinput = opt.value;
             }
-            else if( strcmp( opt.spec->name, shell_str_output ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_output ) == 0 )
             {
                 output_set = 1;
                 poutput = opt.value;
             }
-            else if( strcmp( opt.spec->name, shell_str_set ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_set ) == 0 )
             {
                 set_set = 1;
                 pset = opt.value;
             }
-            else if( strcmp( opt.spec->name, shell_str_clr ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_clr ) == 0 )
             {
                 clr_set = 1;
                 pclr = opt.value;
             }
-            else if( strcmp( opt.spec->name, shell_str_toggle ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_toggle ) == 0 )
             {
                 toggle_set = 1;
                 ptoggle = opt.value;
             }
-            else if( strcmp( opt.spec->name, shell_str_number ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
             {
                 shell_printf( "%d\n", port_num );
                 return 0;
             }
-            else if( strcmp( opt.spec->name, "pullup" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_pullup ) == 0 )
                 pull = 1;
-            else if( strcmp( opt.spec->name, "pulldown" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_pulldown ) == 0 )
                 pull = 0;
-            else if( strcmp( opt.spec->name, shell_str_loop ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
                 loop=1;
                 shell_eval_int(opt.value, (int*)&loop_delay);
@@ -720,20 +720,20 @@ int cmd_led( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_clr ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_clr ) == 0 )
                 cmd = 0;
-            else if( strcmp( opt.spec->name, shell_str_set ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_set ) == 0 )
                 cmd = 1;
-            else if( strcmp( opt.spec->name, shell_str_toggle ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_toggle ) == 0 )
                 cmd = 2;
-            else if( strcmp( opt.spec->name, shell_str_index ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
                 shell_eval_int(opt.value, (int*)&index);
-            else if( strcmp( opt.spec->name, shell_str_number ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
             {
                 shell_printf( "%d\n", led_num );
                 return 0;
             }
-            else if( strcmp( opt.spec->name, shell_str_test ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
         }
         else
@@ -792,15 +792,15 @@ int cmd_dump( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'w', shell_str_width, shell_str_width, "1(default)|2|4" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'c', "compact", 0, "compact output" },
+          'c', shell_str_compact, 0, "compact output" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'f', shell_str_float, 0, "float output (width=4)" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'C', "ascii", 0, "ascii output (width=1)" },
+          'C', shell_str_ascii, 0, "ascii output (width=1)" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'i', "int", 0, "signed integer output" },
+          'i', shell_str_int, 0, "signed integer output" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'I', "uint", 0, "unsigned integer output" },
+          'I', shell_str_uint, 0, "unsigned integer output" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -818,27 +818,27 @@ int cmd_dump( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_address ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
-            else if( strcmp( opt.spec->name, shell_str_length ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
                 shell_eval_int(opt.value, (int*)&length);
-            else if( strcmp( opt.spec->name, shell_str_width ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
                 shell_eval_int(opt.value, (int*)&width);
-            else if( strcmp( opt.spec->name, "compact" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_compact ) == 0 )
                 compact_mode = 1;
-            else if( strcmp( opt.spec->name, "ascii" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_ascii ) == 0 )
                 ascii_mode = 1;
-            else if( strcmp( opt.spec->name, "int" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_int ) == 0 )
             {
                 integer_mode = 1;
                 unsigned_mode = 0;
             }
-            else if( strcmp( opt.spec->name, "uint" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_uint ) == 0 )
             {
                 integer_mode = 1;
                 unsigned_mode = 1;
             }
-            else if( strcmp( opt.spec->name, shell_str_float ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_float ) == 0 )
                 float_mode = 1;
         }
         else
@@ -1039,11 +1039,11 @@ int cmd_write( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_address ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
-            else if( strcmp( opt.spec->name, shell_str_width ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
                 shell_eval_int(opt.value, (int*)&width);
-            else if( strcmp( opt.spec->name, shell_str_data ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_data ) == 0 )
             {
                 parser.idx--;
                 break;
@@ -1125,15 +1125,15 @@ int cmd_mfill( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_address ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
-            else if( strcmp( opt.spec->name, shell_str_pattern ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_pattern ) == 0 )
                 shell_eval_int(opt.value, (int*)&pattern);
-            else if( strcmp( opt.spec->name, shell_str_length ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
                 shell_eval_int(opt.value, (int*)&length);
-            else if( strcmp( opt.spec->name, shell_str_width ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
                 shell_eval_int(opt.value, (int*)&width);
-            else if( strcmp( opt.spec->name, shell_str_test ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
         }
         else
@@ -1224,7 +1224,7 @@ int cmd_wait( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_time ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_time ) == 0 )
                 shell_eval_int(opt.value, (int*)&ms);
         }
         else
@@ -1271,7 +1271,7 @@ int cmd_wdg( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_command ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
                 cmd = opt.value;
         }
         else
@@ -1353,7 +1353,7 @@ int cmd_system( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_type ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_type ) == 0 )
                 type = opt.value;
         }
         else
@@ -1479,21 +1479,21 @@ int cmd_mapi( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_address ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
-            else if( strcmp( opt.spec->name, shell_str_length ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
                 shell_eval_int(opt.value, (int*)&length);
-            else if( strcmp( opt.spec->name, shell_str_malloc ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_malloc ) == 0 )
                 malloc_set = 1;
-            else if( strcmp( opt.spec->name, shell_str_realloc ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_realloc ) == 0 )
                 realloc_set = 1;
-            else if( strcmp( opt.spec->name, shell_str_free ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_free ) == 0 )
                 free_set = 1;
-            else if( strcmp( opt.spec->name, shell_str_test ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
-            else if( strcmp( opt.spec->name, shell_str_fill ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_fill ) == 0 )
                 fill_mode = 1;
-            else if( strcmp( opt.spec->name, shell_str_info ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info_set = 1;
         }
         else
@@ -1618,9 +1618,9 @@ int cmd_beep( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_frequency ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
                 shell_eval_int(opt.value, (int*)&freq);
-            else if( strcmp( opt.spec->name, "ms" ) == 0 )
+            else if( STRCMP( opt.spec->name, "ms" ) == 0 )
                 shell_eval_int(opt.value, (int*)&ms);
         }
         else
@@ -1664,7 +1664,7 @@ int cmd_mkbuf( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_float ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_float ) == 0 )
                 float_mode = 1;
         }
         else
@@ -1724,24 +1724,24 @@ int cmd_sgpio( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_port ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_port ) == 0 )
                 shell_eval_int(opt.value, (int*)&port);
-            else if( strcmp( opt.spec->name, shell_str_frequency ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
             {
                 if( shell_eval_float(opt.value, (float*)&freq_val) )
                     freq = 1;
             }
-            else if( strcmp( opt.spec->name, shell_str_loop ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
                 loop = 1;
-            else if( strcmp( opt.spec->name, shell_str_output ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_output ) == 0 )
                 shell_eval_int(opt.value, (int*)&output);
-            else if( strcmp( opt.spec->name, shell_str_input ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_input ) == 0 )
                 shell_eval_int(opt.value, (int*)&input);
-            else if( strcmp( opt.spec->name, shell_str_start ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_start ) == 0 )
                 start = 1;
-            else if( strcmp( opt.spec->name, shell_str_stop ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_stop ) == 0 )
                 stop = 1;
-            else if( strcmp( opt.spec->name, shell_str_info ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info = 1;
             else if( strcmp( opt.spec->name, "input_len" ) == 0 )
                 shell_eval_int(opt.value, (int*)&input_len);
@@ -1848,7 +1848,7 @@ int cmd_power( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_value ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
                 set=1;
                 if( strcmp(opt.value, shell_str_0)==0 || strcmp(opt.value, shell_str_off)==0 )
@@ -1890,8 +1890,9 @@ int cmd_power( int argc, char *argv[] )
 #endif
 static uint8_t i2c_port_sda=CMD_I2C_SDA_PORT, i2c_port_scl=CMD_I2C_SCL_PORT;
 static uint16_t i2c_pin_sda=1<<(CMD_I2C_SDA_PIN), i2c_pin_scl=1<<(CMD_I2C_SCL_PIN);
-static uint32_t i2c_addr=0, i2c_addr_def=0;;
+static uint32_t i2c_addr=0, i2c_addr_def=0;
 static uint32_t i2c_delay_us=5;
+static uint8_t i2c_lsb_mode=0;
 
 static void i2c_start(void)
 {
@@ -1939,17 +1940,22 @@ static void i2c_write_ack(int ack)
 
 static uint8_t i2c_read_byte(int ack)
 {
-    int i;
+    uint8_t mask=i2c_lsb_mode ? 0x01 : 0x80;
     uint8_t ret=0;
+    int i;
     hal_gpio_set( i2c_port_sda, i2c_pin_sda );
     for( i=0; i<8; i++ )
     {     
         hal_gpio_set( i2c_port_scl, i2c_pin_scl );
         hal_delay_us( i2c_delay_us );
         if( hal_gpio_get( i2c_port_sda, i2c_pin_sda ) )
-            ret |= 1 << (8-1-i);
+            ret |= mask;
         hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
         hal_delay_us( i2c_delay_us );
+        if( i2c_lsb_mode )
+            mask <<= 1;
+        else
+            mask >>= 1;
     } 
     i2c_write_ack( ack );
     return ret;
@@ -1957,10 +1963,11 @@ static uint8_t i2c_read_byte(int ack)
 
 static int i2c_write_byte(uint8_t chr)
 {
+    uint8_t mask=i2c_lsb_mode ? 0x01 : 0x80;
     int i;
     for( i=0; i<8; i++ )
-    {     
-        if( chr & 1<<(8-1-i) )
+    {
+        if( chr & mask )
             hal_gpio_set( i2c_port_sda, i2c_pin_sda );
         else
             hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
@@ -1968,6 +1975,10 @@ static int i2c_write_byte(uint8_t chr)
         hal_gpio_set( i2c_port_scl, i2c_pin_scl );
         hal_delay_us( i2c_delay_us );
         hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+        if( i2c_lsb_mode )
+            mask <<= 1;
+        else
+            mask >>= 1;
     }
     return i2c_read_ack(); 
 }
@@ -1989,15 +2000,17 @@ int cmd_i2c( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'd', shell_str_deinit, 0, "deinit pins" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'f', "force_addr", 0, "force assigned address" },
+          'l', "lsb", 0, "lsb first" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'n', "nostop", 0, "no stop bit" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'r', shell_str_read, "read_cycle", "default 1" },
+          'r', shell_str_read, "read_cycle", "default 0" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_value, 0, shell_str_data },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t init=0, deinit=0, addr_set=0, force_addr=0;
+    uint8_t init=0, deinit=0, addr_set=0, nostop_set=0, lsb_set=0;
     int read_cycle=0;
     char *p;
     int i, dat, line_count;
@@ -2007,23 +2020,25 @@ int cmd_i2c( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_address ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
             {
                 if( shell_eval_int(opt.value, (int*)&i2c_addr) )
                     addr_set = 1;
                 else
                     goto err_addr;
             }
-            else if( strcmp( opt.spec->name, shell_str_delay ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
                 shell_eval_int(opt.value, (int*)&i2c_delay_us);
-            else if( strcmp( opt.spec->name, shell_str_read ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
                 shell_eval_int(opt.value, (int*)&read_cycle);
-            else if( strcmp( opt.spec->name, shell_str_init ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
-            else if( strcmp( opt.spec->name, shell_str_deinit ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
                 deinit = 1;
-            else if( strcmp( opt.spec->name, "force_addr" ) == 0 )
-                force_addr = 1;
+            else if( strcmp( opt.spec->name, "nostop" ) == 0 )
+                nostop_set = 1;
+            else if( strcmp( opt.spec->name, "lsb" ) == 0 )
+                lsb_set = 1;
             else if( strcmp( opt.spec->name, "scl" ) == 0 )
             {
                 i2c_port_scl = strtol( opt.value, &p, 10 );
@@ -2048,7 +2063,7 @@ int cmd_i2c( int argc, char *argv[] )
                     goto err_port;
                 i2c_pin_sda = 1 << i2c_pin_sda;
             }
-            else if( strcmp( opt.spec->name, shell_str_value ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
                 parser.idx--;
                 break;
@@ -2062,6 +2077,7 @@ int cmd_i2c( int argc, char *argv[] )
     {
         if( ! addr_set )
             goto err_addr;
+        i2c_lsb_mode = lsb_set;
         i2c_addr_def = i2c_addr;
         hal_gpio_set_output( i2c_port_scl, i2c_pin_scl );
         hal_gpio_set_output_open_drain( i2c_port_sda, i2c_pin_sda );
@@ -2079,7 +2095,7 @@ int cmd_i2c( int argc, char *argv[] )
     if( !addr_set )
         i2c_addr = i2c_addr_def; 
     i2c_start();
-    if( ! i2c_write_byte( force_addr ? i2c_addr : (i2c_addr<<1) ) )
+    if( ! i2c_write_byte( addr_set ? i2c_addr : (i2c_addr<<1) ) )
     {
         i2c_stop();
         shell_write_err("ACK");
@@ -2103,7 +2119,7 @@ int cmd_i2c( int argc, char *argv[] )
     if( read_cycle )
     {
         i2c_start();
-        i2c_write_byte( force_addr ? i2c_addr : ((i2c_addr<<1)|1) );
+        i2c_write_byte( addr_set ? i2c_addr : ((i2c_addr<<1)|1) );
         /* read bytes */
         line_count = 0;
         for( i=read_cycle; i; i-- )
@@ -2119,7 +2135,8 @@ int cmd_i2c( int argc, char *argv[] )
         if( line_count )
             shell_write_char( '\n' );
     }
-    i2c_stop();
+    if( ! nostop_set )
+        i2c_stop();
     return 0;
  
 err_addr:
@@ -2244,15 +2261,15 @@ int cmd_spi( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_delay ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
                 shell_eval_int(opt.value, (int*)&spi_delay_us);
-            else if( strcmp( opt.spec->name, shell_str_read ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
                 read_mode = 1;
-            else if( strcmp( opt.spec->name, shell_str_width ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
                 shell_eval_int(opt.value, (int*)&spi_width);
-            else if( strcmp( opt.spec->name, shell_str_init ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
-            else if( strcmp( opt.spec->name, shell_str_deinit ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
                 deinit = 1;
             else if( strcmp( opt.spec->name, "cpol" ) == 0 )
                 cpol = 1;
@@ -2308,7 +2325,7 @@ int cmd_spi( int argc, char *argv[] )
                     goto err_port;
                 spi_pin_cs = 1 << spi_pin_cs;
             }
-            else if( strcmp( opt.spec->name, shell_str_value ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
                 parser.idx--;
                 break;
@@ -2412,13 +2429,13 @@ int cmd_counter( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_init ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
-            else if( strcmp( opt.spec->name, shell_str_deinit ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
                 deinit = 1;
-            else if( strcmp( opt.spec->name, shell_str_reset ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_reset ) == 0 )
                 reset = 1;
-            else if( strcmp( opt.spec->name, shell_str_pin ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
             {
                 counter_port = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
@@ -2482,9 +2499,9 @@ int cmd_rtc( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_set ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_set ) == 0 )
                 set = 1;
-            else if( strcmp( opt.spec->name, shell_str_setting ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_setting ) == 0 )
                 break;
         }
         else
@@ -2560,9 +2577,9 @@ int cmd_spiffs( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_address ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
-            else if( strcmp( opt.spec->name, shell_str_command) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_command) == 0 )
                 cmd = (char*)opt.value;   
         }
         else
@@ -2707,9 +2724,9 @@ int cmd_cat( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_write ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_write ) == 0 )
                 write = 1;
-            if( strcmp( opt.spec->name, shell_str_append ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_append ) == 0 )
                 append = 1;
             if( strcmp( opt.spec->name, "b64" ) == 0 )
             {
@@ -2717,7 +2734,7 @@ int cmd_cat( int argc, char *argv[] )
                 base64_init_encodestate( &state_en );
                 base64_init_decodestate( &state_de );
             }
-            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
         }
         else
@@ -2842,7 +2859,7 @@ int cmd_rm( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 fname = (char*)opt.value;   
         }
         else
@@ -2873,7 +2890,7 @@ int cmd_rename( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
             {
                 fname = (char*)opt.value;
                 if( parser.idx + 1 < argc )
@@ -2912,7 +2929,7 @@ int cmd_copy( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
             {
                 fname = (char*)opt.value;
                 if( parser.idx + 1 < argc )
@@ -2986,7 +3003,7 @@ int cmd_list( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_path ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_path ) == 0 )
                 path = (char*)opt.value;   
         }
         else
@@ -3037,7 +3054,7 @@ int cmd_load( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_file ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
         }
         else

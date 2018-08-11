@@ -70,13 +70,13 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'I', shell_str_info, 0, "INFO type filter" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'W', "warn", 0, "WARN type filter" },
+          'W', shell_str_warn, 0, "WARN type filter" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'E', shell_str_error, 0, "ERROR type filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'H', "head", "head", "message head filter" },
+          'H', shell_str_head, "head", "message head filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'm', "msg", shell_str_message, "log message" },
+          'm', shell_str_msg, shell_str_message, "log message" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -93,43 +93,43 @@ int cmd_logger( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, shell_str_enable ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_enable ) == 0 )
             {
                 enable = 1;
                 enable_set = 1;
             }
-            else if( strcmp( opt.spec->name, shell_str_disable ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_disable ) == 0 )
             {
                 enable = 0;
                 enable_set = 1;
             }
-            else if( strcmp( opt.spec->name, shell_str_history ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_history ) == 0 )
                 history_set = 1;
-            else if( strcmp( opt.spec->name, shell_str_debug ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_debug ) == 0 )
                 debug_set = 1;
-            else if( strcmp( opt.spec->name, shell_str_info ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info_set = 1;
-            else if( strcmp( opt.spec->name, "warn" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_warn ) == 0 )
                 warn_set = 1;
-            else if( strcmp( opt.spec->name, shell_str_error ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_error ) == 0 )
                 error_set = 1;
-            else if( strcmp( opt.spec->name, "head" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_head ) == 0 )
             {
                 head = opt.value;
                 if( head == 0 )
                 {
-                    shell_write_err("head");
+                    shell_write_err(shell_str_head);
                     return -1;
                 }
                 else
                     head_len = strlen(head);
             }
-            else if( strcmp( opt.spec->name, "msg" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_msg ) == 0 )
             {
                 msg = opt.value;
                 if( msg == 0 )
                 {
-                    shell_write_line("msg err");
+                    shell_write_err(shell_str_msg);
                     return -1;
                 }
             }

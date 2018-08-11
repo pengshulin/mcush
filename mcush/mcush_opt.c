@@ -117,7 +117,7 @@ static void parse_long(mcush_opt *opt, mcush_opt_parser *parser)
                 if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
                     opt->value = 0;  /* "--foo=" -> "--foo=(NULL)" */
                 else
-                    opt->value = shell_str_set;  /* "--foo=", treated as "--foo=set" */
+                    opt->value = shell_str_nil;  /* "--foo=", treated as "--foo=nil" */
             }
         }
         else if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
@@ -133,7 +133,7 @@ static void parse_long(mcush_opt *opt, mcush_opt_parser *parser)
                 && (parser->args[parser->idx][0] != '-') )
                 opt->value = parser->args[parser->idx++];  /* "--foo bar" */
             else
-                opt->value = shell_str_set;  /* "--foo", treated as "--foo set" */
+                opt->value = shell_str_nil;  /* "--foo", treated as "--foo nil" */
         }
     }
 }
@@ -177,7 +177,7 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
                     if( spec->usage & MCUSH_OPT_USAGE_VALUE_REQUIRED )
                         opt->value = 0;  /* "-i=" -> "-i (NULL)" */
                     else
-                        opt->value = shell_str_set;  /* "-i", treated as "-i set" */
+                        opt->value = shell_str_nil;  /* "-i", treated as "-i nil" */
                 }
             }
         }
@@ -194,7 +194,7 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
                 && (parser->args[parser->idx][0] != '-') )
                 opt->value = parser->args[parser->idx++];  /* "-i foo" */
             else
-                opt->value = shell_str_set;  /* "-i", treated as "-i set" */
+                opt->value = shell_str_nil;  /* "-i", treated as "-i nil" */
         }
     }
 }
