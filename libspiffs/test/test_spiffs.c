@@ -200,14 +200,17 @@ static s32_t _write(
   }
 
   for (i = 0; i < size; i++) {
-    if (((addr + i) & (SPIFFS_CFG_LOG_PAGE_SZ(&__fs)-1)) != offsetof(spiffs_page_header, flags)) {
-      if (check_valid_flash && ((AREA(addr + i) ^ src[i]) & src[i])) {
-        printf("trying to write %02x to %02x at addr %08x (as part of writing %d bytes to addr %08x)\n", src[i], AREA(addr + i), addr+i, size, addr);
-        spiffs_page_ix pix = (addr + i) / SPIFFS_CFG_LOG_PAGE_SZ(&__fs);
-        dump_page(&__fs, pix);
-	ERREXIT();
-        return -1;
-      }
+#if !SPIFFS_NO_BLIND_WRITES
+    if (((addr + i) & (SPIFFS_CFG_LOG_PAGE_SZ(&__fs)-1)) == offsetof(spiffs_page_header, flags)) {
+      /* Blind flag writes are allowed. */
+    } else
+#endif
+    if (check_valid_flash && ((AREA(addr + i) ^ src[i]) & src[i])) {
+      printf("trying to write %02x to %02x at addr %08x (as part of writing %d bytes to addr %08x)\n", src[i], AREA(addr + i), addr+i, size, addr);
+      spiffs_page_ix pix = (addr + i) / SPIFFS_CFG_LOG_PAGE_SZ(&__fs);
+      dump_page(&__fs, pix);
+      ERREXIT();
+      return -1;
     }
     AREA(addr + i) &= src[i];
   }
@@ -645,6 +648,14 @@ int read_and_verify_fd(spiffs_file fd, char *name) {
     printf("  read_and_verify: could not stat file %s\n", name);
     return res;
   }
+
+  off_t fsize = lseek(pfd, 0, SEEK_END);
+  if (s.size != fsize) {
+    printf("  read_and_verify: size differs, %s spiffs:%d!=fs:%ld\n", name, s.size, fsize);
+    return -1;
+  }
+  lseek(pfd, 0, SEEK_SET);
+
   if (s.size == 0) {
     SPIFFS_close(&__fs, fd);
     close(pfd);
@@ -1091,5 +1102,13 @@ int run_file_config(int cfg_count, tfile_conf* cfgs, int max_runs, int max_concu
   return 0;
 }
 
-
-
+int count_taken_fds(spiffs *fs) {
+  int i;
+  spiffs_fd *fds = (spiffs_fd *)fs->fd_space;
+  int taken = 0;
+  for (i = 0; i < fs->fd_count; i++) {
+    spiffs_fd *cur_fd = &fds[i];
+    if (cur_fd->file_nbr) taken++;
+  }
+  return taken;
+}

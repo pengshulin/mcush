@@ -6,33 +6,6 @@
 const unsigned int baudrate=9600;
 
 
-void hal_delay_us(uint32_t us)
-{
-    while( us-- )
-    {
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-    }
-}
-
-
-void hal_delay_ms(uint32_t ms)
-{
-    volatile uint32_t a;
-    while(ms--)
-    {
-        for(a=6000; a; a--); 
-    }
-}
-
 
 void hal_rcc_init(void)
 {  
@@ -56,7 +29,6 @@ int hal_init(void)
     hal_debug_init();
     hal_gpio_init();
     hal_led_init();
-    hal_power_set(1);
     hal_beep_init();
 #if USE_CMD_SGPIO
     hal_sgpio_init();

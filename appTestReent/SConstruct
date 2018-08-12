@@ -7,6 +7,7 @@ env = loadHalConfig( haldir, use_spiffs=True ).env
 env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     'MCUSH_TASK_REGISTRY_SIZE=20',
+    'MCUSH_VFS_FILE_DESCRIPTOR_NUM=20',
     ] ) 
 
 env.appendPath([

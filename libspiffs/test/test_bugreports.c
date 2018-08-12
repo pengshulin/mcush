@@ -627,7 +627,7 @@ static int run_fuzz_test(FILE *f, int maxfds, int debuglog) {
   int i;
 
   for (i = 0; i < 8; i++) {
-    char buff[64];
+    char buff[128];
     sprintf(buff, "%dfile%d.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxasdasdasdadxxxxxxxxxxxxxxxxxxx", i, i);
     buff[9 + 2 * i] = 0;
     filename[i] = strdup(buff);
@@ -635,7 +635,7 @@ static int run_fuzz_test(FILE *f, int maxfds, int debuglog) {
 
   // The list of 8 modes that are chosen. SPIFFS_EXCL is not present -- it probably ought to be.
   int modes[8] = {SPIFFS_RDONLY, SPIFFS_RDWR, SPIFFS_RDWR|SPIFFS_TRUNC, SPIFFS_RDWR|SPIFFS_CREAT, SPIFFS_RDWR|SPIFFS_CREAT|SPIFFS_TRUNC,
-                  SPIFFS_WRONLY|SPIFFS_CREAT|SPIFFS_TRUNC, SPIFFS_RDWR|SPIFFS_CREAT|SPIFFS_TRUNC|SPIFFS_DIRECT, SPIFFS_WRONLY};
+      SPIFFS_WRONLY|SPIFFS_CREAT|SPIFFS_TRUNC, SPIFFS_RDWR|SPIFFS_CREAT|SPIFFS_TRUNC|SPIFFS_DIRECT, SPIFFS_WRONLY};
 
   char buff[2048];
   for (i = 0; i < sizeof(buff); i++) {
@@ -657,13 +657,13 @@ static int run_fuzz_test(FILE *f, int maxfds, int debuglog) {
     int fdn = ((arg >> 6) & 3) % maxfds;
     int rc;
     switch(c) {
-      case 'O':
-	if (fd[fdn] >= 0) {
-          LOGOP("  close(%d)\n", fd[fdn]);
-	  SPIFFS_close(FS, fd[fdn]);
-          openindex[fdn] = -1;
-          fd[fdn] = -1;
-	}
+    case 'O':
+      if (fd[fdn] >= 0) {
+        LOGOP("  close(%d)\n", fd[fdn]);
+        SPIFFS_close(FS, fd[fdn]);
+        openindex[fdn] = -1;
+        fd[fdn] = -1;
+      }
 #ifndef HAVE_MULTIPLE_OPEN
       {
         int index = (arg >> 3) & 7;
@@ -677,149 +677,149 @@ static int run_fuzz_test(FILE *f, int maxfds, int debuglog) {
         }
       }
 #endif
-        LOGOP("  open(\"%s\", 0x%x)", filename[(arg>>3) & 7], modes[arg & 7]);
-	fd[fdn] = SPIFFS_open(FS, filename[(arg>>3) & 7], modes[arg & 7], 0);
-        if (fd[fdn] >= 0) {
-          openindex[fdn] = (arg >> 3) & 7;
+      LOGOP("  open(\"%s\", 0x%x)", filename[(arg>>3) & 7], modes[arg & 7]);
+      fd[fdn] = SPIFFS_open(FS, filename[(arg>>3) & 7], modes[arg & 7], 0);
+      if (fd[fdn] >= 0) {
+        openindex[fdn] = (arg >> 3) & 7;
+      }
+      LOGOP(" -> %d\n", fd[fdn]);
+      break;
+
+    case 'S':
+      if (fd[fdn] >= 0) {
+        int offset = (14 << (arg & 7)) + arg;
+        if (arg & 16) {
+          offset = -offset;
         }
-        LOGOP(" -> %d\n", fd[fdn]);
-	break;
+        int whence = (arg & 63) % 3;
+        LOGOP("  lseek(%d, %d, %d)\n", fd[fdn], offset, whence);
+        SPIFFS_lseek(FS, fd[fdn], offset, whence);
+      }
+      break;
 
-      case 'S':
-	if (fd[fdn] >= 0) {
-	  int offset = (14 << (arg & 7)) + arg;
-	  if (arg & 16) {
-	    offset = -offset;
-	  }
-	  int whence = (arg & 63) % 3;
-          LOGOP("  lseek(%d, %d, %d)\n", fd[fdn], offset, whence);
-	  SPIFFS_lseek(FS, fd[fdn], offset, whence);
-	}
-	break;
+    case 'R':
+      if (fd[fdn] >= 0) {
+        LOGOP("  read(%d, , %d)", fd[fdn], (15 << (arg & 7)) + (arg & 127));
+        int rlen = SPIFFS_read(FS, fd[fdn], rbuff, (15 << (arg & 7)) + (arg & 127));
+        LOGOP(" -> %d\n", rlen);
+      }
+      break;
 
-      case 'R':
-	if (fd[fdn] >= 0) {
-          LOGOP("  read(%d, , %d)", fd[fdn], (15 << (arg & 7)) + (arg & 127));
-	  int rlen = SPIFFS_read(FS, fd[fdn], rbuff, (15 << (arg & 7)) + (arg & 127));
-          LOGOP(" -> %d\n", rlen);
-	}
-	break;
+    case 'W':
+      if (fd[fdn] >= 0) {
+        LOGOP("  write(%d, , %d)", fd[fdn], (15 << (arg & 7)) + (arg & 127));
+        rc = SPIFFS_write(FS, fd[fdn], buff, (15 << (arg & 7)) + (arg & 127));
+        LOGOP(" -> %d\n", rc);
+      }
+      break;
 
-      case 'W':
-	if (fd[fdn] >= 0) {
-          LOGOP("  write(%d, , %d)", fd[fdn], (15 << (arg & 7)) + (arg & 127));
-	  rc = SPIFFS_write(FS, fd[fdn], buff, (15 << (arg & 7)) + (arg & 127));
-          LOGOP(" -> %d\n", rc);
-	}
-	break;
+    case 'C':
+      if (fd[fdn] >= 0) {
+        LOGOP("  close(%d)\n", fd[fdn]);
+        SPIFFS_close(FS, fd[fdn]);
+      }
+      fd[fdn] = -1;
+      openindex[fdn] = -1;
+      break;
 
-      case 'C':
-	if (fd[fdn] >= 0) {
-          LOGOP("  close(%d)\n", fd[fdn]);
-	  SPIFFS_close(FS, fd[fdn]);
-	}
-	fd[fdn] = -1;
-        openindex[fdn] = -1;
-	break;
+    case 'b':
+      add = fgetc(f);
+      for (i = 0; i < sizeof(buff); i++) {
+        buff[i] = add + i * arg;
+      }
+      break;
 
-      case 'b':
-        add = fgetc(f);
-	for (i = 0; i < sizeof(buff); i++) {
-	  buff[i] = add + i * arg;
-	}
-	break;
-
-      case 'f':
-	if (fd[fdn] >= 0) {
-          LOGOP("  fflush(%d)\n", fd[fdn]);
-	  SPIFFS_fflush(FS, fd[fdn]);
-	}
-	break;
+    case 'f':
+      if (fd[fdn] >= 0) {
+        LOGOP("  fflush(%d)\n", fd[fdn]);
+        SPIFFS_fflush(FS, fd[fdn]);
+      }
+      break;
 
 #ifdef HAVE_REMOVE_OPEN
-      case 'D':
-	if (fd[fdn] >= 0) {
-          LOGOP("  fremove(%d)\n", fd[fdn]);
-	  SPIFFS_fremove(FS, fd[fdn]);
-	}
-	break;
+    case 'D':
+      if (fd[fdn] >= 0) {
+        LOGOP("  fremove(%d)\n", fd[fdn]);
+        SPIFFS_fremove(FS, fd[fdn]);
+      }
+      break;
 #endif
 
-      case 'd':
+    case 'd':
 #ifndef HAVE_REMOVE_OPEN
-      {
-        int index = arg & 7;
-        for (i = 0; i < sizeof(openindex) / sizeof(openindex[0]); i++) {
-          if (openindex[i] == index) {
-            break;
-          }
-        }
-        if (i < sizeof(openindex) / sizeof(openindex[0])) {
+    {
+      int index = arg & 7;
+      for (i = 0; i < sizeof(openindex) / sizeof(openindex[0]); i++) {
+        if (openindex[i] == index) {
           break;
         }
       }
+      if (i < sizeof(openindex) / sizeof(openindex[0])) {
+        break;
+      }
+    }
 #endif
-        LOGOP("  remove(\"%s\")", filename[arg & 7]);
-        rc = SPIFFS_remove(FS, filename[arg & 7]);
-        LOGOP(" -> %d\n", rc);
-	break;
+    LOGOP("  remove(\"%s\")", filename[arg & 7]);
+    rc = SPIFFS_remove(FS, filename[arg & 7]);
+    LOGOP(" -> %d\n", rc);
+    break;
 
-      case 'r':
+    case 'r':
 #ifndef HAVE_REMOVE_OPEN
-      {
-        int index = arg & 7;
-        for (i = 0; i < sizeof(openindex) / sizeof(openindex[0]); i++) {
-          if (openindex[i] == index) {
-            break;
-          }
-        }
-        if (i < sizeof(openindex) / sizeof(openindex[0])) {
+    {
+      int index = arg & 7;
+      for (i = 0; i < sizeof(openindex) / sizeof(openindex[0]); i++) {
+        if (openindex[i] == index) {
           break;
         }
       }
+      if (i < sizeof(openindex) / sizeof(openindex[0])) {
+        break;
+      }
+    }
 #endif
-        LOGOP("  rename(\"%s\", \"%s\")", filename[arg & 7], filename[(arg >> 3) & 7]);
-        rc = SPIFFS_rename(FS, filename[arg & 7], filename[(arg >> 3) & 7]);
-        LOGOP(" -> %d\n", rc);
-	break;
+    LOGOP("  rename(\"%s\", \"%s\")", filename[arg & 7], filename[(arg >> 3) & 7]);
+    rc = SPIFFS_rename(FS, filename[arg & 7], filename[(arg >> 3) & 7]);
+    LOGOP(" -> %d\n", rc);
+    break;
 
-      case 'U':
-	ungetc(arg, f);
-	for (i = 0; i < 4; i++) {
-	  fd[i] = -1;
-	}
-	{
+    case 'U':
+      ungetc(arg, f);
+      for (i = 0; i < 4; i++) {
+        fd[i] = -1;
+      }
+      {
 #ifdef DO_UNMOUNT
-          LOGOP("  unmount\n");
-          SPIFFS_unmount(FS);
+        LOGOP("  unmount\n");
+        SPIFFS_unmount(FS);
 #endif
-	  char *tmpfile = strdup("/tmp/fsdump.XXXXXX");
-          LOGOP("  cycle and remount\n");
-	  close(mkstemp(tmpfile));
-	  fs_store_dump(tmpfile);
-	  fs_mount_dump(tmpfile, 0, 0, blocks * block_size, erase_size, block_size, page_size);
-	  unlink(tmpfile);
-	  free(tmpfile);
+        char *tmpfile = strdup("/tmp/fsdump.XXXXXX");
+        LOGOP("  cycle and remount\n");
+        close(mkstemp(tmpfile));
+        fs_store_dump(tmpfile);
+        fs_mount_dump(tmpfile, 0, 0, blocks * block_size, erase_size, block_size, page_size);
+        unlink(tmpfile);
+        free(tmpfile);
 #ifndef NO_FORCE_CHECK
-          LOGOP("  forcecheck()");
-          rc = SPIFFS_check(FS);
-          LOGOP(" -> %d\n", rc);
-#endif
-	}
-	break;
-
-      case 'c':
-      {
-        LOGOP("  check()");
+        LOGOP("  forcecheck()");
         rc = SPIFFS_check(FS);
         LOGOP(" -> %d\n", rc);
-	ungetc(arg, f);
-	break;
+#endif
       }
+      break;
 
-      default:
-	ungetc(arg, f);
-	break;
+    case 'c':
+    {
+      LOGOP("  check()");
+      rc = SPIFFS_check(FS);
+      LOGOP(" -> %d\n", rc);
+      ungetc(arg, f);
+      break;
+    }
+
+    default:
+      ungetc(arg, f);
+      break;
     }
   }
 
@@ -1176,6 +1176,61 @@ TEST(seek_bug_148) {
 } TEST_END
 
 
+TEST(remove_release_fd_152) {
+  int res;
+  fs_reset_specific(0, 0, 64*1024, 4096, 4096, 256);
+  u8_t buf[1024];
+  memrand(buf, sizeof(buf));
+  TEST_CHECK_EQ(count_taken_fds(FS), 0);
+  spiffs_file fd1 = SPIFFS_open(FS, "removemeandloseafd", SPIFFS_O_CREAT | SPIFFS_O_RDWR, 0);
+  TEST_CHECK_GT(fd1, 0);
+  TEST_CHECK_EQ(count_taken_fds(FS), 1);
+  TEST_CHECK_EQ(SPIFFS_write(FS, fd1, &buf, sizeof(buf)), sizeof(buf));
+  TEST_CHECK_EQ(SPIFFS_close(FS, fd1), SPIFFS_OK);
+  TEST_CHECK_EQ(count_taken_fds(FS), 0);
+  spiffs_file fd2 = SPIFFS_open(FS, "removemeandloseafd", SPIFFS_O_RDWR, 0);
+  TEST_CHECK_GT(fd2, 0);
+  TEST_CHECK_EQ(count_taken_fds(FS), 1);
+  spiffs_file fd3 = SPIFFS_open(FS, "removemeandloseafd", SPIFFS_O_RDWR, 0);
+  TEST_CHECK_GT(fd3, 0);
+  TEST_CHECK_EQ(count_taken_fds(FS), 2);
+  TEST_CHECK_EQ(SPIFFS_remove(FS, "removemeandloseafd"), SPIFFS_OK);
+  TEST_CHECK_EQ(count_taken_fds(FS), 0);
+  return TEST_RES_OK;
+} TEST_END
+
+TEST(certain_file_size_fail_165) {
+  fs_reset_specific(0, 0, 512*1024, 4*1024, 64*1024, 256);
+  const int NUM = 134;
+  const int SIZ = 200;
+  u8_t buf[SIZ];
+
+  TEST_CHECK_EQ(SPIFFS_creat(FS, "test", 0), SPIFFS_OK);
+  spiffs_file fd = SPIFFS_open(FS, "test", SPIFFS_O_CREAT | SPIFFS_O_WRONLY, 0);
+  TEST_CHECK_GT(fd, 0);
+
+  int i;
+  for (i = 0; i < NUM; i++) {
+    TEST_CHECK_EQ(SPIFFS_write(FS, fd, buf, SIZ), SIZ);
+  }
+  TEST_CHECK_EQ(SPIFFS_close(FS, fd), SPIFFS_OK);
+  fd = SPIFFS_open(FS, "test", SPIFFS_O_RDONLY, 0);
+  TEST_CHECK_GT(fd, 0);
+
+  spiffs_stat s;
+  TEST_CHECK_EQ(SPIFFS_fstat(FS, fd, &s), SPIFFS_OK);
+  TEST_CHECK_EQ(s.size, NUM*SIZ);
+
+  int size = 0;
+  for (i = 0; i < NUM; i++) {
+    size += SPIFFS_read(FS, fd, buf, SIZ);
+  }
+  TEST_CHECK_EQ(size, NUM*SIZ);
+
+  return TEST_RES_OK;
+} TEST_END
+
+
 SUITE_TESTS(bug_tests)
   ADD_TEST(nodemcu_full_fs_1)
   ADD_TEST(nodemcu_full_fs_2)
@@ -1192,10 +1247,12 @@ SUITE_TESTS(bug_tests)
   ADD_TEST(seek_bug_148)
   //ADD_TEST(small_free_space)
   ADD_TEST(lots_of_overwrite)
-  ADD_TEST_NON_DEFAULT(fuzzer_found_1)
-  ADD_TEST_NON_DEFAULT(fuzzer_found_2)
-  ADD_TEST_NON_DEFAULT(fuzzer_found_3)
-  ADD_TEST_NON_DEFAULT(fuzzer_found_4)
+  ADD_TEST(fuzzer_found_1)
+  ADD_TEST(fuzzer_found_2)
+  ADD_TEST(fuzzer_found_3)
+  ADD_TEST(fuzzer_found_4)
+  ADD_TEST(remove_release_fd_152)
+  ADD_TEST(certain_file_size_fail_165)
   ADD_TEST_NON_DEFAULT(fuzzer_found_single_1)
   ADD_TEST_NON_DEFAULT(log_afl_test)
   ADD_TEST_NON_DEFAULT(afl_test)

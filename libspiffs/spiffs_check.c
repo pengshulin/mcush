@@ -50,7 +50,6 @@ static s32_t spiffs_object_get_data_page_index_reference(
   spiffs_page_ix *pix,
   spiffs_page_ix *objix_pix) {
   s32_t res;
-    u32_t addr;
 
   // calculate object index span index for given data page span index
   spiffs_span_ix objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
@@ -60,7 +59,7 @@ static s32_t spiffs_object_get_data_page_index_reference(
   SPIFFS_CHECK_RES(res);
 
   // load obj index entry
-  addr = SPIFFS_PAGE_TO_PADDR(fs, *objix_pix);
+  u32_t addr = SPIFFS_PAGE_TO_PADDR(fs, *objix_pix);
   if (objix_spix == 0) {
     // get referenced page from object index header
     addr += sizeof(spiffs_page_object_ix_header) + data_spix * sizeof(spiffs_page_ix);
@@ -94,8 +93,6 @@ static s32_t spiffs_rewrite_index(spiffs *fs, spiffs_obj_id obj_id, spiffs_span_
   spiffs_block_ix bix;
   int entry;
   spiffs_page_ix free_pix;
-    spiffs_span_ix objix_spix;
-
   obj_id |= SPIFFS_OBJ_ID_IX_FLAG;
 
   // find free entry
@@ -104,7 +101,7 @@ static s32_t spiffs_rewrite_index(spiffs *fs, spiffs_obj_id obj_id, spiffs_span_
   free_pix = SPIFFS_OBJ_LOOKUP_ENTRY_TO_PIX(fs, bix, entry);
 
   // calculate object index span index for given data page span index
-  objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
+  spiffs_span_ix objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
   if (objix_spix == 0) {
     // calc index in index header
     entry = data_spix;
@@ -164,11 +161,17 @@ static s32_t spiffs_delete_obj_lazy(spiffs *fs, spiffs_obj_id obj_id) {
     return SPIFFS_OK;
   }
   SPIFFS_CHECK_RES(res);
-  u8_t flags = 0xff & ~SPIFFS_PH_FLAG_IXDELE;
+  u8_t flags = 0xff;
+#if SPIFFS_NO_BLIND_WRITES
+  res = _spiffs_rd(fs, SPIFFS_OP_T_OBJ_LU | SPIFFS_OP_C_READ,
+      0, SPIFFS_PAGE_TO_PADDR(fs, objix_hdr_pix) + offsetof(spiffs_page_header, flags),
+      sizeof(flags), &flags);
+  SPIFFS_CHECK_RES(res);
+#endif
+  flags &= ~SPIFFS_PH_FLAG_IXDELE;
   res = _spiffs_wr(fs, SPIFFS_OP_T_OBJ_LU | SPIFFS_OP_C_UPDT,
       0, SPIFFS_PAGE_TO_PADDR(fs, objix_hdr_pix) + offsetof(spiffs_page_header, flags),
-      sizeof(u8_t),
-      (u8_t *)&flags);
+      sizeof(flags), &flags);
   return res;
 }
 
@@ -426,10 +429,17 @@ static s32_t spiffs_lookup_check_validate(spiffs *fs, spiffs_obj_id lu_obj_id, s
           // just finalize
           SPIFFS_CHECK_DBG("LU: FIXUP: unfinalized page is referred, finalizing\n");
           CHECK_CB(fs, SPIFFS_CHECK_LOOKUP, SPIFFS_CHECK_FIX_LOOKUP, p_hdr->obj_id, p_hdr->span_ix);
-          u8_t flags = 0xff & ~SPIFFS_PH_FLAG_FINAL;
+          u8_t flags = 0xff;
+#if SPIFFS_NO_BLIND_WRITES
+          res = _spiffs_rd(fs, SPIFFS_OP_T_OBJ_DA | SPIFFS_OP_C_READ,
+              0, SPIFFS_PAGE_TO_PADDR(fs, cur_pix) + offsetof(spiffs_page_header, flags),
+              sizeof(flags), &flags);
+          SPIFFS_CHECK_RES(res);
+#endif
+          flags &= ~SPIFFS_PH_FLAG_FINAL;
           res = _spiffs_wr(fs, SPIFFS_OP_T_OBJ_DA | SPIFFS_OP_C_UPDT,
               0, SPIFFS_PAGE_TO_PADDR(fs, cur_pix) + offsetof(spiffs_page_header, flags),
-              sizeof(u8_t), (u8_t*)&flags);
+              sizeof(flags), &flags);
         }
       }
     }

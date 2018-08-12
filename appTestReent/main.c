@@ -70,10 +70,10 @@ int cmd_run( int argc, char *argv[] )
 }
 
 static shell_cmd_t cmd_tab[] = {
-{   0, 's', "stop",  cmd_stop, 
+{   0, 0, "stop",  cmd_stop, 
     "stop",
     "stop"  },
-{   0, 'r', "run",  cmd_run, 
+{   0, 0, "run",  cmd_run, 
     "run",
     "run"  },
 {   CMD_END  } };

@@ -7,33 +7,6 @@ const unsigned int baudrate=9600;
 
 extern void hal_power_set(int enable);
 
-void hal_delay_us(uint32_t us)
-{
-    while( us-- )
-    {
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-    }
-}
-
-
-void hal_delay_ms(uint32_t ms)
-{
-    volatile uint32_t a;
-    while(ms--)
-    {
-        for(a=6000; a; a--); 
-    }
-}
-
 
 void hal_rcc_init(void)
 {  
@@ -45,16 +18,10 @@ void hal_rcc_init(void)
 }
 
 
-void hal_debug_init(void)
-{
-}
-
- 
 int hal_init(void)
 {
     hal_wdg_init();
     hal_rcc_init();
-    hal_debug_init();
     hal_gpio_init();
     hal_led_init();
     hal_power_set(1);
@@ -64,6 +31,4 @@ int hal_init(void)
         return 0;
     return 1;
 }
-
-
 
