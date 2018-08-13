@@ -318,50 +318,12 @@ void USART_To_USB_Send_Data(void)
 *******************************************************************************/
 void Get_SerialNum(void)
 {
-  uint32_t Device_Serial0, Device_Serial1, Device_Serial2;
+    char buf[32];
 
-  Device_Serial0 = *(uint32_t*)ID1;
-  Device_Serial1 = *(uint32_t*)ID2;
-  Device_Serial2 = *(uint32_t*)ID3;  
-
-  //Device_Serial0 += Device_Serial2;
-  //
-  //if (Device_Serial0 != 0)
-  //{
-  //  IntToUnicode (Device_Serial0, &Virtual_Com_Port_StringSerial[2] , 8);
-  //  IntToUnicode (Device_Serial1, &Virtual_Com_Port_StringSerial[18], 4);
-  //}
-  IntToUnicode (Device_Serial0, &Virtual_Com_Port_StringSerial[2] , 8);
-  IntToUnicode (Device_Serial1, &Virtual_Com_Port_StringSerial[2+8*2] , 8);
-  IntToUnicode (Device_Serial2, &Virtual_Com_Port_StringSerial[2+16*2] , 8);
+    hal_get_serial_number( buf );
+    byte_to_unicode( (uint8_t*)buf, (uint16_t*)&Virtual_Com_Port_StringSerial[2], (VIRTUAL_COM_PORT_SIZ_STRING_SERIAL-1)/2, 0 );
 }
 
-/*******************************************************************************
-* Function Name  : HexToChar.
-* Description    : Convert Hex 32Bits value into char.
-* Input          : None.
-* Output         : None.
-* Return         : None.
-*******************************************************************************/
-static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len)
-{
-  uint8_t idx = 0;
-  
-  for( idx = 0 ; idx < len ; idx ++)
-  {
-    if( ((value >> 28)) < 0xA )
-    {
-      pbuf[ 2* idx] = (value >> 28) + '0';
-    }
-    else
-    {
-      pbuf[2* idx] = (value >> 28) + 'A' - 10; 
-    }
-    
-    value = value << 4;
-    
-    pbuf[ 2* idx + 1] = 0;
-  }
-}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

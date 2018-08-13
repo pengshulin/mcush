@@ -378,3 +378,15 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
     return 0;
 }
 
+
+void byte_to_unicode( uint8_t *buf_in, uint16_t *buf_out, int len, int add_null_end )
+{
+    while( len-- )
+    {
+        *buf_out++ = *buf_in++;
+    }
+    if( add_null_end )
+        *buf_out= 0;
+}
+
+

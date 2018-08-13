@@ -26,6 +26,12 @@ void logger_disable(void)
 }
 
 
+int logger_is_enabled(void)
+{
+    return _enable;
+}
+
+
 char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 {
     char tp[2];

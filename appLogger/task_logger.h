@@ -42,6 +42,7 @@ void task_logger_init(void);
 
 void logger_enable(void);
 void logger_disable(void);
+int logger_is_enabled(void);
 
 
 int logger_str( int type, const char *str );
