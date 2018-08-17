@@ -109,7 +109,7 @@ int hal_uart_init( uint32_t baudrate )
     /* Interrupt Enable */  
     nvic_init.NVIC_IRQChannel = HAL_UARTx_IRQn;
     nvic_init.NVIC_IRQChannelPreemptionPriority = 10;
-    nvic_init.NVIC_IRQChannelSubPriority = 0;
+    nvic_init.NVIC_IRQChannelSubPriority = 0;  /* Not used as 4 bits are used for the pre-emption priority. */
     nvic_init.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init( &nvic_init );
 
