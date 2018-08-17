@@ -7,28 +7,31 @@
 #include <limits.h>
 #include "shell.h"
 
+#if DEBUG_SHELL
+#define static
+#endif
 
-static shell_control_block_t cb;
+static shell_control_block_t scb;
 
 
 int shell_read_char( char *c )
 {
     int ret=-1;
 
-    if( cb.script )
+    if( scb.script )
     {
-        if( *cb.script )
+        if( *scb.script )
         {
-            *c = *cb.script++;
+            *c = *scb.script++;
             ret = *c;
         }
         else
         {
-            cb.script = 0;
-            if( cb.script_free )
+            scb.script = 0;
+            if( scb.script_free )
             {
-                free( (void*)cb.script_free );
-                cb.script_free = 0;
+                free( (void*)scb.script_free );
+                scb.script_free = 0;
             }
         }
     }
@@ -54,14 +57,35 @@ int shell_read( char *buf, int len )
 }
 
 
+int shell_read_feed( char *buf, int len )
+{
+    return shell_driver_read_feed( buf, len );
+}
+
+
+void shell_write_set_sniffer( int (*hook)( const char *buf, int len )/*, int block_mode*/ )
+{
+    scb.write_sniffer = hook;
+    //scb.write_sniffer_block_mode = block_mode;
+}
+
+
 void shell_write_char( char c )
 {
+    if( scb.write_sniffer )
+    {
+        scb.write_sniffer( &c, 1 );
+    }
     shell_driver_write_char( c );
 }
 
  
 void shell_write( const char *buf, int len )
 {
+    if( scb.write_sniffer )
+    {
+        scb.write_sniffer( buf, len );
+    }
     shell_driver_write( (const char*)buf, len ); 
 }
 
@@ -193,13 +217,13 @@ int shell_eval_float( const char *str, float *f )
 
 void shell_set_errnum( int errnum )
 {
-    cb.errnum = errnum;
+    scb.errnum = errnum;
 }
 
 
 int shell_get_errnum( void )
 {
-    return cb.errnum;
+    return scb.errnum;
 }
 
 
@@ -209,9 +233,9 @@ int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 
     for( i=0; i<SHELL_CMD_TABLE_LEN; i++ )
     {
-        if( ! cb.cmd_table[i] )
+        if( ! scb.cmd_table[i] )
         {
-            cb.cmd_table[i] = cmd_table;
+            scb.cmd_table[i] = cmd_table;
             return 1;
         }
     }
@@ -221,11 +245,11 @@ int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 
 const char *shell_get_prompt( void )
 {
-    if( cb.prompt_hook )
-        return (*cb.prompt_hook)();
-    if( cb.errnum < 0 )
+    if( scb.prompt_hook )
+        return (*scb.prompt_hook)();
+    if( scb.errnum < 0 )
         return "?>";
-    else if( cb.errnum > 0 )
+    else if( scb.errnum > 0 )
         return "!>";
     else
         return "=>";
@@ -234,13 +258,13 @@ const char *shell_get_prompt( void )
 
 void shell_set_prompt_hook( const char *(*hook)(void) )
 {
-    cb.prompt_hook = hook;
+    scb.prompt_hook = hook;
 }
 
 
 char *shell_get_buf( void )
 {
-    return cb.cmdline;
+    return scb.cmdline;
 }
 
 
@@ -257,14 +281,14 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
     char *p = cmd_line, *p2;
     char quote=0;
 
-    cb.argc = 0;
+    scb.argc = 0;
     while( *p && IS_SPACE(*p) )
         p++;
     if( IS_START_QUOTE(*p) )
         quote = *p++;
-    while( (cb.argc < SHELL_ARGV_LEN) && *p )
+    while( (scb.argc < SHELL_ARGV_LEN) && *p )
     {
-        cb.argv[cb.argc++] = p;
+        scb.argv[scb.argc++] = p;
         if( quote )
         {
             while( *p && IS_NOT_END_QUOTE(*p) )
@@ -289,12 +313,12 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
             {
                 quote = *p;
                 p2 = p++;
-                while( p2 > cb.argv[cb.argc-1] )
+                while( p2 > scb.argv[scb.argc-1] )
                 {
                     *p2 = *(p2-1);
                     p2--;
                 }
-                cb.argv[cb.argc-1] += 1;
+                scb.argv[scb.argc-1] += 1;
                 while( *p && IS_NOT_END_QUOTE(*p) )
                     p++;
                 if( !*p )
@@ -313,16 +337,16 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
         if( IS_START_QUOTE(*p) )
             quote = *p++;
     }
-    return cb.argc; 
+    return scb.argc; 
 #else
     char *p = cmd_line;
 
-    cb.argc = 0;
+    scb.argc = 0;
     while( *p && IS_SPACE(*p) )
         p++;
-    while( (cb.argc < SHELL_ARGV_LEN) && *p )
+    while( (scb.argc < SHELL_ARGV_LEN) && *p )
     {
-        cb.argv[cb.argc++] = p;
+        scb.argv[scb.argc++] = p;
         while( *p && IS_NOT_SPACE(*p) )
             p++;
         if( !*p )
@@ -333,14 +357,14 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
         if( !*p )
             break;
     }
-    return cb.argc; 
+    return scb.argc; 
 #endif
 }
 
 
 static int shell_search_command( int cmdtab_index, char *cmd_name )
 {
-    const shell_cmd_t *ct = cb.cmd_table[cmdtab_index];
+    const shell_cmd_t *ct = scb.cmd_table[cmdtab_index];
     int i;
 
     if( !ct )
@@ -366,30 +390,30 @@ static void shell_add_cmd_to_history( void )
 {
     char *p1, *p2;
 
-    if( cb.cmdline_len == 0 )
+    if( scb.cmdline_len == 0 )
         return;
-    if( cb.cmdline_len > SHELL_CMDLINE_HISTORY_LEN )
+    if( scb.cmdline_len > SHELL_CMDLINE_HISTORY_LEN )
         return;
-    p1 = &cb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN];
-    p2 = p1 - cb.cmdline_len - 1;
-    while( p1 >= cb.cmdline_history )
+    p1 = &scb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN];
+    p2 = p1 - scb.cmdline_len - 1;
+    while( p1 >= scb.cmdline_history )
         *p1-- = *p2--;
-    strcpy( cb.cmdline_history, cb.cmdline );
-    p1 = &cb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN];
+    strcpy( scb.cmdline_history, scb.cmdline );
+    p1 = &scb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN];
     while( *p1 )
         *p1-- = 0;
-    cb.history_index = 0;
+    scb.history_index = 0;
 }
 
 
 static char *shell_get_history( int index )
 {
-    char *p = cb.cmdline_history;
+    char *p = scb.cmdline_history;
 
     while( index > 1 )
     {
         while(*p++);  /* move to next item */
-        if( !*p || p >= &cb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN] )
+        if( !*p || p >= &scb.cmdline_history[SHELL_CMDLINE_HISTORY_LEN] )
             return 0;
         index--;
     }
@@ -404,7 +428,7 @@ static int shell_process_char( char c )
 
     if( c == '\n' )
     {
-        cb.errnum = 0;
+        scb.errnum = 0;
         shell_write_char( '\n' );
         return 1;
     }
@@ -412,30 +436,30 @@ static int shell_process_char( char c )
     {
     }
 #if SHELL_IGNORE_LEADING_SPACE
-    else if( (cb.cmdline_len == 0) && ((c == ' ') || (c == '\t')) )  /* ignore */
+    else if( (scb.cmdline_len == 0) && ((c == ' ') || (c == '\t')) )  /* ignore */
     {
     }
 #endif
     else if( (c == '\b') || (c == 0x7F) )  /* backspace, DEL */
     {
-        if( cb.cmdline_len && cb.cmdline_cursor )
+        if( scb.cmdline_len && scb.cmdline_cursor )
         {
-            if( cb.cmdline_len == cb.cmdline_cursor )
+            if( scb.cmdline_len == scb.cmdline_cursor )
             {
-                cb.cmdline[--cb.cmdline_len] = 0;
+                scb.cmdline[--scb.cmdline_len] = 0;
                 shell_write_str( "\b \b" );
-                cb.cmdline_cursor--;
+                scb.cmdline_cursor--;
             }
             else
             {
-                for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
-                    cb.cmdline[i-1] = cb.cmdline[i];
-                cb.cmdline[--cb.cmdline_len] = 0;
-                cb.cmdline_cursor--;
+                for( i=scb.cmdline_cursor; i<scb.cmdline_len; i++ )
+                    scb.cmdline[i-1] = scb.cmdline[i];
+                scb.cmdline[--scb.cmdline_len] = 0;
+                scb.cmdline_cursor--;
                 shell_write_char( '\b' );
-                shell_write_str( &cb.cmdline[cb.cmdline_cursor] );
+                shell_write_str( &scb.cmdline[scb.cmdline_cursor] );
                 shell_write_char( ' ' );
-                for( i=cb.cmdline_len+1; i>cb.cmdline_cursor; i-- )
+                for( i=scb.cmdline_len+1; i>scb.cmdline_cursor; i-- )
                     shell_write_char( '\b' );
             }
         }
@@ -443,15 +467,15 @@ static int shell_process_char( char c )
     else if( c == 0x03 )  /* Ctrl-C, reset line */
     {
         shell_driver_reset();
-        cb.cmdline_len = 0;
-        cb.cmdline_cursor = 0;
-        cb.errnum = 0;
-        cb.history_index = 0;
+        scb.cmdline_len = 0;
+        scb.cmdline_cursor = 0;
+        scb.errnum = 0;
+        scb.history_index = 0;
         return -1;
     }
     else if( c == 0x1A )  /* Ctrl-Z, end of input */
     {
-        cb.cmdline[cb.cmdline_cursor] = 0;
+        scb.cmdline[scb.cmdline_cursor] = 0;
         return -2;
     }
     else if( (c == 0x10) || (c == 0x0E) )  /* Ctrl-P/N, previous/next history */
@@ -459,85 +483,85 @@ static int shell_process_char( char c )
         p = 0;
         if( c == 0x10 )  /* Ctrl-P */
         {
-            p = shell_get_history( cb.history_index + 1 );
+            p = shell_get_history( scb.history_index + 1 );
             if( p )
-                cb.history_index += 1;
+                scb.history_index += 1;
         }
         else if( c == 0x0E )  /* Ctrl-N */
         {
-            if( cb.history_index > 1 )
+            if( scb.history_index > 1 )
             {
-                p = shell_get_history( cb.history_index - 1 );
+                p = shell_get_history( scb.history_index - 1 );
                 if( p )
-                    cb.history_index -= 1;
+                    scb.history_index -= 1;
             }
         }
         if( p )
         {
-            while( cb.cmdline_cursor < cb.cmdline_len )
+            while( scb.cmdline_cursor < scb.cmdline_len )
             {
                 shell_write_str( " " );
-                cb.cmdline_cursor++;
+                scb.cmdline_cursor++;
             }
-            while( cb.cmdline_len )
+            while( scb.cmdline_len )
             {
                 shell_write_str( "\b \b" );
-                cb.cmdline_len--;
+                scb.cmdline_len--;
             }
-            strcpy( cb.cmdline, p );
-            cb.cmdline_cursor = cb.cmdline_len = strlen(cb.cmdline);
-            shell_write_str( cb.cmdline );
+            strcpy( scb.cmdline, p );
+            scb.cmdline_cursor = scb.cmdline_len = strlen(scb.cmdline);
+            shell_write_str( scb.cmdline );
         }
     }
     else if( c == 0x01 )  /* Ctrl-A, begin */
     {
-        while( cb.cmdline_cursor )
+        while( scb.cmdline_cursor )
         {
             shell_write_char( '\b' );
-            cb.cmdline_cursor--;
+            scb.cmdline_cursor--;
         }
     }
     else if( c == 0x05 )  /* Ctrl-E, end */
     {
-        while( cb.cmdline_cursor < cb.cmdline_len )
-            shell_write_char( cb.cmdline[cb.cmdline_cursor++] );
+        while( scb.cmdline_cursor < scb.cmdline_len )
+            shell_write_char( scb.cmdline[scb.cmdline_cursor++] );
     }
     else if( c == 0x06 )  /* Ctrl-F, right */
     {
-        if( cb.cmdline_cursor < cb.cmdline_len )
-            shell_write_char( cb.cmdline[cb.cmdline_cursor++] );
+        if( scb.cmdline_cursor < scb.cmdline_len )
+            shell_write_char( scb.cmdline[scb.cmdline_cursor++] );
     }
     else if( c == 0x02 )  /* Ctrl-B, left */
     {
-        if( cb.cmdline_cursor )
+        if( scb.cmdline_cursor )
         {
             shell_write_char( '\b' );
-            cb.cmdline_cursor--;
+            scb.cmdline_cursor--;
         }
     }
     else if( c == 0x04 )  /* Ctrl-D, delete */
     {
-        if( cb.cmdline_cursor < cb.cmdline_len )
+        if( scb.cmdline_cursor < scb.cmdline_len )
         {
-            for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
-                cb.cmdline[i] = cb.cmdline[i+1];
-            cb.cmdline[--cb.cmdline_len] = 0;
-            shell_write_str( &cb.cmdline[cb.cmdline_cursor] );
+            for( i=scb.cmdline_cursor; i<scb.cmdline_len; i++ )
+                scb.cmdline[i] = scb.cmdline[i+1];
+            scb.cmdline[--scb.cmdline_len] = 0;
+            shell_write_str( &scb.cmdline[scb.cmdline_cursor] );
             shell_write_char( ' ' );
-            for( i=cb.cmdline_len+1; i>cb.cmdline_cursor; i-- )
+            for( i=scb.cmdline_len+1; i>scb.cmdline_cursor; i-- )
                 shell_write_char( '\b' );
         }
     }
     else if( c == 0x0B )  /* Ctrl-K, kill remaining */
     {
-        if( cb.cmdline_cursor < cb.cmdline_len )
+        if( scb.cmdline_cursor < scb.cmdline_len )
         {
-            cb.cmdline[cb.cmdline_cursor] = 0;
-            for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
+            scb.cmdline[scb.cmdline_cursor] = 0;
+            for( i=scb.cmdline_cursor; i<scb.cmdline_len; i++ )
                 shell_write_char( ' ' );
-            for( i=cb.cmdline_cursor; i<cb.cmdline_len; i++ )
+            for( i=scb.cmdline_cursor; i<scb.cmdline_len; i++ )
                 shell_write_char( '\b' );
-            cb.cmdline_len = cb.cmdline_cursor;
+            scb.cmdline_len = scb.cmdline_cursor;
         }
     }
     else if( c == 0x0C )  /* Ctrl-L, update, ignore */
@@ -546,26 +570,26 @@ static int shell_process_char( char c )
     else if( c == 0 )  /* NULL, ignore */
     {
     }
-    else if( cb.cmdline_len < SHELL_CMDLINE_LEN )  /* new char */
+    else if( scb.cmdline_len < SHELL_CMDLINE_LEN )  /* new char */
     {
         if( c == '\t')  /* convert TAB to space */
             c = ' ';
-        if( cb.cmdline_cursor == cb.cmdline_len )  /* append */
+        if( scb.cmdline_cursor == scb.cmdline_len )  /* append */
         {
-            cb.cmdline[cb.cmdline_len++] = c;
-            cb.cmdline[cb.cmdline_len] = 0;
-            cb.cmdline_cursor++;
+            scb.cmdline[scb.cmdline_len++] = c;
+            scb.cmdline[scb.cmdline_len] = 0;
+            scb.cmdline_cursor++;
             shell_write_char( c );
         }
         else  /* insert */
         {
-            cb.cmdline[cb.cmdline_len+1] = 0;
-            for( i=cb.cmdline_len; i>cb.cmdline_cursor; i-- )
-                cb.cmdline[i] = cb.cmdline[i-1];
-            cb.cmdline_len++;
-            cb.cmdline[cb.cmdline_cursor++] = c;
-            shell_write_str( &cb.cmdline[cb.cmdline_cursor-1] );
-            for( i=cb.cmdline_len; i>cb.cmdline_cursor; i-- )
+            scb.cmdline[scb.cmdline_len+1] = 0;
+            for( i=scb.cmdline_len; i>scb.cmdline_cursor; i-- )
+                scb.cmdline[i] = scb.cmdline[i-1];
+            scb.cmdline_len++;
+            scb.cmdline[scb.cmdline_cursor++] = c;
+            shell_write_str( &scb.cmdline[scb.cmdline_cursor-1] );
+            for( i=scb.cmdline_len; i>scb.cmdline_cursor; i-- )
                 shell_write_char( '\b' );
         }
     }
@@ -578,11 +602,11 @@ static int shell_process_command( void )
     int (*cmd)(int argc, char *argv[]);
     int i, j;
 
-    if( shell_split_cmdline_into_argvs( cb.cmdline ) )
+    if( shell_split_cmdline_into_argvs( scb.cmdline ) )
     {
         for( j = 0; j < SHELL_CMD_TABLE_LEN; j++ )
         {
-            i = shell_search_command( j, cb.argv[0] );
+            i = shell_search_command( j, scb.argv[0] );
             if( i == -1 )
                 continue;
             else
@@ -591,18 +615,18 @@ static int shell_process_command( void )
         if( i == -1 )
         {
             shell_write_str( "Invalid command: " );
-            shell_write_line( cb.argv[0] );
-            cb.errnum = -1;
+            shell_write_line( scb.argv[0] );
+            scb.errnum = -1;
         }
         else
         {
-            cmd = ((shell_cmd_t*)(cb.cmd_table[j] + i))->cmd;
-            cb.errnum = (*cmd)( cb.argc, cb.argv );
+            cmd = ((shell_cmd_t*)(scb.cmd_table[j] + i))->cmd;
+            scb.errnum = (*cmd)( scb.argc, scb.argv );
         }
     }
-    cb.cmdline[0] = 0;
-    cb.cmdline_len = 0; 
-    cb.cmdline_cursor = 0;
+    scb.cmdline[0] = 0;
+    scb.cmdline_len = 0; 
+    scb.cmdline_cursor = 0;
     return 1;
 }
 
@@ -611,36 +635,36 @@ int shell_print_help( const char *cmd, int show_hidden )
 {
     int i, j;
 
-    for( i = 0; (i < SHELL_CMD_TABLE_LEN) && cb.cmd_table[i]; i++ )
+    for( i = 0; (i < SHELL_CMD_TABLE_LEN) && scb.cmd_table[i]; i++ )
     {
-        for( j=0; cb.cmd_table[i][j].name; j++ )
+        for( j=0; scb.cmd_table[i][j].name; j++ )
         {
             if( cmd && *cmd )
             {
                 if( strlen(cmd) > 1 )
                 {
-                    if( strcmp(cmd, cb.cmd_table[i][j].name) != 0 )
+                    if( strcmp(cmd, scb.cmd_table[i][j].name) != 0 )
                         continue;
                 }
                 else
                 {
-                    if( (strcmp(cmd, cb.cmd_table[i][j].name) != 0) || \
-                        (*cmd != cb.cmd_table[i][j].sname) )
+                    if( (strcmp(cmd, scb.cmd_table[i][j].name) != 0) || \
+                        (*cmd != scb.cmd_table[i][j].sname) )
                         continue;
                 }
             }
-            if( !show_hidden && (cb.cmd_table[i][j].flag == CMD_HIDDEN) )
+            if( !show_hidden && (scb.cmd_table[i][j].flag == CMD_HIDDEN) )
                 continue;
-            shell_write_str( cb.cmd_table[i][j].name );
-            if( cb.cmd_table[i][j].sname )
+            shell_write_str( scb.cmd_table[i][j].name );
+            if( scb.cmd_table[i][j].sname )
             {
                 shell_write_char( '/' );
-                shell_write_char( cb.cmd_table[i][j].sname );
+                shell_write_char( scb.cmd_table[i][j].sname );
             }
             shell_write_str( "  " );
-            shell_write_line( cb.cmd_table[i][j].description );
+            shell_write_line( scb.cmd_table[i][j].description );
             shell_write_str( "  " );
-            shell_write_line( cb.cmd_table[i][j].usage );
+            shell_write_line( scb.cmd_table[i][j].usage );
         }
     }
     return 0;
@@ -649,9 +673,9 @@ int shell_print_help( const char *cmd, int show_hidden )
 
 int shell_init( const shell_cmd_t *cmd_table, const char *init_script )
 {
-    memset( &cb, 0, sizeof(shell_control_block_t) );
-    cb.cmd_table[0] = cmd_table;
-    cb.script = init_script;
+    memset( &scb, 0, sizeof(shell_control_block_t) );
+    scb.cmd_table[0] = cmd_table;
+    scb.script = init_script;
     return shell_driver_init();
 }
 
@@ -660,10 +684,10 @@ int shell_set_script( const char *script, int need_free )
 {
     if( !script )
         return 0;
-    cb.script = script;
-    if( cb.script_free )
-        free( (void*)cb.script_free );
-    cb.script_free = need_free ? script : 0;
+    scb.script = script;
+    if( scb.script_free )
+        free( (void*)scb.script_free );
+    scb.script_free = need_free ? script : 0;
     return 1;
 }
 
@@ -673,8 +697,8 @@ int shell_read_line( char *buf, const char *prompt )
     char c;
     int r;
 
-    cb.cmdline_len = 0;
-    cb.cmdline_cursor = 0;
+    scb.cmdline_len = 0;
+    scb.cmdline_cursor = 0;
     if( buf )
         *buf = 0;
     if( prompt )
@@ -689,12 +713,12 @@ int shell_read_line( char *buf, const char *prompt )
         switch( r ) 
         {
         case 1:  /* end of line */
-            cb.cmdline[cb.cmdline_len] = 0;
-            if( cb.cmdline_len )
+            scb.cmdline[scb.cmdline_len] = 0;
+            if( scb.cmdline_len )
                 shell_add_cmd_to_history();
             if( buf )
-                strcpy( buf, cb.cmdline );
-            return cb.cmdline_len;
+                strcpy( buf, scb.cmdline );
+            return scb.cmdline_len;
         case -1:  /* Ctrl-C */
         case -2:  /* Ctrl-Z, end of input */
             shell_write_str("\r\n");
@@ -794,6 +818,7 @@ fail:
     return 0;
 }
 
+
 int shell_make_float_data_buffer( void **pbuf, int *len )
 {
     void *buf=0, *buf2=0;
@@ -843,7 +868,6 @@ fail:
         free(buf2);
     return 0;
 }
-
 
 
 void shell_run( void )

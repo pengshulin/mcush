@@ -2,8 +2,12 @@
 #ifndef __MCUSH_VFS_SPIFFS_H__
 #define __MCUSH_VFS_SPIFFS_H__
 
-#ifndef SPIFLASH_CFG_PHYS_SZ
-    #define SPIFLASH_CFG_PHYS_SZ        (1024*1024*8)
+#include "hal.h"
+
+#ifndef SPIFLASH_AUTO_DETECT
+    #ifndef SPIFLASH_CFG_PHYS_SZ
+        #error "SPIFLASH_CFG_PHYS_SZ not defined"
+    #endif
 #endif
 
 #ifndef SPIFLASH_CFG_PHYS_ERASE_SZ

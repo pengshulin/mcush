@@ -184,6 +184,16 @@ signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime )
 }
 
 
+signed portBASE_TYPE hal_uart_feedc( char c, TickType_t xBlockTime )
+{
+    if( xQueueSend( hal_uart_queue_rx, &c, xBlockTime ) == pdPASS )
+        return pdPASS;
+    else
+        return pdFAIL;
+}
+
+
+
 /****************************************************************************/
 /* shell APIs                                                               */
 /****************************************************************************/
@@ -197,6 +207,19 @@ int shell_driver_init( void )
 void shell_driver_reset( void )
 {
     hal_uart_reset();
+}
+
+
+int  shell_driver_read_feed( char *buffer, int len )
+{
+    int bytes=0;
+    while( bytes < len )
+    {
+        while( hal_uart_feedc( *(char*)((int)buffer + bytes), portMAX_DELAY ) == pdFAIL )
+            vTaskDelay(1);
+        bytes += 1;
+    }
+    return bytes;
 }
 
 

@@ -77,6 +77,9 @@ int mcush_ungetc( int fd, char c );
 int mcush_putc( int fd, char c );
 int mcush_puts( int fd, const char *buf );
 int mcush_printf( int fd, const char *fmt, ... );
+int mcush_file_exists( const char *fname );
+int mcush_file_load_string( const char *fname, char *str, int size_limit );
+int mcush_file_write_string( const char *fname, char *str );
 
 
 int get_mount_point( const char *pathname, char *mount_point );

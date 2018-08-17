@@ -444,7 +444,7 @@ class Mcush( Instrument.SerialInstrument ):
     def upgrade( self, upgrade_file='/s/upgrade.bin' ):
         command = 'upgrade -f %s'% upgrade_file
         try:
-            cube.setTimeout( self.DEFAULT_TIMEOUT_UPRADE )
+            self.setTimeout( self.DEFAULT_TIMEOUT_UPRADE )
             self.writeCommand( command )
         except Instrument.CommandTimeoutError:
             pass

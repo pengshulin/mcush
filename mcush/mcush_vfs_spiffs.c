@@ -23,7 +23,11 @@ int mcush_spiffs_mount( void )
 
     if( SPIFFS_mounted(&_fs) )
         return 1;
+#if SPIFLASH_AUTO_DETECT
+    cfg.phys_size = 0;
+#else
     cfg.phys_size = SPIFLASH_CFG_PHYS_SZ;
+#endif
     cfg.phys_addr = SPIFLASH_CFG_PHYS_ADDR;
     cfg.phys_erase_block = SPIFLASH_CFG_PHYS_ERASE_SZ;
     cfg.log_block_size = SPIFLASH_CFG_LOG_BLOCK_SZ;
@@ -33,8 +37,21 @@ int mcush_spiffs_mount( void )
     cfg.hal_erase_f = (spiffs_erase)hal_spiffs_flash_erase;
 
     hal_spiffs_flash_init();
+#if SPIFLASH_AUTO_DETECT
+    switch( hal_spiffs_flash_read_id() )
+    {
+    case 0xEF4014: cfg.phys_size = 1*1024*1024; break;  // W25Q80
+    case 0xEF4015: cfg.phys_size = 2*1024*1024; break;  // W25Q16
+    case 0xEF4016: cfg.phys_size = 4*1024*1024; break;  // W25Q32
+    case 0xEF4017: cfg.phys_size = 8*1024*1024; break;  // W25Q64
+    case 0xEF4018: cfg.phys_size = 16*1024*1024; break;  // W25Q128
+    case 0xEF4019: cfg.phys_size = 32*1024*1024; break;  // W25Q256
+    default: return 0; break;  // unknown
+    }
+#else
     if( hal_spiffs_flash_read_id() != HAL_SPIFFS_CHIPID )
         return 0;
+#endif
 
     SPIFFS_mount( &_fs, &cfg, (u8_t*)_work_buf, (u8_t*)_fds, 
                    sizeof(_fds), (void*)_cache_buf,

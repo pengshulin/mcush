@@ -93,6 +93,8 @@ typedef struct _shell_control_block_t {
     const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
     const char *script;
     const char *script_free;
+    int (*write_sniffer)( const char *buf, int len );
+    //uint8_t write_sniffer_block_mode;
 } shell_control_block_t;
 
 
@@ -110,11 +112,13 @@ int  shell_read_char( char *c );
 int  shell_read( char *buf, int len );
 int  shell_read_line( char *c, const char *prompt );
 char *shell_read_multi_lines( const char *prompt );
+int  shell_read_feed( char *buf, int len );
 void shell_write_char( char c );
 void shell_write( const char *buf, int len );
 void shell_write_str( const char *str );
 void shell_write_line( const char *str );
 void shell_write_err( const char *str );
+void shell_write_set_sniffer( int (*hook)( const char *buf, int len ) );
 void shell_newline( void );
 void shell_write_int( int i );
 void shell_write_float( float f );
@@ -134,10 +138,10 @@ extern int  shell_driver_read( char *buffer, int len );
 extern int  shell_driver_read_char( char *c );
 extern int  shell_driver_read_char_blocked( char *c, int block_time );
 extern int  shell_driver_read_is_empty( void );
+extern int  shell_driver_read_feed( char *buffer, int len );
 extern int  shell_driver_write( const char *buffer, int len );
 extern void shell_driver_write_char( char c );
 extern void shell_driver_write_flush( void );
-
 
 
 #endif
