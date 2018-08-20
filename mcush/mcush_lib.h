@@ -10,9 +10,13 @@ uint32_t reverse_32_bits(uint32_t v);
 uint16_t reverse_16_bits(uint16_t v);
 uint8_t reverse_8_bits(uint8_t v);
 
+int test_bit1_num(int v);
+int test_bit1_position(int v, int msb);
+
 void test_delay_us(void);
 void test_delay_ms(void);
 
+char *get_tick_time_str(char *buf, uint32_t tick, int ms);
 char *get_uptime_str(char *buf, int ms);
 char *get_rtc_str(char *buf);
 int set_rtc_by_str( char *s );

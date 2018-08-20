@@ -102,6 +102,41 @@ uint8_t reverse_8_bits(uint8_t v)
 }
 
 
+int test_bit1_num(int v)
+{
+    int i, j, r=0;
+    for( i=0, j=0x1; i<32; i++, j<<=1 )
+    {
+        if( v && j )
+            r++;
+    }
+    return r;
+}
+
+
+int test_bit1_position(int v, int msb)
+{
+    int i, j;
+    if( msb )
+    {
+        for( i=32, j=0x80000000; i; i--, j>>=1 )
+        {
+            if( v && j )
+                return i-1;
+        }
+    }
+    else
+    {
+        for( i=0, j=0x1; i<32; i++, j<<=1 )
+        {
+            if( v && j )
+                return i;
+        }
+    }
+    return -1;
+}
+
+
 void test_delay_us(void)
 {
     int i;
@@ -124,19 +159,24 @@ void test_delay_ms(void)
 }
 
 
-char *get_uptime_str(char *buf, int ms)
+char *get_tick_time_str(char *buf, uint32_t tick, int ms)
 {
-    unsigned int t = xTaskGetTickCount();
-    unsigned int s = t / configTICK_RATE_HZ;
+    unsigned int s = tick / configTICK_RATE_HZ;
     if( ms )
     {
-        t = t - s * configTICK_RATE_HZ;
-        t = t * 1000 / configTICK_RATE_HZ; 
-        sprintf(buf, "%u:%02u:%02u.%03u", s/3600, (s/60)%60, s%60, t);
+        tick = tick - s * configTICK_RATE_HZ;
+        tick = tick * 1000 / configTICK_RATE_HZ; 
+        sprintf(buf, "%u:%02u:%02u.%03u", s/3600, (s/60)%60, s%60, (unsigned int)tick);
     }
     else
         sprintf(buf, "%u:%02u:%02u", s/3600, (s/60)%60, s%60);
     return buf;
+}
+
+
+char *get_uptime_str(char *buf, int ms)
+{
+    return get_tick_time_str( buf, xTaskGetTickCount(), ms );
 }
 
 
