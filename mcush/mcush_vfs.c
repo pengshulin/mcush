@@ -374,38 +374,3 @@ int fputs(const char *s, FILE *stream)
 }
 
 
-int mcush_file_exists( const char *fname )
-{
-    int size;
-    return mcush_size( fname, &size );
-}
-
-
-int mcush_file_load_string( const char *fname, char *str, int size_limit )
-{
-    int fd = mcush_open( fname, "r" );
-    int r;
-
-    if( fd == 0 )
-        return 0;
-    r = mcush_read( fd, str, size_limit-1 );
-    mcush_close( fd );
-    str[r] = 0;
-    return r;
-}
-
-
-int mcush_file_write_string( const char *fname, char *str )
-{
-    int fd = mcush_open( fname, "w+" );
-    int len = strlen(str);
-    int r;
-
-    if( fd == 0 )
-        return 0;
-    r = mcush_write( fd, str, len );
-    mcush_close( fd );
-    return r==len ? 1 : 0;
-}
-
-

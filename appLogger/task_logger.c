@@ -270,10 +270,10 @@ void task_logger_entry(void *p)
                     mcush_close( fd );
                     fd = 0;
                     if( i != j )
-                        set_errno( 10 );
+                        set_errno( ERRNO_FILE_READ_WRITE_ERROR );
                 }
                 else
-                    set_errno( 11 );
+                    set_errno( ERRNO_FILE_READ_WRITE_ERROR );
             }
 #endif
    

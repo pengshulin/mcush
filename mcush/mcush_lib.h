@@ -2,6 +2,7 @@
 #ifndef __MCUSH_LIB_H__
 #define __MCUSH_LIB_H__
 #include "mcush_lib_crc.h"
+#include "mcush_lib_fs.h"
 
 uint32_t calc_checksum(void *p, uint32_t len);
 

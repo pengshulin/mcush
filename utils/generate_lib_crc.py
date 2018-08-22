@@ -105,21 +105,23 @@ for crc_type, export_name in CRC_DEF:
     crc_init = c.initCrc
     crc_poly = c.poly
     crc_reverse = c.reverse
+    crc_table_name = export_name + '_table'
     func_declare = '%s %s( uint8_t *buf, int len )'% (crc_ctype, crc_name)
     C.writeLine( '\n// poly=0x%X, init=0x%X, reverse=%d'% (crc_poly, crc_init, int(crc_reverse)) )
-    C.writeLine( '%s\n{'% func_declare ); 
-    C.writeLine( '    static const %s table[256] = {'% (crc_ctype) )
+    C.writeLine( 'const %s %s[256] = {'% (crc_ctype, crc_table_name) )
     line = ''
     for i in c.table:
         s = (crc_format% i) + ','
         if len(line) + len(s) + 8 > 79:
-            C.writeLine( '        '+line )
+            C.writeLine( '    '+line )
             line = s
         else:
             line += s
-    C.writeLine( '        '+line+'};\n' )
-    C.writeLine( '    return _crc%d( buf, len, 0x%X, table );'% (crc_width, crc_init) )
-    C.writeLine( '}' ); 
+    C.writeLine( '    '+line+'};\n' )
+    C.writeLine( '%s\n{'% func_declare ); 
+    C.writeLine( '    return _crc%d( buf, len, 0x%X, %s );'% (crc_width, crc_init, crc_table_name) )
+    C.writeLine( '}\n' ); 
+    H.writeLine( 'const %s %s[256];'% (crc_ctype, crc_table_name) )
     H.writeLine( '%s;'% func_declare ); 
 
 C.writeLine()

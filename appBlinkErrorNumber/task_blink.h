@@ -13,5 +13,13 @@ extern void task_blink_entry(void *p);
 int get_errno(void);
 int set_errno(int num);
 
+/****************************************************************************/
+/* reserved error code id (range from 1 ~ 9) */
+/****************************************************************************/
+
+#define ERRNO_RTC_ERROR                     1
+#define ERRNO_FILE_SYSTEM_INIT_ERROR        2
+#define ERRNO_FILE_READ_WRITE_ERROR         3
+
 #endif
 

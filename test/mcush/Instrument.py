@@ -89,7 +89,7 @@ class Instrument:
         if not 'timeout' in kwargs:
             kwargs['timeout'] = self.DEFAULT_TIMEOUT
         # some attributes 'connect', ...  need to be renamed for method conflict
-        for n in ['connect']:
+        for n in ['connect', 'timeout']:
             kwargs['_'+n] = kwargs.pop(n)
         # attached as attributes
         for k, v in kwargs.items():
@@ -374,25 +374,29 @@ class Port(object):
     def readall( self ):
         raise
 
+    def update_timeout( self, timeout ):
+        pass 
+
     @property
     def timeout( self ):
-        return None
+        return self._timeout
 
     @timeout.setter
     def timeout( self, val ):
-        pass
+        self._timeout = val
+        self.update_timeout( val )
  
  
 class SerialPort(Port):
     
     def __init__( self, parent, *args, **kwargs ):
-        Port.__init__( self, parent, *args, **kwargs )
         import serial
         self.serial_exception = serial.SerialException 
         try:
             self.ser = serial.serial_for_url( self.port, do_not_open=True )
         except AttributeError:
             self.ser = serial.Serial()
+        Port.__init__( self, parent, *args, **kwargs )
    
     def connect( self ):
         if self._connected:
@@ -418,14 +422,9 @@ class SerialPort(Port):
         self.ser.close()
         self._connected = False
  
-    @property        
-    def timeout( self ):
-        return self.ser.timeout
-
-    @timeout.setter
-    def timeout( self, val ):
-        self.ser.timeout = val
-
+    def update_timeout( self, timeout ):
+        self.ser.timeout = timeout
+        
     def read( self, read_bytes=1 ):
         try:
             return self.ser.read(read_bytes)
