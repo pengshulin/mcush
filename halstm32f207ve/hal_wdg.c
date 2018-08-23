@@ -40,6 +40,7 @@ void hal_wdg_disable(void)
 void hal_wdg_clear(void)
 {
     IWDG_ReloadCounter();
+    //hal_led_toggle(1);  /* debug: when the system is rebooted */
 }
 
 

@@ -240,56 +240,58 @@ void task_logger_entry(void *p)
 
     while( 1 )
     {
-        if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) == pdTRUE )
-        {
+        hal_wdg_clear();
+        if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) != pdTRUE )
+            continue;
+        
 #if MCUSH_SPIFFS
-            /* check file size from filesystem only once */ 
-            if( size < 0 )
-            {
-                if( mcush_size( _fname, &size ) == 0 )
-                    size = 0;  /* read error, skip */
-            }
- 
-            /* log files rotate if needed */ 
-            if( size > LOGGER_FSIZE_LIMIT )
-            {
-                rotate_log_files( _fname, 0 );
-                size = -1;
-            }
+        /* check file size from filesystem only once */ 
+        if( size < 0 )
+        {
+            if( mcush_size( _fname, &size ) == 0 )
+                size = 0;  /* read error, skip */
+        }
 
-            /* try to create/append logfile */
-            if( _enable )
+        /* log files rotate if needed */ 
+        if( size > LOGGER_FSIZE_LIMIT )
+        {
+            hal_wdg_clear();
+            rotate_log_files( _fname, 0 );
+            size = -1;
+        }
+
+        /* try to create/append logfile */
+        if( _enable )
+        {
+            hal_wdg_clear();
+            fd = mcush_open( _fname, "a+" );
+            if( fd != 0 )
             {
-                fd = mcush_open( _fname, "a+" );
-                if( fd != 0 )
-                {
-                    convert_logger_event_to_str( &evt, buf );
-                    i = strlen(buf);
-                    j = mcush_write( fd, buf, i );
-                    size = size < 0 ? j : size + j;
-                    mcush_close( fd );
-                    fd = 0;
-                    if( i != j )
-                        set_errno( ERRNO_FILE_READ_WRITE_ERROR );
-                }
-                else
+                convert_logger_event_to_str( &evt, buf );
+                i = strlen(buf);
+                j = mcush_write( fd, buf, i );
+                size = size < 0 ? j : size + j;
+                mcush_close( fd );
+                fd = 0;
+                if( i != j )
                     set_errno( ERRNO_FILE_READ_WRITE_ERROR );
             }
-#endif
-   
-            /* forward event to shell_monitor or clean up directly */ 
-            if( monitoring_mode )
-            {
-                /* forward the event */
-                if( xQueueSend( queue_logger_monitor, &evt, 0 ) != pdTRUE )
-                {
-                    free(evt.str);
-                }
-            }
             else
+                set_errno( ERRNO_FILE_READ_WRITE_ERROR );
+        }
+#endif
+        /* forward event to shell_monitor or clean up directly */ 
+        if( monitoring_mode )
+        {
+            /* forward the event */
+            if( xQueueSend( queue_logger_monitor, &evt, 0 ) != pdTRUE )
             {
                 free(evt.str);
             }
+        }
+        else
+        {
+            free(evt.str);
         }
     }
 }
@@ -318,7 +320,9 @@ void task_logger_init(void)
         halt("create logger monitor queue");
     vQueueAddToRegistry( queue_logger_monitor, "logMQ" );
 
-    xTaskCreate(task_logger_entry, (const char *)"logT", TASK_LOGGER_STACK_SIZE, NULL, TASK_LOGGER_PRIORITY, &task_logger);
+    xTaskCreate(task_logger_entry, (const char *)"logT", 
+        TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
+        NULL, TASK_LOGGER_PRIORITY, &task_logger);
     if( task_logger == NULL )
         halt("create logger task");
     mcushTaskAddToRegistered((void*)task_logger);
@@ -422,6 +426,7 @@ int cmd_logger( int argc, char *argv[] )
   
     if( delete_set )
     {
+        hal_wdg_clear();
         return delete_all_log_files() ? 0 : 1;
     }
  

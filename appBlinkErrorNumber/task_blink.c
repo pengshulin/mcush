@@ -125,6 +125,7 @@ void task_blink_entry(void *p)
 
     while( 1 )
     {
+        hal_wdg_clear();
         i = _errno;
         if( i < 0 )
         {
