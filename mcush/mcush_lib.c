@@ -107,7 +107,7 @@ int test_bit1_num(int v)
     int i, j, r=0;
     for( i=0, j=0x1; i<32; i++, j<<=1 )
     {
-        if( v && j )
+        if( v & j )
             r++;
     }
     return r;
@@ -121,7 +121,7 @@ int test_bit1_position(int v, int msb)
     {
         for( i=32, j=0x80000000; i; i--, j>>=1 )
         {
-            if( v && j )
+            if( v & j )
                 return i-1;
         }
     }
@@ -129,7 +129,7 @@ int test_bit1_position(int v, int msb)
     {
         for( i=0, j=0x1; i<32; i++, j<<=1 )
         {
-            if( v && j )
+            if( v & j )
                 return i;
         }
     }
@@ -374,15 +374,16 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
     char *p, *p2=0;
     if( url == NULL || protocol == NULL || server == NULL || port == NULL || pathfile == NULL )
         return -1;
-    *server = *pathfile = 0;
+    *protocol = *server = *pathfile = 0;
     *port = 0;
-    p = *protocol = (char*)url;
+    p = (char*)url;
     /* check out protocol */
     while( *p )
     {
         if( strncmp((const char*)p, "://", 3 ) == 0 )
         {
             *p = 0;
+            *protocol = (char*)url;
             if( *(p+3) )
                 *server = p+3;
             break;
@@ -390,8 +391,13 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
         else
             p++;
     }
+    if( *protocol == 0 )
+    {
+        /* protocol not found, go back */
+        *server = (char*)url;
+    }
     /* check for server */
-    if( *server == NULL )
+    if( **server == 0 )
         return 1;
     p = *server;
     while( *p )
@@ -401,8 +407,6 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
             *p = 0;
             if( *(p+1) )
                 *pathfile = p+1;
-            if( p2 )
-                shell_eval_int( (const char*)p2, port );
             break;
         }
         else if( *p == ':' )
@@ -413,8 +417,10 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
         else
             p++;
     }
-    if( *pathfile == NULL )
-        return 2;
+    if( p2 && *p2 )
+        shell_eval_int( (const char*)p2, port );
+    //if( *pathfile == NULL )
+    //    return 2;
     return 0;
 }
 

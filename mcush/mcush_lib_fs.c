@@ -61,3 +61,25 @@ int mcush_file_crc8( const char *fname )
 }
 
 
+int mcush_file_remove_retry( const char *fname, int retry_num )
+{
+    int retry;
+    int size;
+    int success=1;
+
+    /* check if file exists */
+    if( mcush_size( fname, &size ) )
+    {
+        /* try to remove file */
+        for( retry=0; retry<retry_num; retry++ )
+        {
+            if( !mcush_remove( fname ) )
+                break;
+        }
+        if( retry == retry_num )
+            success = 0;
+    }
+    return success;
+}
+
+

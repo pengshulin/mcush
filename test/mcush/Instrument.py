@@ -311,11 +311,11 @@ class Instrument:
     def getSerialNumber( self ):
         ret = self.writeCommand( '*idn?' )
         try:
-            self.portial_number = ret[1].strip()
-            self.logger.info( 'SN:%s', str(self.portial_number) )
-            return self.portial_number
+            self.serial_number = ret[1].strip()
+            self.logger.info( 'SN:%s', str(self.serial_number) )
+            return self.serial_number
         except IndexError:
-            self.portial_number = None
+            self.serial_number = None
             return ''
 
     def getVersion( self ):
