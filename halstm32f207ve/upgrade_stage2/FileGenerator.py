@@ -1,0 +1,1 @@
+../../halstm32f407zg_eu/upgrade_stage2/FileGenerator.py

@@ -1,0 +1,29 @@
+from Arm.Cortex import *
+from Arm.Stm32 import *
+from VEnvironment import *
+
+env = Stm32M3()
+env.DEBUG = False
+
+env.setLinkfile( '/ld/stm32f207xe_sram.ld' )
+
+env.appendDefineFlags(['STM32F2xx'])
+
+env.appendPath([
+    '/CMSIS/Device/ST/STM32F2xx/Include',
+    '/ST/STM32F2xx_StdPeriph_Driver/inc',
+])
+
+
+env.appendGlobSource([
+    'main.c',
+    'startup_stm32f2xx.s',
+    '/ST/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_flash.c',
+    '/ST/STM32F2xx_StdPeriph_Driver/src/stm32f2xx_iwdg.c',
+])
+
+
+env.appendLinkFlag(['-Wl,--entry=Reset_Handler'])
+env.appendOptimizeFlags(['-O3'])
+env.makeApp()
+
