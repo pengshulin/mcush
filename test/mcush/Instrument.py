@@ -339,6 +339,9 @@ class Instrument:
         cmd = 'reboot -r'
         self.writeCommand( cmd )
 
+    def checkCommand( self, name ):
+        cmd = '? -c %s'% name
+        return bool(int(self.writeCommand(cmd)[0])) 
 
 
 class Port(object):

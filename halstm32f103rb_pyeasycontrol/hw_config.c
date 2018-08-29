@@ -54,7 +54,6 @@ uint32_t USART_Rx_ptr_out = 0;
 uint32_t USART_Rx_length  = 0;
 
 uint8_t  USB_Tx_State = 0;
-static void IntToUnicode (uint32_t value , uint8_t *pbuf , uint8_t len);
 /* Extern variables ----------------------------------------------------------*/
 
 extern LINE_CODING linecoding;

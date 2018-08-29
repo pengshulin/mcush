@@ -347,10 +347,14 @@ int cmd_help( int argc, char *argv[] )
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'a', "all", 0, "show all" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', "check", 0, "check if command exists" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     int show_hidden=0;
+    char *check=0;
+    uint8_t cmd_exists;
  
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
@@ -360,9 +364,18 @@ int cmd_help( int argc, char *argv[] )
         {
             if( strcmp( opt.spec->name, "all" ) == 0 )
                 show_hidden = 1;
+            else if( strcmp( opt.spec->name, "check" ) == 0 )
+                check = (char*)opt.value;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( check )
+    {
+        cmd_exists = shell_get_cmd_by_name( check ) ? 1 : 0;
+        shell_write_line( cmd_exists ? shell_str_1 : shell_str_0 );
+        return 0;
     }
 
     return shell_print_help(0, show_hidden);

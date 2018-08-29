@@ -103,6 +103,7 @@ int  shell_init( const shell_cmd_t *cmd_table, const char *init_script );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
+int (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[]);
 int  shell_print_help( const char *cmd, int show_hidden );
 int  shell_set_script( const char *script, int need_free );
 void shell_set_errnum( int errnum );

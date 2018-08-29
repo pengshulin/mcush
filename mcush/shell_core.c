@@ -631,6 +631,20 @@ static int shell_process_command( void )
 }
 
  
+int (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[])
+{
+    int i, j;
+
+    for( i = 0; i < SHELL_CMD_TABLE_LEN; i++ )
+    {
+        j = shell_search_command( i, (char*)name );
+        if( j != -1 )
+            return ((shell_cmd_t*)(scb.cmd_table[i] + j))->cmd;
+    }
+    return 0;
+}
+
+
 int shell_print_help( const char *cmd, int show_hidden )
 {
     int i, j;
