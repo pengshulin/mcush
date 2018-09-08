@@ -2715,12 +2715,15 @@ int cmd_cat( int argc, char *argv[] )
           'w', shell_str_write, 0, "write mode" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'a', shell_str_append, 0, "append mode" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'd', shell_str_delay, shell_str_delay, "output delay in ms" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     uint8_t write=0, append=0, b64=0;
+    uint32_t delay=0;
     char fname[32];
     char buf[CAT_BUF_LEN];
     int i, j;
@@ -2739,16 +2742,24 @@ int cmd_cat( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_write ) == 0 )
                 write = 1;
-            if( STRCMP( opt.spec->name, shell_str_append ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_append ) == 0 )
                 append = 1;
-            if( strcmp( opt.spec->name, "b64" ) == 0 )
+            else if( strcmp( opt.spec->name, "b64" ) == 0 )
             {
                 b64 = 1;
                 base64_init_encodestate( &state_en );
                 base64_init_decodestate( &state_de );
             }
-            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
+            else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
+            {
+                if( ! shell_eval_int(opt.value, (int*)&delay) )
+                {
+                    shell_write_err( shell_str_parameter );
+                    return -1;
+                }
+            }
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -2847,6 +2858,8 @@ int cmd_cat( int argc, char *argv[] )
                 }
                 break;
             }
+            if( delay )
+                vTaskDelay(delay*configTICK_RATE_HZ/1000);
         }
         shell_write_str( "\n" );
         mcush_close(fd);

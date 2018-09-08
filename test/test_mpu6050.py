@@ -24,7 +24,7 @@ def main(argv=None):
     counter = 1
     while True:
         a,b = s.i2c( [0x41], 2 )
-        #temp = 35 + (Utils.s2h( chr(b) + chr(a) ) + 13200)/280.0
+        #temp = 35 + (Utils.s2h( chr(b) + chr(a) ) + 521)/340.0
         #print temp
         temp = Utils.s2h( chr(b) + chr(a) ) 
         a,b = s.i2c( [0x3B], 2 )

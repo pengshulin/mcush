@@ -9,8 +9,6 @@ import random
 from mcush import *
 from mcush.misc import Tm1637
 
-
-
  
 def main(argv=None):
     s = Mcush.Mcush()
@@ -27,8 +25,6 @@ def main(argv=None):
         d.display_int( counter )
         counter += 1
         #time.sleep(0.1)
-	
-
 
 if __name__ == '__main__':
     main(sys.argv)
