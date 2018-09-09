@@ -16,6 +16,7 @@ from mcush import *
 from mcush.Mcush import *
 import tempfile
 import base64
+import math
 
 def halt(message=None):
     print( message )
@@ -282,6 +283,23 @@ def i2c_search( argv=None ):
             print( 'Addr 0x%02X, OK'% (addr) )
         except Instrument.CommandExecuteError:
             pass
+
+#############################################################################
+# PWM
+def pwm_test( argv=None ):
+    s = Mcush()
+    s.pwm_init()
+    for i in range(4):
+        s.pwm( index=i, value=0 )
+    while True:
+        for i in [0, 2]:
+            t0 = time.time()
+            while True:
+                t = time.time()
+                if t > t0 + 2*math.pi:
+                    break
+                s.pwm( index=i, value=int(abs((math.sin(t-t0)**2)*100)) )
+            s.pwm( index=i, value=1 )
 
 ############################################################################# 
 # Gratten Electronics

@@ -34,4 +34,5 @@ env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'SUSPEND_ENABLED=0',
+    'USE_CMD_PWM=1',
     ] )

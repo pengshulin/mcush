@@ -71,6 +71,7 @@ __attribute__((aligned(1))) const char shell_str_port_bit[] = "port/bit";
 __attribute__((aligned(1))) const char shell_str_pulldown[] = "pulldown";
 __attribute__((aligned(1))) const char shell_str_pullup[] = "pullup";
 __attribute__((aligned(1))) const char shell_str_query[] = "query";
+__attribute__((aligned(1))) const char shell_str_range[] = "range";
 __attribute__((aligned(1))) const char shell_str_read[] = "read";
 __attribute__((aligned(1))) const char shell_str_realloc[] = "realloc";
 __attribute__((aligned(1))) const char shell_str_reboot[] = "reboot";

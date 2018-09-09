@@ -76,6 +76,9 @@
 #ifndef USE_CMD_SPI
     #define USE_CMD_SPI  1
 #endif
+#ifndef USE_CMD_PWM
+    #define USE_CMD_PWM  0
+#endif
 #ifndef USE_CMD_COUNTER
     #define USE_CMD_COUNTER  0
 #endif
@@ -168,6 +171,7 @@ int cmd_mkbuf( int argc, char *argv[] );
 int cmd_power( int argc, char *argv[] );
 int cmd_i2c( int argc, char *argv[] );
 int cmd_spi( int argc, char *argv[] );
+int cmd_pwm( int argc, char *argv[] );
 int cmd_counter( int argc, char *argv[] );
 int cmd_rtc( int argc, char *argv[] );
 int cmd_spiffs( int argc, char *argv[] );
@@ -285,6 +289,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "spi",  cmd_spi, 
     "spi emulated",
     "spi [-i|r] <data>" },
+#endif
+#if USE_CMD_PWM
+{   0, 0,  "pwm",  cmd_pwm, 
+    "pwm controller",
+    "pwm -i <idx> -v <val>" },
 #endif
 #if USE_CMD_COUNTER
 {   0, 'c',  "counter",  cmd_counter, 
@@ -2411,6 +2420,118 @@ int cmd_spi( int argc, char *argv[] )
 err_port:
     shell_write_err( shell_str_port_bit );
     return 1;
+}
+#endif
+
+
+#if USE_CMD_PWM
+int cmd_pwm( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'i', shell_str_index, "pwm_index", shell_str_index_from_0 },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'v', shell_str_value, shell_str_value, "value param" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'f', shell_str_frequency, shell_str_frequency, "1~100000(default 1000)hz" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'r', shell_str_range, shell_str_range, "default 100" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'n', shell_str_number, 0, shell_str_query },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_deinit, 0, shell_str_deinit },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t init=0, deinit=0, freq_set=0, index_set=0, value_set=0, range_set=0;
+    int pwm_num = hal_pwm_get_num();
+    int freq, range;
+    int index=-1, value=-1;
+ 
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
+                init = 1;
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
+                deinit = 1;
+            else if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
+            {
+                shell_eval_int(opt.value, (int*)&freq);
+                if( freq < 0 || freq > 100000 )
+                {
+                    shell_write_err( shell_str_range );
+                    return -1;
+                }
+                freq_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_range ) == 0 )
+            {
+                shell_eval_int(opt.value, (int*)&range);
+                if( range < 2 || range > 10000 )
+                {
+                    shell_write_err( shell_str_range );
+                    return -1;
+                }
+                range_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
+            {
+                shell_printf( "%d\n", pwm_num );
+                return 0;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
+            {
+                shell_eval_int(opt.value, (int*)&index);
+                index_set = 1;
+                if( (index < 0) || (index > (pwm_num-1)) )
+                {
+                    shell_write_err( shell_str_index );
+                    return -1;
+                }
+            }
+            else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
+            {
+                shell_eval_int(opt.value, (int*)&value);
+                value_set = 1;
+                if( (value < 0) || (value > 10000) ) 
+                {
+                    shell_write_err( shell_str_value );
+                    return -1;
+                }
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( init )
+    {
+        hal_pwm_init( freq_set ? freq : 0, range_set ? range : 0, value_set ? value : 0 );
+        return 0;
+    }
+    else if( deinit )
+    {
+        hal_pwm_deinit();
+        return 0;
+    }
+
+    if( ! index_set )
+        index = 0;
+
+    if( value_set )
+        hal_pwm_set( index, value );
+    else
+    {
+        shell_write_err( shell_str_value );
+        return -1;
+    }
+
+    return 0;
 }
 #endif
 

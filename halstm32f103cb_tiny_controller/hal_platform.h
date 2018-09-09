@@ -46,6 +46,13 @@ int hal_sgpio_set_freq( float freq );
 sgpio_cfg_t *hal_sgpio_info( void );
 
 
+void hal_pwm_init( int freq, int range, int value );
+void hal_pwm_deinit( void );
+void hal_pwm_set( int index, int value );
+int hal_pwm_get( int index );
+int hal_pwm_get_num( void );
+
+
 #define USE_HAL_USB_DISCONNECT  0
 
 #define USE_CMD_POWER   0

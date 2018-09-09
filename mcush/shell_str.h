@@ -80,6 +80,7 @@ extern const char shell_str_port_bit[];
 extern const char shell_str_pulldown[];
 extern const char shell_str_pullup[];
 extern const char shell_str_query[];
+extern const char shell_str_range[];
 extern const char shell_str_read[];
 extern const char shell_str_readme[];
 extern const char shell_str_realloc[];

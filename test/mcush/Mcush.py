@@ -415,6 +415,23 @@ class Mcush( Instrument.SerialInstrument ):
         else:
             return None
 
+    def pwm_init( self, freq=None, range_value=None, init_value=None ):
+        cmd = 'pwm --init'
+        if freq is not None:
+            cmd += ' -f%s'% int(freq)
+        if range_value is not None:
+            cmd += ' -r%s'% int(range_value)
+        if init_value is not None:
+            cmd += ' -v%s'% int(init_value)
+        self.writeCommand( cmd )
+
+    def pwm( self, index=None, value=50 ):
+        cmd = 'pwm'
+        if index is not None:
+            cmd += ' -i%d'% index
+        cmd += ' -v%d'% value
+        self.writeCommand( cmd )
+
     def rtcSync( self ):
         # update to current time
         t = time.localtime()

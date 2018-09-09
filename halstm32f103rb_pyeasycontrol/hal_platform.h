@@ -69,4 +69,6 @@ int hal_is_power_set(void);
 
 #define HAL_USE_USB_DISCONNECT 1
 
+
+
 #endif
