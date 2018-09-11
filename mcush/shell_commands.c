@@ -2511,7 +2511,7 @@ int cmd_pwm( int argc, char *argv[] )
 
     if( init )
     {
-        hal_pwm_init( freq_set ? freq : 0, range_set ? range : 0, value_set ? value : 0 );
+        hal_pwm_init( freq_set ? freq : 0, range_set ? range : 0, value_set ? value : -1 );
         return 0;
     }
     else if( deinit )
