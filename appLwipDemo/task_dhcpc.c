@@ -190,7 +190,7 @@ void task_dhcpc_entry(void *p)
         switch( evt )
         {
         case DHCPC_EVENT_NETIF_UP:
-            logger_printf( LOG_INFO, "cable connected, dhcp discover...");
+            logger_printf( LOG_INFO, "dhcpc: cable connected, dhcp discover...");
             gnetif.flags |= NETIF_FLAG_LINK_UP;
             reset_address();
             dhcp_state = DHCP_WAIT_ADDRESS;
@@ -198,7 +198,7 @@ void task_dhcpc_entry(void *p)
             break;
 
         case DHCPC_EVENT_NETIF_DOWN:
-            logger_printf( LOG_INFO, "cable disconnected");
+            logger_printf( LOG_INFO, "dhcpc: cable disconnected");
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
 #if USE_NET_CHANGE_HOOK
@@ -213,9 +213,9 @@ void task_dhcpc_entry(void *p)
                 {
                     dhcp_state = DHCP_ADDRESS_ASSIGNED;
                     dhcp_stop(&gnetif);
-                    logger_ip( "dhcp ip:", gnetif.ip_addr.addr, 0 );    
-                    logger_ip( "dhcp netmask:", gnetif.netmask.addr, 0 );
-                    logger_ip( "dhcp gateway:", gnetif.gw.addr, 0 );
+                    logger_ip( "dhcpc: ip", gnetif.ip_addr.addr, 0 );    
+                    logger_ip( "dhcpc: netmask", gnetif.netmask.addr, 0 );
+                    logger_ip( "dhcpc: gateway", gnetif.gw.addr, 0 );
 #if USE_NET_CHANGE_HOOK
                     net_state_change_hook(1);
 #endif
