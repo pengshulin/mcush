@@ -53,6 +53,7 @@ __attribute__((aligned(1))) const char shell_str_message[] = "message";
 __attribute__((aligned(1))) const char shell_str_mount[] = "mount";
 __attribute__((aligned(1))) const char shell_str_ms[] = "ms";
 __attribute__((aligned(1))) const char shell_str_msg[] = "msg";
+__attribute__((aligned(1))) const char shell_str_name[] = "name";
 __attribute__((aligned(1))) const char shell_str_nil[] = "nil";
 __attribute__((aligned(1))) const char shell_str_not_supported[] = "not supprted";
 __attribute__((aligned(1))) const char shell_str_null[] = "null";

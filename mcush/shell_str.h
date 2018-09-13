@@ -62,6 +62,7 @@ extern const char shell_str_message[];
 extern const char shell_str_mount[];
 extern const char shell_str_ms[];
 extern const char shell_str_msg[];
+extern const char shell_str_name[];
 extern const char shell_str_nil[];
 extern const char shell_str_not_supported[];
 extern const char shell_str_null[];

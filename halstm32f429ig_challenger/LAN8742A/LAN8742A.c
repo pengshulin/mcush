@@ -26,31 +26,153 @@ static void ETH_MACDMA_Config(void);
 /* Bit 2 from Basic Status Register in PHY */
 #define GET_PHY_LINK_STATUS()		(ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & 0x00000004)
 
-void print_regs(void)
+
+const int8_t reg_id[] = {0, 1, 2, 3, 4, 5, 6, 17, 18, 26, 27, 29, 30, 31, -1};
+const char *reg_name[] = {"BCR", "BSR", "IDN1", "IDN2", "NADV", "NLPA", "NEXP", "MODE", "SMOD", "SEC", "SCSI", "INTS", "INTM", "SCS"};
+
+
+static void print_reg( const char *name, int value )
 {
-    shell_printf("BSR:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR));
-    shell_printf("BCR:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR));
-    shell_printf("IDN1: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_IDN1));
-    shell_printf("IDN2: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_IDN2));
-    shell_printf("NADV: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_NEGO_ADV));
-    shell_printf("NLPA: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_NEGO_LPA));
-    shell_printf("NEXP: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_NEGO_EXP));
-    shell_printf("MODE: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_MODE));
-    shell_printf("SMOD: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_MODES));
-    shell_printf("SEC:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SYMBOL_ERR_COUNTER));
-    shell_printf("SCSI: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_CTRL_STA_IND));
-    shell_printf("INTS: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_INT_SRC));
-    shell_printf("INTM: %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_INT_MASK));
-    shell_printf("SCS:  %04X\n", ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_SPECIAL_CTRL_STA));
+    int name_len = strlen(name);
+    shell_printf("%s:", name);
+    while( name_len++ < 5 )
+        shell_write_char(' '); 
+    shell_printf("%04X\n", value);
 }
 
 
-/* SHELL COMMAND FOR DEBUG */
+void print_all_regs(void)
+{
+    int i=0;
+    while( reg_id[i] != -1 )
+    {
+        print_reg(reg_name[i], ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, reg_id[i]));
+        i++;
+    }
+}
+
+
+int print_reg_by_id(int idx)
+{
+    int i=0;
+    while( reg_id[i] != -1 )
+    {
+        if( reg_id[i] == idx )
+        {
+            print_reg(reg_name[i], ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, reg_id[i]));
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+
+int print_reg_by_name(const char *name)
+{
+    int i=0;
+    while( reg_id[i] != -1 )
+    {
+        if( strcasecmp( reg_name[i], name ) == 0  )
+        {
+            print_reg(name, ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, reg_id[i]));
+            return 1;
+        }
+        i++;
+    } 
+    return 0;
+}
+
+
+int set_reg_by_name(const char *name, int value)
+{
+    int i=0;
+    while( reg_id[i] != -1 )
+    {
+        if( strcasecmp( reg_name[i], name ) == 0  )
+        {
+            ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, reg_id[i], value);
+            return 1;
+        }
+        i++;
+    } 
+    return 0;
+}
+
+
+/* debug command */
 int cmd_lan8720( int argc, char *argv[] )
 {
-    /* TODO: add read/write api for debug */
-    print_regs();
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', shell_str_command, shell_str_command, "info|reset" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'n', shell_str_name, shell_str_name, "name param" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'v', shell_str_value, shell_str_value, "value param" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const char *cmd=0;
+    const char *name=0;
+    int value;
+    uint8_t name_set=0, value_set=0;
 
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
+                cmd = opt.value;
+            else if( STRCMP( opt.spec->name, shell_str_name ) == 0 )
+            {
+                name = opt.value;
+                if( *name )
+                    name_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
+            {
+                if( shell_eval_int( opt.value, &value ) == 0 )
+                {
+                    shell_write_line("val err");
+                    return 1;
+                }
+                value_set = 1;
+            } 
+            else
+                STOP_AT_INVALID_ARGUMENT 
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( cmd==NULL || strcmp(cmd, shell_str_info) == 0 )
+    {
+        print_all_regs();
+    }
+    else if( strcmp( cmd, shell_str_reset ) == 0 )
+    {
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Reset);
+    }
+    else if( strcmp( cmd, "powerdown" ) == 0 )
+    {
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Powerdown);
+    }
+    else if( strcmp( cmd, shell_str_read ) == 0 )
+    {
+        if( name_set )
+            return print_reg_by_name( name ) ? 0 : 1;
+        else
+            return -1;
+    }
+    else if( strcmp( cmd, shell_str_write ) == 0 )
+    {
+        if( name_set && value_set )
+            return set_reg_by_name( name, value ) ? 0 : 1;
+        else
+            return -1;
+    }
     return 0;
 }
 
