@@ -2,12 +2,12 @@
 #define __HAL_PLATFORM_H__
 
 #define HAL_LED_NUM  1
-//#define HAL_LED_PORTS  { 1 }  /* blackboard */
-//#define HAL_LED_PINS  { 12 }
-//#define HAL_LED_REV
-#define HAL_LED_PORTS  { 2 }  /* blue board */
-#define HAL_LED_PINS  { 13 }
+#define HAL_LED_PORTS  { 1 }  /* black board */
+#define HAL_LED_PINS  { 12 }
 #define HAL_LED_REV
+//#define HAL_LED_PORTS  { 2 }  /* blue board */
+//#define HAL_LED_PINS  { 13 }
+//#define HAL_LED_REV
 
 
 
