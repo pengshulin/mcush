@@ -432,6 +432,17 @@ class Mcush( Instrument.SerialInstrument ):
         cmd += ' -v%d'% value
         self.writeCommand( cmd )
 
+    def adc_init( self ):
+        self.writeCommand( "adc --init" )
+
+    def adc( self, channel=None ):
+        if channel is None:
+            ret = self.writeCommand( "adc" )
+            return [float(v) for v in ret[0].split(',')]
+        else:
+            ret = self.writeCommand( "adc -i%d"% channel )
+            return float(ret[0])
+
     def rtcSync( self ):
         # update to current time
         t = time.localtime()

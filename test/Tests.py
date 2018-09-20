@@ -301,6 +301,18 @@ def pwm_test( argv=None ):
                 s.pwm( index=i, value=int(abs((math.sin(t-t0)**2)*100)) )
             s.pwm( index=i, value=1 )
 
+#############################################################################
+# ADC
+def adc_test( argv=None ):
+    s = Mcush()
+    s.adc_init()
+    try:
+        channel = int(argv[0])
+    except:
+        channel = None
+    while True:
+        print s.adc(channel)
+     
 ############################################################################# 
 # Gratten Electronics
 def atf20e(argv=None):
