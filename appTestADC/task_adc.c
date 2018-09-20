@@ -28,17 +28,20 @@ int cmd_adc( int argc, char *argv[] )
     mcush_opt opt;
     const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'l', "loop", 0, "loop mode" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
-          0, "loop_delay", "loop delay adc_value", "adc_value in ms" },
+          'l', shell_str_loop, "loop_delay_ms", "default 1000ms period" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'i', "index", "channel_index", "select channel" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_NONE } };
-    int loop=0, loop_delay=-1;
-    TickType_t tick;
+    unsigned int loop=0, loop_delay=1000, loop_tick;
+    uint8_t init=0, deinit=0;
     char c;
     int channel=-1;
     int i;
+    //int adc_num = hal_adc_get_num();
     
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
@@ -46,27 +49,37 @@ int cmd_adc( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "loop" ) == 0 )
-                loop=1;
-            else if( strcmp( opt.spec->name, "loop_delay" ) == 0 )
-            {
-                if( opt.value )
-                    loop_delay=atol(opt.value);
-            }
-            else if( strcmp( opt.spec->name, "index" ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
+                init = 1;
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
+                deinit = 1;
+            else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
             {
                 if( opt.value )
                     shell_eval_int( opt.value, &channel ); 
+            }
+            else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
+            {
+                loop=1;
+                shell_eval_int(opt.value, (int*)&loop_delay);
             }
         }
         else
             STOP_AT_INVALID_ARGUMENT  
     }; 
 
-    if( loop_delay <= 0 )
-        loop_delay = 1000;  /* default: 1 sec */
-loop_start:
+    if( init )
+    {
+        //hal_adc_init();
+        return 0;
+    }
+    else if( deinit )
+    {
+        //hal_adc_deinit();
+        return 0;
+    }
 
+loop_start:
 
     if( channel<0 )
     {
@@ -84,24 +97,12 @@ loop_start:
     else
         goto channel_error;
 
-    if( loop )
-    {
-        tick = xTaskGetTickCount();
-        while( xTaskGetTickCount() < tick + loop_delay*configTICK_RATE_HZ/1000 )
-        {
-            if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 )
-                if( c == 0x03 ) /* Ctrl-C for stop */
-                    return 0;
-        }
-        goto loop_start;
-    }
- 
+    LOOP_CHECK 
     return 0;
 
 channel_error:
     shell_write_line("channel error");
     return 1;
-
 }
 
 static const shell_cmd_t cmd_tab[] = {

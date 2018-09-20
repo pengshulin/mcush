@@ -35,4 +35,12 @@
 #define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOA
 
 
+#include "hal_sgpio.h"
+
+void hal_adc_init( void );
+void hal_adc_deinit( void );
+int hal_adc_get_num( void );
+float hal_adc_get( int index );
+
+
 #endif

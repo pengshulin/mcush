@@ -4,7 +4,7 @@
 DESCRIPTION
 ===========
 * MCUSH is the short name for MCU-SHell.
-* A practical project that enhance microcontroller serial port console  with shell features like in many linux systems.
+* A practical project that enhance microcontroller serial port console with shell features like in many linux systems.
 * The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.
 * MCUSH is heavily based on FreeRTOS, the core shell runs as a stand-alone task with middle level priority.
 * Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.

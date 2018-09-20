@@ -4,20 +4,22 @@ env = Stm32f1md()
 env.setLinkfile( '/ld/stm32f103x8_min.ld' )
 env.appendDriver(STM32_USB_FS_Driver())
 
+#env.appendDefineFlags( ['BLACK_BOARD'] )
+env.appendDefineFlags( ['BLUE_BOARD'] )
+
 env.appendDefineFlags( [
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
     'USE_CMD_SCPI_RST=0',
     'USE_CMD_RESET=0',
-    #'USE_CMD_GPIO=0',
-    #'USE_CMD_LED=0',
-    #'USE_CMD_DUMP=0',
+    'USE_CMD_DUMP=0',
     'USE_CMD_WRITE=0',
     'USE_CMD_MFILL=0',
     'USE_CMD_WAIT=0',
     'USE_CMD_WDG=0',
-    #'USE_CMD_UPTIME=0',
-    #'USE_CMD_SYSTEM=0',
+    'USE_CMD_ECHO=0',
+    'USE_CMD_UPTIME=0',
+    'USE_CMD_SYSTEM=0',
     'USE_CMD_RM=0',
     'USE_CMD_RENAME=0',
     'USE_CMD_CP=0',
@@ -32,5 +34,7 @@ env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     'SHELL_QUOTE_PARSE_ENALBE=0',
     'SUSPEND_ENABLED=0',
+    'USE_CMD_PWM=1',
+    'USE_CMD_ADC=1',
     ] )
 

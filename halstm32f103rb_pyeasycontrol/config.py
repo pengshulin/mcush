@@ -16,6 +16,7 @@ env.appendDefineFlags( [
      ] )
     
 env.appendDefineFlags( [
+    'USE_CMD_SGPIO=1',
     'USE_CMD_SCPI_RST=0',
     'USE_CMD_RESET=0',
     'USE_CMD_WAIT=0',

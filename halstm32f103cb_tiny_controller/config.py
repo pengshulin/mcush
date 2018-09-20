@@ -35,4 +35,5 @@ env.appendDefineFlags( [
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'SUSPEND_ENABLED=0',
     'USE_CMD_PWM=1',
+    'USE_CMD_ADC=1',
     ] )

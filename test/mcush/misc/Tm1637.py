@@ -18,6 +18,9 @@ CMD_ADDRESS = 0xC0
 
 class LED4:
     DIGITS = 4
+    
+    def __init__( self, controller ):
+        self.controller = controller
 
     def bind( self, controller ):
         self.controller = controller

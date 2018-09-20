@@ -2,16 +2,24 @@
 #define __HAL_PLATFORM_H__
 
 #define HAL_LED_NUM  1
-#define HAL_LED_PORTS  { 1 }  /* black board */
-#define HAL_LED_PINS  { 12 }
-#define HAL_LED_REV
-//#define HAL_LED_PORTS  { 2 }  /* blue board */
-//#define HAL_LED_PINS  { 13 }
-//#define HAL_LED_REV
+
+#if defined(BLACK_BOARD)
+    /* black board */
+    #define HAL_LED_PORTS  { 1 }
+    #define HAL_LED_PINS  { 12 }
+    #define HAL_LED_REV
+#elif defined(BLUE_BOARD)
+    /* blue board */
+    #define HAL_LED_PORTS  { 2 }
+    #define HAL_LED_PINS  { 13 }
+    #define HAL_LED_REV
+#else
+    #error "which board?"
+#endif
 
 
 
-#define USE_CMD_SGPIO  0
+#define USE_CMD_SGPIO   1
 
 #define SGPIO_FREQ_MIN  1.0
 #define SGPIO_FREQ_DEF  1000000.0
@@ -38,9 +46,21 @@ void hal_sgpio_stop( void );
 int hal_sgpio_set_freq( float freq );
 sgpio_cfg_t *hal_sgpio_info( void );
 
-    
-#define HAL_USE_USB_DISCONNECT  0
+ 
+void hal_pwm_init( int freq, int range, int value );
+void hal_pwm_deinit( void );
+void hal_pwm_set( int index, int value );
+int hal_pwm_get( int index );
+int hal_pwm_get_num( void );
 
+ 
+void hal_adc_init( void );
+void hal_adc_deinit( void );
+int hal_adc_get_num( void );
+float hal_adc_get( int index );
+
+  
+#define HAL_USE_USB_DISCONNECT  0
 
 
 #endif

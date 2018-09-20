@@ -8,6 +8,6 @@
 
 python setup.py sdist
 
-twine upload sdist/*
+twine upload dist/*
 
 

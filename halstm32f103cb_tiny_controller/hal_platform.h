@@ -53,6 +53,12 @@ int hal_pwm_get( int index );
 int hal_pwm_get_num( void );
 
 
+void hal_adc_init( void );
+void hal_adc_deinit( void );
+int hal_adc_get_num( void );
+float hal_adc_get( int index );
+
+
 #define USE_HAL_USB_DISCONNECT  0
 
 #define USE_CMD_POWER   0

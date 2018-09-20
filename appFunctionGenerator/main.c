@@ -225,7 +225,7 @@ void hal_dac_init(void)
 {
     GPIO_InitTypeDef gpio_init;
 
-    RCC_APB1PeriphClockCmd(	RCC_APB1Periph_DAC, ENABLE );
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_DAC, ENABLE );
     RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_DMA1, ENABLE );
 
     gpio_init.GPIO_Mode = GPIO_Mode_AN;

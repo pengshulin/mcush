@@ -172,6 +172,7 @@ int cmd_power( int argc, char *argv[] );
 int cmd_i2c( int argc, char *argv[] );
 int cmd_spi( int argc, char *argv[] );
 int cmd_pwm( int argc, char *argv[] );
+int cmd_adc( int argc, char *argv[] );
 int cmd_counter( int argc, char *argv[] );
 int cmd_rtc( int argc, char *argv[] );
 int cmd_spiffs( int argc, char *argv[] );
@@ -294,6 +295,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "pwm",  cmd_pwm, 
     "pwm controller",
     "pwm -i <idx> -v <val>" },
+#endif
+#if USE_CMD_ADC
+{   0, 0,  "adc",  cmd_adc, 
+    "adc measure",
+    "adc -i <idx>" },
 #endif
 #if USE_CMD_COUNTER
 {   0, 'c',  "counter",  cmd_counter, 
@@ -521,7 +527,7 @@ int cmd_gpio( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED, 
-          'l', shell_str_loop, "loop_delay_ms", "default 1000ms period" },
+          'l', shell_str_loop, "loop_delay_ms", "default 1000ms" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'p', shell_str_port, "port_bit_name", "port[.bit] name, eg 0[.0]" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED,
@@ -2432,14 +2438,14 @@ int cmd_pwm( int argc, char *argv[] )
           'i', shell_str_index, "pwm_index", shell_str_index_from_0 },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'v', shell_str_value, shell_str_value, "value param" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_init, 0, shell_str_init },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'f', shell_str_frequency, shell_str_frequency, "1~100000(default 1000)hz" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'r', shell_str_range, shell_str_range, "default 100" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'n', shell_str_number, 0, shell_str_query },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_init, 0, shell_str_init },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           0, shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_NONE } };
@@ -2536,6 +2542,94 @@ int cmd_pwm( int argc, char *argv[] )
 #endif
 
 
+#if USE_CMD_ADC
+int cmd_adc( int argc, char *argv[] )
+{
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'l', shell_str_loop, "loop_delay_ms", "default 1000ms" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'i', shell_str_index, "channel_index", "select channel" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_deinit, 0, shell_str_deinit },
+        { MCUSH_OPT_NONE } };
+    unsigned int loop=0, loop_delay=1000, loop_tick;
+    uint8_t init=0, deinit=0, index_set=0;
+    int adc_num = hal_adc_get_num();
+    int index;
+    char c;
+    int i;
+    
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
+                init = 1;
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
+                deinit = 1;
+            else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
+            {
+                if( opt.value )
+                {
+                    shell_eval_int( opt.value, &index ); 
+                    if( index < 0 || index >= adc_num )
+                    {
+                        shell_write_err( shell_str_index );
+                        return -1;
+                    }
+                    index_set = 1;
+                }
+            }
+            else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
+            {
+                loop=1;
+                shell_eval_int(opt.value, (int*)&loop_delay);
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }; 
+
+    if( init )
+    {
+        hal_adc_init();
+        return 0;
+    }
+    else if( deinit )
+    {
+        hal_adc_deinit();
+        return 0;
+    }
+
+loop_start:
+
+    if( index_set )
+    {
+        shell_printf( "%.2f", hal_adc_get(index)+0.005 );
+        shell_write_char( '\n' );
+    } 
+    else
+    {
+        for( i=0; i<adc_num; i++ )
+        {
+            shell_printf( "%.2f", hal_adc_get(i)+0.005 );
+            shell_write_char( i < (adc_num-1) ? ',' : '\n' );
+        }
+    }
+
+    LOOP_CHECK 
+    return 0;
+}
+#endif
+
+ 
 #if USE_CMD_COUNTER
 static uint8_t counter_port=0;
 static uint16_t counter_pin=1<<0;

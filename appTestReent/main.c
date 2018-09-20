@@ -105,6 +105,19 @@ int create_test_tasks(int num)
 }
 
 
+int update_boot_count( const char *fname )
+{
+    char buf[64];
+    int i;
+    if( ! mcush_file_load_string( fname, buf, 64 ) )
+        i = 0;
+    else if( sscanf( buf, "%d", &i ) == 1 )
+        i++;
+    sprintf( buf, "%d", i );
+    return mcush_file_write_string( fname, buf );
+}
+
+
 int main(void)
 { 
     mcush_init();
@@ -114,6 +127,8 @@ int main(void)
     if( !lock )
         halt("create mutex");
     create_test_tasks(10);
+
+    update_boot_count("/s/boot");
 
     mcush_start();
     while(1);
