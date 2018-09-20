@@ -8,4 +8,6 @@ from . import MorseCodeBeeper
 from . import Tjc
 from . import Gratten
 from . import SegmentTable
+from . import Tm1637
+from . import Max7219
 
