@@ -357,7 +357,7 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' --delay=%s'% delay
         self.writeCommand( cmd )
 
-    def i2c( self, write=[], addr=None, read_count=None, no_stop_bit=None ):
+    def i2c( self, write=[], read_count=None, addr=None, no_stop_bit=None ):
         cmd = 'i2c'
         if addr is not None:
             cmd += ' -a0x%X'% addr

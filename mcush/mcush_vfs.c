@@ -34,6 +34,8 @@ int mcush_mount( const char *mount_point, const mcush_vfs_driver_t *driver )
                 vfs_vol_tab[i].driver = driver;
                 return 1;
             } 
+            else
+                return 0;
         }
     }
     return 0;

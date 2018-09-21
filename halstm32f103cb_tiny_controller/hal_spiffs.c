@@ -6,7 +6,7 @@
 #include "mcush_vfs.h"
 
 
-#if defined(MCUSH_SPIFFS) && MCUSH_SPIFFS
+#if MCUSH_SPIFFS
 
 
 void hal_spiffs_flash_init(void)

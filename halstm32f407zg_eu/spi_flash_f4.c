@@ -109,7 +109,7 @@ void sFLASH_Init(void)
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
   SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
   SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;
 
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
@@ -339,7 +339,7 @@ uint32_t sFLASH_ReadID(void)
   sFLASH_CS_LOW();
 
   /*!< Send "RDID " instruction */
-  sFLASH_SendByte(0x9F);
+  sFLASH_SendByte(sFLASH_CMD_RDID);
 
   /*!< Read a byte from the FLASH */
   Temp0 = sFLASH_SendByte(sFLASH_DUMMY_BYTE);

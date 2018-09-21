@@ -32,7 +32,7 @@ MLX90614_ID4     = 0x1F
 
 def main(argv=None):
     s = Mcush.Mcush()
-    s.i2c_init(MLX90614_I2CADDR, delay=1)
+    s.i2c_init(MLX90614_I2CADDR)
 
     def readRam( addr ):
         datl, dath, pec = s.i2c( [addr & 0x1F], 3 )

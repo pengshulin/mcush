@@ -95,7 +95,7 @@ void sFLASH_DeInit(void)
   */
 void sFLASH_Init(void)
 {
-  SPI_InitTypeDef  SPI_InitStructure;
+  SPI_InitTypeDef  spi_init;
 
   sFLASH_LowLevel_Init();
     
@@ -103,17 +103,17 @@ void sFLASH_Init(void)
   sFLASH_CS_HIGH();
 
   /*!< SPI configuration */
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+  spi_init.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+  spi_init.SPI_Mode = SPI_Mode_Master;
+  spi_init.SPI_DataSize = SPI_DataSize_8b;
+  spi_init.SPI_CPOL = SPI_CPOL_High;
+  spi_init.SPI_CPHA = SPI_CPHA_2Edge;
+  spi_init.SPI_NSS = SPI_NSS_Soft;
+  spi_init.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
 
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(sFLASH_SPI, &SPI_InitStructure);
+  spi_init.SPI_FirstBit = SPI_FirstBit_MSB;
+  spi_init.SPI_CRCPolynomial = 7;
+  SPI_Init(sFLASH_SPI, &spi_init);
 
   /*!< Enable the sFLASH_SPI  */
   SPI_Cmd(sFLASH_SPI, ENABLE);
@@ -339,7 +339,7 @@ uint32_t sFLASH_ReadID(void)
   sFLASH_CS_LOW();
 
   /*!< Send "RDID " instruction */
-  sFLASH_SendByte(0x9F);
+  sFLASH_SendByte(sFLASH_CMD_RDID);
 
   /*!< Read a byte from the FLASH */
   Temp0 = sFLASH_SendByte(sFLASH_DUMMY_BYTE);
@@ -492,46 +492,37 @@ void sFLASH_WaitForWriteEnd(void)
   */
 void sFLASH_LowLevel_Init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitTypeDef gpio_init;
 
   /*!< Enable the SPI clock */
   sFLASH_SPI_CLK_INIT(sFLASH_SPI_CLK, ENABLE);
 
   /*!< Enable GPIO clocks */
-  //RCC_AHBPeriphClockCmd(sFLASH_SPI_SCK_GPIO_CLK | sFLASH_SPI_MISO_GPIO_CLK | 
+  //RCC_APB2PeriphClockCmd(sFLASH_SPI_SCK_GPIO_CLK | sFLASH_SPI_MISO_GPIO_CLK | 
   //                       sFLASH_SPI_MOSI_GPIO_CLK | sFLASH_CS_GPIO_CLK, ENABLE);
   
   /*!< SPI pins configuration *************************************************/
 
-  /*!< Connect SPI pins to AF5 */  
-  //GPIO_PinAFConfig(sFLASH_SPI_SCK_GPIO_PORT, sFLASH_SPI_SCK_SOURCE, sFLASH_SPI_SCK_AF);
-  //GPIO_PinAFConfig(sFLASH_SPI_MISO_GPIO_PORT, sFLASH_SPI_MISO_SOURCE, sFLASH_SPI_MISO_AF);
-  //GPIO_PinAFConfig(sFLASH_SPI_MOSI_GPIO_PORT, sFLASH_SPI_MOSI_SOURCE, sFLASH_SPI_MOSI_AF);
-
-  //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  //GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  //GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+  gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
+  gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
         
   /*!< SPI SCK pin configuration */
-  GPIO_InitStructure.GPIO_Pin = sFLASH_SPI_SCK_PIN;
-  GPIO_Init(sFLASH_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_SPI_SCK_PIN;
+  GPIO_Init(sFLASH_SPI_SCK_GPIO_PORT, &gpio_init);
 
   /*!< SPI MOSI pin configuration */
-  GPIO_InitStructure.GPIO_Pin =  sFLASH_SPI_MOSI_PIN;
-  GPIO_Init(sFLASH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_SPI_MOSI_PIN;
+  GPIO_Init(sFLASH_SPI_MOSI_GPIO_PORT, &gpio_init);
 
   /*!< SPI MISO pin configuration */
-  GPIO_InitStructure.GPIO_Pin =  sFLASH_SPI_MISO_PIN;
-  GPIO_Init(sFLASH_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Mode = GPIO_Mode_IPD;
+  gpio_init.GPIO_Pin = sFLASH_SPI_MISO_PIN;
+  GPIO_Init(sFLASH_SPI_MISO_GPIO_PORT, &gpio_init);
 
   /*!< Configure sFLASH Card CS pin in output pushpull mode ********************/
-  GPIO_InitStructure.GPIO_Pin = sFLASH_CS_PIN;
-  //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  //GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  //GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(sFLASH_CS_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_CS_PIN;
+  gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(sFLASH_CS_GPIO_PORT, &gpio_init);
 }
 
 /**
@@ -541,7 +532,7 @@ void sFLASH_LowLevel_Init(void)
   */
 void sFLASH_LowLevel_DeInit(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitTypeDef gpio_init;
 
   /*!< Disable the sFLASH_SPI  ************************************************/
   SPI_Cmd(sFLASH_SPI, DISABLE);
@@ -553,20 +544,20 @@ void sFLASH_LowLevel_DeInit(void)
   sFLASH_SPI_CLK_INIT(sFLASH_SPI_CLK, DISABLE);
       
   /*!< Configure all pins used by the SPI as input floating *******************/
-  //GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  //GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  gpio_init.GPIO_Mode = GPIO_Mode_IPU;
+  gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 
-  GPIO_InitStructure.GPIO_Pin = sFLASH_SPI_SCK_PIN;
-  GPIO_Init(sFLASH_SPI_SCK_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_SPI_SCK_PIN;
+  GPIO_Init(sFLASH_SPI_SCK_GPIO_PORT, &gpio_init);
 
-  GPIO_InitStructure.GPIO_Pin = sFLASH_SPI_MISO_PIN;
-  GPIO_Init(sFLASH_SPI_MISO_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_SPI_MISO_PIN;
+  GPIO_Init(sFLASH_SPI_MISO_GPIO_PORT, &gpio_init);
 
-  GPIO_InitStructure.GPIO_Pin = sFLASH_SPI_MOSI_PIN;
-  GPIO_Init(sFLASH_SPI_MOSI_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_SPI_MOSI_PIN;
+  GPIO_Init(sFLASH_SPI_MOSI_GPIO_PORT, &gpio_init);
 
-  GPIO_InitStructure.GPIO_Pin = sFLASH_CS_PIN;
-  GPIO_Init(sFLASH_CS_GPIO_PORT, &GPIO_InitStructure);
+  gpio_init.GPIO_Pin = sFLASH_CS_PIN;
+  GPIO_Init(sFLASH_CS_GPIO_PORT, &gpio_init);
 }
 
 /**

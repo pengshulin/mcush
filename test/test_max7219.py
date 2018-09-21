@@ -93,9 +93,9 @@ DIGIT_2 = [
     '-******-', ]
 
 
-BITMAPS = [HEART, HEART2]
 BITMAPS = [FAN1, FAN2]
 BITMAPS = [DIGIT_0, DIGIT_1, DIGIT_2]
+BITMAPS = [HEART, HEART2]
 
 
 

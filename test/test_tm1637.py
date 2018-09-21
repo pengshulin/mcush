@@ -11,9 +11,7 @@ from mcush.misc import Tm1637
 
  
 def main(argv=None):
-    s = Mcush.Mcush()
-    d = Tm1637.LED4()
-    d.bind(s)
+    d = Tm1637.LED4(Mcush.Mcush())
     d.init()
     string = '    abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890 \'`~-_=[]{}<>,.^/    '
     for i in range(len(string)-4):
