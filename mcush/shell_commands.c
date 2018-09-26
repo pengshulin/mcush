@@ -1635,7 +1635,7 @@ int cmd_beep( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'f', shell_str_frequency, shell_str_frequency, "20~10000(default 4000)hz" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_ms, 0, "default 50ms" },
+          0, shell_str_ms, 0, "1~10000(default 50)ms" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1648,7 +1648,7 @@ int cmd_beep( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
                 shell_eval_int(opt.value, (int*)&freq);
-            else if( STRCMP( opt.spec->name, "ms" ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_ms ) == 0 )
                 shell_eval_int(opt.value, (int*)&ms);
         }
         else

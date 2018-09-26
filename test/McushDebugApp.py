@@ -24,6 +24,7 @@ from threading import Thread
 from mcush import *
 from mcush.Mcush import *
 from mcush.Utils import *
+from mcush.misc import *
 from McushDebugDlg import *
 from re import compile as re_compile
 import base64
@@ -31,21 +32,59 @@ import pprint
 
 (UpdateEvent, EVT_UPDATE) = wx.lib.newevent.NewEvent()
 import gettext
+_ = gettext.gettext
 
 PRESET = [ \
 ["Output impulse counter", '''\
 pin = '0.0'  # PA0
 s = Mcush(PORT)
+s.errnoStop()  # stop errno blink
 s.gpio( pin, o=True )
 counter = 0
 while True:
     info( 'Counter: %d'% counter )
     s.gpio( pin, s=True )
+    s.led(0, True)
     sleep(0.1)
     s.gpio( pin, c=True )
+    s.led(0, False)
     sleep(0.5)
     counter += 1
 '''],
+
+["LED blink", '''\
+s = Mcush(PORT)
+s.errnoStop()  # stop errno blink
+while True:
+    for i in range(3):
+        s.led(0, True)
+        s.led(1, True)
+        sleep(0.1)
+        s.led(0, False)
+        s.led(1, False)
+        sleep(0.1)
+    for i in range(3):
+        s.led(2, True)
+        s.led(3, True)
+        sleep(0.1)
+        s.led(2, False)
+        s.led(3, False)
+        sleep(0.1)
+'''],
+
+["Beep player", '''\
+bp = BeepPlayer.BeepPlayer(Mcush(PORT))
+bp.play( BeepPlayer.ALISE )
+'''],
+
+["Beep morse code", '''\
+bp = MorseCodeBeeper.MorseCodeBeeper(Mcush(PORT))
+#bp.set_beeper( bp.beeper_led1 )
+while True:
+    bp.BeepString( 'SOS' )
+    time.sleep(5)
+'''],
+
 
 ["SGPIO output", '''\
 # PA[0:5]
@@ -133,7 +172,9 @@ class RebootTask(MyTask):
         s = Mcush(port)
         self.info( _("Reboot") )
         s.port.write('reboot\n')
-        #s.port.flush()
+        s.port.flush()
+        s.disconnect()
+        del s
         self.info( _("Done") )
 
 
@@ -141,11 +182,13 @@ class ExecuteScriptTask(MyTask):
     def target( self, args ):
         global PORT, task_obj
         self.info( _("Executing script...") )
-        (port, code, script) = args
+        (port, script) = args
         task_obj = self
         PORT = port
+        code = compile(script, '', 'exec')
         exec( code )
         self.info( _("Done") )
+
 
 class QueryTask(MyTask):
     def target( self, args ):
@@ -161,6 +204,7 @@ class QueryTask(MyTask):
             lst = []
             self.info( u"Failed to query file list", 'error' )
 
+
 class RemoveTask(MyTask):
     def target( self, args ):
         (port, fname) = args
@@ -173,6 +217,7 @@ class RemoveTask(MyTask):
             self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
             self.info( "Failed to remove %s"% fname, 'error' )
+
 
 class RenameTask(MyTask):
     def target( self, args ):
@@ -187,6 +232,7 @@ class RenameTask(MyTask):
         except Instrument.CommandExecuteError as e:
             self.info( u"Failed to rename %s to %s..."% (oldname, newname), 'error' )
 
+
 class ViewTask(MyTask):
     def target( self, args ):
         (port, fname) = args
@@ -199,6 +245,7 @@ class ViewTask(MyTask):
             self.info( _("Done") )
         except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
+
 
 class GetFileTask(MyTask):
     def target( self, args ):
@@ -216,6 +263,7 @@ class GetFileTask(MyTask):
             self.info( "File %s saved, size %d."% (savename, len(r)) )
         except Exception as e:
             self.info( u"Failed to save file %s"% (savename), 'error' )
+
 
 PUTFILE_SEGMENT_SIZE = 1024
 
@@ -366,9 +414,6 @@ class I2cWriteTask(MyTask):
                 break
         self.info( _("Done") )
         
-
-
-
 
 
 
@@ -740,13 +785,9 @@ class MainFrame(MyFrame):
         if not port:
             self.info(_("port error"), wx.ICON_ERROR)
             return
-        try:
-            script = self.text_ctrl_script.GetValue()
-            code = compile(script, '', 'exec')
-        except Exception as e:
-            self.info(unicode(e), wx.ICON_ERROR)
-            return
-        self.task = ExecuteScriptTask( (port, code, script), self.msgq )
+        script = self.text_ctrl_script.GetValue().rstrip()
+        if len(script) > 0:
+            self.task = ExecuteScriptTask( (port, script), self.msgq )
         event.Skip()
 
     def OnReset( self, event ):
@@ -765,10 +806,9 @@ class MainFrame(MyFrame):
         self.task = RebootTask( (port), self.msgq )
         event.Skip()
 
-    def OnLoad( self, event ):
+    def OnLoadExample( self, event ):
         global PRESET
         menu = wx.Menu()
-        sm = wx.Menu()
         for name, content in PRESET:
             if not self.preset_popup_menu_id.has_key(name):
                 newid = wx.NewId()
@@ -776,13 +816,7 @@ class MainFrame(MyFrame):
                 self.Bind(wx.EVT_MENU, self.OnLoadPreset, id=newid)
             else:
                 newid = self.preset_popup_menu_id[name] 
-            sm.Append( newid, name )
-        menu.AppendMenu(wx.NewId(), _("Load preset"), sm)
-        menu.AppendSeparator()
-        newid = wx.NewId()
-        self.Bind(wx.EVT_MENU, self.OnLoadFromFile, id=newid)
-        item = wx.MenuItem(menu, newid, _("Load file..."))
-        menu.AppendItem(item)
+            menu.Append( newid, name )
         self.PopupMenu(menu)
         event.Skip()
  
@@ -795,9 +829,10 @@ class MainFrame(MyFrame):
                         self.text_ctrl_script.SetValue(v)
         event.Skip()
  
-    def OnLoadFromFile( self, event ):
-        dlg = wx.FileDialog( self, message=_("Choose python script file"), defaultDir=self.config_dir, 
-                defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.OPEN )
+    def OnLoadFile( self, event ):
+        dlg = wx.FileDialog( self, message=_("Choose python script file"), 
+                defaultDir=os.getcwd(), #self.config_dir, 
+                defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.OPEN|wx.CHANGE_DIR)
         if dlg.ShowModal() == wx.ID_OK:
             self.text_ctrl_script.LoadFile( dlg.GetPath().strip() )
         event.Skip()

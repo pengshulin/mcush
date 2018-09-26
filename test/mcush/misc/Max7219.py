@@ -35,9 +35,6 @@ class LED8x8():
     def __init__( self, controller ):
         self.controller = controller
 
-    def bind( self, controller ):
-        self.controller = controller
-
     def init( self, sdi=None, sdo=None, sck=None, cs=None ):
         self.controller.spi_init( sdi, sdo, sck, cs, width=16, delay=100 )
         self.reset()
@@ -74,6 +71,9 @@ class LED8x8():
         self.write( ADDR_D6, 0xFF )
         self.write( ADDR_D7, 0xFF )
 
+    def write_line( self, index, line_buf ):
+        self.write( ADDR_D0 + index, int(line_buf) )
+    
     def draw_bitmap( self, bitmap, reverse=False ):
         assert len(bitmap) == 8
         self.write( ADDR_D0, B2I(bitmap[0], reverse))

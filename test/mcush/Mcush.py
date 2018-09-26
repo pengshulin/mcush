@@ -51,11 +51,11 @@ class Mcush( Instrument.SerialInstrument ):
         '''led control'''
         if on is None and toggle is None:
             # read
-            r = self.writeCommand( 'led -i %d'% (idx) )
+            r = self.writeCommand( 'led -i%d'% (idx) )
             return bool(r[0].strip() == '1')
         else:
             # set 
-            cmd = 'led -i %d'% (idx)
+            cmd = 'led -i%d'% (idx)
             if toggle is not None:
                 cmd += ' -t'
             else:
@@ -64,30 +64,30 @@ class Mcush( Instrument.SerialInstrument ):
 
     def gpio( self, port, i=None, o=None, s=None, c=None, t=None ):
         '''gpio control'''
-        cmd = 'gpio -p %s'% str(port)
+        cmd = 'gpio -p%s'% str(port)
         if i is not None:
             if type(i) is int:
-                cmd += ' -i 0x%x'% i
+                cmd += ' -i0x%x'% i
             elif type(i) is bool and i:
                 cmd += ' -i'
         if o is not None:
             if type(o) is int:
-                cmd += ' -o 0x%x'% o
+                cmd += ' -o0x%x'% o
             elif type(o) is bool and o:
                 cmd += ' -o'
         if s is not None:
             if type(s) is int:
-                cmd += ' -s 0x%x'% s
+                cmd += ' -s0x%x'% s
             elif type(s) is bool and s:
                 cmd += ' -s'
         if c is not None:
             if type(c) is int:
-                cmd += ' -c 0x%x'% c 
+                cmd += ' -c0x%x'% c 
             elif type(c) is bool and c:
                 cmd += ' -c'
         if t is not None:
             if type(t) is int:
-                cmd += ' -t 0x%x'% t 
+                cmd += ' -t0x%x'% t 
             elif type(t) is bool and t:
                 cmd += ' -t'
         ret = self.writeCommand( cmd )
@@ -192,6 +192,10 @@ class Mcush( Instrument.SerialInstrument ):
         ret = self.writeCommand('sys q')
         return ret
 
+    def errnoStop( self ):
+        '''stop errno blink'''
+        self.writeCommand( 'error -s' )
+        
     def errno( self, new=None, stop=False ):
         '''set/get error number'''
         if stop:
@@ -207,7 +211,7 @@ class Mcush( Instrument.SerialInstrument ):
     def beep( self, freq=None, duration=0.05, times=1 ):
         cmd = 'beep'
         if freq:
-            cmd += ' -f %d'% freq
+            cmd += ' -f%d'% freq
         if duration:
             cmd += ' %d'% (int(duration*1000))
         while times:
@@ -324,6 +328,12 @@ class Mcush( Instrument.SerialInstrument ):
         if value is not None:
             cmd += ' %s'% value
         return self.writeCommand( cmd )
+
+    def sgpio_stop( self ):
+        self.writeCommand( 'sgpio --stop' )
+
+    def sgpio_start( self ):
+        self.writeCommand( 'sgpio --start' )
 
     def sgpio( self, port, pins, buf, freq=10, loop=True, start=True ):
         self.writeCommand( 'sgpio --stop' )

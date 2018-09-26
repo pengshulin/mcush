@@ -1,5 +1,5 @@
 # Simplified-Chinese translations for mcush
-# Peng Shulin <trees_peng@163.com> 2017
+# Peng Shulin <trees_peng@163.com> 2018
 # All rights reserved
 #
 msgid ""
@@ -9,6 +9,9 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+
+msgid "About..."
+msgstr "关于..."
 
 msgid "New"
 msgstr "新建"
@@ -159,6 +162,9 @@ msgstr "正在执行脚本..."
 
 msgid "Load preset"
 msgstr "加载预设"
+
+msgid "Load example..."
+msgstr "加载示例..."
 
 msgid "Load file..."
 msgstr "加载文件..."

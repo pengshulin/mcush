@@ -31,3 +31,5 @@ dist/
 *.egg-info/
 
 test/fcfs/
+test/build/
+test/dist-mcush-debug/

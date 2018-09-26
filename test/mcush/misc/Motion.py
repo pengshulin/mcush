@@ -10,9 +10,6 @@ class Mpu6050():
     def __init__( self, controller ):
         self.controller = controller
 
-    def bind( self, controller ):
-        self.controller = controller
-
     def init( self, scl=None, sda=None ):
         self.controller.i2c_init( 0x68, scl=scl, sda=sda )
         self.reset()

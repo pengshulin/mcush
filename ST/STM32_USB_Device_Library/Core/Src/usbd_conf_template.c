@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    usbd_conf_template.c
   * @author  MCD Application Team
-  * @version V2.4.1
-  * @date    19-June-2015
+  * @version V2.4.2
+  * @date    11-December-2015
   * @brief   USB Device configuration and interface file
   *          This template should be copied to the user folder, renamed and customized
   *          following user needs.  

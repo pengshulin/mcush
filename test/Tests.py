@@ -74,9 +74,7 @@ def led( argv=None ):
 #############################################################################
 # MISC
 def info( argv=None ):
-    m = Mcush()
-    m.printInfo()
-    m.disconnect()
+    Mcush().printInfo()
  
 def reset( argv=None ):
     Mcush().reset()
@@ -93,14 +91,6 @@ def regs_test( argv=None ):
     print( hex(s.getReg('PORTA_ODR')) )
     s.setReg('PORTA_ODR', 0x12345678)
 
-def beep( argv=None ):
-    freq, duration = None, None 
-    try:
-        freq = int(argv[1])
-        duration = float(argv[2])
-    except:
-        pass
-    Mcush().beep( freq, duration )
 
 def disp( argv=None ):
     if len(argv) > 0:
@@ -114,26 +104,30 @@ def uptime_mon( argv=None ):
     while True:
         print( s.uptime() )
 
+# BEEP/PLAY
+def beep( argv=None ):
+    freq, duration = None, None 
+    try:
+        freq = int(argv[1])
+        duration = float(argv[2])
+    except:
+        pass
+    Mcush().beep( freq, duration )
 
-def beep_player( argv=None ):
-    bp = BeepPlayer.BeepPlayer()
-    while True:
-        bp.play_poweron()
-        time.sleep(5)
-        bp.play_poweroff()
-        time.sleep(5)
-    bp.disconnect()
+def beep_player_poweron( argv=None ):
+    bp = BeepPlayer.BeepPlayer(Mcush())
+    bp.play_poweron()
 
-def beep_player_music( argv=None ):
-    bp = BeepPlayer.BeepPlayer()
-    while True:
-        bp.play( BeepPlayer.ALISE )
-        time.sleep(5)
-    bp.disconnect()
+def beep_player_poweroff( argv=None ):
+    bp = BeepPlayer.BeepPlayer(Mcush())
+    bp.play_poweroff()
 
+def beep_player_alise( argv=None ):
+    bp = BeepPlayer.BeepPlayer(Mcush())
+    bp.play( BeepPlayer.ALISE )
 
 def morse_code_beeper( argv=None ):
-    bp = MorseCodeBeeper.MorseCodeBeeper()
+    bp = MorseCodeBeeper.MorseCodeBeeper(Mcush())
     #bp.gpio( '0.0', o=True, c=True )
     #def beeper_pin( duration ):
     #    bp.gpio( '0.0', s=True )
@@ -288,9 +282,7 @@ def i2c_search( argv=None ):
 # PWM
 def pwm_test( argv=None ):
     s = Mcush()
-    s.pwm_init()
-    for i in range(4):
-        s.pwm( index=i, value=0 )
+    s.pwm_init(init_value=0)
     while True:
         for i in [0, 2]:
             t0 = time.time()
