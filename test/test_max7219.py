@@ -7,7 +7,7 @@ import sys
 import time
 import random
 from mcush import *
-from mcush.misc import Max7219
+from mcush.misc import Max7219, Font
 
 
 EMPTY = [
@@ -96,20 +96,22 @@ DIGIT_2 = [
 BITMAPS = [FAN1, FAN2]
 BITMAPS = [DIGIT_0, DIGIT_1, DIGIT_2]
 BITMAPS = [HEART, HEART2]
+BITMAPS = [Font.DEFAULT_FONT['0'], Font.DEFAULT_FONT['1']]
 
 
 
 
  
 def main(argv=None):
-    disp = Max7219.LED8x8(Mcush.Mcush())
+    disp = Max7219.LED32x8(Mcush.Mcush())
     disp.init()
     counter = 1
+    cv = Max7219.Canvas( disp )
     #disp.test_all()
     #time.sleep(1)
     while True:
         for img in BITMAPS:
-            disp.draw_bitmap( img )
+            cv.drawBitmap( 0, 0, img )
             time.sleep(0.5)
         counter += 1
 

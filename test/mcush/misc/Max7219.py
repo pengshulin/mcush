@@ -3,6 +3,8 @@ __doc__ = 'max7219 matrix led controller module'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from .. import Mcush
+from . import Bitmap
+from . import Font
 
 ADDR_NOP = 0
 ADDR_D0 = 1
@@ -20,28 +22,29 @@ ADDR_SHUTDOWN = 12
 ADDR_DISP_TEST = 15
 
 
-def B2I( bitmap, reverse ):
-    assert len(bitmap) == 8
-    ret = 0
-    for i in range(8):
-        if bitmap[i] == '*':
-            ret |= 1<<(7-i)
-    return (ret ^ 0xFF) if reverse else ret
 
+class LED():
 
-class LED8x8():
-    WIDTH, HEIGHT = 8, 8
- 
-    def __init__( self, controller ):
+    def __init__( self, controller, sdi=None, sdo=None, sck=None, cs=None ):
         self.controller = controller
-
-    def init( self, sdi=None, sdo=None, sck=None, cs=None ):
-        self.controller.spi_init( sdi, sdo, sck, cs, width=16, delay=100 )
+        self.controller.spi_init( sdi, sdo, sck, cs, width=16, delay=10 )
+        self.controller_num = ((self.width-1)/8+1) * ((self.height-1)/8+1)
         self.reset()
 
     def write(self, addr, dat):
-        val = ((addr & 0x0F)<<8) + (dat & 0xFF)
-        self.controller.spi( [val] )
+        if isinstance(dat, list):
+            # multiple controllers, different value
+            val = [((addr & 0x0F)<<8) + (d & 0xFF) for d in dat]
+            val.reverse()
+            self.controller.spi( val )
+        elif self.controller_num > 1 :
+            # multiple controllers, same value
+            val = ((addr & 0x0F)<<8) + (dat & 0xFF)
+            self.controller.spi( [val] * self.controller_num )
+        else:
+            # single controller
+            val = ((addr & 0x0F)<<8) + (dat & 0xFF)
+            self.controller.spi( [val] )
 
     def reset(self):
         self.write( ADDR_SHUTDOWN, 1 )
@@ -71,18 +74,166 @@ class LED8x8():
         self.write( ADDR_D6, 0xFF )
         self.write( ADDR_D7, 0xFF )
 
-    def write_line( self, index, line_buf ):
-        self.write( ADDR_D0 + index, int(line_buf) )
-    
-    def draw_bitmap( self, bitmap, reverse=False ):
-        assert len(bitmap) == 8
-        self.write( ADDR_D0, B2I(bitmap[0], reverse))
-        self.write( ADDR_D1, B2I(bitmap[1], reverse))
-        self.write( ADDR_D2, B2I(bitmap[2], reverse))
-        self.write( ADDR_D3, B2I(bitmap[3], reverse))
-        self.write( ADDR_D4, B2I(bitmap[4], reverse))
-        self.write( ADDR_D5, B2I(bitmap[5], reverse))
-        self.write( ADDR_D6, B2I(bitmap[6], reverse))
-        self.write( ADDR_D7, B2I(bitmap[7], reverse))
+    def write_line( self, index, line ):
+        self.write( ADDR_D0 + 7 - index, line )
 
+    
+
+class LED8x8(LED):
+    width, height = 8, 8
+
+class LED16x8(LED):
+    width, height = 16, 8
+
+class LED24x8(LED):
+    width, height = 24, 8
+
+class LED32x8(LED):
+    width, height = 32, 8
+ 
+class LED8x16(LED):
+    width, height = 8, 16
+
+class LED16x16(LED):
+    width, height = 16, 16
+
+class LED24x16(LED):
+    width, height = 24, 16
+
+class LED32x16(LED):
+    width, height = 32, 16
+
+class LED8x24(LED):
+    width, height = 8, 24
+
+class LED16x24(LED):
+    width, height = 16, 24
+
+class LED24x24(LED):
+    width, height = 24, 24
+
+class LED32x24(LED):
+    width, height = 32, 24
+
+class LED8x32(LED):
+    width, height = 8, 32
+
+class LED16x32(LED):
+    width, height = 16, 32
+
+class LED24x32(LED):
+    width, height = 24, 32
+
+class LED32x32(LED):
+    width, height = 32, 32
+
+
+
+# abstract canvas based on matrix led controller
+class Canvas():
+
+    def __init__( self, display ):
+        if not isinstance(display, LED):
+            raise Exception("display type error")
+        self.display = display
+        self.width = display.width
+        self.height = display.height
+        self.controller_num = display.controller_num
+        self.buffer = [ [0] * self.controller_num for i in range(8) ]
+        self.dirty = 0xFF 
+
+    def flush( self, force=False ):
+        for i in range(8):
+            if force or (self.dirty & (1<<i)):
+                self.display.write_line( i, self.buffer[i] )
+                self.dirty &= ~(1<<i)
+
+    def clrScr( self, flush=True ):
+        # clear screen
+        for i in range(8):
+            for j in range(self.controller_num):
+                self.buffer[i][j] = 0 
+        self.dirty = 0xFF
+        if flush:
+            self.flush()
+ 
+    def setPixel( self, x, y, color=1, flush=True ):
+        # check if it's out of range
+        if x < 0 or x >= self.width:
+            return
+        if y < 0 or y >= self.height:
+            return
+        # transform postion to chain mode
+        while y >= 8:
+            y -= 8 
+            x += self.width
+        byte_mask = 1 << (x%8)
+        byte_index = x/8
+        if color:
+            self.buffer[y][byte_index] |= byte_mask
+        else:
+            self.buffer[y][byte_index] &= ~byte_mask
+        self.dirty |= 1<<y
+        if flush:
+            self.flush()
+ 
+    def drawVLine( self, x, y0, y1, color=1, flush=True ):
+        # draw vertical line
+        for y in range(y0, y1+1):
+            self.setPixel( x, y, color, flush=False )
+        if flush:
+            self.flush()
+
+    def drawHLine( self, y, x0, x1, color=1, flush=True ):
+        # draw horizontal line
+        for x in range(x0, x1+1):
+            self.setPixel( x, y, color, flush=False )
+        if flush:
+            self.flush()
+
+
+    def drawBitmap( self, x, y, bitmap, mode='normal', flush=True ):
+        for i in range(bitmap.height):
+            for j in range(bitmap.width):
+                c = bitmap.getPixel(j, i)
+                if mode == 'normal':
+                    self.setPixel( x+j, y+i, int(c), flush=False )
+                elif mode == 'transparent':
+                    if c:
+                        self.setPixel( x+j, x+i, flush=False )
+        if flush: 
+            self.flush() 
+
+    def drawString( self, x, y, string, mode='normal', font=None, flush=True ):
+        if font is None:
+            font = Font.DEFAULT_FONT
+        for s in string:
+            if not s in font:
+                s = None
+            elif font[s] is None:
+                s = '?'
+            bitmap = font[s]
+            self.drawBitmap( x, y, bitmap, mode, flush=False )
+            x += bitmap.width
+            if x >= self.width:
+                break
+        if flush: 
+            self.flush() 
+
+    def getStringRenderSize( self, string, font=None ):
+        width = 0
+        height = 0
+        if font is None:
+            font = Font.DEFAULT_FONT
+        for s in string:
+            if not s in font:
+                s = None
+            elif font[s] is None:
+                s = '?'
+            bitmap = font[s]
+            w, h = bitmap.width, bitmap.height
+            width += w
+            if h > height:
+                height = h
+        return (width, height) 
 

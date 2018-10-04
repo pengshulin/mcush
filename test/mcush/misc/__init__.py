@@ -9,6 +9,8 @@ from . import Tjc
 from . import Gratten
 from . import SegmentTable
 from . import Tm1637
+from . import Bitmap
+from . import Font
 from . import Max7219
 from . import Motion 
 

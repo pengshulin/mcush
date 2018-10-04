@@ -45,7 +45,7 @@ class Instrument:
     DEFAULT_TERMINATOR_RESET = '\x03'  # Ctrl-C
     DEFAULT_TIMEOUT = 5
     DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
-    DEFAULT_PROMPTS_MULTILINE = re_compile( '>' )
+    DEFAULT_PROMPTS_MULTILINE = re_compile( '[=#?!]?>' )
     DEFAULT_IDN = None
     DEFAULT_REBOOT_RETRY = 10
     DEFAULT_LINE_LIMIT = 128
@@ -237,11 +237,17 @@ class Instrument:
         self.returned_cmd = cmd = ret[0].strip()
         self.returned_prompt = prompt = ret[-1].strip()
         if prompt in ['?>', '?']:
-            raise CommandSyntaxError( cmd )
+            result = ret[1:-1]
+            if result:
+                raise CommandSyntaxError( cmd + ', returns: ' + ','.join(result) )
+            else:
+                raise CommandSyntaxError( cmd )
         elif prompt == '!>':
             result = ret[1:-1]
-            err = cmd + ', returns: ' + ','.join(result)
-            raise CommandExecuteError( err )
+            if result:
+                raise CommandExecuteError( cmd + ', returns: ' + ','.join(result) )
+            else:
+                raise CommandExecuteError( err )
 
     # Instrument class only supports basic commands:
     # 

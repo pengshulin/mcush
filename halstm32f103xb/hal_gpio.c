@@ -9,7 +9,7 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode )
     GPIO_InitTypeDef init;
     int i;
         
-    GPIO_StructInit(&init);
+    init.GPIO_Speed = GPIO_Speed_50MHz;
     init.GPIO_Mode = mode;
     for( i=0; i<32; i++ )
     {

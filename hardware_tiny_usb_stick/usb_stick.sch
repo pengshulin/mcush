@@ -1,36 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:stm32
+EESchema Schematic File Version 4
 LIBS:usb_stick-cache
-EELAYER 25 0
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -45,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L STM32F103CB U2
+L usb_stick-rescue:STM32F103CB U2
 U 1 1 597ED686
 P 6600 3500
 F 0 "U2" H 5300 5150 50  0000 C CNN
@@ -56,7 +26,7 @@ F 3 "" H 6600 3500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_02X05 P2
+L usb_stick-rescue:CONN_02X05 P2
 U 1 1 597EEA82
 P 9050 4950
 F 0 "P2" H 9050 5250 50  0000 C CNN
@@ -67,7 +37,7 @@ F 3 "" H 9050 3750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C4
+L usb_stick-rescue:C C4
 U 1 1 597EEC9B
 P 2950 3100
 F 0 "C4" H 2975 3200 50  0000 L CNN
@@ -78,7 +48,7 @@ F 3 "" H 2950 3100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C C5
+L usb_stick-rescue:C C5
 U 1 1 597EECF2
 P 2950 3400
 F 0 "C5" H 2975 3500 50  0000 L CNN
@@ -89,7 +59,7 @@ F 3 "" H 2950 3400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Crystal Y1
+L usb_stick-rescue:Crystal Y1
 U 1 1 597EED5D
 P 3300 3250
 F 0 "Y1" H 3300 3400 50  0000 C CNN
@@ -100,7 +70,7 @@ F 3 "" H 3300 3250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L F_Small F1
+L usb_stick-rescue:F_Small F1
 U 1 1 597EEDDE
 P 8650 5300
 F 0 "F1" H 8610 5360 50  0000 L CNN
@@ -111,7 +81,7 @@ F 3 "" H 8650 5300 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L R R7
+L usb_stick-rescue:R R7
 U 1 1 597EF072
 P 4400 1950
 F 0 "R7" V 4480 1950 50  0000 C CNN
@@ -122,7 +92,7 @@ F 3 "" H 4400 1950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L AP1117D33 U1
+L usb_stick-rescue:AP1117D33 U1
 U 1 1 597EF5DC
 P 3200 2000
 F 0 "U1" H 3300 1750 50  0000 C CNN
@@ -133,7 +103,7 @@ F 3 "" H 3200 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR01
+L power:GND #PWR01
 U 1 1 597F4772
 P 2800 3400
 F 0 "#PWR01" H 2800 3150 50  0001 C CNN
@@ -144,7 +114,7 @@ F 3 "" H 2800 3400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR02
+L power:GND #PWR02
 U 1 1 597F47A8
 P 2800 3100
 F 0 "#PWR02" H 2800 2850 50  0001 C CNN
@@ -155,7 +125,7 @@ F 3 "" H 2800 3100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C C9
+L usb_stick-rescue:C C9
 U 1 1 597F62F4
 P 4400 2250
 F 0 "C9" H 4425 2350 50  0000 L CNN
@@ -166,7 +136,7 @@ F 3 "" H 4400 2250 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR03
+L power:GND #PWR03
 U 1 1 597F63AC
 P 4400 2400
 F 0 "#PWR03" H 4400 2150 50  0001 C CNN
@@ -177,7 +147,7 @@ F 3 "" H 4400 2400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR04
+L power:+3.3V #PWR04
 U 1 1 597F682B
 P 6300 1800
 F 0 "#PWR04" H 6300 1650 50  0001 C CNN
@@ -188,7 +158,7 @@ F 3 "" H 6300 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR05
+L power:+3.3V #PWR05
 U 1 1 597F6861
 P 4400 1800
 F 0 "#PWR05" H 4400 1650 50  0001 C CNN
@@ -199,7 +169,7 @@ F 3 "" H 4400 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR06
+L power:+3.3V #PWR06
 U 1 1 597F68EC
 P 3650 2000
 F 0 "#PWR06" H 3650 1850 50  0001 C CNN
@@ -210,7 +180,7 @@ F 3 "" H 3650 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR07
+L power:GND #PWR07
 U 1 1 597F6922
 P 3200 2300
 F 0 "#PWR07" H 3200 2050 50  0001 C CNN
@@ -221,7 +191,7 @@ F 3 "" H 3200 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR08
+L power:+5V #PWR08
 U 1 1 597F6B30
 P 2750 2000
 F 0 "#PWR08" H 2750 1850 50  0001 C CNN
@@ -232,7 +202,7 @@ F 3 "" H 2750 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR09
+L power:GND #PWR09
 U 1 1 597F6D0C
 P 1900 2300
 F 0 "#PWR09" H 1900 2050 50  0001 C CNN
@@ -247,7 +217,7 @@ DM
 Text Label 2300 2700 1    60   ~ 0
 DP
 $Comp
-L C C7
+L usb_stick-rescue:C C7
 U 1 1 597F6FDF
 P 3650 2150
 F 0 "C7" H 3675 2250 50  0000 L CNN
@@ -258,7 +228,7 @@ F 3 "" H 3650 2150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR010
+L power:GND #PWR010
 U 1 1 597F70B6
 P 3650 2300
 F 0 "#PWR010" H 3650 2050 50  0001 C CNN
@@ -269,7 +239,7 @@ F 3 "" H 3650 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR011
+L power:GND #PWR011
 U 1 1 597F73D4
 P 2750 2300
 F 0 "#PWR011" H 2750 2050 50  0001 C CNN
@@ -280,7 +250,7 @@ F 3 "" H 2750 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR012
+L power:+5V #PWR012
 U 1 1 597F7482
 P 8550 5300
 F 0 "#PWR012" H 8550 5150 50  0001 C CNN
@@ -299,7 +269,7 @@ OSC_IN
 Text Label 3450 3400 0    60   ~ 0
 OSC_OUT
 $Comp
-L +3.3V #PWR013
+L power:+3.3V #PWR013
 U 1 1 597F9612
 P 5100 2800
 F 0 "#PWR013" H 5100 2650 50  0001 C CNN
@@ -310,7 +280,7 @@ F 3 "" H 5100 2800 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR014
+L power:GND #PWR014
 U 1 1 597F979B
 P 6300 5200
 F 0 "#PWR014" H 6300 4950 50  0001 C CNN
@@ -321,7 +291,7 @@ F 3 "" H 6300 5200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R5
+L usb_stick-rescue:R R5
 U 1 1 597FA3C5
 P 3700 4100
 F 0 "R5" V 3780 4100 50  0000 C CNN
@@ -332,7 +302,7 @@ F 3 "" H 3700 4100 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR015
+L power:GND #PWR015
 U 1 1 597FAE9A
 P 4800 2300
 F 0 "#PWR015" H 4800 2050 50  0001 C CNN
@@ -363,7 +333,7 @@ DM
 Text Label 8200 3400 0    60   ~ 0
 DP
 $Comp
-L R R4
+L usb_stick-rescue:R R4
 U 1 1 59801AFD
 P 2450 2350
 F 0 "R4" V 2530 2350 50  0000 C CNN
@@ -374,7 +344,7 @@ F 3 "" H 2450 2350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R1
+L usb_stick-rescue:R R1
 U 1 1 59801D02
 P 2300 2350
 F 0 "R1" V 2380 2350 50  0000 C CNN
@@ -385,7 +355,7 @@ F 3 "" H 2300 2350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R8
+L usb_stick-rescue:R R8
 U 1 1 59802F35
 P 8950 1800
 F 0 "R8" V 9030 1800 50  0000 C CNN
@@ -396,7 +366,7 @@ F 3 "" H 8950 1800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R9
+L usb_stick-rescue:R R9
 U 1 1 59803066
 P 8950 1950
 F 0 "R9" V 9030 1950 50  0000 C CNN
@@ -407,7 +377,7 @@ F 3 "" H 8950 1950 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R10
+L usb_stick-rescue:R R10
 U 1 1 598032A0
 P 8950 2100
 F 0 "R10" V 9030 2100 50  0000 C CNN
@@ -418,7 +388,7 @@ F 3 "" H 8950 2100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R11
+L usb_stick-rescue:R R11
 U 1 1 598035B6
 P 8950 2250
 F 0 "R11" V 9030 2250 50  0000 C CNN
@@ -429,7 +399,7 @@ F 3 "" H 8950 2250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R12
+L usb_stick-rescue:R R12
 U 1 1 59803827
 P 8950 2400
 F 0 "R12" V 9030 2400 50  0000 C CNN
@@ -440,7 +410,7 @@ F 3 "" H 8950 2400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R13
+L usb_stick-rescue:R R13
 U 1 1 598038E0
 P 8950 2550
 F 0 "R13" V 9030 2550 50  0000 C CNN
@@ -455,19 +425,19 @@ Wire Wire Line
 Wire Wire Line
 	3500 2000 3650 2000
 Wire Wire Line
-	1900 2000 2900 2000
+	1900 2000 2750 2000
 Wire Wire Line
 	1900 2100 2450 2100
 Wire Wire Line
-	1900 2200 2300 2200
+	1900 2200 2100 2200
 Connection ~ 3650 2000
 Connection ~ 2750 2000
 Wire Wire Line
 	2750 2000 2700 2000
 Wire Wire Line
-	3100 3100 3900 3100
+	3100 3100 3300 3100
 Wire Wire Line
-	3100 3400 3900 3400
+	3100 3400 3300 3400
 Connection ~ 3300 3100
 Connection ~ 3300 3400
 Wire Wire Line
@@ -475,7 +445,7 @@ Wire Wire Line
 Wire Wire Line
 	4650 2600 5100 2600
 Wire Wire Line
-	6300 5200 6900 5200
+	6300 5200 6400 5200
 Connection ~ 6300 5200
 Connection ~ 6400 5200
 Connection ~ 6600 5200
@@ -483,7 +453,7 @@ Connection ~ 6300 1800
 Connection ~ 6400 1800
 Connection ~ 6600 1800
 Wire Wire Line
-	6300 1800 6900 1800
+	6300 1800 6400 1800
 Wire Wire Line
 	8100 2300 8450 2300
 Wire Wire Line
@@ -533,7 +503,7 @@ Wire Wire Line
 Wire Wire Line
 	8450 4950 8800 4950
 $Comp
-L GND #PWR016
+L power:GND #PWR016
 U 1 1 598044A0
 P 9300 5150
 F 0 "#PWR016" H 9300 4900 50  0001 C CNN
@@ -546,7 +516,7 @@ $EndComp
 Wire Wire Line
 	9300 5050 9300 5150
 $Comp
-L +3.3V #PWR017
+L power:+3.3V #PWR017
 U 1 1 59804588
 P 8450 5050
 F 0 "#PWR017" H 8450 4900 50  0001 C CNN
@@ -574,7 +544,7 @@ Wire Wire Line
 	8450 5150 8800 5150
 Connection ~ 9300 5150
 $Comp
-L CONN_01X05 P4
+L usb_stick-rescue:CONN_01X05 P4
 U 1 1 598050D5
 P 9400 4050
 F 0 "P4" H 9400 4350 50  0000 C CNN
@@ -585,7 +555,7 @@ F 3 "" H 9400 4050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR018
+L power:GND #PWR018
 U 1 1 59805480
 P 9000 4050
 F 0 "#PWR018" H 9000 3800 50  0001 C CNN
@@ -604,7 +574,7 @@ Wire Wire Line
 Text Label 9000 4250 0    60   ~ 0
 RST
 $Comp
-L +3.3V #PWR019
+L power:+3.3V #PWR019
 U 1 1 59805677
 P 9200 3850
 F 0 "#PWR019" H 9200 3700 50  0001 C CNN
@@ -655,7 +625,7 @@ Wire Wire Line
 Wire Wire Line
 	4950 3600 5100 3600
 $Comp
-L GND #PWR020
+L power:GND #PWR020
 U 1 1 5981FFFA
 P 4950 3600
 F 0 "#PWR020" H 4950 3350 50  0001 C CNN
@@ -676,7 +646,7 @@ Wire Wire Line
 Text Label 8450 5150 0    60   ~ 0
 5V_OUT
 $Comp
-L C C2
+L usb_stick-rescue:C C2
 U 1 1 5983C1FA
 P 1550 3400
 F 0 "C2" H 1575 3500 50  0000 L CNN
@@ -687,7 +657,7 @@ F 3 "" H 1550 3400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C3
+L usb_stick-rescue:C C3
 U 1 1 5983C2A3
 P 1850 3400
 F 0 "C3" H 1875 3500 50  0000 L CNN
@@ -702,7 +672,7 @@ Wire Wire Line
 Wire Wire Line
 	1550 3250 1850 3250
 $Comp
-L +3.3V #PWR021
+L power:+3.3V #PWR021
 U 1 1 5983C690
 P 1550 3250
 F 0 "#PWR021" H 1550 3100 50  0001 C CNN
@@ -713,7 +683,7 @@ F 3 "" H 1550 3250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR022
+L power:GND #PWR022
 U 1 1 5983C6E8
 P 1550 3550
 F 0 "#PWR022" H 1550 3300 50  0001 C CNN
@@ -745,7 +715,7 @@ LED_G0
 Wire Wire Line
 	2450 2100 2450 2200
 $Comp
-L R R17
+L usb_stick-rescue:R R17
 U 1 1 59816052
 P 2100 2350
 F 0 "R17" V 2180 2350 50  0000 C CNN
@@ -756,7 +726,7 @@ F 3 "" H 2100 2350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L +3.3V #PWR023
+L power:+3.3V #PWR023
 U 1 1 5981709A
 P 2100 2500
 F 0 "#PWR023" H 2100 2350 50  0001 C CNN
@@ -768,7 +738,7 @@ F 3 "" H 2100 2500 50  0000 C CNN
 $EndComp
 Connection ~ 2100 2200
 $Comp
-L GND #PWR024
+L power:GND #PWR024
 U 1 1 598202EF
 P 3350 4100
 F 0 "#PWR024" H 3350 3850 50  0001 C CNN
@@ -781,7 +751,7 @@ $EndComp
 Wire Wire Line
 	8550 5300 8500 5300
 $Comp
-L R R18
+L usb_stick-rescue:R R18
 U 1 1 59842093
 P 9600 1650
 F 0 "R18" V 9680 1650 50  0000 C CNN
@@ -792,7 +762,7 @@ F 3 "" H 9600 1650 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L +3.3V #PWR025
+L power:+3.3V #PWR025
 U 1 1 59842151
 P 9600 1500
 F 0 "#PWR025" H 9600 1350 50  0001 C CNN
@@ -905,7 +875,7 @@ D6 D6 56 3B AF 0F 17 60 25 EE EC EC C4 BE F1 9E 9D 9D 8D 1C F4 F6 F6 F6 F5 F5 A1
 18 1A 1A C2 4E 07 59 78 D9 44 A3 D1 60 AD 0B CB 21 8C 8F 8F 63 AD 0B 63 02 BF 7F FF C6 5A 51 9D 
 3E 24 42 3D 28 80 43 49 0C 1C 4A 62 E0 50 12 03 87 92 18 38 94 C4 C0 A1 24 06 0E 25 31 70 28 89 
 81 43 49 0C 1C 4A 62 E0 50 12 03 87 92 18 38 FF 03 DB 50 B2 42 6F C8 55 FC 00 00 00 00 49 45 4E 
-44 AE 42 60 82 00 
+44 AE 42 60 82 
 EndData
 $EndBitmap
 Wire Wire Line
@@ -914,7 +884,7 @@ Wire Wire Line
 	8800 5300 8800 5150
 Connection ~ 8800 5150
 $Comp
-L C C1
+L usb_stick-rescue:C C1
 U 1 1 599FC129
 P 2750 2150
 F 0 "C1" H 2775 2250 50  0000 L CNN
@@ -927,7 +897,7 @@ $EndComp
 Wire Wire Line
 	4800 2300 5100 2300
 $Comp
-L Led_Small D1
+L usb_stick-rescue:Led_Small D1
 U 1 1 5AEC7FF4
 P 3450 4100
 F 0 "D1" H 3400 4225 50  0000 L CNN
@@ -938,7 +908,7 @@ F 3 "" V 3450 4100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L USB_A P1
+L usb_stick-rescue:USB_A P1
 U 1 1 5AEC3496
 P 1600 2200
 F 0 "P1" V 1250 2300 50  0000 C CNN
@@ -948,4 +918,20 @@ F 3 "" V 1550 2100 50  0000 C CNN
 	1    1600 2200
 	0    -1   1    0   
 $EndComp
+Wire Wire Line
+	2750 2000 2900 2000
+Wire Wire Line
+	3300 3100 3900 3100
+Wire Wire Line
+	3300 3400 3900 3400
+Wire Wire Line
+	6400 5200 6600 5200
+Wire Wire Line
+	6600 5200 6900 5200
+Wire Wire Line
+	6400 1800 6600 1800
+Wire Wire Line
+	6600 1800 6900 1800
+Wire Wire Line
+	2100 2200 2300 2200
 $EndSCHEMATC

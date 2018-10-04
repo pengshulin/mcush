@@ -7,10 +7,8 @@ from .. import Mcush, Utils
 
 class Mpu6050():
 
-    def __init__( self, controller ):
+    def __init__( self, controller, scl=None, sda=None ):
         self.controller = controller
-
-    def init( self, scl=None, sda=None ):
         self.controller.i2c_init( 0x68, scl=scl, sda=sda )
         self.reset()
 

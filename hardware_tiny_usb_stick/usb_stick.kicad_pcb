@@ -1,9 +1,6 @@
-(kicad_pcb (version 4) (host pcbnew 4.0.2+dfsg1-stable)
+(kicad_pcb (version 20171130) (host pcbnew 5.0.0-fee4fd1~66~ubuntu16.04.1)
 
   (general
-    (links 79)
-    (no_connects 18)
-    (area 99.949999 99.949999 140.050001 115.050001)
     (thickness 1.6)
     (drawings 11)
     (tracks 270)
@@ -66,6 +63,9 @@
     (pcbplotparams
       (layerselection 0x01030_80000001)
       (usegerberextensions false)
+      (usegerberattributes false)
+      (usegerberadvancedattributes false)
+      (creategerberjobfile false)
       (excludeedgelayer true)
       (linewidth 0.100000)
       (plotframeref false)
@@ -74,8 +74,7 @@
       (useauxorigin false)
       (hpglpennumber 1)
       (hpglpenspeed 20)
-      (hpglpendiameter 15)
-      (hpglpenoverlay 2)
+      (hpglpendiameter 15.000000)
       (psnegative false)
       (psa4output false)
       (plotreference true)
@@ -87,7 +86,7 @@
       (mirror false)
       (drillshape 0)
       (scaleselection 1)
-      (outputdirectory export))
+      (outputdirectory "export"))
   )
 
   (net 0 "")
@@ -237,7 +236,7 @@
     (descr "Through hole pin header")
     (tags "pin header")
     (path /598050D5)
-    (fp_text reference P4 (at -2.01168 6.92404 360) (layer F.SilkS)
+    (fp_text reference P4 (at -2.01168 6.92404) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value CONN_01X05 (at 0 -3.1 90) (layer F.Fab) hide
@@ -332,9 +331,9 @@
       (net 4 /OSC_IN))
     (pad 2 thru_hole circle (at 2.44094 0 90) (size 1.50114 1.50114) (drill 0.8001) (layers *.Cu *.Mask F.SilkS)
       (net 5 /OSC_OUT))
-    (model Crystals.3dshapes/HC-49V.wrl
-      (at (xyz 0 0 0))
-      (scale (xyz 1 1 0.2))
+    (model ${KISYS3DMOD}/Crystal.3dshapes/Crystal_HC49-4H_Vertical.step
+      (offset (xyz -2.5 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -361,7 +360,7 @@
       (net 1 +5V))
     (pad 2 smd rect (at 1.5 0) (size 1 1.6) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model Capacitors_SMD.3dshapes/C_1206.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_1206_3216Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -390,7 +389,7 @@
       (net 3 +3V3))
     (pad 2 smd rect (at 1.5 0 90) (size 1 1.6) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model Capacitors_SMD.3dshapes/C_1206.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_1206_3216Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -419,7 +418,7 @@
       (net 19 /DP))
     (pad 2 smd rect (at 0.75 0 270) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 10 /USB_DP))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -448,7 +447,7 @@
       (net 20 /DM))
     (pad 2 smd rect (at 0.75 0 270) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 9 /USB_DM))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -478,6 +477,11 @@
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 10 /USB_DP))
     (model Resistors_SMD.3dshapes/R_0603.wrl
+      (at (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -605,7 +609,7 @@
       (net 2 GND))
     (pad 48 smd rect (at -2.75 -4.35 270) (size 1.3 0.25) (layers F.Cu F.Paste F.Mask)
       (net 3 +3V3))
-    (model Housings_QFP.3dshapes/LQFP-48_7x7mm_Pitch0.5mm.wrl
+    (model ${KISYS3DMOD}/Package_QFP.3dshapes/LQFP-48_7x7mm_P0.5mm.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -618,7 +622,7 @@
     (tags "capacitor 0603")
     (path /5983C1FA)
     (attr smd)
-    (fp_text reference C2 (at 0.65278 -1.52654 90) (layer F.SilkS)
+    (fp_text reference C2 (at -2.4003 1.9558 270) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 0.1u (at 0 1.9 90) (layer F.Fab) hide
@@ -634,7 +638,7 @@
       (net 3 +3V3))
     (pad 2 smd rect (at 0.75 0 90) (size 0.8 0.75) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model Capacitors_SMD.3dshapes/C_0603.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -663,7 +667,7 @@
       (net 3 +3V3))
     (pad 2 smd rect (at 0.75 0 270) (size 0.8 0.75) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model Capacitors_SMD.3dshapes/C_0603.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -676,7 +680,7 @@
     (tags "capacitor 0603")
     (path /597F62F4)
     (attr smd)
-    (fp_text reference C9 (at 2.77876 -3.6576 450) (layer F.SilkS)
+    (fp_text reference C9 (at 2.3876 -3.1496 90) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 0.1u (at 0 1.9 270) (layer F.Fab) hide
@@ -692,7 +696,7 @@
       (net 2 GND))
     (pad 2 smd rect (at 0.75 0 270) (size 0.8 0.75) (layers F.Cu F.Paste F.Mask)
       (net 6 /RST))
-    (model Capacitors_SMD.3dshapes/C_0603.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -705,7 +709,7 @@
     (tags "resistor 0603")
     (path /597EF072)
     (attr smd)
-    (fp_text reference R7 (at -2.66446 3.42138 90) (layer F.SilkS)
+    (fp_text reference R7 (at -2.3876 2.4511 90) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 10k (at 0 1.9 90) (layer F.Fab) hide
@@ -721,7 +725,7 @@
       (net 3 +3V3))
     (pad 2 smd rect (at 0.75 0 90) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 6 /RST))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -750,7 +754,7 @@
       (net 4 /OSC_IN))
     (pad 2 smd rect (at 0.75 0) (size 0.8 0.75) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model Capacitors_SMD.3dshapes/C_0603.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -779,7 +783,7 @@
       (net 5 /OSC_OUT))
     (pad 2 smd rect (at 0.75 0) (size 0.8 0.75) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model Capacitors_SMD.3dshapes/C_0603.wrl
+    (model ${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -808,7 +812,7 @@
       (net 7 "Net-(D1-Pad2)"))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 21 /LED_G0))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -837,7 +841,7 @@
       (net 15 /D0_OUT))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 22 /D0))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -866,7 +870,7 @@
       (net 11 /D1_OUT))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 23 /D1))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -895,7 +899,7 @@
       (net 12 /D2_OUT))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 24 /D2))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -924,7 +928,7 @@
       (net 13 /D3_OUT))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 25 /D3))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -953,7 +957,7 @@
       (net 14 /D4_OUT))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 26 /D4))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -966,7 +970,7 @@
     (tags "resistor 0603")
     (path /598038E0)
     (attr smd)
-    (fp_text reference R13 (at 1.91008 0.11684 450) (layer F.SilkS)
+    (fp_text reference R13 (at 1.91008 0.11684 90) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 22 (at 0 1.9 180) (layer F.Fab) hide
@@ -982,7 +986,7 @@
       (net 16 /D5_OUT))
     (pad 2 smd rect (at 0.75 0 180) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 27 /D5))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -995,7 +999,7 @@
     (tags "resistor 0603")
     (path /59842093)
     (attr smd)
-    (fp_text reference R18 (at 2.0574 -1.5113 270) (layer F.SilkS)
+    (fp_text reference R18 (at 1.9304 -1.5113 270) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 4K7 (at 0 1.9 270) (layer F.Fab) hide
@@ -1011,7 +1015,7 @@
       (net 15 /D0_OUT))
     (pad 2 smd rect (at 0.75 0 270) (size 0.5 0.9) (layers F.Cu F.Paste F.Mask)
       (net 3 +3V3))
-    (model Resistors_SMD.3dshapes/R_0603.wrl
+    (model ${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -1024,7 +1028,7 @@
     (tags "SOT89-3, Housing,")
     (path /597EF5DC)
     (attr smd)
-    (fp_text reference U1 (at 1.74752 -2.1336 450) (layer F.SilkS)
+    (fp_text reference U1 (at 1.74752 -2.1336 90) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value AMS1117-3.3 (at -0.20066 4.59994 180) (layer F.Fab) hide
@@ -1047,10 +1051,10 @@
       (net 3 +3V3))
     (pad 2 smd trapezoid (at 0 0.7493) (size 1.50114 0.7493) (rect_delta 0 0.50038 ) (layers F.Cu F.Paste F.Mask)
       (net 3 +3V3))
-    (model TO_SOT_Packages_SMD.3dshapes/SOT89-3_Housing.wrl
+    (model ${KISYS3DMOD}/Package_TO_SOT_SMD.3dshapes/SOT-89-3.step
       (at (xyz 0 0 0))
-      (scale (xyz 0.3937 0.3937 0.3937))
-      (rotate (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 -90))
     )
   )
 
@@ -1081,10 +1085,10 @@
       (net 7 "Net-(D1-Pad2)"))
     (pad 1 smd rect (at -0.7493 0 180) (size 0.79756 0.79756) (layers F.Cu F.Paste F.Mask)
       (net 2 GND))
-    (model LEDs.3dshapes/LED_0603.wrl
+    (model ${KISYS3DMOD}/LED_SMD.3dshapes/LED_0603_1608Metric.step
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
-      (rotate (xyz 0 0 180))
+      (rotate (xyz 0 0 0))
     )
   )
 
@@ -1093,7 +1097,7 @@
     (descr "Connector IDC10 edge")
     (tags "CONN IDC10-E")
     (path /597EEA82)
-    (fp_text reference P2 (at 6.79196 1.05664 540) (layer F.SilkS)
+    (fp_text reference P2 (at 6.79196 1.05664 180) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value CONN_02X05 (at -0.254 4.318 270) (layer F.Fab) hide
@@ -1128,10 +1132,10 @@
       (net 16 /D5_OUT))
     (pad 10 connect rect (at 5.08 1.8 270) (size 1.778 3.6) (layers B.Cu B.Mask)
       (net 2 GND))
-    (model Pin_Headers.3dshapes/Pin_Header_Straight_2x05.wrl
-      (at (xyz 0 0 -0.04))
+    (model ${KISYS3DMOD}/Connector_IDC.3dshapes/IDC-Header_2x05_P2.54mm_Vertical.step
+      (offset (xyz -5 0 0))
       (scale (xyz 1 1 1))
-      (rotate (xyz 90 0 0))
+      (rotate (xyz 0 -90 -90))
     )
   )
 
@@ -1140,7 +1144,7 @@
     (descr "USB A connector")
     (tags "USB USB_A")
     (path /5AEC3496)
-    (fp_text reference P1 (at 5.588 -1.27 360) (layer F.SilkS)
+    (fp_text reference P1 (at 5.588 -1.27) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value USB_A (at 0.28194 7.43458 270) (layer F.Fab) hide

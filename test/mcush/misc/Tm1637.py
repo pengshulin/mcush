@@ -19,11 +19,9 @@ CMD_ADDRESS = 0xC0
 class LED4:
     DIGITS = 4
     
-    def __init__( self, controller ):
+    def __init__( self, controller, scl=None, sda=None, brightness=BRIGHTNESS ):
         self.controller = controller
         self.segments = [0]*self.DIGITS
-
-    def init( self, scl=None, sda=None, brightness=BRIGHTNESS ):
         self.controller.i2c_init( 0, scl=scl, sda=sda, lsb=True )
         self.brightness = brightness
         

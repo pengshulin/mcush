@@ -1,35 +1,6 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:stm32
-EELAYER 25 0
+EESchema Schematic File Version 4
+LIBS:tiny2-cache
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -44,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L CONN_02X05 P2
+L tiny2-rescue:CONN_02X05 P2
 U 1 1 597EEA82
 P 10050 5450
 F 0 "P2" H 10050 5750 50  0000 C CNN
@@ -55,7 +26,7 @@ F 3 "" H 10050 4250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C4
+L tiny2-rescue:C C4
 U 1 1 597EEC9B
 P 3250 2950
 F 0 "C4" H 3275 3050 50  0000 L CNN
@@ -66,7 +37,7 @@ F 3 "" H 3250 2950 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C C5
+L tiny2-rescue:C C5
 U 1 1 597EECF2
 P 3250 3250
 F 0 "C5" H 3275 3350 50  0000 L CNN
@@ -77,7 +48,7 @@ F 3 "" H 3250 3250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Crystal Y1
+L tiny2-rescue:Crystal Y1
 U 1 1 597EED5D
 P 3550 3100
 F 0 "Y1" H 3550 3250 50  0000 C CNN
@@ -88,7 +59,7 @@ F 3 "" H 3550 3100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R7
+L tiny2-rescue:R R7
 U 1 1 597EF072
 P 4500 2100
 F 0 "R7" V 4400 2100 50  0000 C CNN
@@ -99,7 +70,7 @@ F 3 "" H 4500 2100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L SPEAKER SP1
+L tiny2-rescue:SPEAKER SP1
 U 1 1 597EF0D9
 P 1750 4200
 F 0 "SP1" H 1650 4450 50  0000 C CNN
@@ -110,7 +81,7 @@ F 3 "" H 1750 4200 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L AP1117D33 U1
+L tiny2-rescue:AP1117D33 U1
 U 1 1 597EF5DC
 P 3200 2000
 F 0 "U1" H 3300 1750 50  0000 C CNN
@@ -121,7 +92,7 @@ F 3 "" H 3200 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR01
+L tiny2-rescue:GND #PWR01
 U 1 1 597F4772
 P 3100 3250
 F 0 "#PWR01" H 3100 3000 50  0001 C CNN
@@ -132,7 +103,7 @@ F 3 "" H 3100 3250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR02
+L tiny2-rescue:GND #PWR02
 U 1 1 597F47A8
 P 3100 2950
 F 0 "#PWR02" H 3100 2700 50  0001 C CNN
@@ -143,7 +114,7 @@ F 3 "" H 3100 2950 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L C C9
+L tiny2-rescue:C C9
 U 1 1 597F62F4
 P 4900 1950
 F 0 "C9" H 4925 2050 50  0000 L CNN
@@ -154,7 +125,7 @@ F 3 "" H 4900 1950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR03
+L tiny2-rescue:GND #PWR03
 U 1 1 597F63AC
 P 4900 1800
 F 0 "#PWR03" H 4900 1550 50  0001 C CNN
@@ -165,7 +136,7 @@ F 3 "" H 4900 1800 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L +3.3V #PWR04
+L tiny2-rescue:+3.3V #PWR04
 U 1 1 597F682B
 P 6300 1800
 F 0 "#PWR04" H 6300 1650 50  0001 C CNN
@@ -176,7 +147,7 @@ F 3 "" H 6300 1800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR05
+L tiny2-rescue:+3.3V #PWR05
 U 1 1 597F6861
 P 4350 2100
 F 0 "#PWR05" H 4350 1950 50  0001 C CNN
@@ -187,7 +158,7 @@ F 3 "" H 4350 2100 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L +3.3V #PWR06
+L tiny2-rescue:+3.3V #PWR06
 U 1 1 597F68EC
 P 3650 2000
 F 0 "#PWR06" H 3650 1850 50  0001 C CNN
@@ -198,7 +169,7 @@ F 3 "" H 3650 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR07
+L tiny2-rescue:GND #PWR07
 U 1 1 597F6922
 P 3200 2300
 F 0 "#PWR07" H 3200 2050 50  0001 C CNN
@@ -209,7 +180,7 @@ F 3 "" H 3200 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR08
+L tiny2-rescue:+5V #PWR08
 U 1 1 597F6B30
 P 2750 2000
 F 0 "#PWR08" H 2750 1850 50  0001 C CNN
@@ -220,7 +191,7 @@ F 3 "" H 2750 2000 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR09
+L tiny2-rescue:GND #PWR09
 U 1 1 597F6D0C
 P 1900 2300
 F 0 "#PWR09" H 1900 2050 50  0001 C CNN
@@ -235,7 +206,7 @@ DM
 Text Label 2300 2700 1    60   ~ 0
 DP
 $Comp
-L CP C1
+L tiny2-rescue:CP C1
 U 1 1 597F6F40
 P 2750 2150
 F 0 "C1" H 2775 2250 50  0000 L CNN
@@ -246,7 +217,7 @@ F 3 "" H 2750 2150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CP C7
+L tiny2-rescue:CP C7
 U 1 1 597F6FDF
 P 3650 2150
 F 0 "C7" H 3675 2250 50  0000 L CNN
@@ -257,7 +228,7 @@ F 3 "" H 3650 2150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR010
+L tiny2-rescue:GND #PWR010
 U 1 1 597F70B6
 P 3650 2300
 F 0 "#PWR010" H 3650 2050 50  0001 C CNN
@@ -268,7 +239,7 @@ F 3 "" H 3650 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR011
+L tiny2-rescue:GND #PWR011
 U 1 1 597F73D4
 P 2750 2300
 F 0 "#PWR011" H 2750 2050 50  0001 C CNN
@@ -279,7 +250,7 @@ F 3 "" H 2750 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR013
+L tiny2-rescue:GND #PWR013
 U 1 1 597F77A7
 P 2050 4300
 F 0 "#PWR013" H 2050 4050 50  0001 C CNN
@@ -298,7 +269,7 @@ OSC_IN
 Text Label 3650 3250 0    60   ~ 0
 OSC_OUT
 $Comp
-L +3.3V #PWR014
+L tiny2-rescue:+3.3V #PWR014
 U 1 1 597F9612
 P 4900 2800
 F 0 "#PWR014" H 4900 2650 50  0001 C CNN
@@ -309,7 +280,7 @@ F 3 "" H 4900 2800 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR015
+L tiny2-rescue:GND #PWR015
 U 1 1 597F979B
 P 6300 5800
 F 0 "#PWR015" H 6300 5550 50  0001 C CNN
@@ -320,7 +291,7 @@ F 3 "" H 6300 5800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R5
+L tiny2-rescue:R R5
 U 1 1 597FA3C5
 P 2200 6250
 F 0 "R5" V 2280 6250 50  0000 C CNN
@@ -331,7 +302,7 @@ F 3 "" H 2200 6250 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R6
+L tiny2-rescue:R R6
 U 1 1 597FA456
 P 2200 6800
 F 0 "R6" V 2280 6800 50  0000 C CNN
@@ -342,7 +313,7 @@ F 3 "" H 2200 6800 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GND #PWR016
+L tiny2-rescue:GND #PWR016
 U 1 1 597FA4C5
 P 1450 6900
 F 0 "#PWR016" H 1450 6650 50  0001 C CNN
@@ -355,7 +326,7 @@ $EndComp
 Text Label 2400 6800 0    60   ~ 0
 LED_B1
 $Comp
-L GND #PWR017
+L tiny2-rescue:GND #PWR017
 U 1 1 597FAE9A
 P 4600 2300
 F 0 "#PWR017" H 4600 2050 50  0001 C CNN
@@ -388,7 +359,7 @@ DP
 Text Label 2100 4100 0    60   ~ 0
 BEEP
 $Comp
-L R R4
+L tiny2-rescue:R R4
 U 1 1 59801AFD
 P 2450 2350
 F 0 "R4" V 2530 2350 50  0000 C CNN
@@ -399,7 +370,7 @@ F 3 "" H 2450 2350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R1
+L tiny2-rescue:R R1
 U 1 1 59801D02
 P 2300 2350
 F 0 "R1" V 2380 2350 50  0000 C CNN
@@ -410,7 +381,7 @@ F 3 "" H 2300 2350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R8
+L tiny2-rescue:R R8
 U 1 1 59802F35
 P 8950 1800
 F 0 "R8" V 9030 1800 50  0000 C CNN
@@ -421,7 +392,7 @@ F 3 "" H 8950 1800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R9
+L tiny2-rescue:R R9
 U 1 1 59803066
 P 8950 1950
 F 0 "R9" V 9030 1950 50  0000 C CNN
@@ -432,7 +403,7 @@ F 3 "" H 8950 1950 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R10
+L tiny2-rescue:R R10
 U 1 1 598032A0
 P 8950 2100
 F 0 "R10" V 9030 2100 50  0000 C CNN
@@ -443,7 +414,7 @@ F 3 "" H 8950 2100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R11
+L tiny2-rescue:R R11
 U 1 1 598035B6
 P 8950 2250
 F 0 "R11" V 9030 2250 50  0000 C CNN
@@ -454,7 +425,7 @@ F 3 "" H 8950 2250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R12
+L tiny2-rescue:R R12
 U 1 1 59803827
 P 8950 2400
 F 0 "R12" V 9030 2400 50  0000 C CNN
@@ -465,7 +436,7 @@ F 3 "" H 8950 2400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R13
+L tiny2-rescue:R R13
 U 1 1 598038E0
 P 8950 2550
 F 0 "R13" V 9030 2550 50  0000 C CNN
@@ -488,7 +459,7 @@ D4_OUT
 Text Label 9100 2550 0    60   ~ 0
 D5_OUT
 $Comp
-L GND #PWR018
+L tiny2-rescue:GND #PWR018
 U 1 1 598044A0
 P 10300 5650
 F 0 "#PWR018" H 10300 5400 50  0001 C CNN
@@ -499,7 +470,7 @@ F 3 "" H 10300 5650 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L +3.3V #PWR019
+L tiny2-rescue:+3.3V #PWR019
 U 1 1 59804588
 P 9450 5550
 F 0 "#PWR019" H 9450 5400 50  0001 C CNN
@@ -522,7 +493,7 @@ D3_OUT
 Text Label 10300 5450 0    60   ~ 0
 D5_OUT
 $Comp
-L CONN_01X05 P4
+L tiny2-rescue:CONN_01X05 P4
 U 1 1 598050D5
 P 10100 4250
 F 0 "P4" H 10100 4550 50  0000 C CNN
@@ -533,7 +504,7 @@ F 3 "" H 10100 4250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR020
+L tiny2-rescue:GND #PWR020
 U 1 1 59805480
 P 9700 4250
 F 0 "#PWR020" H 9700 4000 50  0001 C CNN
@@ -546,7 +517,7 @@ $EndComp
 Text Label 9700 4450 0    60   ~ 0
 RST
 $Comp
-L +3.3V #PWR021
+L tiny2-rescue:+3.3V #PWR021
 U 1 1 59805677
 P 9900 4050
 F 0 "#PWR021" H 9900 3900 50  0001 C CNN
@@ -565,7 +536,7 @@ TXD
 Text Label 8200 3200 0    60   ~ 0
 RXD
 $Comp
-L CONN_01X05 P3
+L tiny2-rescue:CONN_01X05 P3
 U 1 1 5980B479
 P 10100 3350
 F 0 "P3" H 10100 3650 50  0000 C CNN
@@ -576,7 +547,7 @@ F 3 "" H 10100 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR022
+L tiny2-rescue:GND #PWR022
 U 1 1 59813BC6
 P 9900 3550
 F 0 "#PWR022" H 9900 3300 50  0001 C CNN
@@ -587,7 +558,7 @@ F 3 "" H 9900 3550 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR023
+L tiny2-rescue:+3.3V #PWR023
 U 1 1 59813C9A
 P 9650 3250
 F 0 "#PWR023" H 9650 3100 50  0001 C CNN
@@ -600,7 +571,7 @@ $EndComp
 Text Label 8150 3900 0    60   ~ 0
 BEEP
 $Comp
-L GND #PWR024
+L tiny2-rescue:GND #PWR024
 U 1 1 5981FFFA
 P 8400 4100
 F 0 "#PWR024" H 8400 3850 50  0001 C CNN
@@ -621,7 +592,7 @@ SPI_MOSI
 Text Label 9450 5650 0    60   ~ 0
 5V_OUT
 $Comp
-L C C2
+L tiny2-rescue:C C2
 U 1 1 5983C1FA
 P 1500 3250
 F 0 "C2" H 1525 3350 50  0000 L CNN
@@ -632,7 +603,7 @@ F 3 "" H 1500 3250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C3
+L tiny2-rescue:C C3
 U 1 1 5983C2A3
 P 1800 3250
 F 0 "C3" H 1825 3350 50  0000 L CNN
@@ -643,7 +614,7 @@ F 3 "" H 1800 3250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C6
+L tiny2-rescue:C C6
 U 1 1 5983C34E
 P 2100 3250
 F 0 "C6" H 2125 3350 50  0000 L CNN
@@ -654,7 +625,7 @@ F 3 "" H 2100 3250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C8
+L tiny2-rescue:C C8
 U 1 1 5983C3F3
 P 2400 3250
 F 0 "C8" H 2425 3350 50  0000 L CNN
@@ -665,7 +636,7 @@ F 3 "" H 2400 3250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR025
+L tiny2-rescue:+3.3V #PWR025
 U 1 1 5983C690
 P 1500 3100
 F 0 "#PWR025" H 1500 2950 50  0001 C CNN
@@ -676,7 +647,7 @@ F 3 "" H 1500 3100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR026
+L tiny2-rescue:GND #PWR026
 U 1 1 5983C6E8
 P 1500 3400
 F 0 "#PWR026" H 1500 3150 50  0001 C CNN
@@ -689,50 +660,39 @@ $EndComp
 Text Label 4700 2100 0    60   ~ 0
 RST
 $Comp
-L AT25_EEPROM U3
-U 1 1 59810FB7
-P 2000 5150
-F 0 "U3" H 1700 5400 50  0000 L CNN
-F 1 "AT25_EEPROM" H 2050 5400 50  0000 L CNN
-F 2 "Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm" H 1650 5100 50  0001 C CNN
-F 3 "" H 1650 5100 50  0000 C CNN
-	1    2000 5150
-	1    0    0    -1  
-$EndComp
-$Comp
-L GND #PWR027
+L tiny2-rescue:GND #PWR027
 U 1 1 598113DF
-P 2000 5450
-F 0 "#PWR027" H 2000 5200 50  0001 C CNN
-F 1 "GND" H 2000 5300 50  0000 C CNN
-F 2 "" H 2000 5450 50  0000 C CNN
-F 3 "" H 2000 5450 50  0000 C CNN
-	1    2000 5450
+P 1850 5550
+F 0 "#PWR027" H 1850 5300 50  0001 C CNN
+F 1 "GND" H 1850 5400 50  0000 C CNN
+F 2 "" H 1850 5550 50  0000 C CNN
+F 3 "" H 1850 5550 50  0000 C CNN
+	1    1850 5550
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR028
+L tiny2-rescue:+3.3V #PWR028
 U 1 1 59811439
-P 2000 4850
-F 0 "#PWR028" H 2000 4700 50  0001 C CNN
-F 1 "+3.3V" H 2000 4990 50  0000 C CNN
-F 2 "" H 2000 4850 50  0000 C CNN
-F 3 "" H 2000 4850 50  0000 C CNN
-	1    2000 4850
+P 1850 4950
+F 0 "#PWR028" H 1850 4800 50  0001 C CNN
+F 1 "+3.3V" H 1850 5090 50  0000 C CNN
+F 2 "" H 1850 4950 50  0000 C CNN
+F 3 "" H 1850 4950 50  0000 C CNN
+	1    1850 4950
 	1    0    0    -1  
 $EndComp
-Text Label 1350 5250 0    60   ~ 0
+Text Label 1200 5350 0    60   ~ 0
 SPI_CS
-Text Label 2400 5050 0    60   ~ 0
+Text Label 2250 5150 0    60   ~ 0
 SPI_SCK
-Text Label 2400 5250 0    60   ~ 0
+Text Label 2250 5350 0    60   ~ 0
 SPI_MISO
-Text Label 2400 5150 0    60   ~ 0
+Text Label 2250 5250 0    60   ~ 0
 SPI_MOSI
 Text Label 8150 4900 0    60   ~ 0
 LED_B1
 $Comp
-L Led_x2 D1
+L tiny2-rescue:Led_x2 D1
 U 1 1 5981343A
 P 1750 6350
 F 0 "D1" H 1750 6575 50  0000 C CNN
@@ -743,7 +703,7 @@ F 3 "" H 1750 6350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Led_x2 D2
+L tiny2-rescue:Led_x2 D2
 U 1 1 59813588
 P 1750 6900
 F 0 "D2" H 1750 7125 50  0000 C CNN
@@ -754,7 +714,7 @@ F 3 "" H 1750 6900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R15
+L tiny2-rescue:R R15
 U 1 1 59813FAC
 P 2200 6450
 F 0 "R15" V 2280 6450 50  0000 C CNN
@@ -765,7 +725,7 @@ F 3 "" H 2200 6450 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R16
+L tiny2-rescue:R R16
 U 1 1 59814021
 P 2200 7000
 F 0 "R16" V 2280 7000 50  0000 C CNN
@@ -788,7 +748,7 @@ LED_R0
 Text Label 8150 5000 0    60   ~ 0
 LED_R1
 $Comp
-L R R17
+L tiny2-rescue:R R17
 U 1 1 59816052
 P 2100 2350
 F 0 "R17" V 2180 2350 50  0000 C CNN
@@ -799,7 +759,7 @@ F 3 "" H 2100 2350 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L +3.3V #PWR030
+L tiny2-rescue:+3.3V #PWR030
 U 1 1 5981709A
 P 2100 2500
 F 0 "#PWR030" H 2100 2350 50  0001 C CNN
@@ -810,7 +770,7 @@ F 3 "" H 2100 2500 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR031
+L tiny2-rescue:GND #PWR031
 U 1 1 598202EF
 P 1450 6350
 F 0 "#PWR031" H 1450 6100 50  0001 C CNN
@@ -821,7 +781,7 @@ F 3 "" H 1450 6350 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_01X03 P5
+L tiny2-rescue:CONN_01X03 P5
 U 1 1 5983C8AA
 P 9150 3300
 F 0 "P5" H 9150 3500 50  0000 C CNN
@@ -832,7 +792,7 @@ F 3 "" H 9150 3300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR032
+L tiny2-rescue:GND #PWR032
 U 1 1 5983D213
 P 8950 3400
 F 0 "#PWR032" H 8950 3150 50  0001 C CNN
@@ -843,7 +803,7 @@ F 3 "" H 8950 3400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3.3V #PWR033
+L tiny2-rescue:+3.3V #PWR033
 U 1 1 5983D63C
 P 8950 3200
 F 0 "#PWR033" H 8950 3050 50  0001 C CNN
@@ -854,7 +814,7 @@ F 3 "" H 8950 3200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +5V #PWR034
+L tiny2-rescue:+5V #PWR034
 U 1 1 5983D6A0
 P 8950 3300
 F 0 "#PWR034" H 8950 3150 50  0001 C CNN
@@ -865,7 +825,7 @@ F 3 "" H 8950 3300 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R18
+L tiny2-rescue:R R18
 U 1 1 59842093
 P 9600 1650
 F 0 "R18" V 9680 1650 50  0000 C CNN
@@ -876,7 +836,7 @@ F 3 "" H 9600 1650 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L +3.3V #PWR035
+L tiny2-rescue:+3.3V #PWR035
 U 1 1 59842151
 P 9600 1500
 F 0 "#PWR035" H 9600 1350 50  0001 C CNN
@@ -887,7 +847,7 @@ F 3 "" H 9600 1500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R19
+L tiny2-rescue:R R19
 U 1 1 5984DB40
 P 4750 2300
 F 0 "R19" V 4830 2300 50  0000 C CNN
@@ -996,16 +956,16 @@ D6 D6 56 3B AF 0F 17 60 25 EE EC EC C4 BE F1 9E 9D 9D 8D 1C F4 F6 F6 F6 F5 F5 A1
 18 1A 1A C2 4E 07 59 78 D9 44 A3 D1 60 AD 0B CB 21 8C 8F 8F 63 AD 0B 63 02 BF 7F FF C6 5A 51 9D 
 3E 24 42 3D 28 80 43 49 0C 1C 4A 62 E0 50 12 03 87 92 18 38 94 C4 C0 A1 24 06 0E 25 31 70 28 89 
 81 43 49 0C 1C 4A 62 E0 50 12 03 87 92 18 38 FF 03 DB 50 B2 42 6F C8 55 FC 00 00 00 00 49 45 4E 
-44 AE 42 60 82 00 
+44 AE 42 60 82 
 EndData
 $EndBitmap
 $Comp
-L STM32F103RE U?
+L tiny2-rescue:STM32F103RE U?
 U 1 1 599240D5
 P 6600 3800
 F 0 "U?" H 5250 5750 50  0000 C CNN
 F 1 "STM32F103RE" H 7750 1850 50  0000 C CNN
-F 2 "LQFP64" H 6600 3800 50  0000 C CNN
+F 2 "Package_QFP:TQFP-64_7x7mm_P0.4mm" H 6600 3800 50  0001 C CNN
 F 3 "" H 6600 4100 50  0000 C CNN
 	1    6600 3800
 	1    0    0    -1  
@@ -1030,16 +990,6 @@ Connection ~ 3650 2000
 Connection ~ 2750 2000
 Wire Wire Line
 	2750 2000 2700 2000
-Wire Wire Line
-	3400 2950 3600 2950
-Wire Wire Line
-	3600 2950 4050 2950
-Wire Wire Line
-	3400 3250 3600 3250
-Wire Wire Line
-	3600 3250 4050 3250
-Connection ~ 3600 2950
-Connection ~ 3600 3250
 Wire Wire Line
 	4650 2500 5100 2500
 Wire Wire Line
@@ -1176,21 +1126,20 @@ Connection ~ 2100 3100
 Connection ~ 1800 3400
 Connection ~ 2100 3400
 Wire Wire Line
-	1600 4850 1600 5050
+	1450 4950 1450 5150
 Wire Wire Line
-	1600 5050 1600 5150
+	1450 5150 1450 5250
 Wire Wire Line
-	1600 4850 2000 4850
-Connection ~ 2000 4850
+	1450 4950 1850 4950
 Wire Wire Line
-	2400 5050 2800 5050
+	2250 5150 2650 5150
 Wire Wire Line
-	2400 5150 2800 5150
+	2250 5250 2650 5250
 Wire Wire Line
-	2400 5250 2800 5250
+	2250 5350 2650 5350
 Wire Wire Line
-	1350 5250 1600 5250
-Connection ~ 1600 5050
+	1200 5350 1450 5350
+Connection ~ 1450 5150
 Wire Wire Line
 	8100 4800 8550 4800
 Wire Wire Line
@@ -1243,7 +1192,7 @@ Wire Wire Line
 	4900 2300 5100 2300
 Connection ~ 4900 2300
 $Comp
-L USB_B P?
+L tiny2-rescue:USB_B P?
 U 1 1 59AA7E4C
 P 1600 2200
 F 0 "P?" H 1800 2000 50  0000 C CNN
@@ -1253,4 +1202,26 @@ F 3 "" V 1550 2100 50  0000 C CNN
 	1    1600 2200
 	0    -1   1    0   
 $EndComp
+Wire Wire Line
+	3400 2950 3550 2950
+Wire Wire Line
+	3400 3250 3550 3250
+Connection ~ 3550 2950
+Wire Wire Line
+	3550 2950 4050 2950
+Connection ~ 3550 3250
+Wire Wire Line
+	3550 3250 4050 3250
+$Comp
+L Memory_EEPROM:25LCxxx U3
+U 1 1 5BB60EC2
+P 1850 5250
+F 0 "U3" H 1600 5500 50  0000 C CNN
+F 1 "W25Q32" H 2050 5500 50  0000 C CNN
+F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 1850 5250 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21832H.pdf" H 1850 5250 50  0001 C CNN
+	1    1850 5250
+	1    0    0    -1  
+$EndComp
+Connection ~ 1850 4950
 $EndSCHEMATC
