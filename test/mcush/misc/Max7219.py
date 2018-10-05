@@ -25,10 +25,13 @@ ADDR_DISP_TEST = 15
 
 class LED():
 
-    def __init__( self, controller, sdi=None, sdo=None, sck=None, cs=None ):
+    def __init__( self, controller, sdi=None, sdo=None, sck=None, cs=None, intensity=None ):
         self.controller = controller
         self.controller.spi_init( sdi, sdo, sck, cs, width=16, delay=10 )
         self.controller_num = ((self.width-1)/8+1) * ((self.height-1)/8+1)
+        if intensity is None:
+            intensity = 0x08
+        self.intensity = intensity & 0x0F  # range: 0 ~ 0x0F
         self.reset()
 
     def write(self, addr, dat):
@@ -50,7 +53,7 @@ class LED():
         self.write( ADDR_SHUTDOWN, 1 )
         self.write( ADDR_SCAN_LIMIT, 7 )
         self.write( ADDR_DECODE_MODE, 0 )
-        self.write( ADDR_INTENSITY, 0x0A )
+        self.write( ADDR_INTENSITY, self.intensity )
         self.write( ADDR_D0, 0 )
         self.write( ADDR_D1, 0 )
         self.write( ADDR_D2, 0 )
@@ -62,7 +65,8 @@ class LED():
         self.write( ADDR_DISP_TEST, 0 )
 
     def set_intensity( self, val ):
-        self.write( ADDR_INTENSITY, val )
+        self.write( ADDR_INTENSITY, val & 0x0F )
+        self.intensity = val
 
     def test_all( self ):
         self.write( ADDR_D0, 0xFF )
@@ -179,6 +183,8 @@ class Canvas():
  
     def drawVLine( self, x, y0, y1, color=1, flush=True ):
         # draw vertical line
+        if y1 < y0:
+            y0, y1 = y1, y0
         for y in range(y0, y1+1):
             self.setPixel( x, y, color, flush=False )
         if flush:
@@ -186,12 +192,59 @@ class Canvas():
 
     def drawHLine( self, y, x0, x1, color=1, flush=True ):
         # draw horizontal line
+        if x1 < x0:
+            x0, x1 = x1, x0
         for x in range(x0, x1+1):
             self.setPixel( x, y, color, flush=False )
         if flush:
             self.flush()
-
-
+ 
+    def drawRectangle( self, x0, y0, x1, y1, color=1, fill=True, flush=True ):
+        # draw rectangle 
+        if x0 == x1:
+            self.drawVLine( x0, y0, y1, color, flush=False )
+        elif y0 == y1:
+            self.drawHLine( y0, x0, x1, color, flush=False )
+        else:
+            self.drawHLine( y0, x0, x1, color, flush=False )
+            self.drawHLine( y1, x0, x1, color, flush=False )
+            if fill:
+                for y in range(y0+1, y1):
+                    self.drawHLine( y, x0, x1, color, flush=False )
+            else:
+                self.drawVLine( x0, y0, y1, color, flush=False )
+                self.drawVLine( x1, y0, y1, color, flush=False )
+        if flush:
+            self.flush()
+    
+    def drawLine( self, x0, y0, x1, y1, color=1, flush=True ):
+        # draw normal line
+        if x1 < x0:
+            x0, y0, x1, y1 = x1, y1, x0, y0
+        if x0 == x1:
+            self.drawVLine( x0, y0, y1, color, flush=False )
+        elif y0 == y1:
+            self.drawHLine( y0, x0, x1, color, flush=False )
+        else:
+            self.setPixel( x0, y0, color, flush=False )
+            self.setPixel( x1, y1, color, flush=False )
+            k = float(y1-y0)/(x1-x0)
+            if abs(k) < 1.0:
+                for x in range(x0+1, x1):
+                    y = int(y0+(x-x0)*k+0.5)
+                    self.setPixel( x, y, color, flush=False )
+            else:
+                if k > 0:
+                    for y in range(y0+1, y1):
+                        x = int(x0+(y-y0)/k+0.5)
+                        self.setPixel( x, y, color, flush=False )
+                else:
+                    for y in range(y0-1, y1, -1):
+                        x = int(x0+(y-y0)/k+0.5)
+                        self.setPixel( x, y, color, flush=False )
+        if flush:
+            self.flush()
+ 
     def drawBitmap( self, x, y, bitmap, mode='normal', flush=True ):
         for i in range(bitmap.height):
             for j in range(bitmap.width):

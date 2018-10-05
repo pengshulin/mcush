@@ -1185,6 +1185,78 @@ TINY_F = Bitmap([
     'X___',
     'X___', ])
 
+TINY_G = Bitmap([
+    '_XX_',
+    'X___',
+    'X_X_',
+    'X_X_',
+    '_XX_', ])
+
+TINY_H = Bitmap([
+    'X_X_',
+    'X_X_',
+    'XXX_',
+    'X_X_',
+    'X_X_', ])
+
+TINY_I = Bitmap([
+    'XXX_',
+    '_X__',
+    '_X__',
+    '_X__',
+    'XXX_', ])
+
+TINY_J = Bitmap([
+    'XXX_',
+    '_X__',
+    '_X__',
+    '_X__',
+    'X___', ])
+
+#TINY_K = Bitmap([
+#    'X__X_',
+#    'X_X__',
+#    'XX___',
+#    'X_X__',
+#    'X__X_', ])
+#
+#TINY_L = Bitmap([
+#    'X___',
+#    'X___',
+#    'X___',
+#    'X___',
+#    'XXX_', ])
+#
+#TINY_M = Bitmap([
+#    'X___X_',
+#    'XX_XX_',
+#    'X_X_X_',
+#    'X___X_',
+#    'X___X', ])
+#
+#TINY_N = Bitmap([
+#    'X___X_',
+#    'XX__X_',
+#    'X_X_X_',
+#    'X__XX_',
+#    'X___X', ])
+#
+#TINY_O = Bitmap([
+#    '_XXX_',
+#    'X___X_',
+#    'X___X_',
+#    'X___X_',
+#    '_XXX__', ])
+#
+#TINY_P = Bitmap([
+#    'XXX__',
+#    'X__X_',
+#    'XXX__',
+#    'X____',
+#    'X____', ])
+
+
+
 
 
 TINY_QUESTION = Bitmap([
