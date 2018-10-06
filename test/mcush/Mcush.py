@@ -62,6 +62,7 @@ class Mcush( Instrument.SerialInstrument ):
                 cmd += ' -s' if on else ' -c'
             self.writeCommand( cmd )
 
+    # raw gpio command
     def gpio( self, port, i=None, o=None, s=None, c=None, t=None ):
         '''gpio control'''
         cmd = 'gpio -p%s'% str(port)
@@ -93,6 +94,89 @@ class Mcush( Instrument.SerialInstrument ):
         ret = self.writeCommand( cmd )
         if ret:
             return eval(ret[0])
+
+    # some partial functions for gpio manipulating
+    def pinInput( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, i=True )
+        else:
+            self.gpio( pin, i=True )
+
+    def pinOutput( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, o=True )
+        else:
+            self.gpio( pin, o=True )
+
+    def pinOutputHigh( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, o=True, s=True )
+        else:
+            self.gpio( pin, o=True, s=True )
+
+    def pinOutputLow( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, o=True, c=True )
+        else:
+            self.gpio( pin, o=True, c=True )
+
+    def pinSetVal( self, pin, val ):
+        if isinstance(pin, list):
+            for p in pin:
+                if val:
+                    self.gpio( p, s=True )
+                else:
+                    self.gpio( p, c=True )
+        else:
+            if val:
+                self.gpio( pin, s=True )
+            else:
+                self.gpio( pin, c=True )
+
+    pinSetValue = pinSetVal
+
+    def pinSet( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, s=True )
+        else:
+            self.gpio( pin, s=True )
+
+    pinSetHigh = pinSet
+
+    def pinClr( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, c=True )
+        else:
+            self.gpio( pin, c=True )
+
+    pinSetLow = pinClr
+    pinReset = pinClr
+
+    def pinToggle( self, pin ):
+        if isinstance(pin, list):
+            for p in pin:
+                self.gpio( p, t=True )
+        else:
+            self.gpio( pin, t=True )
+
+    def pinIsHigh( self, pin ):
+        return bool(self.gpio( pin ))
+
+    pinIsSet = pinIsHigh
+
+    def pinIsLow( self, pin ):
+        return not bool(self.gpio( pin ))
+
+    pinIsClear = pinIsLow
+    pinIsReset = pinIsLow
+
+
 
     def parseMemLine( self, line, compact_mode=False ):
         '''parse memory line which has been stripped'''
@@ -367,6 +451,8 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' --delay=%s'% delay
         self.writeCommand( cmd )
 
+    i2cInit = i2c_init
+
     def i2c( self, write=[], read_count=None, addr=None, no_stop_bit=None ):
         cmd = 'i2c'
         if addr is not None:
@@ -409,6 +495,8 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' --delay=%s'% delay
         self.writeCommand( cmd )
 
+    spiInit = spi_init
+
     def spi( self, write=[], read=None ):
         cmd = 'spi'
         if read:
@@ -435,6 +523,8 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' -v%s'% int(init_value)
         self.writeCommand( cmd )
 
+    pwmInit = pwm_init
+
     def pwm( self, index=None, value=50 ):
         cmd = 'pwm'
         if index is not None:
@@ -444,6 +534,8 @@ class Mcush( Instrument.SerialInstrument ):
 
     def adc_init( self ):
         self.writeCommand( "adc --init" )
+    
+    adcInit = adc_init
 
     def adc( self, channel=None ):
         if channel is None:
