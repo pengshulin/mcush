@@ -440,7 +440,7 @@ class Mcush( Instrument.SerialInstrument ):
             self.writeCommand( 'sgpio --start' )
                
     def i2c_init( self, addr, scl=None, sda=None, lsb=None, delay=None ):
-        cmd = 'i2c -a0x%X -i' % (addr)
+        cmd = 'i2c -a0x%X -I' % (addr)
         if scl:
             cmd += ' --scl=%s'% scl
         if sda:
@@ -474,7 +474,7 @@ class Mcush( Instrument.SerialInstrument ):
             return None
 
     def spi_init( self, sdi=None, sdo=None, sck=None, cs=None, cpol=None, cpha=None, width=None, lsb=None, delay=None ):
-        cmd = 'spi -i'
+        cmd = 'spi -I'
         if sdi:
             cmd += ' --sdi=%s'% sdi
         if sdo:
@@ -514,7 +514,7 @@ class Mcush( Instrument.SerialInstrument ):
             return None
 
     def pwm_init( self, freq=None, range_value=None, init_value=None ):
-        cmd = 'pwm --init'
+        cmd = 'pwm -I'
         if freq is not None:
             cmd += ' -f%s'% int(freq)
         if range_value is not None:
@@ -533,7 +533,7 @@ class Mcush( Instrument.SerialInstrument ):
         self.writeCommand( cmd )
 
     def adc_init( self ):
-        self.writeCommand( "adc --init" )
+        self.writeCommand( "adc -I" )
     
     adcInit = adc_init
 

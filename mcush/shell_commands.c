@@ -2033,9 +2033,9 @@ int cmd_i2c( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           0, "scl", "scl_pin", "default 0.1" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'i', shell_str_init, 0, "init pins" },
+          'I', shell_str_init, 0, "init pins" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'd', shell_str_deinit, 0, "deinit pins" },
+          'D', shell_str_deinit, 0, "deinit pins" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'l', "lsb", 0, "lsb first" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -2272,9 +2272,9 @@ int cmd_spi( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           0, "cs", "cs_pin", "default 0.3" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'i', shell_str_init, 0, "init pins" },
+          'I', shell_str_init, 0, "init pins" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'd', shell_str_deinit, 0, "deinit pins" },
+          'D', shell_str_deinit, 0, "deinit pins" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'r', shell_str_read, 0, "print readout" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -2454,9 +2454,9 @@ int cmd_pwm( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'n', shell_str_number, 0, shell_str_query },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_init, 0, shell_str_init },
+          'I', shell_str_init, 0, shell_str_init },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_deinit, 0, shell_str_deinit },
+          'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2562,9 +2562,9 @@ int cmd_adc( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'i', shell_str_index, "channel_index", "select channel" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_init, 0, shell_str_init },
+          'I', shell_str_init, 0, shell_str_init },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_deinit, 0, shell_str_deinit },
+          'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_NONE } };
     unsigned int loop=0, loop_delay=1000, loop_tick;
     uint8_t init=0, deinit=0, index_set=0;
@@ -2650,7 +2650,9 @@ int cmd_counter( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           0, shell_str_pin, "input_pin", "default 0.0" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'i', shell_str_init, 0, "init pin" },
+          'I', shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           0, shell_str_deinit, 0, "deinit pin" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,

@@ -12,5 +12,7 @@ from . import Tm1637
 from . import Bitmap
 from . import Font
 from . import Max7219
+from . import Ws2812
 from . import Motion 
+from . import Dallas1W
 

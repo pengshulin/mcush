@@ -187,6 +187,8 @@ msgstr "正在读取..."
 msgid "Open port..."
 msgstr "打开端口..."
 
+msgid "Shell Kit Workbench"
+msgstr "Shell Kit 工作台"
 
 
 

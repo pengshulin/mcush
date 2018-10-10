@@ -199,6 +199,7 @@ class Instrument:
    
     def writeCommand( self, cmd ):
         '''write command and wait for prompts'''
+        cmd = cmd.strip()
         self.writeLine( cmd )
         self.logger.debug( cmd )
         ret = self.readUntilPrompts()
@@ -247,7 +248,7 @@ class Instrument:
             if result:
                 raise CommandExecuteError( cmd + ', returns: ' + ','.join(result) )
             else:
-                raise CommandExecuteError( err )
+                raise CommandExecuteError( cmd )
 
     # Instrument class only supports basic commands:
     # 

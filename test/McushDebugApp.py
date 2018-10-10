@@ -35,26 +35,13 @@ import gettext
 _ = gettext.gettext
 
 PRESET = [ \
-["Output impulse counter", '''\
-pin = '0.0'  # PA0
+["Tiny controller self test", '''\
+# Tiny controller self test
 s = Mcush(PORT)
+s.beep()
 s.errnoStop()  # stop errno blink
-s.gpio( pin, o=True )
-counter = 0
-while True:
-    info( 'Counter: %d'% counter )
-    s.gpio( pin, s=True )
-    s.led(0, True)
-    sleep(0.1)
-    s.gpio( pin, c=True )
-    s.led(0, False)
-    sleep(0.5)
-    counter += 1
-'''],
-
-["LED blink", '''\
-s = Mcush(PORT)
-s.errnoStop()  # stop errno blink
+# blink all LEDs
+t0 = time.time()
 while True:
     for i in range(3):
         s.led(0, True)
@@ -70,19 +57,60 @@ while True:
         s.led(2, False)
         s.led(3, False)
         sleep(0.1)
-'''],
-
-["Beep player", '''\
-bp = BeepPlayer.BeepPlayer(Mcush(PORT))
-bp.play( BeepPlayer.ALISE )
-'''],
-
-["Beep morse code", '''\
-bp = MorseCodeBeeper.MorseCodeBeeper(Mcush(PORT))
-#bp.set_beeper( bp.beeper_led1 )
+    if time.time() > t0 + 5:
+        break
+# toggle all pins
+s.beep(times=2)
+PINS=['0.0','0.1','0.2','0.3','0.4','0.5']
+s.pinOutputLow(PINS)
+t0 = time.time()
 while True:
-    bp.BeepString( 'SOS' )
-    time.sleep(5)
+    s.pinSet(PINS)
+    sleep(0.1)
+    s.pinClr(PINS)
+    sleep(0.1)
+    if time.time() > t0 + 5:
+        break
+# toggle single pin
+s.beep(times=3)
+t0 = time.time()
+while True:
+    s.pinToggle('0.0')
+    sleep(0.1)
+    s.pinToggle('0.1')
+    sleep(0.1)
+    s.pinToggle('0.2')
+    sleep(0.1)
+    s.pinToggle('0.3')
+    sleep(0.1)
+    s.pinToggle('0.4')
+    sleep(0.1)
+    s.pinToggle('0.5')
+    sleep(0.1)
+    if time.time() > t0 + 5:
+        break
+# restore
+s.pinClr(PINS)
+s.pinInput(PINS)
+s.errno(0)
+s.beep(freq=2000, times=3)
+'''],
+
+["Output impulse counter", '''\
+pin = '0.0'  # PA0
+s = Mcush(PORT)
+s.errnoStop()  # stop errno blink
+s.gpio( pin, o=True )
+counter = 0
+while True:
+    info( 'Counter: %d'% counter )
+    s.gpio( pin, s=True )
+    s.led(0, True)
+    sleep(0.1)
+    s.gpio( pin, c=True )
+    s.led(0, False)
+    sleep(0.5)
+    counter += 1
 '''],
 
 
