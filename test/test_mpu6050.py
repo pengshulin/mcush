@@ -12,7 +12,6 @@ from mcush.misc import Motion
 
 def main(argv=None):
     m = Motion.Mpu6050(Mcush.Mcush())
-    m.init()
     counter = 1
     while True:
         temp = m.getTemperature()
@@ -24,8 +23,6 @@ def main(argv=None):
         gz = m.getGyroZ()
         print 'T: %.1f  AX: %.3f  AY: %.3f  AZ: %.3f  GX: %.3f  GY: %.3f  GZ: %.3f'% (temp, ax, ay, az, gx, gy, gz)
         counter += 1
-
-
 
 
 if __name__ == '__main__':

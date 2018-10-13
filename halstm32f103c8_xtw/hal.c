@@ -1,6 +1,5 @@
 #include <math.h>
 #include "hal.h"
-#include "hw_config.h"
 
 
 const unsigned int baudrate=9600;

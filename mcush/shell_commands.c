@@ -293,7 +293,7 @@ const shell_cmd_t CMD_TAB[] = {
 #endif
 #if USE_CMD_PWM
 {   0, 0,  "pwm",  cmd_pwm, 
-    "pwm controller",
+    "control pwm",
     "pwm -i <idx> -v <val>" },
 #endif
 #if USE_CMD_ADC
@@ -318,7 +318,7 @@ const shell_cmd_t CMD_TAB[] = {
 #endif
 #if USE_CMD_SPIFFS
 {   0, 's', "spiffs",  cmd_spiffs, 
-    "spiffs test",
+    "spiffs control",
     "spiffs"  },
 #endif
 #if USE_CMD_CAT

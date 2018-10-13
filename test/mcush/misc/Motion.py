@@ -52,3 +52,35 @@ class Mpu6050():
  
 
 
+
+class Adxl345():
+
+    def __init__( self, controller, scl=None, sda=None ):
+        self.controller = controller
+        self.controller.i2c_init( 0x53, scl=scl, sda=sda )
+        self.reset()
+
+    def reset(self):
+        self.controller.i2c( [0x31, 0x0B] )  # DATA_FORMAT: full resolution, 16g range
+        self.controller.i2c( [0x2C, 0x08] )  # BW_RATE: 12.5Hz bandwidth, 25Hz output rate
+        self.controller.i2c( [0x2D, 0x08] )  # POWER_CTRL: Measure 
+        self.controller.i2c( [0x2E, 0x80] )  # INT_ENABLE: DATA_READY 
+        self.controller.i2c( [0x1E, 0x00] )  # OFSX: X-axis offset
+        self.controller.i2c( [0x1F, 0x00] )  # OFSY: Y-axis offset
+        self.controller.i2c( [0x20, 0x00] )  # OFSZ: Z-axis offset
+
+    def printAllReg( self ):
+        print self.controller.i2c( [0x0], 57 )
+
+    def getAccelX( self ):
+        a,b = self.controller.i2c( [0x32], 2 )
+        return Utils.s2h( chr(b) + chr(a) ) * 3.9
+ 
+    def getAccelY( self ):
+        a,b = self.controller.i2c( [0x34], 2 )
+        return Utils.s2h( chr(b) + chr(a) ) * 3.9
+ 
+    def getAccelZ( self ):
+        a,b = self.controller.i2c( [0x36], 2 )
+        return Utils.s2h( chr(b) + chr(a) ) * 3.9
+ 

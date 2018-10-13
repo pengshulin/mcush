@@ -1,1 +1,0 @@
-../halstm32f103rb_pyeasycontrol/hal_usb_uart.c

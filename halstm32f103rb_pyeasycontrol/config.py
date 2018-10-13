@@ -1,10 +1,13 @@
 from Arm.Stm32 import *
-
 env = Stm32f1md()
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
+
+# add vcp driver
+hal_config.paths += ['vcp']
+hal_config.sources += ['vcp/*.c']
 env.appendDriver(STM32_USB_FS_Driver())
-#env.appendDefineFlags( [ 'SUSPEND_ENABLED=1' ] )
+#env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
 
 env.appendDefineFlags( [
     'CMD_I2C_SDA_PORT=2', 'CMD_I2C_SDA_PIN=0',

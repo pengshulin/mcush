@@ -1,1 +1,0 @@
-../halstm32f103rb_pyeasycontrol/usb_pwr.h

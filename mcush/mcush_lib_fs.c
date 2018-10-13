@@ -1,6 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 
+#if MCUSH_VFS
 
 int mcush_file_exists( const char *fname )
 {
@@ -83,3 +84,4 @@ int mcush_file_remove_retry( const char *fname, int retry_num )
 }
 
 
+#endif

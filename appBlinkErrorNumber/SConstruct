@@ -15,6 +15,8 @@ if haldir is None:
     haldir = 'stm32f103cb_tiny_controller'
 
 env = loadHalConfig( haldir ).env
+#env = loadHalConfig( haldir, use_vfs=False ).env
+#env = loadHalConfig( haldir, use_vcp=False ).env
 
 env.appendDefineFlags( [
     ] ) 

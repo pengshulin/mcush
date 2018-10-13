@@ -11,10 +11,11 @@ from . import Font
 class LEDS():
     '''WS2812 controller'''
     
-    def __init__( self, controller, length=None ):
+    def __init__( self, controller, length=None, swap_rg=None ):
         if length is None:
             length = self.width * self.height
         self.length = length
+        self.swap_rg = swap_rg
         self.controller = controller
         self.controller.writeCommand( "W -l%d -I"% length )
 
@@ -25,6 +26,8 @@ class LEDS():
             membuf = 'W -o%d '% offset
         else:
             membuf = 'W '
+        if self.swap_rg:
+            membuf += '-g '
         count = 0
         while True:
             if len(mem) == 0:
@@ -38,6 +41,8 @@ class LEDS():
                 offset += count
                 count = 0
                 membuf = 'W -o%d '% offset
+                if self.swap_rg:
+                    membuf += '-g '
         self.controller.writeCommand( "W -w" )
 
 

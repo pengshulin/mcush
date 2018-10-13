@@ -2,14 +2,22 @@ from Arm.Stm32 import *
 env = Stm32f1md()
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
-env.appendDriver(STM32_USB_FS_Driver())
-env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
+
+if hal_config.use_vcp == False or hal_config.use_uart:
+    hal_config.paths += ['uart']
+    hal_config.sources += ['uart/*.c']
+else:
+    hal_config.paths += ['vcp']
+    hal_config.sources += ['vcp/*.c']
+    env.appendDriver(STM32_USB_FS_Driver())
+    env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
 
 
 env.appendDefineFlags( [
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
     'USE_CMD_SCPI_RST=0',
+    'USE_CMD_REBOOT=0',
     'USE_CMD_RESET=0',
     #'USE_CMD_GPIO=0',
     #'USE_CMD_LED=0',

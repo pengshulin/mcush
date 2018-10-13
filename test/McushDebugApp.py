@@ -38,41 +38,35 @@ PRESET = [ \
 ["Tiny controller self test", '''\
 # Tiny controller self test
 s = Mcush(PORT)
-s.beep()
 s.errnoStop()  # stop errno blink
-# blink all LEDs
+# blink all LEDs and toggle all pins
+s.beep()
+PINS=['0.0','0.1','0.2','0.3','0.4','0.5']
+s.pinOutputLow(PINS)
 t0 = time.time()
 while True:
     for i in range(3):
         s.led(0, True)
         s.led(1, True)
+        s.pinSet(PINS)
         sleep(0.1)
         s.led(0, False)
         s.led(1, False)
+        s.pinClr(PINS)
         sleep(0.1)
     for i in range(3):
         s.led(2, True)
         s.led(3, True)
+        s.pinSet(PINS)
         sleep(0.1)
         s.led(2, False)
         s.led(3, False)
+        s.pinClr(PINS)
         sleep(0.1)
     if time.time() > t0 + 5:
         break
-# toggle all pins
-s.beep(times=2)
-PINS=['0.0','0.1','0.2','0.3','0.4','0.5']
-s.pinOutputLow(PINS)
-t0 = time.time()
-while True:
-    s.pinSet(PINS)
-    sleep(0.1)
-    s.pinClr(PINS)
-    sleep(0.1)
-    if time.time() > t0 + 5:
-        break
 # toggle single pin
-s.beep(times=3)
+s.beep(times=2)
 t0 = time.time()
 while True:
     s.pinToggle('0.0')
