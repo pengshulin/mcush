@@ -8,6 +8,7 @@ hal_config.paths += ['vcp']
 hal_config.sources += ['vcp/*.c']
 env.appendDriver(STM32_USB_FS_Driver())
 #env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
+#env.appendDefineFlags( [ 'USE_ST_VID_PID=1' ] )
 
 env.appendDefineFlags( [
     'CMD_I2C_SDA_PORT=2', 'CMD_I2C_SDA_PIN=0',

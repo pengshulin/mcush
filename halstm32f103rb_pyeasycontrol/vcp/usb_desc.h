@@ -30,6 +30,11 @@
 #ifndef __USB_DESC_H
 #define __USB_DESC_H
 
+
+#ifndef USE_ST_VID_PID 
+#define USE_ST_VID_PID  0   /* Use ST VCP VID/PID */
+#endif
+
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

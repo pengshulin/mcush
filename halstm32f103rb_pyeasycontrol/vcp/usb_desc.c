@@ -41,14 +41,17 @@ const uint8_t Virtual_Com_Port_DeviceDescriptor[] =
     0x00,   /* bDeviceSubClass */
     0x00,   /* bDeviceProtocol */
     0x40,   /* bMaxPacketSize0 */
-    //0x83,
-    //0x04,   /* idVendor = 0x0483 */
-    //0x40,
-    //0x57,   /* idProduct = 0x7540 */
+#if USE_ST_VID_PID
+    0x83,
+    0x04,   /* idVendor = 0x0483 */
+    0x40,
+    0x57,   /* idProduct = 0x7540 */
+#else
     0xff,
     0xff,   /* idVendor = 0xffff */
     0xff,
     0xff,   /* idProduct = 0xffff */
+#endif
 
     0x00,
     0x02,   /* bcdDevice = 2.00 */
@@ -68,8 +71,8 @@ const uint8_t Virtual_Com_Port_ConfigDescriptor[] =
     0x02,   /* bNumInterfaces: 2 interface */
     0x01,   /* bConfigurationValue: Configuration value */
     0x00,   /* iConfiguration: Index of string descriptor describing the configuration */
-    0xC0,   /* bmAttributes: self powered */
-    0x32,   /* MaxPower 0 mA */
+    0x80,   /* bmAttributes: bus powered */
+    250,    /* MaxPower 500 mA (unit: 2mA)*/
     /*Interface Descriptor*/
     0x09,   /* bLength: Interface Descriptor size */
     USB_INTERFACE_DESCRIPTOR_TYPE,  /* bDescriptorType: Interface */

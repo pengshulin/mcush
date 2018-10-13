@@ -1,5 +1,15 @@
+v1.5.0
+------
+official ST VCP Driver VID/PID seems to be not editable
+rebuild the firmware with USE_ST_VID_PID=1 macro  
+
+v1.4.0
+------
 derived from official ST Virtual COM Port Driver
-with modified PID/VID and descriptions
+with modified VID/PID and descriptions
+
+
+
 
 Peng Shulin <trees_peng@163.com> 2017
 
