@@ -98,23 +98,17 @@ class Dallas1W():
                 sn[-1].reverse()
         return [''.join(['%02X'%i for i in j]) for j in sn]
                  
-
-class DS18B20( Dallas1W ):
-    FAMILY_CODE = 0x28
-    parasite = None
-
     def readRom( self ):
         # ignore multi-slave, read only the first one
         self.reset()
         self.write( 0x33 )
-        family_code = self.read()
-        if family_code != self.FAMILY_CODE:
-            raise Exception("Not DS18B20 device")
-        serial_num = [self.read() for i in range(6)]
-        crc = self.read()
-        crc_calc = self.crc(''.join([chr(i) for i in [family_code]+serial_num]))
-        if crc != crc_calc:
+        r = self.read(8)
+        crc_calc = self.crc(''.join([chr(i) for i in r[:7]]))
+        if r[7] != crc_calc:
             raise Exception("Crc error")
+        if r[0] != self.FAMILY_CODE:
+            raise Exception("Family code (0x%X) not match: 0x%X"% (self.FAMILY_CODE, r[0]))
+        serial_num = r[1:7]
         serial_num.reverse()
         return ''.join(['%02X'%i for i in serial_num])
 
@@ -130,6 +124,12 @@ class DS18B20( Dallas1W ):
             self.write( i )
         crc = self.crc(''.join([chr(i) for i in [self.FAMILY_CODE]+sn2i]))
         self.write( crc )
+
+
+
+class DS18B20( Dallas1W ):
+    FAMILY_CODE = 0x28
+    parasite = None
 
     def getTemperature( self, sn=None ):
         # read temperature from scratchpad, ignore remaining (including CRC)
@@ -201,4 +201,6 @@ class DS18B20( Dallas1W ):
         return self.parasite
             
 
-
+class DS1990( Dallas1W ):
+    FAMILY_CODE = 0x01
+ 

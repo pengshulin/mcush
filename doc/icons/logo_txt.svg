@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="logo_txt.svg"
-   inkscape:export-filename="/home/trees/src/github.mcush/doc/logo_txt.png"
-   inkscape:export-xdpi="297.24673"
-   inkscape:export-ydpi="297.24673">
+   inkscape:export-filename="logo_txt_200.png"
+   inkscape:export-xdpi="494.98001"
+   inkscape:export-ydpi="494.98001">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -29,15 +29,15 @@
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
-     inkscape:cx="46.096096"
-     inkscape:cy="-24.057847"
+     inkscape:cx="-3.9064546"
+     inkscape:cy="-24.562923"
      inkscape:document-units="mm"
      inkscape:current-layer="text4136"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1026"
+     inkscape:window-height="1029"
      inkscape:window-x="0"
-     inkscape:window-y="30"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -51,7 +51,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
