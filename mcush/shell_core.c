@@ -365,20 +365,24 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
 static int shell_search_command( int cmdtab_index, char *cmd_name )
 {
     const shell_cmd_t *ct = scb.cmd_table[cmdtab_index];
-    int i;
+    int i, abbr;
 
-    if( !ct )
+    if( ct == 0 )
         return -1;
+    if( (cmd_name == 0) || (*cmd_name == 0) )
+        return -1;
+    abbr = (strlen(cmd_name) == 1) ? 1 : 0;
     for( i=0; ct->name; i++, ct++ )
     {
-        if( strlen(cmd_name) > 1 )
+        /* search sequence: abbreviated command first */
+        if( abbr )
         {
-            if( strcmp( cmd_name, ct->name ) == 0 )
+            if( *cmd_name == ct->sname )
                 return i;
         }
         else
         {
-            if( *cmd_name == ct->sname )
+            if( strcmp( cmd_name, ct->name ) == 0 )
                 return i;
         }
     }
