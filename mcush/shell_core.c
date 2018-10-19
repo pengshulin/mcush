@@ -910,3 +910,36 @@ void shell_run( void )
 }
 
 
+/* call cmd_xxx with arguments
+   NOTE: arguments must be zero ended */
+int shell_call( const char *cmd_name, ... )
+{
+    va_list ap;
+    int ret=0;
+    int (*cmd)(int argc, char *argv[]);
+    char *argv[SHELL_ARGV_LEN], *s;
+    int argc;
+
+    va_start( ap, cmd_name );
+    cmd = shell_get_cmd_by_name( cmd_name );
+    if( cmd == 0 )
+        ret = -1;
+    else
+    {
+        argv[0] = (char*)cmd_name;
+        argc = 1;
+        while(1)
+        {
+            s = va_arg( ap, char* );
+            if( s )
+                argv[argc++] = s;
+            else
+                break;
+        }
+        ret = cmd( argc, argv );
+    }
+    va_end( ap );
+    return ret;
+}
+
+

@@ -103,7 +103,6 @@ int  shell_init( const shell_cmd_t *cmd_table, const char *init_script );
 void shell_run( void );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
-int (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[]);
 int  shell_print_help( const char *cmd, int show_hidden );
 int  shell_set_script( const char *script, int need_free );
 void shell_set_errnum( int errnum );
@@ -129,8 +128,10 @@ int  shell_printf( char *fmt, ... );
 int  shell_eval_int( const char *str, int *i );
 int  shell_eval_float( const char *str, float *f );
 const char *shell_get_prompt( void );
-int shell_make_16bits_data_buffer( void **pbuf, int *len );
-int shell_make_float_data_buffer( void **pbuf, int *len );
+int  shell_make_16bits_data_buffer( void **pbuf, int *len );
+int  shell_make_float_data_buffer( void **pbuf, int *len );
+int  (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[]);
+int  shell_call( const char *cmd_name, ... );
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );
