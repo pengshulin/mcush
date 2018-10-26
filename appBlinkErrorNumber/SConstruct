@@ -20,8 +20,8 @@ if haldir is None:
 #env = loadHalConfig( haldir, use_spiffs=True ).env
 #env = loadHalConfig( haldir, use_spiffs=True, use_fatfs=True ).env
 #env = loadHalConfig( haldir, use_vfs=False ).env
-#env = loadHalConfig( haldir, use_hal_driver=True ).env
-env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True ).env
+env = loadHalConfig( haldir, use_hal_driver=True ).env
+#env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True ).env
 #env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=False ).env
 
 env.appendDefineFlags( [

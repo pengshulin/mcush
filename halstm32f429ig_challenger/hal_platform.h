@@ -20,14 +20,17 @@ int  hal_rtc_set( struct tm *t );
 int  hal_rtc_get_tick( uint64_t *tick );
 void hal_rtc_init(void);
 
-
+#ifndef HAL_RNG
 #define HAL_RNG   1
+#endif
 void hal_rng_init(void);
 uint32_t hal_rng_get(void);
 
 
 
+#ifndef USE_CMD_SGPIO
 #define USE_CMD_SGPIO  1
+#endif
 #define SGPIO_FREQ_MIN  1.0
 #define SGPIO_FREQ_DEF  1000000.0
 #define SGPIO_FREQ_MAX  4000000.0
@@ -102,7 +105,8 @@ void hal_lcd_hline(uint8_t y, uint8_t x0, uint8_t x1, uint16_t color);
 void hal_lcd_vline(uint8_t x, uint8_t y0, uint8_t y1, uint16_t color);
 uint16_t hal_lcd_get_pixel(uint16_t x0, uint16_t y0);
 
-
+#if HAL_SDRAM
 #include "hal_sdram.h"
+#endif
 
 #endif
