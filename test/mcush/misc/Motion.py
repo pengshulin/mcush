@@ -20,7 +20,7 @@ class Mpu6050():
         self.controller.i2c( [0x1C, 0x01] )  # accel setting: 0x01(no self test, 2G, 5Hz)
  
     def printAllReg( self ):
-        print self.controller.i2c( [0x0], 118 )
+        print( self.controller.i2c( [0x0], 118 ) )
 
     def getTemperature( self ):
         a,b = self.controller.i2c( [0x41], 2 )
@@ -70,7 +70,7 @@ class Adxl345():
         self.controller.i2c( [0x20, 0x00] )  # OFSZ: Z-axis offset
 
     def printAllReg( self ):
-        print self.controller.i2c( [0x0], 57 )
+        print( self.controller.i2c( [0x0], 57 ) )
 
     def getAccelX( self ):
         a,b = self.controller.i2c( [0x32], 2 )

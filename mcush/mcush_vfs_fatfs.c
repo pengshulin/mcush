@@ -6,6 +6,7 @@
 
 #define static
 
+FATFS fs;
 
 
 uint8_t _inited;
@@ -22,7 +23,7 @@ int mcush_fatfs_mount( void )
     {
         hal_fatfs_init();
         _inited = 1;
-        f_mount( 0, 0, 1 );
+        f_mount( &fs, "", 1 );
     }
     return 1;
 }

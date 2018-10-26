@@ -1,0 +1,1 @@
+../../halstm32f407zg_eu/std/stm32f4xx_conf.h

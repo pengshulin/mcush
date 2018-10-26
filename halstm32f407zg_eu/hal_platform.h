@@ -17,14 +17,18 @@ int  hal_rtc_set( struct tm *t );
 int  hal_rtc_get_tick( uint64_t *tick );
 void hal_rtc_init(void);
 
-#define HAL_RNG   1
+#ifndef HAL_RNG
+  #define HAL_RNG   1
+#endif
 void hal_rng_init(void);
 uint32_t hal_rng_get(void);
 
-#define USE_CMD_SGPIO  1
-#define SGPIO_FREQ_MIN  1.0
-#define SGPIO_FREQ_DEF  1000000.0
-#define SGPIO_FREQ_MAX  4000000.0
+#ifndef USE_CMD_SGPIO
+  #define USE_CMD_SGPIO  1
+  #define SGPIO_FREQ_MIN  1.0
+  #define SGPIO_FREQ_DEF  1000000.0
+  #define SGPIO_FREQ_MAX  4000000.0
+#endif
 
 typedef struct _sgpio_cfg_t
 {
@@ -50,7 +54,7 @@ sgpio_cfg_t *hal_sgpio_info( void );
 #include "mcush_vfs.h"
 
 #ifndef MCUSH_SPIFFS
-#define MCUSH_SPIFFS  1
+  #define MCUSH_SPIFFS  1
 #endif
 
 #define HAL_SPIFFS_CHIPID  0xEF4017  // W25P64

@@ -370,6 +370,12 @@ class Mcush( Instrument.SerialInstrument ):
                 ret = base64.decodestring( ret )
             return ret
 
+    def writeFile( self, pathname, buf='' ):
+        self.cat( pathname, b64=True, write=True, append=False, buf=buf )
+
+    def appendFile( self, pathname, buf='' ):
+        self.cat( pathname, b64=True, write=True, append=True, buf=buf )
+
     def remove( self, pathname ):
         pathname = self.convPathname(pathname)
         cmd = 'rm ' + pathname

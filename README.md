@@ -36,6 +36,7 @@ ROADMAP
 * add file utils (ls,cp,rm,cat,...) for file system
 
 (todo/in progress)
+* add ST/HAL Driver support
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
 * add bootloader and upgrade support
 * add practical utilities for network (lwip used), such as traceroute, ntp update...

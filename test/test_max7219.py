@@ -104,7 +104,6 @@ BITMAPS = [Font.DEFAULT_FONT['0'], Font.DEFAULT_FONT['1']]
  
 def main(argv=None):
     disp = Max7219.LED32x8(Mcush.Mcush())
-    disp.init()
     counter = 1
     cv = Max7219.Canvas( disp )
     #disp.test_all()

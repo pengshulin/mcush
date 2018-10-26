@@ -1879,7 +1879,7 @@
     (descr "Generic Buzzer, D9mm height 4.2mm with RM4mm")
     (tags buzzer)
     (path /597EF0D9)
-    (fp_text reference SP1 (at -2.4638 3.9624) (layer F.SilkS)
+    (fp_text reference SP1 (at -5.588 -1.524) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value SPEAKER (at 1.28524 5.969) (layer F.Fab) hide

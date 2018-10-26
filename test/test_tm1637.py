@@ -12,14 +12,13 @@ from mcush.misc import Tm1637
  
 def main(argv=None):
     d = Tm1637.LED4(Mcush.Mcush())
-    d.init()
     string = '    abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 01234567890 \'`~-_=[]{}<>,.^/    '
     for i in range(len(string)-4):
         d.display_string( string[i:i+4] )
         time.sleep(0.5)
     counter = -100
     while True:
-        print counter
+        print( counter )
         d.display_int( counter )
         counter += 1
         #time.sleep(0.1)

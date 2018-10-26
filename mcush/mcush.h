@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "mcush_freertos_api.h"
-#include "hal.h"
 #include "shell.h"
 #include "shell_str.h"
 #include "mcush_ver.h"

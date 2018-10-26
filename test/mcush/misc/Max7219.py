@@ -28,7 +28,7 @@ class LED():
     def __init__( self, controller, sdi=None, sdo=None, sck=None, cs=None, intensity=None ):
         self.controller = controller
         self.controller.spi_init( sdi, sdo, sck, cs, width=16, delay=10 )
-        self.controller_num = ((self.width-1)/8+1) * ((self.height-1)/8+1)
+        self.controller_num = (int((self.width-1)/8)+1) * (int((self.height-1)/8)+1)
         if intensity is None:
             intensity = 0x08
         self.intensity = intensity & 0x0F  # range: 0 ~ 0x0F
@@ -172,7 +172,7 @@ class Canvas():
             y -= 8 
             x += self.width
         byte_mask = 1 << (x%8)
-        byte_index = x/8
+        byte_index = int(x/8)
         if color:
             self.buffer[y][byte_index] |= byte_mask
         else:
