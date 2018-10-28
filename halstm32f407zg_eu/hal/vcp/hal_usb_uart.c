@@ -10,51 +10,34 @@
 #define TASK_VCP_TX_STACK_SIZE  (300)
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
-#define BUF_VCP_RX_LEN   128
-#define BUF_VCP_TX_LEN   128
+#define TASK_VCP_TX_READ_TIMEOUT_MS    10  /* timeout for the last byte, actual cycle timeout will be doubled */
+#define TASK_VCP_TX_READ_TIMEOUT_TICK  (TASK_VCP_TX_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 
+#define VCP_RX_BUF_LEN   128  /* memory consumption: RX_LEN x 2 */
+#define VCP_TX_BUF_LEN   128  /* memory consumption: TX_LEN x 3 */
 
 
 USBD_HandleTypeDef hUsbDeviceFS;
 extern USBD_DescriptorsTypeDef FS_Desc;
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 
-char hal_vcp_rx_buf[BUF_VCP_RX_LEN];
-char hal_vcp_tx_buf1[BUF_VCP_TX_LEN];
-char hal_vcp_tx_buf2[BUF_VCP_TX_LEN];
+char hal_vcp_rx_buf[VCP_RX_BUF_LEN];
+char hal_vcp_tx_buf1[VCP_TX_BUF_LEN];
+char hal_vcp_tx_buf2[VCP_TX_BUF_LEN];
 int hal_vcp_tx_buf1_len, hal_vcp_tx_buf2_len;
 int8_t hal_vcp_tx_use_buf2;
-int8_t hal_vcp_tx_pending;
 QueueHandle_t hal_queue_vcp_rx;
 QueueHandle_t hal_queue_vcp_tx;
 SemaphoreHandle_t hal_sem_vcp_tx;
 
 
+/* NOTE: call this hook in ST/USB_Device_Library/usbd_cdc.c/USBD_CDC_DataIn function */
 void hal_vcp_tx_done_isr_hook(void)
 {
     xSemaphoreGiveFromISR( hal_sem_vcp_tx, 0 );
 }
 
 
-signed portBASE_TYPE hal_vcp_getc( char *c, TickType_t xBlockTime )
-{
-    return xQueueReceive( hal_queue_vcp_rx, c, xBlockTime );
-}
-
-
-void hal_vcp_reset(void)
-{
-    xQueueReset( hal_queue_vcp_rx );
-    hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
-}
-
-
-void hal_vcp_enable(uint8_t enable)
-{
-}
-
-#define READ_TIMEOUT_MS    10
-#define READ_TIMEOUT_TICK  (READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 void task_vcp_tx_entry(void *p)
 {
     char c;
@@ -69,14 +52,14 @@ void task_vcp_tx_entry(void *p)
         
         /* get the first item from the queue */ 
         xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY );
-        timeout = xTaskGetTickCount() + READ_TIMEOUT_TICK;
+        timeout = xTaskGetTickCount() + TASK_VCP_TX_READ_TIMEOUT_TICK;
         *next_buf = c;
         *next_buf_len = 1;
 
         /* read as much as possible from the queue with time limit */
-        while( *next_buf_len < BUF_VCP_TX_LEN )
+        while( *next_buf_len < VCP_TX_BUF_LEN )
         {
-            if( xQueueReceive( hal_queue_vcp_tx, &c, READ_TIMEOUT_TICK ) == pdPASS )
+            if( xQueueReceive( hal_queue_vcp_tx, &c, TASK_VCP_TX_READ_TIMEOUT_TICK ) == pdPASS )
             {
                 *(next_buf + *next_buf_len) = c;
                 *next_buf_len += 1;
@@ -111,8 +94,8 @@ int hal_uart_init(uint32_t baudrate)
 {
     TaskHandle_t task_vcp_tx;
 
-    hal_queue_vcp_rx = xQueueCreate( BUF_VCP_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_queue_vcp_tx = xQueueCreate( BUF_VCP_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_queue_vcp_rx = xQueueCreate( VCP_RX_BUF_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_queue_vcp_tx = xQueueCreate( VCP_TX_BUF_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
     hal_sem_vcp_tx = xSemaphoreCreateBinary();
     if( !hal_queue_vcp_rx || !hal_queue_vcp_tx || !hal_sem_vcp_tx )
         return 0;
@@ -145,7 +128,9 @@ int  shell_driver_init( void )
 
 void shell_driver_reset( void )
 {
-    hal_vcp_reset();
+    xQueueReset( hal_queue_vcp_rx );
+    hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
+
 }
 
 
@@ -157,7 +142,7 @@ int  shell_driver_read( char *buffer, int len )
 
 int  shell_driver_read_char( char *c )
 {
-    if( hal_vcp_getc( c, portMAX_DELAY ) == pdFAIL )
+    if( xQueueReceive( hal_queue_vcp_rx, c, portMAX_DELAY ) == pdFAIL )
         return -1;
     else
         return (int)c;
@@ -166,7 +151,7 @@ int  shell_driver_read_char( char *c )
 
 int  shell_driver_read_char_blocked( char *c, int block_time )
 {
-    if( hal_vcp_getc( c, block_time ) == pdFAIL )
+    if( xQueueReceive( hal_queue_vcp_rx, c, block_time ) == pdFAIL )
         return -1;
     else
         return (int)c;

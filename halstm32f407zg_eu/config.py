@@ -3,9 +3,11 @@ from Arm.Stm32 import *
 env = Stm32f407xx( use_hal_driver=hal_config.use_hal_driver )
 env.setLinkfile( '/ld/stm32f407xg_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
-#env.appendDefineFlags( [ 'HAL_RNG=1' ] )
+env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 #env.appendDefineFlags( [ 'USE_CMD_UPGRADE=1' ] )
-#env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
+env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
+env.appendDefineFlags( [ 'HAL_WDG_ENABLE=1' ] )
+
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']
@@ -41,23 +43,17 @@ if hal_config.use_eth:
 
 if hal_config.use_emwin:
     env.appendDefineFlags( [ 'NEED_FSMC=1' ] )
-    hal_config.paths += ['emwin_driver']
-    hal_config.sources += ['emwin_driver/*.c']
+    hal_config.paths += [hal_dir+'emwin_driver']
+    hal_config.sources += [hal_dir+'emwin_driver/*.c']
 
 if hal_config.use_hal_driver:
     # disable those functions that are not finished
     env.appendDefineFlags( [
         'USE_CMD_SCPI_RST=0',
-        'USE_CMD_REBOOT=0',
-        'USE_CMD_REBOOT_COUNTER=0',
-        'USE_CMD_RESET=0',
-        'USE_CMD_WDG=0',
         'USE_CMD_PWM=0',
         'USE_CMD_ADC=0',
         'USE_CMD_SGPIO=0',
         'USE_CMD_UPGRADE=0',
-        'HAL_RTC=0',
-        'HAL_RNG=0',
         ] )
 
 

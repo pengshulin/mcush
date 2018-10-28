@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 /**
   ******************************************************************************
   * @file           : usbd_conf.c
@@ -99,7 +100,10 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
   if(pcdHandle->Instance==USB_OTG_FS)
   {
   /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
-
+    /* pull the DM/DP low, disconnect with the host */
+    hal_gpio_set_output( 0, (3<<11) );
+    hal_gpio_clr( 0, (3<<11) );
+    hal_delay_ms( 1 );
   /* USER CODE END USB_OTG_FS_MspInit 0 */
   
     /**USB_OTG_FS GPIO Configuration    

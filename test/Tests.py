@@ -146,7 +146,7 @@ def rtc_sync( argv=None ):
 
 def rtc( argv=None ):
     s = Mcush()
-    print s.rtcRead()
+    print( s.rtcRead() )
 
    
 
@@ -180,7 +180,7 @@ def memory_read( argv=None ):
         sys.stdout.write( mem )  # write binary directly to console
         os.remove( Env.TEST_WR )
     else:
-        open(fname, 'w+').write(mem)
+        open(fname, 'w+').write(str(mem))
     print( 'speed: %.3f kBytes/sec'% (len(mem)/dt/1000.0) )
 
 
@@ -306,13 +306,13 @@ def adc_test( argv=None ):
     except:
         channel = None
     while True:
-        print s.adc(channel)
+        print( s.adc(channel) )
      
 ############################################################################# 
 # Gratten Electronics
 def atf20e(argv=None):
     if len(argv) < 1:
-        print 'Usage: atf20e function [option] [data] [unit]'
+        print( 'Usage: atf20e function [option] [data] [unit]' )
         sys.exit(1)
     function = argv[1]
     option, data, unit = None, None, None
@@ -337,7 +337,7 @@ def atf20e_single_a(argv=None):
         freq = float(argv[1])
         vpp = float(argv[2])
     except:
-        print 'Usage: atf20e_single_a [mode] [freq] [vpp] [offset=0.0]'
+        print( 'Usage: atf20e_single_a [mode] [freq] [vpp] [offset=0.0]' )
         sys.exit(1)
     try:
         mode = int(mode)

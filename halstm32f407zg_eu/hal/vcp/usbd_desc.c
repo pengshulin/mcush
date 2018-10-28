@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 /**
   ******************************************************************************
   * @file           : usbd_desc.c
@@ -53,6 +54,7 @@
 #include "usbd_conf.h"
 
 /* USER CODE BEGIN INCLUDE */
+#include "hal.h"
 
 /* USER CODE END INCLUDE */
 
@@ -99,14 +101,12 @@
     #define USBD_VID            0xFFFF
     #define USBD_PID_FS         0xFFFF
 #endif
-#define USBD_LANGID_STRING      1033
+#define USBD_LANGID_STRING      0x0409  /* lang: US */
 #define USBD_MANUFACTURER_STRING        "mcush designed by pengshulin"
-#define USBD_PRODUCT_STRING_FS          "mcush virtual port"
-#define USBD_SERIALNUMBER_STRING_FS     "00000000001A"
+#define USBD_PRODUCT_STRING_FS          "mcush vcp"
 #define USBD_CONFIGURATION_STRING_FS    "CDC Config"
 #define USBD_INTERFACE_STRING_FS        "CDC Interface"
 
-#define USB_SIZ_BOS_DESC            0x0C
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
@@ -302,14 +302,7 @@ uint8_t * USBD_FS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == 0)
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
-  }
+  USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
@@ -333,15 +326,10 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
   */
 uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == USBD_SPEED_HIGH)
-  {
-    USBD_GetString((uint8_t *)USBD_SERIALNUMBER_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_SERIALNUMBER_STRING_FS, USBD_StrDesc, length);
-  }
-  return USBD_StrDesc;
+    char buf[32];
+    hal_get_serial_number( buf );
+    USBD_GetString((uint8_t *)buf, USBD_StrDesc, length);
+    return USBD_StrDesc;
 }
 
 /**
@@ -352,15 +340,8 @@ uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == USBD_SPEED_HIGH)
-  {
     USBD_GetString((uint8_t *)USBD_CONFIGURATION_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_STRING_FS, USBD_StrDesc, length);
-  }
-  return USBD_StrDesc;
+    return USBD_StrDesc;
 }
 
 /**
@@ -371,15 +352,8 @@ uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == 0)
-  {
     USBD_GetString((uint8_t *)USBD_INTERFACE_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_STRING_FS, USBD_StrDesc, length);
-  }
-  return USBD_StrDesc;
+    return USBD_StrDesc;
 }
 
 #if (USBD_LPM_ENABLED == 1)
@@ -391,8 +365,8 @@ uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
   */
 uint8_t * USBD_FS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  *length = sizeof(USBD_FS_BOSDesc);
-  return (uint8_t*)USBD_FS_BOSDesc;
+    *length = sizeof(USBD_FS_BOSDesc);
+    return (uint8_t*)USBD_FS_BOSDesc;
 }
 #endif /* (USBD_LPM_ENABLED == 1) */
 
