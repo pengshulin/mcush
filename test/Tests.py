@@ -170,7 +170,9 @@ def memory_read( argv=None ):
         print( 'output: %s'% ('stdout' if fname is None else fname ) )
     if length <= 0:
         return
+    t0 = time.time()
     mem = Mcush().readMem( addr, length, compact_mode=Env.COMPACT_MODE )
+    dt = time.time() - t0
     if fname is None:
         #Utils.dumpMem( mem, method=1 ) 
         open(Env.TEST_WR, 'w+').write(mem)
@@ -179,6 +181,7 @@ def memory_read( argv=None ):
         os.remove( Env.TEST_WR )
     else:
         open(fname, 'w+').write(mem)
+    print( 'speed: %.3f kBytes/sec'% (len(mem)/dt/1000.0) )
 
 
 def memory_read_loop( argv=None ):

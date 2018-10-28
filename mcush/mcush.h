@@ -10,6 +10,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
+#include "semphr.h"
 #include "mcush_freertos_api.h"
 #include "shell.h"
 #include "shell_str.h"

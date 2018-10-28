@@ -52,9 +52,13 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "mcush.h"
+extern char hal_vcp_rx_buf[];
+extern char hal_vcp_tx_buf1[];
+extern char hal_vcp_tx_buf2[];
+extern int hal_vcp_tx_buf1_len, hal_vcp_tx_buf2_len;
+extern uint8_t hal_vcp_tx_use_buf2;
 extern QueueHandle_t hal_queue_vcp_rx;
 extern QueueHandle_t hal_queue_vcp_tx;
-
 
 /* USER CODE END INCLUDE */
 
@@ -97,8 +101,6 @@ extern QueueHandle_t hal_queue_vcp_tx;
 /* USER CODE BEGIN PRIVATE_DEFINES */
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
-#define APP_RX_DATA_SIZE  2048
-#define APP_TX_DATA_SIZE  2048
 /* USER CODE END PRIVATE_DEFINES */
 
 /**
@@ -125,10 +127,10 @@ extern QueueHandle_t hal_queue_vcp_tx;
 /* Create buffer for reception and transmission           */
 /* It's up to user to redefine and/or remove those define */
 /** Received data over USB are stored in this buffer      */
-uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
+//uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 
 /** Data to send over USB CDC are stored in this buffer   */
-uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
+//uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
 
@@ -188,9 +190,10 @@ static int8_t CDC_Init_FS(void)
 {
   /* USER CODE BEGIN 3 */
   /* Set Application Buffers */
-  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
-  return (USBD_OK);
+    USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t *)hal_vcp_tx_buf1, 0);
+    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *)hal_vcp_rx_buf);
+    hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
+    return (USBD_OK);
   /* USER CODE END 3 */
 }
 

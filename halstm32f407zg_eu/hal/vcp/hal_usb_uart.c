@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
@@ -6,35 +7,32 @@
 #include "usbd_cdc_if.h"
 
 
+#define TASK_VCP_TX_STACK_SIZE  (300)
+#define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
+
+#define BUF_VCP_RX_LEN   128
+#define BUF_VCP_TX_LEN   128
+
+
+
 USBD_HandleTypeDef hUsbDeviceFS;
 extern USBD_DescriptorsTypeDef FS_Desc;
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
 
-#define QUEUE_UART_RX_LEN    128
-#define QUEUE_UART_TX_LEN    128
-
+char hal_vcp_rx_buf[BUF_VCP_RX_LEN];
+char hal_vcp_tx_buf1[BUF_VCP_TX_LEN];
+char hal_vcp_tx_buf2[BUF_VCP_TX_LEN];
+int hal_vcp_tx_buf1_len, hal_vcp_tx_buf2_len;
+int8_t hal_vcp_tx_use_buf2;
+int8_t hal_vcp_tx_pending;
 QueueHandle_t hal_queue_vcp_rx;
 QueueHandle_t hal_queue_vcp_tx;
+SemaphoreHandle_t hal_sem_vcp_tx;
 
 
-signed portBASE_TYPE hal_vcp_putc( char c )
+void hal_vcp_tx_done_isr_hook(void)
 {
-    if( hUsbDeviceFS.dev_config == 0 )
-        return pdFAIL;
-    if( CDC_Transmit_FS( (uint8_t*)&c, 1 ) == USBD_OK )
-        return pdPASS;
-    else
-        return pdFAIL;
-}
-
-signed portBASE_TYPE hal_vcp_write( char *buf, int len )
-{
-    if( hUsbDeviceFS.dev_config == 0 )
-        return pdFAIL;
-    if( CDC_Transmit_FS( (uint8_t*)buf, len ) == USBD_OK )
-        return pdPASS;
-    else
-        return pdFAIL;
+    xSemaphoreGiveFromISR( hal_sem_vcp_tx, 0 );
 }
 
 
@@ -47,7 +45,7 @@ signed portBASE_TYPE hal_vcp_getc( char *c, TickType_t xBlockTime )
 void hal_vcp_reset(void)
 {
     xQueueReset( hal_queue_vcp_rx );
-    xQueueReset( hal_queue_vcp_tx );
+    hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
 }
 
 
@@ -55,13 +53,81 @@ void hal_vcp_enable(uint8_t enable)
 {
 }
 
+#define READ_TIMEOUT_MS    10
+#define READ_TIMEOUT_TICK  (READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
+void task_vcp_tx_entry(void *p)
+{
+    char c;
+    char *next_buf;
+    int *next_buf_len;
+    TickType_t timeout;
+
+    while(1)
+    {
+        next_buf = hal_vcp_tx_use_buf2 ? hal_vcp_tx_buf1 : hal_vcp_tx_buf2;
+        next_buf_len = hal_vcp_tx_use_buf2 ? &hal_vcp_tx_buf1_len : &hal_vcp_tx_buf2_len;
+        
+        /* get the first item from the queue */ 
+        xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY );
+        timeout = xTaskGetTickCount() + READ_TIMEOUT_TICK;
+        *next_buf = c;
+        *next_buf_len = 1;
+
+        /* read as much as possible from the queue with time limit */
+        while( *next_buf_len < BUF_VCP_TX_LEN )
+        {
+            if( xQueueReceive( hal_queue_vcp_tx, &c, READ_TIMEOUT_TICK ) == pdPASS )
+            {
+                *(next_buf + *next_buf_len) = c;
+                *next_buf_len += 1;
+            }
+            if( xTaskGetTickCount() > timeout )
+                break;
+        }
+
+        /* try to send */
+        while( hUsbDeviceFS.dev_config )
+        {
+            if( xSemaphoreTake( hal_sem_vcp_tx, portMAX_DELAY ) == pdTRUE )
+            {
+                if( CDC_Transmit_FS( (uint8_t*)next_buf, *next_buf_len ) == USBD_OK )
+                    break;
+                else
+                {
+                    xSemaphoreGive( hal_sem_vcp_tx );
+                    vTaskDelay(1);
+                }
+            }
+        }
+
+        /* switch to next bank */
+        hal_vcp_tx_use_buf2 = hal_vcp_tx_use_buf2 ? 0 : 1;
+    }
+}
+
+
 
 int hal_uart_init(uint32_t baudrate)
 {
-    hal_queue_vcp_rx = xQueueCreate( QUEUE_UART_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_queue_vcp_tx = xQueueCreate( QUEUE_UART_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    if( !hal_queue_vcp_rx || !hal_queue_vcp_tx )
+    TaskHandle_t task_vcp_tx;
+
+    hal_queue_vcp_rx = xQueueCreate( BUF_VCP_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_queue_vcp_tx = xQueueCreate( BUF_VCP_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_sem_vcp_tx = xSemaphoreCreateBinary();
+    if( !hal_queue_vcp_rx || !hal_queue_vcp_tx || !hal_sem_vcp_tx )
         return 0;
+    xSemaphoreGive(hal_sem_vcp_tx);
+    hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
+
+    /* create vcp/tx task */
+    (void)xTaskCreate(task_vcp_tx_entry, (const char *)"vcp/txT", 
+                TASK_VCP_TX_STACK_SIZE / sizeof(portSTACK_TYPE),
+                NULL, TASK_VCP_TX_PRIORITY, &task_vcp_tx);
+    if( task_vcp_tx == NULL )
+        halt("create vcp/tx task");
+#if DEBUG
+    mcushTaskAddToRegistered((void*)task_vcp_tx);
+#endif
 
     USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
     USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC);
@@ -112,26 +178,18 @@ int  shell_driver_read_is_empty( void )
     return 1;
 }
 
-#define WRITE_RETRY         5
-#define WRITE_TIMEOUT_MS    1000
-#define WRITE_TIMEOUT_TICK  (WRITE_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 
 int  shell_driver_write( const char *buffer, int len )
 {
     int written=0;
-    int retry;
 
     while( written < len )
     {
-        retry = 0;
-        while( hal_vcp_write( (char*)buffer, len ) == pdFAIL )
+        if( xQueueSend( hal_queue_vcp_tx, (void*)(buffer), portMAX_DELAY ) == pdPASS )
         {
-            vTaskDelay(1);
-            retry++;
-            if( retry >= WRITE_RETRY )
-                return written;
+            written ++;
+            buffer ++;
         }
-        written += len;
     }
     return written;
 }
@@ -139,14 +197,6 @@ int  shell_driver_write( const char *buffer, int len )
 
 void shell_driver_write_char( char c )
 {
-    int retry=0;
-    
-    while( hal_vcp_putc( c ) == pdFAIL )
-    {
-        vTaskDelay(1);
-        retry++;
-        if( retry >= WRITE_RETRY )
-            return;
-    }
+    shell_driver_write( (const char*)&c, 1 );
 }
 

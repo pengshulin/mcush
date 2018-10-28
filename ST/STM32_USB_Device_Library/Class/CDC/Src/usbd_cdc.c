@@ -64,6 +64,10 @@
 #include "usbd_ctlreq.h"
 
 
+    
+extern void hal_vcp_tx_done_isr_hook(void);
+
+
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
   */
@@ -669,7 +673,7 @@ static uint8_t  USBD_CDC_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
   {
     
     hcdc->TxState = 0;
-
+    hal_vcp_tx_done_isr_hook();   /* PengShulin:  hook function call for MCUSH/VCP */
     return USBD_OK;
   }
   else
