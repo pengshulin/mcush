@@ -1,1 +1,1 @@
-../../halstm32f407zg_eu/hal/hal_gpio.c
+../../halstm32f7/hal/hal_gpio.c

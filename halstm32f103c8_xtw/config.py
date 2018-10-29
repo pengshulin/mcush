@@ -1,17 +1,32 @@
 from Arm.Stm32 import *
 
-env = Stm32f1md()
+env = Stm32f1md( use_hal_driver=hal_config.use_hal_driver )
 env.setLinkfile( '/ld/stm32f103x8_min.ld' )
+env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
 
-if hal_config.use_vcp == False or hal_config.use_uart:
-    hal_config.paths += ['uart']
-    hal_config.sources += ['uart/*.c']
+hal_config.paths += ['common']
+hal_config.sources += ['common/*.c']
+hal_dir = 'hal' if hal_config.use_hal_driver else 'std'
+hal_config.paths += [hal_dir]
+hal_config.sources += [hal_dir+'/*.c']
+
+if hal_config.use_vcp is None:
+    hal_config.use_vcp = True  # use vcp as default
+
+if hal_config.use_vcp:
+    hal_config.paths += [hal_dir+'/vcp']
+    hal_config.sources += [hal_dir+'/vcp/*.c']
+    if hal_dir == 'std':
+        env.appendDriver(STM32_USB_FS_Driver() )
+        env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
+    else:
+        env.appendDriver(STM32_USB_DEVICE_CDC_Driver())
 else:
-    hal_config.paths += ['vcp']
-    hal_config.sources += ['vcp/*.c']
-    env.appendDriver(STM32_USB_FS_Driver())
-    env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
+    hal_config.paths += [hal_dir+'/uart']
+    hal_config.sources += [hal_dir+'/uart/*.c']
+
+
 
 
 #env.appendDefineFlags( ['BLACK_BOARD'] )

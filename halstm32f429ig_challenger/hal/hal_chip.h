@@ -1,1 +1,1 @@
-../../halstm32f407zg_eu/hal/hal_chip.h
+../../halstm32f4/hal/hal_chip.h

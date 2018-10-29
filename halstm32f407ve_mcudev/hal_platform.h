@@ -10,8 +10,9 @@
 void hal_rng_init(void);
 uint32_t hal_rng_get(void);
 
-
-#define USE_CMD_SGPIO  1
+#ifndef USE_CMD_SGPIO
+#define USE_CMD_SGPIO  0
+#endif
 #define SGPIO_FREQ_MIN  1.0
 #define SGPIO_FREQ_DEF  1000000.0
 #define SGPIO_FREQ_MAX  4000000.0
@@ -40,7 +41,7 @@ sgpio_cfg_t *hal_sgpio_info( void );
 #include "mcush_vfs.h"
 
 #ifndef MCUSH_SPIFFS
-#define MCUSH_SPIFFS  1
+#define MCUSH_SPIFFS  0
 #endif
 
 #define HAL_SPIFFS_CHIPID  0xEF4017  // W25P64

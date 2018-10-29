@@ -1,1 +1,0 @@
-../halstm32f207ve/stm32f2xx_conf.h

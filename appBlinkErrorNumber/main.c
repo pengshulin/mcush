@@ -11,6 +11,7 @@ int main(void)
 {
     mcush_init();
     //test_delay_us();
+    //test_delay_ms();
     task_blink_init(); 
     mcush_start();
     while(1);

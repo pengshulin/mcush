@@ -1,1 +1,0 @@
-../../halstm32f103xb/hal_get_serial_number.c

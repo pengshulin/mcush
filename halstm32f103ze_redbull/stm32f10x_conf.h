@@ -1,1 +1,0 @@
-../halstm32f103xb/stm32f10x_conf.h

@@ -1,0 +1,1 @@
+../../halstm32f4/common/hal.h

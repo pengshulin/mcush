@@ -1,1 +1,1 @@
-../../halstm32f407zg_eu/hal/stm32f4xx_hal_conf.h
+../../halstm32f4/hal/stm32f4xx_hal_conf.h

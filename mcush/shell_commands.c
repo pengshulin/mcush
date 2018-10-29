@@ -426,7 +426,7 @@ int cmd_scpi_idn( int argc, char *argv[] )
 int cmd_scpi_rst( int argc, char *argv[] )
 {
     /* *rst command ignore all arguments */
-    hal_reset();
+    hal_platform_reset();
     return 0;
 }
 #endif

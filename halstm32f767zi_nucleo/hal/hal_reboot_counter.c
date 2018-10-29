@@ -1,0 +1,1 @@
+../../halstm32f7/hal/hal_reboot_counter.c

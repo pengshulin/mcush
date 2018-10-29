@@ -1,1 +1,1 @@
-../../halstm32f407zg_eu/std/hal_rng.c
+../../halstm32f4/std/hal_rng.c

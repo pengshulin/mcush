@@ -35,14 +35,28 @@ void hal_beep_off( void );
 #define HAL_BEEP_AF                     GPIO_AF_TIMER2
  
 
-#include "hal_sgpio.h"
-    
-#define USE_CMD_POWER  1
+#define HAL_POWER_PORT  1
+#define HAL_POWER_PIN   6
 void hal_power_set(int enable);
 int hal_is_power_set(void);
 
-#define HAL_USE_USB_DISCONNECT 1
 
+#define CMD_I2C_SDA_PORT  2
+#define CMD_I2C_SDA_PIN  0
+#define CMD_I2C_SCL_PORT  2
+#define CMD_I2C_SCL_PIN  1
+
+#define CMD_SPI_SDI_PORT  2
+#define CMD_SPI_SDI_PIN  0
+#define CMD_SPI_SDO_PORT  2
+#define CMD_SPI_SDO_PIN  1
+#define CMD_SPI_SCK_PORT  2
+#define CMD_SPI_SCK_PIN  2
+#define CMD_SPI_CS_PORT  2
+#define CMD_SPI_CS_PIN  3
+    
+#define HAL_USB_EN_PORT  0
+#define HAL_USB_EN_PIN   8
 
 
 #endif

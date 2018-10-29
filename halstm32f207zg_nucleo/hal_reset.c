@@ -1,1 +1,0 @@
-../halstm32f207ve/hal_reset.c

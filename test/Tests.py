@@ -79,6 +79,13 @@ def info( argv=None ):
 def reset( argv=None ):
     Mcush().reset()
 
+def reboot( argv=None ):
+    m = Mcush()
+    try:
+        m.reboot()
+    except:
+        pass
+
 def regs_test( argv=None ):
     s = Mcush()
     s.addReg( Register( 'PORTA_CRL', 0x40010800, 'PORTA control (low)' ) )

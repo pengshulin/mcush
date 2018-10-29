@@ -20,9 +20,10 @@ def main(argv=None):
 
     s = Mcush.Mcush()
     #s.reboot()
+    print( 'uptime: %s'% s.uptime() )
 
     def info( message ):
-        print '[%d] (%d/%d/%d/%d) %s'% (segment_counter, malloc_counter, realloc_counter, free_counter, fill_err_counter, message)
+        print( '[%d] (%d/%d/%d/%d) %s'% (segment_counter, malloc_counter, realloc_counter, free_counter, fill_err_counter, message) )
    
     while True:
 

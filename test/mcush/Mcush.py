@@ -206,7 +206,7 @@ class Mcush( Instrument.SerialInstrument ):
         try:
             self.writeCommand( cmd )
             return True
-        except CommandExecuteError:
+        except Instrument.CommandExecuteError:
             return False
         
     def malloc( self, length ):

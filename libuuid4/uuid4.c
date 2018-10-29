@@ -11,6 +11,8 @@
 #if defined(_WIN32)
 #include <windows.h>
 #include <wincrypt.h>
+#else
+#include "mcush.h"
 #endif
 
 #include "uuid4.h"
