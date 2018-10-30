@@ -10,7 +10,7 @@
 #define TASK_VCP_TX_STACK_SIZE  (300)
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
-#define TASK_VCP_TX_READ_TIMEOUT_MS    10  /* timeout for the last byte, actual cycle timeout will be doubled */
+#define TASK_VCP_TX_READ_TIMEOUT_MS    20  /* timeout for the last byte, actual cycle timeout will be doubled */
 #define TASK_VCP_TX_READ_TIMEOUT_TICK  (TASK_VCP_TX_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 
 #define VCP_RX_BUF_LEN   128  /* memory consumption: RX_LEN x 2 */
@@ -136,13 +136,22 @@ void shell_driver_reset( void )
 
 int  shell_driver_read( char *buffer, int len )
 {
-    return 0;  /* not supported */
+    int bytes=0;
+    while( bytes < len )
+    {
+        if( xQueueReceive( hal_queue_vcp_rx, buffer, portMAX_DELAY ) == pdPASS )
+        {
+            buffer++;
+            bytes++;
+        }
+    }
+    return bytes;
 }
 
 
 int  shell_driver_read_char( char *c )
 {
-    if( xQueueReceive( hal_queue_vcp_rx, c, portMAX_DELAY ) == pdFAIL )
+    if( xQueueReceive( hal_queue_vcp_rx, c, portMAX_DELAY ) != pdPASS )
         return -1;
     else
         return (int)c;
@@ -151,7 +160,7 @@ int  shell_driver_read_char( char *c )
 
 int  shell_driver_read_char_blocked( char *c, int block_time )
 {
-    if( xQueueReceive( hal_queue_vcp_rx, c, block_time ) == pdFAIL )
+    if( xQueueReceive( hal_queue_vcp_rx, c, block_time ) != pdPASS )
         return -1;
     else
         return (int)c;

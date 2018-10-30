@@ -299,7 +299,6 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
     int len = *Len;
-    char c;
     /* receive and append to rx queue */
     while( len )
     {
@@ -309,16 +308,9 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
             len--;
         }
         else
-        {
-            /* if queue is full, remove the oldest */
-            if( xQueueReceiveFromISR( hal_queue_vcp_rx, (void*)&c, NULL ) == pdFAIL )
-            {
-                /* something seems error */
-                break;
-            }
-        }
+            break;
     }
-    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *)hal_vcp_rx_buf);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);
     return (USBD_OK);
 }

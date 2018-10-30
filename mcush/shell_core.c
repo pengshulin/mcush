@@ -895,6 +895,9 @@ void shell_run( void )
     
     while( 1 )
     {
+//#if HAL_WDG_ENABLE
+//        hal_wdg_clear();
+//#endif
         switch( shell_read_line(0, "") )
         {
         case 0:  /* empty line */

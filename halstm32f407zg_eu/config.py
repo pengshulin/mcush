@@ -11,7 +11,7 @@ env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 #env.appendDefineFlags( [ 'USE_CMD_UPGRADE=1' ] )
 env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
-env.appendDefineFlags( [ 'HAL_WDG_ENABLE=1' ] )
+#env.appendDefineFlags( [ 'HAL_WDG_ENABLE=1' ] )
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']
@@ -57,5 +57,4 @@ if hal_config.use_hal_driver:
         'USE_CMD_SGPIO=0',
         'USE_CMD_UPGRADE=0',
         ] )
-
 
