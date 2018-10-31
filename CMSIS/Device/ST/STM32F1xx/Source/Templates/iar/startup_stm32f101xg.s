@@ -1,19 +1,23 @@
-;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f101xg.s
 ;* Author             : MCD Application Team
-;* Version            : V4.0.0
-;* Date               : 16-December-2014
+;* Version            : V4.2.0
+;* Date               : 31-March-2017
 ;* Description        : STM32F101xG Access Line Devices vector table for EWARM 
 ;*                      toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == __iar_program_start,
-;*                      - Set the vector table entries with the exceptions ISR address,
+;*                      - Set the vector table entries with the exceptions ISR 
+;*                        address.
+;*                      - Configure the system clock
+;*                      - Branches to main in the C library (which eventually
+;*                        calls main()).
 ;*                      After Reset the Cortex-M3 processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
 ;* 
-;* <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+;* <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
 ;* 
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:

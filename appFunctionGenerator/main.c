@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <math.h>
 #include "mcush.h"
 #include "task_blink.h"

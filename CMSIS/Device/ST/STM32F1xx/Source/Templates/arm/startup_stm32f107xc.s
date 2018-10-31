@@ -1,8 +1,8 @@
-;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
+;******************** (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32f107xc.s
 ;* Author             : MCD Application Team
-;* Version            : V4.0.0
-;* Date               : 16-December-2014
+;* Version            : V4.2.0
+;* Date               : 31-March-2017
 ;* Description        : STM32F107xC Devices vector table for MDK-ARM toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -15,7 +15,7 @@
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
 ;*
-;* COPYRIGHT(c) 2014 STMicroelectronics
+;* <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
 ;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:

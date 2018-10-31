@@ -1,3 +1,4 @@
+# MCUSH designed by Peng Shulin, all rights reserved.
 .PHONY: clean flash flash2 reset reset2 stflash streset
 
 all:

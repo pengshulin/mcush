@@ -1,9 +1,9 @@
 /**
-  *************** (C) COPYRIGHT 2014 STMicroelectronics ************************
+  *************** (C) COPYRIGHT 2017 STMicroelectronics ************************
   * @file      startup_stm32f101x6.s
   * @author    MCD Application Team
-  * @version   V4.0.0
-  * @date      16-December-2014
+  * @version   V4.2.0
+  * @date      31-March-2017
   * @brief     STM32F101x6 Devices vector table for Atollic toolchain.
   *            This module performs:
   *                - Set the initial SP
@@ -16,7 +16,7 @@
   *            priority is Privileged, and the Stack is set to Main.
   ******************************************************************************
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:

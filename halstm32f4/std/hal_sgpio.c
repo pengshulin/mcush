@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 #include <math.h>
 #include <string.h>
@@ -10,7 +11,7 @@
  * TIM4.CC2 -- DMA1.Ch2.Stream3 -- INPUT
  *
  * DMA1 - 0x40026000 ~ 0x400263FF
- * TIM4 - 0x
+ * TIM4 - 0x40000800
  */
 
 
@@ -35,7 +36,7 @@ int hal_sgpio_init(void)
     timbase.TIM_CounterMode = TIM_CounterMode_Up;
     timbase.TIM_ClockDivision = TIM_CKD_DIV1;
     timbase.TIM_Prescaler = 0;
-    timbase.TIM_Period = 72-1; // default freq: 1MHz
+    timbase.TIM_Period = SystemCoreClock/1000000-1; // default freq: 1MHz
     timbase.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit( TIM4, &timbase );
     
@@ -55,7 +56,7 @@ int hal_sgpio_init(void)
 
 int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, void *buf_out, void *buf_in, int buf_len, float freq )
 {
-	DMA_InitTypeDef dma;
+    DMA_InitTypeDef dma;
 
     hal_sgpio_stop();
     if( sgpio_cfg.inited )
@@ -89,44 +90,44 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
     hal_sgpio_set_freq( freq );
 
 	// DMA config
-	dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-	dma.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-	dma.DMA_Priority = DMA_Priority_High;
+    dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+    dma.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+    dma.DMA_Priority = DMA_Priority_High;
     dma.DMA_FIFOMode = DMA_FIFOMode_Disable;
     dma.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
     dma.DMA_MemoryBurst = DMA_MemoryBurst_Single;
     dma.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 	
     // output
-	if( output_mode && buf_out )
+    if( output_mode && buf_out )
     {
-	    dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->ODR);
-	    dma.DMA_Memory0BaseAddr = (uint32_t)buf_out;
-	    dma.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-	    dma.DMA_BufferSize = sgpio_cfg.buf_len;
-	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
-	    dma.DMA_Channel = DMA_Channel_2;
+        dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->ODR);
+        dma.DMA_Memory0BaseAddr = (uint32_t)buf_out;
+        dma.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+        dma.DMA_BufferSize = sgpio_cfg.buf_len;
+        dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
+        dma.DMA_Channel = DMA_Channel_2;
         DMA_ClearFlag( DMA1_Stream0, DMA_FLAG_FEIF0 | DMA_FLAG_DMEIF0 | DMA_FLAG_TEIF0 );
-	    DMA_Init( DMA1_Stream0, &dma );
-	    DMA_Cmd( DMA1_Stream0, ENABLE );
+        DMA_Init( DMA1_Stream0, &dma );
+        DMA_Cmd( DMA1_Stream0, ENABLE );
         if( DMA_GetCmdStatus( DMA1_Stream0 ) == DISABLE )
             return 0; 
     }
 
     // input
-	if( input_mode && buf_in )
+    if( input_mode && buf_in )
     {
-	    dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->IDR);
-	    dma.DMA_Memory0BaseAddr = (uint32_t)buf_in;
-	    dma.DMA_DIR = DMA_DIR_PeripheralToMemory;
-	    dma.DMA_BufferSize = buf_len;
-	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
-	    dma.DMA_Channel = DMA_Channel_2;
+        dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->IDR);
+        dma.DMA_Memory0BaseAddr = (uint32_t)buf_in;
+        dma.DMA_DIR = DMA_DIR_PeripheralToMemory;
+        dma.DMA_BufferSize = buf_len;
+        dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
+        dma.DMA_Channel = DMA_Channel_2;
         DMA_ClearFlag( DMA1_Stream3, DMA_FLAG_FEIF3 | DMA_FLAG_DMEIF3 | DMA_FLAG_TEIF3 );
-	    DMA_Init( DMA1_Stream3, &dma );
-	    DMA_Cmd( DMA1_Stream3, ENABLE );
+        DMA_Init( DMA1_Stream3, &dma );
+        DMA_Cmd( DMA1_Stream3, ENABLE );
         if( DMA_GetCmdStatus( DMA1_Stream3 ) == DISABLE )
             return 0; 
     }

@@ -82,14 +82,10 @@ int hal_uart_init( uint32_t baudrate )
     /* Configure USART Rx/Tx as alternate function push-pull */
     gpio_init.GPIO_Pin = HAL_UARTx_RX_PIN;
     gpio_init.GPIO_Mode = GPIO_Mode_IPU;
-    //gpio_init.GPIO_Mode = GPIO_Mode_AF;
-    //gpio_init.GPIO_PuPd = GPIO_PuPd_UP;
-    //gpio_init.GPIO_OType = GPIO_OType_PP;
     gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init( HAL_UARTx_RX_PORT, &gpio_init );
     gpio_init.GPIO_Pin = HAL_UARTx_TX_PIN;
     gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
-    //gpio_init.GPIO_Mode = GPIO_Mode_AF;
     GPIO_Init( HAL_UARTx_TX_PORT, &gpio_init );
     /* Connect AF */
     //GPIO_PinAFConfig( HAL_UARTx_RX_PORT, HAL_UARTx_RX_PINSRC, HAL_UARTx_AF );
@@ -133,7 +129,6 @@ void HAL_UARTx_IRQHandler(void)
         {
             USART_ITConfig( HAL_UARTx, USART_IT_TXE, DISABLE );        
         }       
-        USART_ClearITPendingBit( HAL_UARTx, USART_IT_TXE );
     }
     
     if( USART_GetITStatus( HAL_UARTx, USART_IT_RXNE ) == SET )

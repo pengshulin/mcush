@@ -10,6 +10,7 @@ const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF,
 #endif
 #endif
     };
+
 const uint8_t port_num = sizeof(ports)/sizeof(const GPIO_TypeDef *);
 
 
@@ -82,7 +83,7 @@ void hal_gpio_set_output(int port, int bits)
 
 void hal_gpio_set_output_open_drain(int port, int bits)
 {
-    _set_dir( port, bits, LL_GPIO_MODE_OUTPUT, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_PULL_UP, 0 );
+    _set_dir( port, bits, LL_GPIO_MODE_OUTPUT, LL_GPIO_OUTPUT_OPENDRAIN, LL_GPIO_PULL_UP, 0 );
 }
 
 

@@ -76,6 +76,10 @@ sgpio_cfg_t *hal_sgpio_info( void );
 
 
 
+void hal_beep_init( void );
+void hal_beep_on( int freq );
+void hal_beep_off( void );
+
  
 void hal_pwm_init( int freq, int range, int value );
 void hal_pwm_deinit( void );

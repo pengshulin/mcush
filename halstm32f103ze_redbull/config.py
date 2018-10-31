@@ -1,5 +1,5 @@
 from Arm.Stm32 import *
-env = Stm32f1hd( use_hal_driver=hal_config.use_hal_driver )
+env = Stm32f103xe( use_hal_driver=hal_config.use_hal_driver )
 env.setLinkfile( '/ld/stm32f103ze_redbull.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 #env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
@@ -55,10 +55,9 @@ env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'SUSPEND_ENABLED=0',
-    'USE_CMD_PWM=1',
-    'USE_CMD_ADC=1',
+    'USE_CMD_PWM=%s'% (int(hal_dir=='std')),
+    'USE_CMD_ADC=%s'% (int(hal_dir=='std')),
     ] )
-
 
 
 

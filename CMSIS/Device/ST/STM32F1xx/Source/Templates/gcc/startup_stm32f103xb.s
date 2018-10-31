@@ -1,9 +1,9 @@
 /**
-  *************** (C) COPYRIGHT 2014 STMicroelectronics ************************
+  *************** (C) COPYRIGHT 2017 STMicroelectronics ************************
   * @file      startup_stm32f103xb.s
   * @author    MCD Application Team
-  * @version   V4.0.0
-  * @date      16-December-2014
+  * @version   V4.2.0
+  * @date      31-March-2017
   * @brief     STM32F103xB Devices vector table for Atollic toolchain.
   *            This module performs:
   *                - Set the initial SP
@@ -16,7 +16,7 @@
   *            priority is Privileged, and the Stack is set to Main.
   ******************************************************************************
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -106,10 +106,26 @@ LoopFillZerobss:
   cmp r2, r3
   bcc FillZerobss
 
+
+/****************************************************************************/
+/* fill stack area with 0xA5 for future check, by PengShulin */
+    ldr  r2, =_sstack
+    b  LoopFillStack
+FillStack:
+    movs  r3, #0xA5A5A5A5
+    str  r3, [r2], #4
+LoopFillStack:
+    ldr  r3, = _estack
+    cmp  r2, r3
+    bcc  FillStack
+/****************************************************************************/
+
+
+
 /* Call the clock system intitialization function.*/
     bl  SystemInit
 /* Call static constructors */
-    bl __libc_init_array
+    /* bl __libc_init_array */
 /* Call the application's entry point.*/
   bl main
   bx lr

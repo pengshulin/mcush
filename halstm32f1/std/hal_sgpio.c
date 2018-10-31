@@ -27,7 +27,7 @@ int hal_sgpio_init(void)
     TIM_OCInitTypeDef timoc;
    
     memset( &sgpio_cfg, 0, sizeof(sgpio_cfg_t) );
-    RCC_APB2PeriphClockCmd(	RCC_APB2Periph_TIM1, ENABLE );
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM1, ENABLE );
     RCC_AHBPeriphClockCmd( RCC_AHBPeriph_DMA1, ENABLE );
 
     // Tick Timer

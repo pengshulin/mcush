@@ -10,7 +10,7 @@
 #define TASK_VCP_TX_STACK_SIZE  (300)
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
-#define TASK_VCP_TX_READ_TIMEOUT_MS    20  /* timeout for the last byte, actual cycle timeout will be doubled */
+#define TASK_VCP_TX_READ_TIMEOUT_MS    5  /* timeout for the last byte, actual cycle timeout will be doubled */
 #define TASK_VCP_TX_READ_TIMEOUT_TICK  (TASK_VCP_TX_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 
 #define VCP_RX_BUF_LEN   128  /* memory consumption: RX_LEN x 2 */

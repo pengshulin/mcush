@@ -18,7 +18,8 @@ void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
 void hal_delay_10ms(uint32_t ms10);
 
-void hal_reset(void);
+void hal_platform_reset(void);
+void hal_platform_init(void);
 void hal_reboot(void);
 void hal_reboot_counter_init(void);
 void hal_reboot_counter_reset(void);

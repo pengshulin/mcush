@@ -1,28 +1,22 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 
-const uint8_t port_num = 11;
 const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI, GPIOJ, GPIOK };
+const uint8_t port_num = sizeof(ports)/sizeof(const GPIO_TypeDef *);
 
 
 
 static void _set_dir( int port, int bits, GPIOMode_TypeDef mode, GPIOPuPd_TypeDef pull, GPIOOType_TypeDef output_type )
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-    int i;
+    GPIO_InitTypeDef gpio_init;
         
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Mode = mode;
-    GPIO_InitStructure.GPIO_PuPd = pull;
-    GPIO_InitStructure.GPIO_OType = output_type;
-    GPIO_InitStructure.GPIO_Speed = GPIO_High_Speed;
-    for( i=0; i<32; i++ )
-    {
-        if( bits & (1<<i) )
-        { 
-            GPIO_InitStructure.GPIO_Pin = 1<<i;
-            GPIO_Init((GPIO_TypeDef *)ports[port], &GPIO_InitStructure);
-        }
-    }
+    GPIO_StructInit(&gpio_init);
+    gpio_init.GPIO_Mode = mode;
+    gpio_init.GPIO_PuPd = pull;
+    gpio_init.GPIO_OType = output_type;
+    gpio_init.GPIO_Speed = GPIO_High_Speed;
+    gpio_init.GPIO_Pin = bits & 0xFFFF;
+    GPIO_Init((GPIO_TypeDef *)ports[port], &gpio_init);
 }
 
 
@@ -39,7 +33,8 @@ void hal_gpio_init(void)
         RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | \
         RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | \
         RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH | \
-        RCC_AHB1Periph_GPIOI, ENABLE );
+        RCC_AHB1Periph_GPIOI | RCC_AHB1Periph_GPIOJ | \
+        RCC_AHB1Periph_GPIOK, ENABLE );
 }
 
 

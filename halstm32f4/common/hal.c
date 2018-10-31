@@ -10,9 +10,6 @@ int hal_init(void)
 #endif
     hal_gpio_init();
     hal_led_init();
-#if USE_CMD_SGPIO
-    hal_sgpio_init();
-#endif
 #if HAL_RNG
     hal_rng_init();
 #endif
@@ -21,6 +18,9 @@ int hal_init(void)
 #endif
 #if HAL_LCD
     hal_lcd_init();
+#endif
+#if USE_CMD_SGPIO
+    hal_sgpio_init();
 #endif
     if( !hal_uart_init(SHELL_DEFAULT_BAUDRATE) )
         return 0;

@@ -1,9 +1,10 @@
+# MCUSH designed by Peng Shulin, all rights reserved.
 from VEnvironment import *
 
 haldir='stm32f407zg_eu'
 haldir='stm32f407ve_mcudev'
 
-env = loadHalConfig( haldir ).env
+env = loadHalConfig( haldir, use_hal_driver=False, use_vcp=False ).env
 
 # disable some commands and reduce flash size
 env.appendDefineFlags( [

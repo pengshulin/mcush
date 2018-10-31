@@ -10,12 +10,11 @@
 
 
 
+#ifndef USE_CMD_BEEP
 #define USE_CMD_BEEP  1
 #define PORT_BEEP       GPIOB
 #define PIN_BEEP        GPIO_Pin_0
-void hal_beep_init( void );
-void hal_beep_on( int freq );
-void hal_beep_off( void );
+#endif
 
 #ifndef USE_CMD_SGPIO
 #define USE_CMD_SGPIO  1

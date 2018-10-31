@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 #include "mcush.h"
 

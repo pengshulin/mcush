@@ -1,5 +1,5 @@
 from Arm.Stm32 import *
-env = Stm32f1md( use_hal_driver=hal_config.use_hal_driver )
+env = Stm32f103xb( use_hal_driver=hal_config.use_hal_driver )
 env.setLinkfile( '/ld/stm32f103xb_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
@@ -54,6 +54,18 @@ env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'SUSPEND_ENABLED=0',
-    'USE_CMD_PWM=1',
-    'USE_CMD_ADC=1',
     ] )
+
+if hal_dir == 'std':
+    env.appendDefineFlags( [
+        'USE_CMD_PWM=1',
+        'USE_CMD_ADC=1',
+        ] )
+else:
+    env.appendDefineFlags( [
+        'USE_CMD_BEEP=0',
+        'USE_CMD_SGPIO=0',
+        'USE_CMD_PWM=0',
+        'USE_CMD_ADC=0',
+        ] )
+

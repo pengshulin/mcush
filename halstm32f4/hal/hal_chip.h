@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #ifndef __HAL_CHIP_H__
 #define __HAL_CHIP_H__
 

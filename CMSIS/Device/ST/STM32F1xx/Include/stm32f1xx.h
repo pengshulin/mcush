@@ -2,23 +2,23 @@
   ******************************************************************************
   * @file    stm32f1xx.h
   * @author  MCD Application Team
-  * @version V4.0.0
-  * @date    16-December-2014
+  * @version V4.2.0
+  * @date    31-March-2017
   * @brief   CMSIS STM32F1xx Device Peripheral Access Layer Header File. 
   *
   *          The file is the unique include file that the application programmer
   *          is using in the C source code, usually in main.c. This file contains:
   *            - Configuration section that allows to select:
   *              - The STM32F1xx device used in the target application
-  *              - To use or not the peripheral’s drivers in application code(i.e. 
-  *                code will be based on direct access to peripheral’s registers 
+  *              - To use or not the peripheralæŠ¯ drivers in application code(i.e. 
+  *                code will be based on direct access to peripheralæŠ¯ registers 
   *                rather than drivers API), this option is controlled by 
   *                "#define USE_HAL_DRIVER"
   *  
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -108,16 +108,16 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V4.0.0
+  * @brief CMSIS Device version number V4.2.0
   */
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_MAIN   (0x04) /*!< [31:24] main version */                                  
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32F1xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB1 << 16)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB2 << 8 )\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_RC))
+#define __STM32F1_CMSIS_VERSION_MAIN   (0x04) /*!< [31:24] main version */
+#define __STM32F1_CMSIS_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
+#define __STM32F1_CMSIS_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32F1_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
+#define __STM32F1_CMSIS_VERSION        ((__STM32F1_CMSIS_VERSION_MAIN << 24)\
+                                       |(__STM32F1_CMSIS_VERSION_SUB1 << 16)\
+                                       |(__STM32F1_CMSIS_VERSION_SUB2 << 8 )\
+                                       |(__STM32F1_CMSIS_VERSION_RC))
 
 /**
   * @}

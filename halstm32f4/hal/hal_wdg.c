@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 
 static char _wdg_enable=0;
