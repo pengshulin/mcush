@@ -20,6 +20,7 @@ class Mcush( Instrument.SerialInstrument ):
     '''Mcush core'''
     DEFAULT_NAME = 'MCUSH'
     DEFAULT_IDN = re.compile( 'mcush,([0-9]+\.[0-9]+.*)' )
+    DEFAULT_MULTILINE_INPUT_LINE_LIMIT = 50
 
     regs_by_name = {}
     regs_by_addr = {}
@@ -224,6 +225,26 @@ class Mcush( Instrument.SerialInstrument ):
     def free( self, addr ):
         cmd = 'mapi -f -b 0x%08X'% addr
         self.writeCommand( cmd )
+
+    def mkbuf( self, value_list, float_mode=False ):
+        cmd = 'mkbuf -f' if float_mode else 'mkbuf'
+        self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
+        self.writeCommand( cmd )
+        line = ''
+        for v in value_list:
+            if float_mode:
+                line += '%f '% v
+            else:
+                line += '%d '% v
+            if len(line) > self.DEFAULT_MULTILINE_INPUT_LINE_LIMIT:
+                self.writeCommand( line.rstrip() )
+                line = ''
+        if line:
+            self.writeCommand( line.rstrip() )
+        self.setPrompts()
+        r = Utils.parseKeyValueLines(self.writeCommand(''))
+        return int(r['address'], 16)
+            
  
     def readMem( self, addr, length=1, compact_mode=False, retry=None ):
         '''get memory'''
@@ -392,7 +413,7 @@ class Mcush( Instrument.SerialInstrument ):
         dat = self.cat( pathname, b64=True )
         open( local_pathname, 'w+' ).write(dat)
 
-    def putFile( self, pathname, local_pathname, segment_size=1024, segment_done_callback=None ):
+    def putFile( self, pathname, local_pathname, segment_size=512, segment_done_callback=None ):
         # split local_file into pieces and write
         dat = open(local_pathname, 'rb').read()
         dat_size = len(dat)
@@ -413,11 +434,68 @@ class Mcush( Instrument.SerialInstrument ):
             if segment_done_callback:
                 segment_done_callback(1+i, dat_segments, sent, dat_size)
  
-    def spiffs( self, command, value=None ):
+    def spiffs( self, command, value=None, addr=None, compact_mode=None ):
         cmd = 'spiffs -c %s'% command
         if value is not None:
             cmd += ' %s'% value
+        if addr is not None:
+            cmd += ' -b 0x%X'% addr
+        if compact_mode:
+            cmd += ' --compact'
         return self.writeCommand( cmd )
+
+    def spiffsID( self ):
+        return self.spiffs('id')[0]
+
+    def spiffsMount( self ):
+        self.spiffs('mount')
+
+    def spiffsUmount( self ):
+        self.spiffs('umount')
+
+    def spiffsFormat( self ):
+        oldtimeout = self.setTimeout( 60 )
+        self.spiffs( 'format' )
+        self.setTimeout( oldtimeout )
+
+    def spiffsErase( self, addr=None ):
+        oldtimeout = self.setTimeout( 60 )
+        if addr is not None:
+            self.spiffs( 'erase', addr=addr )
+        else:
+            self.spiffs( 'erase' )
+        self.setTimeout( oldtimeout )
+
+    def spiffsInfo( self ):
+        var = Utils.parseKeyValueLines( self.spiffs( 'info' ) )
+        var['total'] = int(var['total'])
+        var['used'] = int(var['used'])
+        var['free'] = var['total'] - var['used']
+        return var
+
+    def spiffsReadPage( self, page, pagesize=256 ):
+        compact_mode = True
+        ret = self.spiffs( "read", addr=page*pagesize, compact_mode=compact_mode ) 
+        mem = (b'' if Env.PYTHON_V3 else '').join( \
+               [self.parseMemLine(line.strip(), compact_mode=compact_mode) for line in ret])
+        return mem
+ 
+    def spiffsWritePage( self, page, buf, pagesize=256 ):
+        self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
+        ret = self.spiffs( "write", addr=page*pagesize ) 
+        line = ''
+        for item in buf:
+            if isinstance(item, int):
+                line += '%d '% item
+            elif isinstance(item, str):
+                line += '%d '% ord(item)
+            if len(line) > self.DEFAULT_MULTILINE_INPUT_LINE_LIMIT:
+                self.writeCommand( line.rstrip() )
+                line = ''
+        if line:
+            self.writeCommand( line.rstrip() )
+        self.setPrompts()
+        self.writeCommand( '' )
 
     def sgpio_stop( self ):
         self.writeCommand( 'sgpio --stop' )
@@ -435,7 +513,7 @@ class Mcush( Instrument.SerialInstrument ):
         line = ''
         for item in buf:
             line += '%d '% item
-            if len(line) >= 60:
+            if len(line) > self.DEFAULT_MULTILINE_INPUT_LINE_LIMIT:
                 self.writeCommand( line.rstrip() )
                 line = ''
         if line:

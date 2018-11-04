@@ -5,7 +5,7 @@ import time
 import random
 from mcush import *
 
-MALLOC_LIMIT = 50000
+MALLOC_LIMIT = 500
 
 def main(argv=None):
 

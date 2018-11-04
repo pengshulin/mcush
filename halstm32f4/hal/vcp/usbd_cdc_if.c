@@ -53,6 +53,8 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "mcush.h"
+
+
 extern char hal_vcp_rx_buf[];
 extern char hal_vcp_tx_buf1[];
 extern char hal_vcp_tx_buf2[];
@@ -308,7 +310,10 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
             len--;
         }
         else
+        {
+            /* queue full */
             break;
+        }
     }
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *)hal_vcp_rx_buf);
     USBD_CDC_ReceivePacket(&hUsbDeviceFS);

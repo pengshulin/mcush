@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #if MCUSH_SPIFFS
 #include <stdarg.h>
 #include "hal.h"
@@ -23,6 +24,13 @@ int hal_spiffs_flash_read_id(void)
     return (int)sFLASH_ReadID();
 }
 
+void hal_spiffs_flash_lock(int lock)
+{
+    if( lock )
+        sFLASH_Lock();
+    else
+        sFLASH_Unlock();
+}
 
 s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 {

@@ -1444,7 +1444,10 @@ int cmd_system( int argc, char *argv[] )
     else if( strcmp( type, "heap" ) == 0 )
     {
         extern char *heap_end, _sheap, _eheap;
-        shell_printf( "S:0x%08X\nC:0x%08X\nE:0x%08X\n", &_sheap, heap_end, &_eheap ); 
+        shell_printf( "%s: 0x%08X\n%s: 0x%08X\n%s: 0x%08X\n", 
+                        shell_str_start,  &_sheap, 
+                        shell_str_current, heap_end,
+                        shell_str_end, &_eheap ); 
     }
 #endif
 #if USE_CMD_SYSTEM_STACK
@@ -1452,7 +1455,7 @@ int cmd_system( int argc, char *argv[] )
     {
         extern char _sstack, _estack;
         for( p=&_sstack, i=0; p<&_estack && (*p == 0xA5); p++, i++ );
-        shell_printf( "S:0x%08X\nE:0x%08X\nfree:%d\n", &_sstack, &_estack, i );
+        shell_printf( "%s: 0x%08X\n%s: 0x%08X\n%s: %d\n", shell_str_start, &_sstack, shell_str_end, &_estack, shell_str_free, i );
     }
 #endif
 #if configUSE_TRACE_FACILITY && configUSE_STATS_FORMATTING_FUNCTIONS
@@ -1710,7 +1713,7 @@ int cmd_mkbuf( int argc, char *argv[] )
             return 1;
     }
                 
-    shell_printf( "0x%08X  %d\n", buf, buf_len );
+    shell_printf( "%s: 0x%08X\n%s: %d\n", shell_str_address, buf, shell_str_length, buf_len );
     return 0;
 }
 #endif
@@ -2799,7 +2802,11 @@ int cmd_spiffs( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', shell_str_command, "cmd_name", "erase|read|write|mount|umount|test|format|check|info" },
+          'c', shell_str_command, "cmd_name", "id|erase|read|write|mount|umount|test|format|check|info" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'C', shell_str_ascii, 0, shell_str_ascii },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_compact, 0, "compact output" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -2810,6 +2817,7 @@ int cmd_spiffs( int argc, char *argv[] )
     int len;
     void *p;
     int fd;
+    uint8_t compact_mode=0, ascii_mode=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -2818,6 +2826,10 @@ int cmd_spiffs( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 shell_eval_int(opt.value, (int*)&addr);
+            else if( STRCMP( opt.spec->name, shell_str_compact ) == 0 )
+                compact_mode = 1;
+            else if( STRCMP( opt.spec->name, shell_str_ascii ) == 0 )
+                ascii_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_command) == 0 )
                 cmd = (char*)opt.value;   
         }
@@ -2830,32 +2842,45 @@ int cmd_spiffs( int argc, char *argv[] )
         if( ! mcush_spiffs_mounted() )
             goto not_mounted;
         mcush_spiffs_info( &i, &j );
-        shell_printf( "%s: %d  %s: %d\n", shell_str_total, i, shell_str_used, j );
+        shell_printf( "%s: %d\n%s: %d\n", shell_str_total, i, shell_str_used, j );
         return 0;
     }
-    if( strcmp( cmd, shell_str_erase ) == 0 )
+    if( strcmp( cmd, shell_str_id ) == 0 )
     {
-        sFLASH_EraseBulk();
+        shell_printf( "%X\n", (unsigned int)hal_spiffs_flash_read_id() );
+    }
+    else if( strcmp( cmd, shell_str_erase ) == 0 )
+    {
+        if( addr == (void*)-1 )
+            sFLASH_EraseBulk();
+        else
+            sFLASH_EraseSector( (uint32_t)addr );
     }
     else if( strcmp( cmd, shell_str_read ) == 0 )
     {
         if( addr == (void*)-1 )
             addr = 0;
         sFLASH_ReadBuffer( (void*)buf, (int)addr, 256 );
+        if( compact_mode )
+            ascii_mode = 0;
         for( i=0; i<16; i++ )
         {
-            shell_printf( "%08X: ", (unsigned int)((int)addr+i*16) );
+            if( !compact_mode )
+                shell_printf( "%08X: ", (unsigned int)((int)addr+i*16) );
             for( j=0; j<16; j++ )
-                shell_printf( "%02X ", *(unsigned char*)&buf[i*16+j] );
-            shell_write_str( " |" );
-            for( j=0; j<16; j++ )
+                shell_printf( compact_mode ? "%02X" : "%02X ", *(unsigned char*)&buf[i*16+j] );
+            if( ascii_mode )
             {
-                if( isprint((int)(*(unsigned char*)&buf[i*16+j])) )
-                    shell_write_char(*(unsigned char*)&buf[i*16+j]);
-                else
-                    shell_write_char('.');
+                shell_write_str( " |" );
+                for( j=0; j<16; j++ )
+                {
+                    if( isprint((int)(*(unsigned char*)&buf[i*16+j])) )
+                        shell_write_char(*(unsigned char*)&buf[i*16+j]);
+                    else
+                        shell_write_char('.');
+                }
+                shell_write_char( '|' );
             }
-            shell_write_char( '|' );
             shell_write_str( "\r\n" );
         }
     } 
@@ -2899,7 +2924,6 @@ int cmd_spiffs( int argc, char *argv[] )
     {
         if( mcush_spiffs_mounted() )
             mcush_spiffs_umount();
-        //    goto not_mounted;
         i = mcush_spiffs_format();
         if( i )
             return 1;
@@ -2998,10 +3022,13 @@ int cmd_cat( int argc, char *argv[] )
     {
         input = shell_read_multi_lines(0);
         if( !input )
-            return 0;
+            return 1;
         i = strlen(input);
         if( !i )
-            return 0;
+        {
+            free(input);
+            return 1;
+        }
         
         fd = mcush_open( fname, append ? "a+" : "w+" );
         if( fd == 0 )
@@ -3029,8 +3056,8 @@ int cmd_cat( int argc, char *argv[] )
                 {
                     if( j != mcush_write( fd, buf, j ) )
                     {
-                        free(input);
                         mcush_close(fd);
+                        free(input);
                         return 1;
                     } 
                 }
@@ -3058,15 +3085,34 @@ int cmd_cat( int argc, char *argv[] )
         {    
             i = mcush_read( fd, buf, b64 ? CAT_BUF_RAW : CAT_BUF_LEN );
             if( i==0 )
-                break;
-            if( b64 )
             {
-                j = base64_encode_block( buf, i, &buf[CAT_BUF_RAW], &state_en );
-                shell_write( buf + CAT_BUF_RAW, j );
+                if( b64 )
+                {
+                    j = base64_encode_blockend( buf, &state_en );
+                    shell_write( buf, j );
+                }
+                break;  // end
             }
             else
-                shell_write( buf, i );
-            while( shell_driver_read_char_blocked(&c, 0) != -1 )
+            {
+                if( b64 )
+                {
+                    j = base64_encode_block( buf, i, &buf[CAT_BUF_RAW], &state_en );
+                    shell_write( buf + CAT_BUF_RAW, j );
+                }
+                else
+                    shell_write( buf, i );
+                if( i < (b64 ? CAT_BUF_RAW : CAT_BUF_LEN) )
+                {
+                    if( b64 )
+                    {
+                        j = base64_encode_blockend( buf, &state_en );
+                        shell_write( buf, j );
+                    }
+                    break;  // end
+                }
+            }
+            while( shell_driver_read_char_blocked(&c, delay*configTICK_RATE_HZ/1000) != -1 )
             {
                 if( c == 0x03 ) /* Ctrl-C for stop */
                 {
@@ -3075,17 +3121,6 @@ int cmd_cat( int argc, char *argv[] )
                     return 0;
                 }
             }
-            if( i < (b64 ? CAT_BUF_RAW : CAT_BUF_LEN) )
-            {
-                if( b64 )
-                {
-                    j = base64_encode_blockend( buf, &state_en );
-                    shell_write( buf, j );
-                }
-                break;
-            }
-            if( delay )
-                vTaskDelay(delay*configTICK_RATE_HZ/1000);
         }
         shell_write_str( "\n" );
         mcush_close(fd);

@@ -1,5 +1,5 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-
 
 
 static void LL_Init(void)

@@ -23,7 +23,9 @@ if haldir is None:
 #env = loadHalConfig( haldir, use_hal_driver=True ).env
 #env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True ).env
 #env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=False ).env
-env = loadHalConfig( haldir, use_hal_driver=False, use_vcp=False ).env
+#env = loadHalConfig( haldir, use_hal_driver=False, use_vcp=False ).env
+#env = loadHalConfig( haldir, use_hal_driver=False, use_vcp=False, use_spiffs=True ).env
+env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True, use_spiffs=True ).env
 
 env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=4*1024',

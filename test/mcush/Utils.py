@@ -45,10 +45,8 @@ def diffTestFiles():
 
 def testSingleRandomFile( device, targetfile, size ):
     generateRandomFile( size )
-    buf = open(Env.TEST_WR, 'rb').read()
-    device.cat( targetfile, True, True, False, buf )
-    ret = device.cat( targetfile, True, False, False )
-    open( Env.TEST_RD, 'wb+' ).write( ret )
+    device.putFile( targetfile, Env.TEST_WR )
+    device.getFile( targetfile, Env.TEST_RD )
     return diffTestFiles()
 
 def dumpFile( fname ):
@@ -70,6 +68,25 @@ def dumpMem( mem, method=2 ):
         read = proc.stdout.read() 
         stdout.write( read + '\n' )
         stdout.flush()
+
+
+def parseKeyValueLines( lines ):
+    # parse lines in format:
+    #   key1: val1
+    #   key2:       <-- treat as empty string 
+    #   key3: val3
+    #   ...
+    # return k-v dictionary, evaluate k/v as trimmed case-sensitive string
+    # if two or more keys are the same, preserve the last one
+    var = {}
+    for l in lines:
+        ab = l.split(':')
+        if len(ab) == 2:
+            a, b = ab
+        elif len(ab) == 1:
+            a, b = ab[0], ''
+        var[a.strip()] = b.strip()
+    return var
 
 
 def enumPorts():

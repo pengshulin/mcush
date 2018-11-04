@@ -42,10 +42,15 @@
 
 /* M25P SPI Flash supported commands */  
 #define sFLASH_CMD_WRITE          0x02  /* Write to Memory instruction */
-#define sFLASH_CMD_WRSR           0x01  /* Write Status Register instruction */
+#define sFLASH_CMD_WRSR           0x01  /* Write Status Register1 instruction */
+#define sFLASH_CMD_WRSR2          0x31  /* Write Status Register2 instruction */
+#define sFLASH_CMD_WRSR3          0x11  /* Write Status Register3 instruction */
 #define sFLASH_CMD_WREN           0x06  /* Write enable instruction */
+#define sFLASH_CMD_SWREN          0x50  /* Status Write enable instruction */
 #define sFLASH_CMD_READ           0x03  /* Read from Memory instruction */
-#define sFLASH_CMD_RDSR           0x05  /* Read Status Register instruction  */
+#define sFLASH_CMD_RDSR           0x05  /* Read Status1 Register instruction  */
+#define sFLASH_CMD_RDSR2          0x35  /* Read Status2 Register instruction  */
+#define sFLASH_CMD_RDSR3          0x15  /* Read Status3 Register instruction  */
 #define sFLASH_CMD_RDID           0x9F  /* Read identification */
 #define sFLASH_CMD_SE             0xD8  /* Sector Erase instruction */
 #define sFLASH_CMD_BE             0xC7  /* Bulk Erase instruction */
@@ -67,6 +72,9 @@
 /* High layer functions  */
 void sFLASH_DeInit(void);
 void sFLASH_Init(void);
+void sFLASH_Unlock(void);
+void sFLASH_Lock(void);
+uint32_t sFLASH_ReadStatus(void);
 void sFLASH_EraseSector(uint32_t SectorAddr);
 void sFLASH_EraseBulk(void);
 void sFLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);

@@ -10,7 +10,6 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode, GPIOPuPd_TypeDe
 {
     GPIO_InitTypeDef gpio_init;
         
-    GPIO_StructInit(&gpio_init);
     gpio_init.GPIO_Mode = mode;
     gpio_init.GPIO_PuPd = pull;
     gpio_init.GPIO_OType = output_type;

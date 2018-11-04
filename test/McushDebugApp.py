@@ -263,8 +263,11 @@ class ViewTask(MyTask):
         self.info( u"download file %s..."% (fname) )
         try:
             r = s.cat( fname, b64=True )
+            contents = unicode(r)
             self.queue.put( ('view_file', (fname, r)) )
             self.info( _("Done") )
+        except UnicodeDecodeError:
+            self.info( 'Fail to decode contents, this may be a binary file!', 'error' )
         except Instrument.CommandExecuteError as e:
             self.info( u"Failed to download file %s"% (fname), 'error' )
 
@@ -742,7 +745,6 @@ class MainFrame(MyFrame):
         elif event.cmd == 'view_file':
             (fname, contents) = event.val
             dlg = MyViewFileDialog(self)
-            #print type(contents), contents
             dlg.text_ctrl_data.SetValue( contents )
             dlg.SetTitle( '%s'% fname )
             dlg.ShowModal()

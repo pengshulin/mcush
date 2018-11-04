@@ -15,6 +15,7 @@
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_rng.h"
+#include "stm32f4xx_ll_spi.h"
 #include "stm32f4xx_ll_rtc.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_usart.h"

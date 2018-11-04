@@ -6,10 +6,12 @@ from mcush import *
 def main(argv=None):
     random.seed()
     s = Mcush.Mcush()
+    #print( "formating..." )
+    #s.spiffsFormat()
     for i in xrange( Env.RETRY):
         name = '/s/test.%d'% random.randint( Env.TEST_MINID, Env.TEST_MAXID) 
         size = random.randint( 1, Env.TEST_MAXSIZE )
-        print( "%s, %d"% (name, size) )
+        print( "[%d] %s, %d"% (i, name, size) )
         if not Utils.testSingleRandomFile( s, name, size ):
             quit( 1 )      
             break

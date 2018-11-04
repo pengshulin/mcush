@@ -24,6 +24,15 @@ int hal_spiffs_flash_read_id(void)
 }
 
 
+void hal_spiffs_flash_lock(int lock)
+{
+    if( lock )
+        sFLASH_Lock();
+    else
+        sFLASH_Unlock();
+}
+
+
 s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 {
     xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );

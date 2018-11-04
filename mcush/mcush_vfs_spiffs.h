@@ -32,6 +32,7 @@
 
 void hal_spiffs_flash_init(void);
 int hal_spiffs_flash_read_id(void);
+void hal_spiffs_flash_lock(int lock);
 s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst);
 s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src);
 s32_t *hal_spiffs_flash_erase(u32_t addr, u32_t size);

@@ -51,7 +51,8 @@ void task_vcp_tx_entry(void *p)
         next_buf_len = hal_vcp_tx_use_buf2 ? &hal_vcp_tx_buf1_len : &hal_vcp_tx_buf2_len;
         
         /* get the first item from the queue */ 
-        xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY );
+        if( xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY ) != pdPASS )
+            continue;
         timeout = xTaskGetTickCount() + TASK_VCP_TX_READ_TIMEOUT_TICK;
         *next_buf = c;
         *next_buf_len = 1;
@@ -78,9 +79,11 @@ void task_vcp_tx_entry(void *p)
                 else
                 {
                     xSemaphoreGive( hal_sem_vcp_tx );
-                    vTaskDelay(1);
+                    taskYIELD();
                 }
             }
+            else
+                taskYIELD();
         }
 
         /* switch to next bank */
