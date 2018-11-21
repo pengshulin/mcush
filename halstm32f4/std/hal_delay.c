@@ -11,8 +11,6 @@ void hal_delay_us(uint32_t us)
         {
             __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
             __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
-            __NOP(); __NOP(); __NOP(); __NOP(); __NOP();
             __NOP(); __NOP(); __NOP();
         }
     }
@@ -24,7 +22,7 @@ void hal_delay_ms(uint32_t ms)
     volatile uint32_t a;
     while(ms--)
     {
-        for(a=12000; a; a--); 
+        for(a=8000; a; a--); 
     }
 }
 

@@ -43,9 +43,12 @@ int mcush_spiffs_mount( void )
     case 0xEF4014: cfg.phys_size = 1*1024*1024; break;  // W25Q80
     case 0xEF4015: cfg.phys_size = 2*1024*1024; break;  // W25Q16
     case 0xEF4016: cfg.phys_size = 4*1024*1024; break;  // W25Q32
-    case 0xEF4017: cfg.phys_size = 8*1024*1024; break;  // W25Q64
-    case 0xEF4018: cfg.phys_size = 16*1024*1024; break;  // W25Q128
-    case 0xEF4019: cfg.phys_size = 32*1024*1024; break;  // W25Q256
+    case 0xEF4017:
+    case 0xEF6017: cfg.phys_size = 8*1024*1024; break;  // W25Q64
+    case 0xEF4018:
+    case 0xEF6018: cfg.phys_size = 16*1024*1024; break;  // W25Q128
+    case 0xEF4019:
+    case 0xEF6019: cfg.phys_size = 32*1024*1024; break;  // W25Q256
     default: return 0; break;  // unknown
     }
 #else

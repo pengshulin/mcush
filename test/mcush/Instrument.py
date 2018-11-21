@@ -273,8 +273,9 @@ class Instrument:
         ret = self.writeCommand( '*idn?' )
         self.idn = ret[0].strip()
         self.logger.info( 'IDN:%s', str(self.idn) )
-        if not self.DEFAULT_IDN.match( self.idn ):
-            raise Exception( "IDN not match" )
+        if not Env.NO_IDN_CHECK:
+            if not self.DEFAULT_IDN.match( self.idn ):
+                raise Exception( "IDN not match" )
         return self.idn
 
     def reboot( self, delay=None ):

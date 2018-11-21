@@ -190,5 +190,16 @@ msgstr "打开端口..."
 msgid "Shell Kit Workbench"
 msgstr "Shell Kit 工作台"
 
+msgid "script"
+msgstr "脚本"
+
+msgid "plot"
+msgstr "绘图"
+
+msgid "log"
+msgstr "日志"
+
+
+
 
 

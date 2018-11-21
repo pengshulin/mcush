@@ -67,6 +67,7 @@ DELAY = getenv_float( 'DELAY', 1 )
 DELAY_AFTER_REBOOT = getenv_float( 'DELAY_AFTER_REBOOT', 1 )
 RETRY = getenv_int( 'RETRY', 1000 )
 NO_ECHO_CHECK = getenv_bool( 'NO_ECHO_CHECK' )
+NO_IDN_CHECK = getenv_bool( 'NO_IDN_CHECK' )
 COMPACT_MODE = getenv_bool( 'COMPACT_MODE' )
 
 DEVELOPMENT = getenv_bool( 'DEVELOPMENT' )

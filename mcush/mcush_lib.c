@@ -139,12 +139,16 @@ int test_bit1_position(int v, int msb)
 
 void test_delay_us(void)
 {
-    int i;
     while(1)
     {
         hal_led_toggle(0);
-        for( i=1000; i; i-- )
-            hal_delay_us(1000);
+        hal_delay_us(1);
+        hal_led_toggle(0);
+        hal_delay_us(10);
+        hal_led_toggle(0);
+        hal_delay_us(100);
+        hal_led_toggle(0);
+        hal_delay_us(1000);
     }
 }
 

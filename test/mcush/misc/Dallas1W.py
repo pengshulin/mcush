@@ -11,9 +11,11 @@ class Dallas1W():
         
     def __init__( self, controller, pin=None ):
         self.controller = controller
-        if pin:
-            self.controller.pinInput( pin )
         self.crc = crcmod.predefined.mkPredefinedCrcFun('crc-8-maxim')
+        if pin:
+            self.controller.writeCommand('D -I -p%s'% pin)
+        else:
+            self.controller.writeCommand('D -I')
 
     def readBit( self ):
         r = self.controller.writeCommand('D -z')
@@ -105,7 +107,8 @@ class Dallas1W():
         r = self.read(8)
         crc_calc = self.crc(''.join([chr(i) for i in r[:7]]))
         if r[7] != crc_calc:
-            raise Exception("Crc error")
+            code = '-'.join(['%02X'%i for i in r])
+            raise Exception("Crc error:%s"% code )
         if r[0] != self.FAMILY_CODE:
             raise Exception("Family code (0x%X) not match: 0x%X"% (self.FAMILY_CODE, r[0]))
         serial_num = r[1:7]

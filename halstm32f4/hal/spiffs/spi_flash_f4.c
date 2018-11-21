@@ -98,7 +98,6 @@ void sFLASH_DeInit(void)
   */
 void sFLASH_Init(void)
 {
-    uint32_t chip_id;
     LL_SPI_InitTypeDef spi_init;
 
     sFLASH_LowLevel_Init();

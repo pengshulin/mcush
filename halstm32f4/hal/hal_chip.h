@@ -17,9 +17,11 @@
 #include "stm32f4xx_ll_rng.h"
 #include "stm32f4xx_ll_spi.h"
 #include "stm32f4xx_ll_rtc.h"
+#include "stm32f4xx_ll_tim.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_utils.h"
+#include "stm32f4xx_ll_adc.h"
 
 
 #define UNIQUE_ID0  0x1FFF7A10

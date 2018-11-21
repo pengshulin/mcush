@@ -15,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L tiny-rescue:STM32F103CB U2
+L tiny-rescue:STM32F103CB-tiny-rescue U2
 U 1 1 597ED686
 P 6600 3500
 F 0 "U2" H 5300 5150 50  0000 C CNN
@@ -26,7 +26,7 @@ F 3 "" H 6600 3500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:CONN_02X05 P2
+L tiny-rescue:CONN_02X05-tiny-rescue P2
 U 1 1 597EEA82
 P 9700 3600
 F 0 "P2" H 9700 3900 50  0000 C CNN
@@ -37,51 +37,51 @@ F 3 "" H 9700 2400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:USB_OTG P1
+L Connector:USB_B_Mini P1
 U 1 1 597EEBC1
 P 1600 2050
-F 0 "P1" H 1925 1925 50  0000 C CNN
-F 1 "USB_OTG" H 1600 2250 50  0000 C CNN
+F 0 "P1" H 1450 2500 50  0000 C CNN
+F 1 "USB_OTG" H 1550 2400 50  0000 C CNN
 F 2 "footprints:USB_Mini-B_HandSoldering" V 1550 1950 50  0001 C CNN
 F 3 "" V 1550 1950 50  0000 C CNN
 	1    1600 2050
-	0    -1   1    0   
+	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:C C4
+L tiny-rescue:C-tiny-rescue C4
 U 1 1 597EEC9B
-P 3000 2550
-F 0 "C4" H 3025 2650 50  0000 L CNN
-F 1 "27p" H 3025 2450 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 3038 2400 50  0001 C CNN
-F 3 "" H 3000 2550 50  0000 C CNN
-	1    3000 2550
+P 3000 2800
+F 0 "C4" H 3025 2900 50  0000 L CNN
+F 1 "27p" H 3025 2700 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 3038 2650 50  0001 C CNN
+F 3 "" H 3000 2800 50  0000 C CNN
+	1    3000 2800
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:C C5
+L tiny-rescue:C-tiny-rescue C5
 U 1 1 597EECF2
-P 3000 2850
-F 0 "C5" H 3025 2950 50  0000 L CNN
-F 1 "27p" H 3025 2750 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 3038 2700 50  0001 C CNN
-F 3 "" H 3000 2850 50  0000 C CNN
-	1    3000 2850
+P 3000 3100
+F 0 "C5" H 3025 3200 50  0000 L CNN
+F 1 "27p" H 3025 3000 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 3038 2950 50  0001 C CNN
+F 3 "" H 3000 3100 50  0000 C CNN
+	1    3000 3100
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:Crystal Y1
+L tiny-rescue:Crystal-tiny-rescue Y1
 U 1 1 597EED5D
-P 3350 2700
-F 0 "Y1" H 3350 2850 50  0000 C CNN
-F 1 "8M" H 3350 2550 50  0000 C CNN
-F 2 "Crystals:Crystal_HC49-U_Vertical" H 3350 2700 50  0001 C CNN
-F 3 "" H 3350 2700 50  0000 C CNN
-	1    3350 2700
+P 3350 2950
+F 0 "Y1" H 3350 3100 50  0000 C CNN
+F 1 "8M" H 3350 2800 50  0000 C CNN
+F 2 "Crystals:Crystal_HC49-U_Vertical" H 3350 2950 50  0001 C CNN
+F 3 "" H 3350 2950 50  0000 C CNN
+	1    3350 2950
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:F_Small F1
+L tiny-rescue:F_Small-tiny-rescue F1
 U 1 1 597EEDDE
 P 9300 4050
 F 0 "F1" H 9260 4110 50  0000 L CNN
@@ -92,7 +92,7 @@ F 3 "" H 9300 4050 50  0000 C CNN
 	0    -1   1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R7
+L tiny-rescue:R-tiny-rescue R7
 U 1 1 597EF072
 P 4400 1950
 F 0 "R7" V 4480 1950 50  0000 C CNN
@@ -103,7 +103,7 @@ F 3 "" H 4400 1950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:SPEAKER SP1
+L tiny-rescue:SPEAKER-tiny-rescue SP1
 U 1 1 597EF0D9
 P 2400 3650
 F 0 "SP1" H 2300 3900 50  0000 C CNN
@@ -114,40 +114,40 @@ F 3 "" H 2400 3650 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:AP1117D33 U1
+L tiny-rescue:AP1117D33-tiny-rescue U1
 U 1 1 597EF5DC
-P 3200 1850
-F 0 "U1" H 3300 1600 50  0000 C CNN
-F 1 "AMS1117-3.3" H 3200 2100 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 3200 1850 50  0001 C CNN
-F 3 "" H 3200 1850 50  0000 C CNN
-	1    3200 1850
+P 3300 1850
+F 0 "U1" H 3400 1600 50  0000 C CNN
+F 1 "AMS1117-3.3" H 3300 2100 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 3300 1850 50  0001 C CNN
+F 3 "" H 3300 1850 50  0000 C CNN
+	1    3300 1850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR01
 U 1 1 597F4772
-P 2850 2850
-F 0 "#PWR01" H 2850 2600 50  0001 C CNN
-F 1 "GND" H 2850 2700 50  0000 C CNN
-F 2 "" H 2850 2850 50  0000 C CNN
-F 3 "" H 2850 2850 50  0000 C CNN
-	1    2850 2850
+P 2850 3100
+F 0 "#PWR01" H 2850 2850 50  0001 C CNN
+F 1 "GND" H 2850 2950 50  0000 C CNN
+F 2 "" H 2850 3100 50  0000 C CNN
+F 3 "" H 2850 3100 50  0000 C CNN
+	1    2850 3100
 	0    1    1    0   
 $EndComp
 $Comp
 L power:GND #PWR02
 U 1 1 597F47A8
-P 2850 2550
-F 0 "#PWR02" H 2850 2300 50  0001 C CNN
-F 1 "GND" H 2850 2400 50  0000 C CNN
-F 2 "" H 2850 2550 50  0000 C CNN
-F 3 "" H 2850 2550 50  0000 C CNN
-	1    2850 2550
+P 2850 2800
+F 0 "#PWR02" H 2850 2550 50  0001 C CNN
+F 1 "GND" H 2850 2650 50  0000 C CNN
+F 2 "" H 2850 2800 50  0000 C CNN
+F 3 "" H 2850 2800 50  0000 C CNN
+	1    2850 2800
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:C C9
+L tiny-rescue:C-tiny-rescue C9
 U 1 1 597F62F4
 P 4400 2250
 F 0 "C9" H 4425 2350 50  0000 L CNN
@@ -193,82 +193,82 @@ $EndComp
 $Comp
 L power:+3.3V #PWR06
 U 1 1 597F68EC
-P 3650 1850
-F 0 "#PWR06" H 3650 1700 50  0001 C CNN
-F 1 "+3.3V" H 3650 1990 50  0000 C CNN
-F 2 "" H 3650 1850 50  0000 C CNN
-F 3 "" H 3650 1850 50  0000 C CNN
-	1    3650 1850
+P 3750 1850
+F 0 "#PWR06" H 3750 1700 50  0001 C CNN
+F 1 "+3.3V" H 3750 1990 50  0000 C CNN
+F 2 "" H 3750 1850 50  0000 C CNN
+F 3 "" H 3750 1850 50  0000 C CNN
+	1    3750 1850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR07
 U 1 1 597F6922
-P 3200 2150
-F 0 "#PWR07" H 3200 1900 50  0001 C CNN
-F 1 "GND" H 3200 2000 50  0000 C CNN
-F 2 "" H 3200 2150 50  0000 C CNN
-F 3 "" H 3200 2150 50  0000 C CNN
-	1    3200 2150
+P 3300 2150
+F 0 "#PWR07" H 3300 1900 50  0001 C CNN
+F 1 "GND" H 3300 2000 50  0000 C CNN
+F 2 "" H 3300 2150 50  0000 C CNN
+F 3 "" H 3300 2150 50  0000 C CNN
+	1    3300 2150
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:+5V #PWR08
 U 1 1 597F6B30
-P 2750 1850
-F 0 "#PWR08" H 2750 1700 50  0001 C CNN
-F 1 "+5V" H 2750 1990 50  0000 C CNN
-F 2 "" H 2750 1850 50  0000 C CNN
-F 3 "" H 2750 1850 50  0000 C CNN
-	1    2750 1850
+P 2850 1850
+F 0 "#PWR08" H 2850 1700 50  0001 C CNN
+F 1 "+5V" H 2850 1990 50  0000 C CNN
+F 2 "" H 2850 1850 50  0000 C CNN
+F 3 "" H 2850 1850 50  0000 C CNN
+	1    2850 1850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR09
 U 1 1 597F6D0C
-P 1900 2250
-F 0 "#PWR09" H 1900 2000 50  0001 C CNN
-F 1 "GND" H 1900 2100 50  0000 C CNN
-F 2 "" H 1900 2250 50  0000 C CNN
-F 3 "" H 1900 2250 50  0000 C CNN
-	1    1900 2250
+P 1600 2450
+F 0 "#PWR09" H 1600 2200 50  0001 C CNN
+F 1 "GND" H 1600 2300 50  0000 C CNN
+F 2 "" H 1600 2450 50  0000 C CNN
+F 3 "" H 1600 2450 50  0000 C CNN
+	1    1600 2450
 	1    0    0    -1  
 $EndComp
-Text Label 2450 2550 1    60   ~ 0
+Text Label 2100 2600 1    60   ~ 0
 DM
-Text Label 2300 2550 1    60   ~ 0
+Text Label 2600 2600 1    60   ~ 0
 DP
 $Comp
-L tiny-rescue:C C7
+L tiny-rescue:C-tiny-rescue C7
 U 1 1 597F6FDF
-P 3650 2000
-F 0 "C7" H 3675 2100 50  0000 L CNN
-F 1 "10u" H 3675 1900 50  0000 L CNN
-F 2 "Capacitor_SMD:C_1210_3225Metric_Pad1.42x2.65mm_HandSolder" H 3688 1850 50  0001 C CNN
-F 3 "" H 3650 2000 50  0000 C CNN
-	1    3650 2000
+P 3750 2000
+F 0 "C7" H 3775 2100 50  0000 L CNN
+F 1 "10u" H 3775 1900 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1210_3225Metric_Pad1.42x2.65mm_HandSolder" H 3788 1850 50  0001 C CNN
+F 3 "" H 3750 2000 50  0000 C CNN
+	1    3750 2000
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR010
 U 1 1 597F70B6
-P 3650 2150
-F 0 "#PWR010" H 3650 1900 50  0001 C CNN
-F 1 "GND" H 3650 2000 50  0000 C CNN
-F 2 "" H 3650 2150 50  0000 C CNN
-F 3 "" H 3650 2150 50  0000 C CNN
-	1    3650 2150
+P 3750 2150
+F 0 "#PWR010" H 3750 1900 50  0001 C CNN
+F 1 "GND" H 3750 2000 50  0000 C CNN
+F 2 "" H 3750 2150 50  0000 C CNN
+F 3 "" H 3750 2150 50  0000 C CNN
+	1    3750 2150
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR011
 U 1 1 597F73D4
-P 2750 2150
-F 0 "#PWR011" H 2750 1900 50  0001 C CNN
-F 1 "GND" H 2750 2000 50  0000 C CNN
-F 2 "" H 2750 2150 50  0000 C CNN
-F 3 "" H 2750 2150 50  0000 C CNN
-	1    2750 2150
+P 2850 2150
+F 0 "#PWR011" H 2850 1900 50  0001 C CNN
+F 1 "GND" H 2850 2000 50  0000 C CNN
+F 2 "" H 2850 2150 50  0000 C CNN
+F 3 "" H 2850 2150 50  0000 C CNN
+	1    2850 2150
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -297,9 +297,9 @@ Text Label 4700 2500 0    60   ~ 0
 OSC_IN
 Text Label 4700 2600 0    60   ~ 0
 OSC_OUT
-Text Label 3500 2550 0    60   ~ 0
+Text Label 3500 2800 0    60   ~ 0
 OSC_IN
-Text Label 3500 2850 0    60   ~ 0
+Text Label 3500 3100 0    60   ~ 0
 OSC_OUT
 $Comp
 L power:+3.3V #PWR014
@@ -324,7 +324,7 @@ F 3 "" H 6300 5200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:R R5
+L tiny-rescue:R-tiny-rescue R5
 U 1 1 597FA3C5
 P 2450 4300
 F 0 "R5" V 2530 4300 50  0000 C CNN
@@ -335,7 +335,7 @@ F 3 "" H 2450 4300 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L tiny-rescue:R R6
+L tiny-rescue:R-tiny-rescue R6
 U 1 1 597FA456
 P 2450 4850
 F 0 "R6" V 2530 4850 50  0000 C CNN
@@ -392,29 +392,29 @@ DP
 Text Label 2700 3550 0    60   ~ 0
 BEEP
 $Comp
-L tiny-rescue:R R4
+L tiny-rescue:R-tiny-rescue R4
 U 1 1 59801AFD
-P 2450 2200
-F 0 "R4" V 2530 2200 50  0000 C CNN
-F 1 "22" V 2450 2200 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 2380 2200 50  0001 C CNN
-F 3 "" H 2450 2200 50  0000 C CNN
-	1    2450 2200
+P 2100 2300
+F 0 "R4" V 2180 2300 50  0000 C CNN
+F 1 "22" V 2100 2300 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 2030 2300 50  0001 C CNN
+F 3 "" H 2100 2300 50  0000 C CNN
+	1    2100 2300
 	-1   0    0    1   
 $EndComp
 $Comp
-L tiny-rescue:R R1
+L tiny-rescue:R-tiny-rescue R1
 U 1 1 59801D02
-P 2300 2200
-F 0 "R1" V 2380 2200 50  0000 C CNN
-F 1 "22" V 2300 2200 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 2230 2200 50  0001 C CNN
-F 3 "" H 2300 2200 50  0000 C CNN
-	1    2300 2200
+P 2600 2200
+F 0 "R1" V 2680 2200 50  0000 C CNN
+F 1 "22" V 2600 2200 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" V 2530 2200 50  0001 C CNN
+F 3 "" H 2600 2200 50  0000 C CNN
+	1    2600 2200
 	-1   0    0    1   
 $EndComp
 $Comp
-L tiny-rescue:R R8
+L tiny-rescue:R-tiny-rescue R8
 U 1 1 59802F35
 P 8950 1800
 F 0 "R8" V 9030 1800 50  0000 C CNN
@@ -425,7 +425,7 @@ F 3 "" H 8950 1800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R9
+L tiny-rescue:R-tiny-rescue R9
 U 1 1 59803066
 P 8950 1950
 F 0 "R9" V 9030 1950 50  0000 C CNN
@@ -436,7 +436,7 @@ F 3 "" H 8950 1950 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R10
+L tiny-rescue:R-tiny-rescue R10
 U 1 1 598032A0
 P 8950 2100
 F 0 "R10" V 9030 2100 50  0000 C CNN
@@ -447,7 +447,7 @@ F 3 "" H 8950 2100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R11
+L tiny-rescue:R-tiny-rescue R11
 U 1 1 598035B6
 P 8950 2250
 F 0 "R11" V 9030 2250 50  0000 C CNN
@@ -458,7 +458,7 @@ F 3 "" H 8950 2250 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R12
+L tiny-rescue:R-tiny-rescue R12
 U 1 1 59803827
 P 8950 2400
 F 0 "R12" V 9030 2400 50  0000 C CNN
@@ -469,7 +469,7 @@ F 3 "" H 8950 2400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R13
+L tiny-rescue:R-tiny-rescue R13
 U 1 1 598038E0
 P 8950 2550
 F 0 "R13" V 9030 2550 50  0000 C CNN
@@ -482,19 +482,17 @@ $EndComp
 Wire Wire Line
 	4400 2100 5100 2100
 Wire Wire Line
-	3500 1850 3650 1850
+	3600 1850 3750 1850
 Wire Wire Line
-	1900 1950 2450 1950
+	1900 2150 2100 2150
+Connection ~ 3750 1850
+Connection ~ 2850 1850
 Wire Wire Line
-	1900 2050 2100 2050
-Connection ~ 3650 1850
-Connection ~ 2750 1850
+	3150 2800 3350 2800
 Wire Wire Line
-	3150 2550 3350 2550
-Wire Wire Line
-	3150 2850 3350 2850
-Connection ~ 3350 2550
-Connection ~ 3350 2850
+	3150 3100 3350 3100
+Connection ~ 3350 2800
+Connection ~ 3350 3100
 Wire Wire Line
 	4650 2500 5100 2500
 Wire Wire Line
@@ -599,51 +597,51 @@ Wire Wire Line
 	9100 3800 9300 3800
 Connection ~ 9950 3800
 $Comp
-L tiny-rescue:CONN_01X05 P4
+L Connector_Generic:Conn_01x05 P4
 U 1 1 598050D5
-P 10050 5000
-F 0 "P4" H 10050 5300 50  0000 C CNN
-F 1 "CONN_01X05" V 10150 5000 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 10050 5000 50  0001 C CNN
-F 3 "" H 10050 5000 50  0000 C CNN
-	1    10050 5000
+P 10200 4950
+F 0 "P4" H 10200 5250 50  0000 C CNN
+F 1 "CONN_01X05" V 10300 4950 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 10200 4950 50  0001 C CNN
+F 3 "" H 10200 4950 50  0000 C CNN
+	1    10200 4950
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR020
 U 1 1 59805480
-P 9650 5000
-F 0 "#PWR020" H 9650 4750 50  0001 C CNN
-F 1 "GND" H 9650 4850 50  0000 C CNN
-F 2 "" H 9650 5000 50  0000 C CNN
-F 3 "" H 9650 5000 50  0000 C CNN
-	1    9650 5000
+P 9700 4950
+F 0 "#PWR020" H 9700 4700 50  0001 C CNN
+F 1 "GND" H 9700 4800 50  0000 C CNN
+F 2 "" H 9700 4950 50  0000 C CNN
+F 3 "" H 9700 4950 50  0000 C CNN
+	1    9700 4950
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9650 4900 9850 4900
+	9700 4850 10000 4850
 Wire Wire Line
-	9650 5100 9850 5100
+	9700 5050 10000 5050
 Wire Wire Line
-	9650 5200 9850 5200
-Text Label 9650 5200 0    60   ~ 0
+	9700 5150 10000 5150
+Text Label 9700 5150 0    60   ~ 0
 RST
 $Comp
 L power:+3.3V #PWR021
 U 1 1 59805677
-P 9850 4800
-F 0 "#PWR021" H 9850 4650 50  0001 C CNN
-F 1 "+3.3V" H 9850 4940 50  0000 C CNN
-F 2 "" H 9850 4800 50  0000 C CNN
-F 3 "" H 9850 4800 50  0000 C CNN
-	1    9850 4800
+P 10000 4750
+F 0 "#PWR021" H 10000 4600 50  0001 C CNN
+F 1 "+3.3V" H 10000 4890 50  0000 C CNN
+F 2 "" H 10000 4750 50  0000 C CNN
+F 3 "" H 10000 4750 50  0000 C CNN
+	1    10000 4750
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2450 2350 2450 2550
+	2100 2450 2100 2600
 Wire Wire Line
-	2300 2350 2300 2550
-Text Label 1900 1950 0    60   ~ 0
+	2600 2350 2600 2600
+Text Label 1900 2150 0    60   ~ 0
 USB_DM
 Text Label 1900 2050 0    60   ~ 0
 USB_DP
@@ -652,12 +650,12 @@ TXD
 Text Label 8200 3200 0    60   ~ 0
 RXD
 $Comp
-L tiny-rescue:CONN_01X05 P3
+L Connector_Generic:Conn_01x05 P3
 U 1 1 5980B479
 P 9200 4950
 F 0 "P3" H 9200 5250 50  0000 C CNN
 F 1 "CONN_01X05" V 9300 4950 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 9200 4950 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 9200 4950 50  0001 C CNN
 F 3 "" H 9200 4950 50  0000 C CNN
 	1    9200 4950
 	1    0    0    -1  
@@ -738,55 +736,55 @@ SPI_MOSI
 Text Label 9100 3800 0    60   ~ 0
 5V_OUT
 $Comp
-L tiny-rescue:C C2
+L tiny-rescue:C-tiny-rescue C2
 U 1 1 5983C1FA
-P 1500 3000
-F 0 "C2" H 1525 3100 50  0000 L CNN
-F 1 "0.1u" H 1525 2900 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 1538 2850 50  0001 C CNN
-F 3 "" H 1500 3000 50  0000 C CNN
-	1    1500 3000
+P 1350 3200
+F 0 "C2" H 1375 3300 50  0000 L CNN
+F 1 "0.1u" H 1375 3100 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 1388 3050 50  0001 C CNN
+F 3 "" H 1350 3200 50  0000 C CNN
+	1    1350 3200
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:C C3
+L tiny-rescue:C-tiny-rescue C3
 U 1 1 5983C2A3
-P 1800 3000
-F 0 "C3" H 1825 3100 50  0000 L CNN
-F 1 "0.1u" H 1825 2900 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 1838 2850 50  0001 C CNN
-F 3 "" H 1800 3000 50  0000 C CNN
-	1    1800 3000
+P 1650 3200
+F 0 "C3" H 1675 3300 50  0000 L CNN
+F 1 "0.1u" H 1675 3100 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 1688 3050 50  0001 C CNN
+F 3 "" H 1650 3200 50  0000 C CNN
+	1    1650 3200
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1500 3150 1800 3150
+	1350 3350 1650 3350
 Wire Wire Line
-	1500 2850 1800 2850
+	1350 3050 1650 3050
 $Comp
 L power:+3.3V #PWR025
 U 1 1 5983C690
-P 1500 2850
-F 0 "#PWR025" H 1500 2700 50  0001 C CNN
-F 1 "+3.3V" H 1500 2990 50  0000 C CNN
-F 2 "" H 1500 2850 50  0000 C CNN
-F 3 "" H 1500 2850 50  0000 C CNN
-	1    1500 2850
+P 1350 3050
+F 0 "#PWR025" H 1350 2900 50  0001 C CNN
+F 1 "+3.3V" H 1350 3190 50  0000 C CNN
+F 2 "" H 1350 3050 50  0000 C CNN
+F 3 "" H 1350 3050 50  0000 C CNN
+	1    1350 3050
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR026
 U 1 1 5983C6E8
-P 1500 3150
-F 0 "#PWR026" H 1500 2900 50  0001 C CNN
-F 1 "GND" H 1500 3000 50  0000 C CNN
-F 2 "" H 1500 3150 50  0000 C CNN
-F 3 "" H 1500 3150 50  0000 C CNN
-	1    1500 3150
+P 1350 3350
+F 0 "#PWR026" H 1350 3100 50  0001 C CNN
+F 1 "GND" H 1350 3200 50  0000 C CNN
+F 2 "" H 1350 3350 50  0000 C CNN
+F 3 "" H 1350 3350 50  0000 C CNN
+	1    1350 3350
 	1    0    0    -1  
 $EndComp
-Connection ~ 1500 2850
-Connection ~ 1500 3150
+Connection ~ 1350 3050
+Connection ~ 1350 3350
 Text Label 4700 2100 0    60   ~ 0
 RST
 Wire Wire Line
@@ -797,7 +795,7 @@ Text Label 4700 4400 0    60   ~ 0
 LED_G1
 Connection ~ 4400 2100
 $Comp
-L tiny-rescue:Led_x2 D1
+L tiny-rescue:Led_x2-tiny-rescue D1
 U 1 1 5981343A
 P 2000 4400
 F 0 "D1" H 2000 4625 50  0000 C CNN
@@ -808,7 +806,7 @@ F 3 "" H 2000 4400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:Led_x2 D2
+L tiny-rescue:Led_x2-tiny-rescue D2
 U 1 1 59813588
 P 2000 4950
 F 0 "D2" H 2000 5175 50  0000 C CNN
@@ -819,7 +817,7 @@ F 3 "" H 2000 4950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:R R15
+L tiny-rescue:R-tiny-rescue R15
 U 1 1 59813FAC
 P 2450 4500
 F 0 "R15" V 2530 4500 50  0000 C CNN
@@ -830,7 +828,7 @@ F 3 "" H 2450 4500 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L tiny-rescue:R R16
+L tiny-rescue:R-tiny-rescue R16
 U 1 1 59814021
 P 2450 5050
 F 0 "R16" V 2530 5050 50  0000 C CNN
@@ -864,31 +862,28 @@ Text Label 4700 4300 0    60   ~ 0
 LED_R0
 Text Label 4700 4500 0    60   ~ 0
 LED_R1
-Wire Wire Line
-	2450 1950 2450 2050
 $Comp
-L tiny-rescue:R R17
+L tiny-rescue:R-tiny-rescue R17
 U 1 1 59816052
-P 2100 2200
-F 0 "R17" V 2180 2200 50  0000 C CNN
-F 1 "1k5" V 2100 2200 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 2030 2200 50  0001 C CNN
-F 3 "" H 2100 2200 50  0000 C CNN
-	1    2100 2200
+P 2400 2200
+F 0 "R17" V 2480 2200 50  0000 C CNN
+F 1 "1k5" V 2400 2200 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric_Pad1.15x1.40mm_HandSolder" H 2330 2200 50  0001 C CNN
+F 3 "" H 2400 2200 50  0000 C CNN
+	1    2400 2200
 	-1   0    0    1   
 $EndComp
 $Comp
 L power:+3.3V #PWR027
 U 1 1 5981709A
-P 2100 2350
-F 0 "#PWR027" H 2100 2200 50  0001 C CNN
-F 1 "+3.3V" H 2100 2490 50  0000 C CNN
-F 2 "" H 2100 2350 50  0000 C CNN
-F 3 "" H 2100 2350 50  0000 C CNN
-	1    2100 2350
+P 2400 2350
+F 0 "#PWR027" H 2400 2200 50  0001 C CNN
+F 1 "+3.3V" H 2400 2490 50  0000 C CNN
+F 2 "" H 2400 2350 50  0000 C CNN
+F 3 "" H 2400 2350 50  0000 C CNN
+	1    2400 2350
 	-1   0    0    1   
 $EndComp
-Connection ~ 2100 2050
 $Comp
 L power:GND #PWR028
 U 1 1 598202EF
@@ -901,7 +896,7 @@ F 3 "" H 1700 4400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L tiny-rescue:R R18
+L tiny-rescue:R-tiny-rescue R18
 U 1 1 59842093
 P 9600 1650
 F 0 "R18" V 9680 1650 50  0000 C CNN
@@ -923,7 +918,7 @@ F 3 "" H 9600 1500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:R R19
+L tiny-rescue:R-tiny-rescue R19
 U 1 1 5984DB40
 P 4950 2300
 F 0 "R19" V 5030 2300 50  0000 C CNN
@@ -952,7 +947,6 @@ Text Label 8750 4750 0    60   ~ 0
 BOOT0
 Wire Wire Line
 	8650 2550 8800 2550
-NoConn ~ 1900 2150
 NoConn ~ 1500 2450
 Wire Wire Line
 	8100 3100 8450 3100
@@ -967,10 +961,10 @@ RXD
 Text Label 8750 5050 0    60   ~ 0
 TXD
 Wire Wire Line
-	9650 5000 9850 5000
-Text Label 9650 4900 0    60   ~ 0
+	9700 4950 10000 4950
+Text Label 9700 4850 0    60   ~ 0
 SWCLK
-Text Label 9650 5100 0    60   ~ 0
+Text Label 9700 5050 0    60   ~ 0
 SWDIO
 $Bitmap
 Pos 10850 6850
@@ -1062,22 +1056,22 @@ D6 D6 56 3B AF 0F 17 60 25 EE EC EC C4 BE F1 9E 9D 9D 8D 1C F4 F6 F6 F6 F5 F5 A1
 EndData
 $EndBitmap
 $Comp
-L tiny-rescue:C C1
+L tiny-rescue:C-tiny-rescue C1
 U 1 1 599FC129
-P 2750 2000
-F 0 "C1" H 2775 2100 50  0000 L CNN
-F 1 "10u" H 2775 1900 50  0000 L CNN
-F 2 "Capacitor_SMD:C_1210_3225Metric_Pad1.42x2.65mm_HandSolder" H 2788 1850 50  0001 C CNN
-F 3 "" H 2750 2000 50  0000 C CNN
-	1    2750 2000
+P 2850 2000
+F 0 "C1" H 2875 2100 50  0000 L CNN
+F 1 "10u" H 2875 1900 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1210_3225Metric_Pad1.42x2.65mm_HandSolder" H 2888 1850 50  0001 C CNN
+F 3 "" H 2850 2000 50  0000 C CNN
+	1    2850 2000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2750 1850 2900 1850
+	2850 1850 3000 1850
 Wire Wire Line
-	3350 2550 3950 2550
+	3350 2800 3950 2800
 Wire Wire Line
-	3350 2850 3950 2850
+	3350 3100 3950 3100
 Wire Wire Line
 	6400 5200 6600 5200
 Wire Wire Line
@@ -1086,8 +1080,6 @@ Wire Wire Line
 	6400 1800 6600 1800
 Wire Wire Line
 	6600 1800 6900 1800
-Wire Wire Line
-	2100 2050 2300 2050
 Text Label 8200 2800 0    50   ~ 0
 D6
 Text Label 8200 2900 0    50   ~ 0
@@ -1166,7 +1158,7 @@ F 3 "~" H 4400 3200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L tiny-rescue:F_Small F2
+L tiny-rescue:F_Small-tiny-rescue F2
 U 1 1 5BB08E34
 P 9050 4050
 F 0 "F2" H 9010 4110 50  0000 L CNN
@@ -1389,7 +1381,12 @@ F 3 "" H 10150 6850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2700 1850 2750 1850
+	2800 1850 2850 1850
 Wire Wire Line
-	1900 1850 2750 1850
+	1900 1850 2850 1850
+Connection ~ 2400 2050
+Wire Wire Line
+	2400 2050 2600 2050
+Wire Wire Line
+	1900 2050 2400 2050
 $EndSCHEMATC

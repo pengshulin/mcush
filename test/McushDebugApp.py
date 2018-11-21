@@ -348,10 +348,8 @@ class FsInfoTask(MyTask):
         self.info( u"Open port %s..."% port )
         s = Mcush(port)
         self.info( u"Formating %s..."% (path) )
-        a, b = s.writeCommand( 's -c info' )[0].split('  ')
-        total = int(a.split(':')[1].strip())
-        used = int(b.split(':')[1].strip())
-        self.info( 'Total: %d, used: %d (%.1f%%)'% (total, used, float(used)/total*100) )
+        info = s.spiffsInfo()
+        self.info( 'Total: %d, used: %d (%.1f%%)'% (info['total'], info['used'], float(info['used'])/info['total']*100) )
 
 
 class I2cScanTask(MyTask):

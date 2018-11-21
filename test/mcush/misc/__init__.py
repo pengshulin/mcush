@@ -15,4 +15,5 @@ from . import Max7219
 from . import Ws2812
 from . import Motion 
 from . import Dallas1W
+from . import Aosong
 

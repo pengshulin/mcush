@@ -17,8 +17,8 @@ typedef uint32_t u32_t;
 //#define SPIFFS_TEST_VISUALISATION    1
 //#define spiffs_printf(...) {if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED) shell_printf(__VA_ARGS__);}
 
-#define SPIFFS_USE_MAGIC   1 
-#define SPIFFS_USE_MAGIC_LENGTH  8
+//#define SPIFFS_USE_MAGIC    1
+//#define SPIFFS_USE_MAGIC_LENGTH  8
 
 //#define SPIFFS_SINGLETON   1
 

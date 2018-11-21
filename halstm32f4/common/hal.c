@@ -22,6 +22,7 @@ int hal_init(void)
 #if USE_CMD_SGPIO
     hal_sgpio_init();
 #endif
+    hal_platform_init();
     if( !hal_uart_init(SHELL_DEFAULT_BAUDRATE) )
         return 0;
     return 1;
