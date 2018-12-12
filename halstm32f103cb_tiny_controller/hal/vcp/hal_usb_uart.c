@@ -51,8 +51,7 @@ void task_vcp_tx_entry(void *p)
         next_buf_len = hal_vcp_tx_use_buf2 ? &hal_vcp_tx_buf1_len : &hal_vcp_tx_buf2_len;
         
         /* get the first item from the queue */ 
-        if( xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY ) != pdPASS )
-            continue;
+        xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY );
         timeout = xTaskGetTickCount() + TASK_VCP_TX_READ_TIMEOUT_TICK;
         *next_buf = c;
         *next_buf_len = 1;
@@ -75,17 +74,13 @@ void task_vcp_tx_entry(void *p)
             if( xSemaphoreTake( hal_sem_vcp_tx, portMAX_DELAY ) == pdTRUE )
             {
                 if( CDC_Transmit_FS( (uint8_t*)next_buf, *next_buf_len ) == USBD_OK )
-                {
                     break;
-                }
                 else
                 {
                     xSemaphoreGive( hal_sem_vcp_tx );
-                    taskYIELD();
+                    vTaskDelay(1);
                 }
             }
-            else
-                taskYIELD();
         }
 
         /* switch to next bank */

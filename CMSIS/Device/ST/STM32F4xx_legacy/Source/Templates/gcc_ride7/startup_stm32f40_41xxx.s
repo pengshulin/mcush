@@ -104,9 +104,22 @@ LoopFillZerobss:
   bcc  FillZerobss
 
 /****************************************************************************/
+/* fill heap area with 0xA5 for future check, by PengShulin                 */
+/****************************************************************************/
+    ldr  r2, = _sheap
+    b  LoopFillHeap
+FillHeap:
+    movs  r3, #0x5A5A5A5A
+    str  r3, [r2], #4
+LoopFillHeap:
+    ldr  r3, = _eheap
+    cmp  r2, r3
+    bcc  FillHeap
+
+/****************************************************************************/
 /* fill stack area with 0xA5 for future check, by PengShulin                */
 /****************************************************************************/
-    ldr  r2, =_sstack
+    ldr  r2, = _sstack
     b  LoopFillStack
 FillStack:
     movs  r3, #0xA5A5A5A5

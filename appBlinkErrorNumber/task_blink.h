@@ -2,6 +2,10 @@
 #ifndef _TASK_BLINK_H_
 #define _TASK_BLINK_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TASK_BLINK_STACK_SIZE  (200)
 //#define TASK_BLINK_PRIORITY    (tskIDLE_PRIORITY)
 #define TASK_BLINK_PRIORITY    (MCUSH_PRIORITY)
@@ -21,5 +25,9 @@ int set_errno(int num);
 #define ERRNO_FILE_SYSTEM_INIT_ERROR        2
 #define ERRNO_FILE_READ_WRITE_ERROR         3
 
+
+#ifdef __cplusplus
+}
 #endif
 
+#endif

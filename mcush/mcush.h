@@ -20,6 +20,10 @@
 #include "mcush_lib.h"
 #include "mcush_base64.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 
 /* task priority
@@ -110,6 +114,10 @@ extern void _halt(void);
 #endif
 
 
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

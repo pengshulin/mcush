@@ -4,6 +4,11 @@
 #include "mcush_lib_crc.h"
 #include "mcush_lib_fs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 uint32_t calc_checksum(void *p, uint32_t len);
 
 //#define USE_REVERSE_TAB
@@ -38,8 +43,9 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
 void byte_to_unicode( uint8_t *buf_in, uint16_t *buf_out, int len, int add_null_end );
 
 
-
+#ifdef __cplusplus
+}
 #endif
 
-
+#endif
 

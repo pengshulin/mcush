@@ -1,4 +1,4 @@
-#if MCUSH_SPIFFS
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdarg.h>
 #include "hal.h"
 #include "spi_flash.h"
@@ -7,6 +7,9 @@
 #include "semphr.h"
 #include "mcush.h"
 #include "mcush_vfs.h"
+
+
+#if MCUSH_SPIFFS
 
 SemaphoreHandle_t semaphore_spiffs;
 
@@ -20,16 +23,22 @@ void hal_spiffs_flash_init(void)
 
 int hal_spiffs_flash_read_id(void)
 {
-    return (int)sFLASH_ReadID();
+    int id;
+    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+    id = (int)sFLASH_ReadID();
+    xSemaphoreGive( semaphore_spiffs );
+    return id;
 }
 
 
 void hal_spiffs_flash_lock(int lock)
 {
+    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
     if( lock )
         sFLASH_Lock();
     else
         sFLASH_Unlock();
+    xSemaphoreGive( semaphore_spiffs );
 }
 
 

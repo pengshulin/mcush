@@ -1,8 +1,12 @@
 #ifndef _HAL_H_
 #define _HAL_H_
 #include <stdint.h>
-#include "hal_chip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "hal_chip.h"
 
 void hal_clk_init(void);
 void hal_debug_init(void);
@@ -106,11 +110,10 @@ float hal_adc_get( int index );
 
 
 
-
-
 #include "hal_platform.h"
 
+#ifdef __cplusplus
+}
 #endif
 
-
-
+#endif

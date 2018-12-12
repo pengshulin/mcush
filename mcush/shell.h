@@ -2,6 +2,10 @@
 #ifndef __SHELL_H__
 #define __SHELL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef SHELL_DEFAULT_BAUDRATE
     #define SHELL_DEFAULT_BAUDRATE  9600
 #endif
@@ -146,6 +150,9 @@ extern void shell_driver_write_char( char c );
 extern void shell_driver_write_flush( void );
 
 
+#ifdef __cplusplus
+}
 #endif
 
+#endif
 

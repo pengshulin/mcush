@@ -63,7 +63,6 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 }
 
  
-int in_logger_str_malloc=0;
 static int _logger_str( int type, const char *str, int isr_mode )
 {
     logger_event_t evt;
@@ -72,9 +71,7 @@ static int _logger_str( int type, const char *str, int isr_mode )
     int err=0;
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     
-    in_logger_str_malloc=1;
-    buf = (char*)malloc(length+1);
-    in_logger_str_malloc=0;
+    buf = (char*)pvPortMalloc(length+1);
     if( buf == NULL )
         return 0;
 
@@ -96,7 +93,7 @@ static int _logger_str( int type, const char *str, int isr_mode )
     }
 
     if( err )
-        free( (void*)buf );
+        vPortFree( (void*)buf );
     return err ? 0 : 1;
 }
 
@@ -200,6 +197,33 @@ int delete_all_log_files( void )
 }
 
 
+static char *_make_bak_log_fname( char *buf , int level)
+{
+    printf( buf, "%s.%d.%s", _fname, level,"bak" );
+    return buf;
+}
+
+
+int backup_all_log_files( void )
+{
+    char fname[20];
+    char fname_bak[20];
+    int i=0;
+    /* rename all */
+    for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
+    {
+        _join_log_fname(fname, i);
+        _make_bak_log_fname(fname_bak,i);
+        mcush_rename( fname, &fname_bak[3] ); /* remove leading mount point */
+#if DEBUG_LOGGER
+        shell_printf( "rename %s\n", fname );
+#endif
+    }
+
+    return 1;
+}
+
+
 int rotate_log_files( const char *src_fname, int level )
 {
     int size;
@@ -286,12 +310,12 @@ void task_logger_entry(void *p)
             /* forward the event */
             if( xQueueSend( queue_logger_monitor, &evt, 0 ) != pdTRUE )
             {
-                free(evt.str);
+                vPortFree(evt.str);
             }
         }
         else
         {
-            free(evt.str);
+            vPortFree(evt.str);
         }
     }
 }
@@ -469,7 +493,7 @@ int cmd_logger( int argc, char *argv[] )
                         shell_write_str( buf );
                     }
                 }
-                free( evt.str );
+                vPortFree( evt.str );
             }
 
             do
@@ -487,7 +511,7 @@ int cmd_logger( int argc, char *argv[] )
         /* free all remaining event */
         while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdTRUE ) 
         {
-            free( evt.str );
+            vPortFree( evt.str );
         }
     } 
     return 0;

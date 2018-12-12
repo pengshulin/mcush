@@ -356,7 +356,10 @@ class Mcush( Instrument.SerialInstrument ):
 
     def convPathname( self, pathname ):
         #print( pathname )
-        pathname = unicode(pathname)
+        if not Env.PYTHON_V3:
+            pathname = unicode(pathname)
+        else:
+            pathname = str(pathname)
         namelen = len(os.path.basename(pathname).encode('utf8'))
         if namelen > 28:
             raise Exception( "File name length too long %d"% namelen )

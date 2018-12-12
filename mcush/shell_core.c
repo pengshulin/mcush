@@ -6,6 +6,7 @@
 #include <string.h>
 #include <limits.h>
 #include "shell.h"
+#include "FreeRTOS.h"
 
 #if DEBUG_SHELL
 #define static
@@ -30,7 +31,7 @@ int shell_read_char( char *c )
             scb.script = 0;
             if( scb.script_free )
             {
-                free( (void*)scb.script_free );
+                vPortFree( (void*)scb.script_free );
                 scb.script_free = 0;
             }
         }
@@ -704,7 +705,7 @@ int shell_set_script( const char *script, int need_free )
         return 0;
     scb.script = script;
     if( scb.script_free )
-        free( (void*)scb.script_free );
+        vPortFree( (void*)scb.script_free );
     scb.script_free = need_free ? script : 0;
     return 1;
 }
@@ -751,7 +752,7 @@ char *shell_read_multi_lines( const char *prompt )
     char *buf1=0, *buf2=shell_get_buf(), *p;
     int len=0, alloc_size=SHELL_READ_LINES_ALLOC_SIZE_INC;
 
-    buf1 = malloc(SHELL_READ_LINES_ALLOC_SIZE_INC);
+    buf1 = pvPortMalloc(SHELL_READ_LINES_ALLOC_SIZE_INC);
     if( !buf1 )
         goto alloc_err;
     *buf1 = 0;
@@ -768,7 +769,7 @@ char *shell_read_multi_lines( const char *prompt )
             goto abort;
         default:  /* normal line */
             len += strlen(buf2) + 1;
-            if( (len+1) >= alloc_size )
+            if( (len+1) > alloc_size )
             {
                 while( (len+1) > alloc_size )
                     alloc_size += SHELL_READ_LINES_ALLOC_SIZE_INC;
@@ -785,12 +786,12 @@ char *shell_read_multi_lines( const char *prompt )
 
 abort:
     if( buf1 )
-        free(buf1);
+        vPortFree(buf1);
     return 0;
 alloc_err:
     shell_write_line("malloc failed");
     if( buf1 )
-        free(buf1);
+        vPortFree(buf1);
     return 0;
 }
 
@@ -832,7 +833,7 @@ int shell_make_16bits_data_buffer( void **pbuf, int *len )
     *len = buf_len;
     return 1;
 fail:
-    free( buf );
+    vPortFree( buf );
     return 0;
 }
 
@@ -847,7 +848,7 @@ int shell_make_float_data_buffer( void **pbuf, int *len )
     buf = shell_read_multi_lines(0);
     if( ! buf )
         return 0;
-    buf2 = malloc(SHELL_FLOAT_BUF_ALLOC_SIZE_INC);
+    buf2 = pvPortMalloc(SHELL_FLOAT_BUF_ALLOC_SIZE_INC);
     if( ! buf2 )
         goto alloc_err;
     buf_len = 0;
@@ -870,7 +871,7 @@ int shell_make_float_data_buffer( void **pbuf, int *len )
     }
     if( !buf_len )
         goto fail;
-    free(buf);
+    vPortFree(buf);
     p = (float*)realloc( buf2, buf_len * 4 );
     if( p )
         buf2 = (float*)p;
@@ -881,9 +882,9 @@ alloc_err:
     shell_write_line("malloc failed");
 fail:
     if( buf )
-        free(buf);
+        vPortFree(buf);
     if( buf2 )
-        free(buf2);
+        vPortFree(buf2);
     return 0;
 }
 

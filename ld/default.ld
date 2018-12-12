@@ -25,6 +25,10 @@ SECTIONS
         BYTE(0);
     } > FLASH
 
+        __exidx_start = . ;
+        .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
+        __exidx_end = .;
+
    .text :
     {
         . = ALIGN(4);
@@ -90,4 +94,5 @@ SECTIONS
 
 
 ASSERT( _sidata + SIZEOF(.data) <= ORIGIN(FLASH) + LENGTH(FLASH), "flash full, fail to append data image" )
+ASSERT( _eheap <= _sstack, "heap size too large" )
 

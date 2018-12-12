@@ -1538,7 +1538,7 @@ int cmd_mapi( int argc, char *argv[] )
 #define MAPI_TEST_MALLOC_SIZE  32768
     if( test_mode || fill_mode )
     {
-        mlist = malloc( 4*MAPI_MLIST_LEN );
+        mlist = pvPortMalloc( 4*MAPI_MLIST_LEN );
         if( ! mlist )
             return 1;
         shell_printf( "[L] 0x%08X %d\n", (unsigned int)mlist, 4*MAPI_MLIST_LEN );
@@ -1550,7 +1550,7 @@ int cmd_mapi( int argc, char *argv[] )
         i = 0;
         while( i < MAPI_MLIST_LEN )
         {
-            *p = (int)malloc( j );
+            *p = (int)pvPortMalloc( j );
             if( *p )
             {
                 k += j;
@@ -1572,9 +1572,9 @@ int cmd_mapi( int argc, char *argv[] )
             for( i=0; i<MAPI_MLIST_LEN; i++, p++ )
             {
                 if( *p )
-                    free((void*)*p);
+                    vPortFree((void*)*p);
             }
-            free( mlist );
+            vPortFree( mlist );
         }
         return 0;
     }
@@ -1599,7 +1599,7 @@ int cmd_mapi( int argc, char *argv[] )
         }
         else
         {
-            addr = malloc( length );
+            addr = pvPortMalloc( length );
         }
         shell_printf( "0x%08X\n", (unsigned int)addr );
     }
@@ -1610,17 +1610,17 @@ int cmd_mapi( int argc, char *argv[] )
             shell_write_err( shell_str_address );
             return -1;
         }
-        free( addr );
+        vPortFree( addr );
     }
     else
     {
 print_mallinfo:
         info = mallinfo();
         shell_printf( "arena:    %d\n", info.arena );    /* total space allocated from system */
-        shell_printf( "ordblks:  %d\n", info.ordblks );  /* number of non-inuse chunks */
+        shell_printf( "ordblks:  %d\n", info.ordblks );  /* number of free chunks */
         shell_printf( "uordblks: %d\n", info.uordblks ); /* total allocated space */
-        shell_printf( "fordblks: %d\n", info.fordblks ); /* total non-inuse space */
-        shell_printf( "keepcost: %d\n", info.keepcost ); /* top-most, releasable (via malloc_trim) space */
+        shell_printf( "fordblks: %d\n", info.fordblks ); /* total free space */
+        shell_printf( "keepcost: %d\n", info.keepcost ); /* top-most, releasable space */
     }
 
     return 0;
@@ -1855,7 +1855,7 @@ int cmd_sgpio( int argc, char *argv[] )
                 return -1;
             }
         }
-        buf_in = malloc( buf_len * 2 );
+        buf_in = pvPortMalloc( buf_len * 2 );
     }
 
     return hal_sgpio_setup( loop, port, output, input, buf_out, buf_in, buf_len, freq_val ) ? 0 : 1;
@@ -2892,7 +2892,7 @@ int cmd_spiffs( int argc, char *argv[] )
         {
             len *= 2;
             sFLASH_WritePage( (uint8_t*)p, (int)addr, len > 256 ? 256 : len );
-            free( p );
+            vPortFree( p );
         }
         else
             return 1;
@@ -3026,13 +3026,16 @@ int cmd_cat( int argc, char *argv[] )
         i = strlen(input);
         if( !i )
         {
-            free(input);
+            vPortFree(input);
             return 1;
         }
         
         fd = mcush_open( fname, append ? "a+" : "w+" );
         if( fd == 0 )
+        {
+            vPortFree(input);
             return 1;
+        }
         if( b64 )
         {
             p2 = (char*)input;
@@ -3057,7 +3060,7 @@ int cmd_cat( int argc, char *argv[] )
                     if( j != mcush_write( fd, buf, j ) )
                     {
                         mcush_close(fd);
-                        free(input);
+                        vPortFree(input);
                         return 1;
                     } 
                 }
@@ -3067,12 +3070,12 @@ int cmd_cat( int argc, char *argv[] )
         {
             if( i != mcush_write( fd, input, i ) )
             {
-                free(input);
+                vPortFree(input);
                 mcush_close(fd);
                 return 1;
             } 
         }
-        free(input);
+        vPortFree(input);
         mcush_close(fd);
     }
     else
@@ -3355,7 +3358,7 @@ int cmd_load( int argc, char *argv[] )
     if( !size )
         return 0;
 
-    buf = malloc( size + 1 );
+    buf = pvPortMalloc( size + 1 );
     if( !buf )
     {
         shell_write_err( shell_str_script );
@@ -3364,7 +3367,10 @@ int cmd_load( int argc, char *argv[] )
 
     fd = mcush_open( fname, "r" );
     if( fd == 0 )
+    {
+        vPortFree(buf);
         return 1;
+    }
     
     i = mcush_read( fd, buf, size );   
     mcush_close(fd);
@@ -3372,8 +3378,8 @@ int cmd_load( int argc, char *argv[] )
     if( i != size )
     {
         shell_write_err( shell_str_script );
+        vPortFree(buf);
         return 1;
-        free(buf);
     }
   
     ((char*)buf)[i] = 0; 

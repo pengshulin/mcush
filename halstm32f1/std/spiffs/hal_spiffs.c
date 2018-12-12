@@ -4,6 +4,7 @@
 #include "spi_flash.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 #include "mcush.h"
 #include "mcush_vfs.h"
 

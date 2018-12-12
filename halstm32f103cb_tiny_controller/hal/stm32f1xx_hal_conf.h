@@ -1,0 +1,1 @@
+../../halstm32f1/hal/stm32f1xx_hal_conf.h

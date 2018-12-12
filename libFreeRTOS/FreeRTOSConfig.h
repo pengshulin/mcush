@@ -37,12 +37,12 @@ extern uint32_t SystemCoreClock;
 #define configUSE_CO_ROUTINES                   0
 #define configMAX_CO_ROUTINE_PRIORITIES         2
 
-#ifndef configUSE_MUTEX
+#ifndef configUSE_MUTEXES
     #define configUSE_MUTEXES                   1
 #endif
 
 #ifndef configUSE_RECURSIVE_MUTEXES
-    #if configUSE_MUTEX
+    #if configUSE_MUTEXES
         #define configUSE_RECURSIVE_MUTEXES     1
     #else
         #define configUSE_RECURSIVE_MUTEXES     0

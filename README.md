@@ -34,18 +34,18 @@ ROADMAP
 * use USB virtual com port driver provided by ST
 * add file system support (spiffs...)
 * add file utils (ls,cp,rm,cat,...) for file system
+* add ST/HAL Driver support
 
 (todo/in progress)
-* add ST/HAL Driver support
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
 * add bootloader and upgrade support
-* add practical utilities for network (lwip used), such as traceroute, ntp update...
+* add practical utilities for lwip network, such as traceroute, ntp update...
 * add remote debug support
 
 
 ENVIRONMENT
 ===========
-* arm-none-eabi-gcc, newlibc, arm-none-eabi-gdb
+* arm-none-eabi-gcc, newlibc, arm-none-eabi-gdb, cgdb
 * scons + personal MCU build scripts
   <https://github.com/pengshulin/site_scons>
 * STLink v2 + st-flash(flasher) + st-util(gdb server)
@@ -64,7 +64,6 @@ RESOURCES
 HARDWARE
 ========
 * tiny controller: <https://github.com/pengshulin/mcush/tree/master/hardware_tiny>
-* tiny usb stick: <https://github.com/pengshulin/mcush/tree/master/hardware_tiny_usb_stick>
 
 
 LICENSE
