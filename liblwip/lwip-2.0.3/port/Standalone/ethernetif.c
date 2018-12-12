@@ -64,7 +64,7 @@
 #include "mcush.h"
 
 
-#define netifINTERFACE_TASK_STACK_SIZE		      ( 4*1024/4 )
+#define netifINTERFACE_TASK_STACK_SIZE		      ( 2*1024/4 )
 #define netifINTERFACE_TASK_PRIORITY		        ( 2u   )
 
 /* Define those to better describe your network interface. */
