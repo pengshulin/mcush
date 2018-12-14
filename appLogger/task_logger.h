@@ -21,14 +21,19 @@
 
 #define TASK_LOGGER_STACK_SIZE  (2048)
 #define TASK_LOGGER_PRIORITY    (MCUSH_PRIORITY-1)
-#define TASK_LOGGER_QUEUE_SIZE  (20)
-#define TASK_LOGGER_MONITOR_QUEUE_SIZE  (20)
+
+#ifndef TASK_LOGGER_QUEUE_SIZE
+    #define TASK_LOGGER_QUEUE_SIZE  (20)
+#endif
+
+#ifndef TASK_LOGGER_MONITOR_QUEUE_SIZE
+    #define TASK_LOGGER_MONITOR_QUEUE_SIZE  (20)
+#endif
 
 #define LOG_DEBUG   0x01
 #define LOG_INFO    0x02
 #define LOG_WARN    0x04
 #define LOG_ERROR   0x08
-
 
 
 typedef struct _logger_event_t

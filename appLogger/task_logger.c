@@ -7,6 +7,8 @@
 
 //#define DEBUG_LOGGER  1
 
+#define DEBUG_WRITE_LED  0
+
 QueueHandle_t queue_logger;
 QueueHandle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
@@ -252,6 +254,25 @@ int rotate_log_files( const char *src_fname, int level )
     return mcush_rename( src_fname, &fname[3] ); /* remove leading mount point */
 }
 
+
+void post_process_event( logger_event_t *evt )
+{
+    /* forward event to shell_monitor or clean up directly */ 
+    if( monitoring_mode )
+    {
+        /* forward the event */
+        if( xQueueSend( queue_logger_monitor, evt, 0 ) != pdTRUE )
+        {
+            vPortFree(evt->str);
+        }
+    }
+    else
+    {
+        vPortFree(evt->str);
+    }
+}
+
+
 void task_logger_entry(void *p)
 {
     logger_event_t evt;
@@ -267,8 +288,16 @@ void task_logger_entry(void *p)
         hal_wdg_clear();
         if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) != pdTRUE )
             continue;
-        
+ 
+        if( ! _enable )
+        {
+            post_process_event( &evt );
+            continue;
+        }
+
 #if MCUSH_SPIFFS
+        hal_wdg_clear();
+
         /* check file size from filesystem only once */ 
         if( size < 0 )
         {
@@ -285,38 +314,47 @@ void task_logger_entry(void *p)
         }
 
         /* try to create/append logfile */
-        if( _enable )
+        fd = mcush_open( _fname, "a+" );
+        if( fd != 0 )
         {
-            hal_wdg_clear();
-            fd = mcush_open( _fname, "a+" );
-            if( fd != 0 )
+#if DEBUG_WRITE_LED
+            hal_led_set(DEBUG_WRITE_LED);
+#endif
+            convert_logger_event_to_str( &evt, buf );
+            post_process_event( &evt );
+            i = strlen(buf);
+            j = mcush_write( fd, buf, i );
+            size = size < 0 ? j : size + j;
+            /* write the remaining (if exists) in one cycle */
+            while( xQueueReceive( queue_logger, &evt, 0 ) == pdTRUE )
             {
                 convert_logger_event_to_str( &evt, buf );
+                post_process_event( &evt );
                 i = strlen(buf);
                 j = mcush_write( fd, buf, i );
                 size = size < 0 ? j : size + j;
-                mcush_close( fd );
-                fd = 0;
-                if( i != j )
-                    set_errno( ERRNO_FILE_READ_WRITE_ERROR );
+                if( size > LOGGER_FSIZE_LIMIT )
+                    break;
             }
-            else
-                set_errno( ERRNO_FILE_READ_WRITE_ERROR );
-        }
+            mcush_close( fd );
+#if DEBUG_WRITE_LED
+            hal_led_clr(DEBUG_WRITE_LED);
 #endif
-        /* forward event to shell_monitor or clean up directly */ 
-        if( monitoring_mode )
-        {
-            /* forward the event */
-            if( xQueueSend( queue_logger_monitor, &evt, 0 ) != pdTRUE )
-            {
-                vPortFree(evt.str);
-            }
+            fd = 0;
+            if( i != j )
+                set_errno( ERRNO_FILE_READ_WRITE_ERROR );
         }
         else
         {
-            vPortFree(evt.str);
+            set_errno( ERRNO_FILE_READ_WRITE_ERROR );
+            /* stop writing remaining events */
+            post_process_event( &evt );
+            while( xQueueReceive( queue_logger, &evt, 0 ) == pdTRUE )
+                post_process_event( &evt );
         }
+#else
+        post_process_event( &evt );  /* spiffs not support */
+#endif
     }
 }
 

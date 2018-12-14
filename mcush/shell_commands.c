@@ -1595,7 +1595,10 @@ int cmd_mapi( int argc, char *argv[] )
                 shell_write_err( shell_str_address );
                 return -1;
             }
+            /* protect for thread safe */
+	        vTaskSuspendAll();
             addr = realloc( addr, length );
+	        (void)xTaskResumeAll();
         }
         else
         {
@@ -2983,6 +2986,7 @@ int cmd_cat( int argc, char *argv[] )
     base64_encodestate state_en;
     base64_decodestate state_de;
     char c;
+    int size, bytes;
 
     fname[0] = 0;
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -3080,14 +3084,17 @@ int cmd_cat( int argc, char *argv[] )
     }
     else
     { 
+        if( ! mcush_size( fname, &size ) )
+            return 1;
         fd = mcush_open( fname, "r" );
         if( fd == 0 )
             return 1;
-
+        bytes = 0;
         while( 1 )
         {    
             i = mcush_read( fd, buf, b64 ? CAT_BUF_RAW : CAT_BUF_LEN );
-            if( i==0 )
+            bytes += i;
+            if( (i==0) || (bytes>=size) )
             {
                 if( b64 )
                 {
