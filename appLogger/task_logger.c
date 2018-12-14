@@ -174,6 +174,12 @@ static char *_join_log_fname( char *buf, int level )
     return buf;
 }
 
+static char *_make_bak_log_fname( char *buf , int level)
+{
+    sprintf( buf, "%s.%d.%s", _fname, level,"bak" );
+    return buf;
+}
+
 
 int delete_all_log_files( void )
 {
@@ -196,13 +202,6 @@ int delete_all_log_files( void )
             return 0;
     }
     return 1;
-}
-
-
-static char *_make_bak_log_fname( char *buf , int level)
-{
-    printf( buf, "%s.%d.%s", _fname, level,"bak" );
-    return buf;
 }
 
 

@@ -3094,7 +3094,7 @@ int cmd_cat( int argc, char *argv[] )
         {    
             i = mcush_read( fd, buf, b64 ? CAT_BUF_RAW : CAT_BUF_LEN );
             bytes += i;
-            if( (i==0) || (bytes>=size) )
+            if( i==0  )
             {
                 if( b64 )
                 {
@@ -3122,6 +3122,16 @@ int cmd_cat( int argc, char *argv[] )
                     break;  // end
                 }
             }
+            if( bytes>=size )
+            {
+                if( b64 )
+                {
+                    j = base64_encode_blockend( buf, &state_en );
+                    shell_write( buf, j );
+                }
+                break;  // end
+            }
+
             while( shell_driver_read_char_blocked(&c, delay*configTICK_RATE_HZ/1000) != -1 )
             {
                 if( c == 0x03 ) /* Ctrl-C for stop */
