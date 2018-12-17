@@ -11,6 +11,7 @@ def main(argv=None):
     for i in xrange( Env.RETRY):
         name = '/s/test.%d'% random.randint( Env.TEST_MINID, Env.TEST_MAXID) 
         size = random.randint( 1, Env.TEST_MAXSIZE )
+        #size = Env.TEST_MAXSIZE
         print( "[%d] %s, %d"% (i, name, size) )
         if not Utils.testSingleRandomFile( s, name, size ):
             quit( 1 )      

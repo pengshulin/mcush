@@ -1,4 +1,4 @@
-/* MCUSH designed by Peng Shulin, all rights reserved. */
+//* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
@@ -47,8 +47,8 @@ void task_vcp_tx_entry(void *p)
 
     while(1)
     {
-        next_buf = hal_vcp_tx_use_buf2 ? hal_vcp_tx_buf1 : hal_vcp_tx_buf2;
-        next_buf_len = hal_vcp_tx_use_buf2 ? &hal_vcp_tx_buf1_len : &hal_vcp_tx_buf2_len;
+        next_buf = hal_vcp_tx_use_buf2 ? hal_vcp_tx_buf2 : hal_vcp_tx_buf1;
+        next_buf_len = hal_vcp_tx_use_buf2 ? &hal_vcp_tx_buf2_len : &hal_vcp_tx_buf1_len;
         
         /* get the first item from the queue */ 
         if( xQueueReceive( hal_queue_vcp_tx, &c, portMAX_DELAY ) != pdPASS )
@@ -81,11 +81,13 @@ void task_vcp_tx_entry(void *p)
                 else
                 {
                     xSemaphoreGive( hal_sem_vcp_tx );
-                    taskYIELD();
+                    //taskYIELD();
+                    vTaskDelay(1);
                 }
             }
             else
-                taskYIELD();
+                //taskYIELD();
+                vTaskDelay(1);
         }
 
         /* switch to next bank */

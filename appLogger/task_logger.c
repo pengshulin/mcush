@@ -1,6 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdarg.h>
 #include "mcush.h"
+#include "semphr.h"
 #include "task_logger.h"
 #include "task_blink.h"
 
@@ -8,6 +9,8 @@
 //#define DEBUG_LOGGER  1
 
 #define DEBUG_WRITE_LED  0
+
+SemaphoreHandle_t semaphore_logger;
 
 QueueHandle_t queue_logger;
 QueueHandle_t queue_logger_monitor;
@@ -174,34 +177,60 @@ static char *_join_log_fname( char *buf, int level )
     return buf;
 }
 
-static char *_make_bak_log_fname( char *buf , int level)
-{
-    sprintf( buf, "%s.%d.%s", _fname, level,"bak" );
-    return buf;
-}
 
-
-int delete_all_log_files( void )
+static int delete_all_log_files( int delete_backup )
 {
     char fname[20];
+    char fname_bak[20];
     int i=0;
+    int succ=1;
+    
+    xSemaphoreTake( semaphore_logger, portMAX_DELAY );
     /* remove all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
     {
         _join_log_fname(fname, i);
-        mcush_remove( fname );
+        strcpy( fname_bak, fname );
+        strcat( fname_bak, ".bak" );
+        /* delete log file if exist */
+        if( mcush_file_exists( fname ) )
+        {
+            mcush_remove( fname );
+            if( mcush_file_exists( fname ) )
+            {
 #if DEBUG_LOGGER
-        shell_printf( "remove %s\n", fname );
+                shell_printf( "fail to remove %s\n", fname );
 #endif
+                succ = 0;  /* not succeed, but continue */
+            }
+            else
+            {
+#if DEBUG_LOGGER
+                shell_printf( "remove %s\n", fname );
+#endif
+            }
+        }
+        /* delete backup file if required and exist */
+        if( delete_backup && mcush_file_exists( fname_bak ) )
+        {
+            mcush_remove( fname_bak );
+            if( mcush_file_exists( fname_bak ) )
+            {
+#if DEBUG_LOGGER
+                shell_printf( "fail to remove %s\n", fname );
+#endif
+                succ = 0;  /* not succeed, but continue */
+            }
+            else
+            {
+#if DEBUG_LOGGER
+                shell_printf( "remove %s\n", fname );
+#endif
+            }
+        }
     }
-
-    /* verify */
-    for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
-    {
-        if( mcush_file_exists( _join_log_fname(fname, i) ) )
-            return 0;
-    }
-    return 1;
+    xSemaphoreGive( semaphore_logger );
+    return succ;
 }
 
 
@@ -210,22 +239,54 @@ int backup_all_log_files( void )
     char fname[20];
     char fname_bak[20];
     int i=0;
+    int succ=1;
+    
+    xSemaphoreTake( semaphore_logger, portMAX_DELAY );
     /* rename all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
     {
-        _join_log_fname(fname, i);
-        _make_bak_log_fname(fname_bak,i);
-        mcush_rename( fname, &fname_bak[3] ); /* remove leading mount point */
+        _join_log_fname( fname, i );
+        strcpy( fname_bak, fname );
+        strcat( fname_bak, ".bak" );
+        if( ! mcush_file_exists( fname ) )
+        {
 #if DEBUG_LOGGER
-        shell_printf( "rename %s\n", fname );
+            shell_printf( "not exist %s\n", fname );
+#endif
+            break;  /* not exists, stop */
+        }
+
+        if( mcush_file_exists( fname_bak ) )
+        {
+            mcush_remove( fname_bak );
+            if( mcush_file_exists( fname_bak ) )
+            {
+#if DEBUG_LOGGER
+                shell_printf( "fail to remove %s\n", fname_bak );
+#endif
+                succ = 0;
+                continue;
+            }
+        }
+        
+        succ = mcush_rename( fname, &fname_bak[3] );
+        if( ! succ )
+        {
+#if DEBUG_LOGGER
+            shell_printf( "fail to rename %s -> %s\n", fname, fname_bak+3 );
+#endif
+            break;
+        }
+#if DEBUG_LOGGER
+        shell_printf( "rename %s -> %s\n", fname, fname_bak+3 );
 #endif
     }
-
-    return 1;
+    xSemaphoreGive( semaphore_logger );
+    return succ;
 }
 
 
-int rotate_log_files( const char *src_fname, int level )
+static int rotate_log_files( const char *src_fname, int level )
 {
     int size;
     char fname[20];
@@ -254,7 +315,7 @@ int rotate_log_files( const char *src_fname, int level )
 }
 
 
-void post_process_event( logger_event_t *evt )
+static void post_process_event( logger_event_t *evt )
 {
     /* forward event to shell_monitor or clean up directly */ 
     if( monitoring_mode )
@@ -296,6 +357,8 @@ void task_logger_entry(void *p)
 
 #if MCUSH_SPIFFS
         hal_wdg_clear();
+
+        xSemaphoreTake( semaphore_logger, portMAX_DELAY );
 
         /* check file size from filesystem only once */ 
         if( size < 0 )
@@ -351,6 +414,7 @@ void task_logger_entry(void *p)
             while( xQueueReceive( queue_logger, &evt, 0 ) == pdTRUE )
                 post_process_event( &evt );
         }
+        xSemaphoreGive( semaphore_logger );
 #else
         post_process_event( &evt );  /* spiffs not support */
 #endif
@@ -370,6 +434,10 @@ const shell_cmd_t cmd_tab_logger[] = {
 void task_logger_init(void)
 {
     TaskHandle_t task_logger;
+
+    semaphore_logger = xSemaphoreCreateMutex();
+    if( !semaphore_logger )
+        halt("logger semphr create"); 
 
     queue_logger = xQueueCreate(TASK_LOGGER_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));  
     if( queue_logger == NULL )
@@ -400,6 +468,8 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'e', shell_str_enable, 0, "enable logging to file" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'b', shell_str_backup, 0, "backup history files" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_delete, 0, "delete history files" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'h', shell_str_history, 0, "list history from log file" },
@@ -418,7 +488,7 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int8_t enable, enable_set=0, history_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0;
+    int8_t enable, enable_set=0, history_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
     int8_t filter_mode=0;
     const char *msg=0, *head=0;
     uint8_t head_len=0;
@@ -445,6 +515,8 @@ int cmd_logger( int argc, char *argv[] )
                 history_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_delete ) == 0 )
                 delete_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_backup ) == 0 )
+                backup_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_debug ) == 0 )
                 debug_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
@@ -488,9 +560,15 @@ int cmd_logger( int argc, char *argv[] )
     if( delete_set )
     {
         hal_wdg_clear();
-        return delete_all_log_files() ? 0 : 1;
+        return delete_all_log_files( backup_set ) ? 0 : 1;
     }
  
+    if( backup_set )
+    {
+        hal_wdg_clear();
+        return backup_all_log_files() ? 0 : 1;
+    }
+
     /* priority: 
        1 - add new message 
        2 - view history

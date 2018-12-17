@@ -6,6 +6,7 @@ __attribute__((aligned(1))) const char shell_str_address[] = "address";
 __attribute__((aligned(1))) const char shell_str_append[] = "append";
 __attribute__((aligned(1))) const char shell_str_argument[] = "argument";
 __attribute__((aligned(1))) const char shell_str_ascii[] = "ascii";
+__attribute__((aligned(1))) const char shell_str_backup[] = "backup";
 __attribute__((aligned(1))) const char shell_str_base_address[] = "base address";
 __attribute__((aligned(1))) const char shell_str_check[] = "check";
 __attribute__((aligned(1))) const char shell_str_clear[] = "clear";

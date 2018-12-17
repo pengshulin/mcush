@@ -862,12 +862,12 @@ uint8_t  USBD_CDC_TransmitPacket(USBD_HandleTypeDef *pdev)
       hcdc->TxState = 1;
       
       /* Transmit next packet */
-      USBD_LL_Transmit(pdev,
+      return USBD_LL_Transmit(pdev,
                        CDC_IN_EP,
                        hcdc->TxBuffer,
                        hcdc->TxLength);
       
-      return USBD_OK;
+      //return USBD_OK;
     }
     else
     {
