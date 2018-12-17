@@ -104,6 +104,7 @@ extern const char shell_str_setting[];
 extern const char shell_str_signature[];
 extern const char shell_str_start[];
 extern const char shell_str_stop[];
+extern const char shell_str_tail[];
 extern const char shell_str_test[];
 extern const char shell_str_test_mode[];
 extern const char shell_str_time[];

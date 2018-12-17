@@ -472,7 +472,7 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_delete, 0, "delete history files" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          'h', shell_str_history, 0, "list history from log file" },
+          't', shell_str_tail, 0, "list tail 10 lines from log file" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'D', shell_str_debug, 0, "DEBUG type filter" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -488,13 +488,15 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int8_t enable, enable_set=0, history_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
+    int8_t enable, enable_set=0, tail_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
     int8_t filter_mode=0;
     const char *msg=0, *head=0;
     uint8_t head_len=0;
     logger_event_t evt;
     char c;
     char buf[256];
+    char *tail[10];
+    int i, j, fd;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -511,8 +513,8 @@ int cmd_logger( int argc, char *argv[] )
                 enable = 0;
                 enable_set = 1;
             }
-            else if( STRCMP( opt.spec->name, shell_str_history ) == 0 )
-                history_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_tail ) == 0 )
+                tail_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_delete ) == 0 )
                 delete_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_backup ) == 0 )
@@ -571,17 +573,55 @@ int cmd_logger( int argc, char *argv[] )
 
     /* priority: 
        1 - add new message 
-       2 - view history
+       2 - view tail
        3 - monitor
      */
     if( msg )
     {
         logger_str( LOG_INFO, msg );
     }
-    else if( history_set )
+    else if( tail_set )
     {
-        /* TODO: similar to tail command
+        /* similar to linux tail command
            read file line by line, record last 10 lines, print them all when EOF */
+        for( i=0; i<10; i++ )
+            tail[i] = 0;
+        xSemaphoreTake( semaphore_logger, portMAX_DELAY );
+        fd = mcush_open( _fname, "r" );
+        if( fd )
+        {
+            i = 0;
+            while( 1 )
+            {
+                if( ! mcush_file_read_line( fd, buf ) )
+                    break;
+                if( tail[i] )
+                    vPortFree( tail[i] );
+                tail[i] = pvPortMalloc( strlen(buf)+1 );
+                if( tail[i] )
+                    strcpy( tail[i], buf );
+                else
+                    break;
+                i = (i+1) % 10;
+            }
+            mcush_close( fd );
+            xSemaphoreGive( semaphore_logger );
+            /* print out */
+            for( j=0; j<10; j++ )
+            {
+                if( tail[i] )
+                {
+                    shell_write_line( tail[i] );
+                    vPortFree( tail[i] );
+                }
+                i = (i+1) % 10;
+            }
+        }
+        else
+        {
+            xSemaphoreGive( semaphore_logger );
+            return 1;
+        }
     }
     else
     {

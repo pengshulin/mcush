@@ -84,4 +84,35 @@ int mcush_file_remove_retry( const char *fname, int retry_num )
 }
 
 
+int mcush_file_read_line( int fd, char *line )
+{
+    int byte=0;
+    int i;
+    char buf[256], *p=buf, c;
+
+    //buf[0] = 0;
+    while( 1 )
+    {
+        i = mcush_read( fd, &c, 1 );
+        if( i == 0 )           /* EOF */
+            break;
+        byte++;
+        if( c == '\n' )  /* stop */
+            break;
+        else if( c == '\r' )  /* ignore */
+            continue;
+        else                  /* append */
+            *p++ = c;
+    }
+    if( byte == 0 )
+        return 0;
+    *p = 0;
+    strcpy( line, buf );
+    return 1;
+}
+
+
+
+
+
 #endif
