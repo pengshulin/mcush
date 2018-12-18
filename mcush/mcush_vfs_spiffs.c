@@ -51,9 +51,12 @@ int mcush_spiffs_mount( void )
     cfg.hal_write_f = (spiffs_write)hal_spiffs_flash_write;
     cfg.hal_erase_f = (spiffs_erase)hal_spiffs_flash_erase;
 
-    semaphore_spiffs = xSemaphoreCreateMutex();
     if( !semaphore_spiffs )
-        halt("spiffs semphr create"); 
+    {
+        semaphore_spiffs = xSemaphoreCreateMutex();
+        if( !semaphore_spiffs )
+            halt("spiffs semphr create"); 
+    }
 
     hal_spiffs_flash_init();
 #if SPIFLASH_AUTO_DETECT

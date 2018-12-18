@@ -10,9 +10,9 @@
 #if MCUSH_SPIFFS
 
 /* NOTE:
-   mcush_spiffs_lock/unlock uses mutex locker and 
-   the flash is now not seperated to multi partitation,
-   the locker here is ignored */
+   in mcush_vfs_spiffs.c, lock/unlock api uses mutex locker
+   and the flash is not seperated to multi partitations,
+   so the locker here is ignored now */
 //#define USE_LOCK   1
 
 #if USE_LOCK
