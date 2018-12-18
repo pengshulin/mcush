@@ -1,5 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 #if MCUSH_SPIFFS
 #define static
@@ -9,6 +11,19 @@ static spiffs _fs;
 static char _work_buf[2*SPIFLASH_CFG_LOG_PAGE_SZ];
 static char _fds[1024];
 static char _cache_buf[4096];
+SemaphoreHandle_t semaphore_spiffs;
+
+
+void mcush_spiffs_lock(struct spiffs_t *fs)
+{
+    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+}
+
+
+void mcush_spiffs_unlock(struct spiffs_t *fs)
+{
+    xSemaphoreGive( semaphore_spiffs );
+}
 
 
 int mcush_spiffs_mounted( void )
@@ -35,6 +50,10 @@ int mcush_spiffs_mount( void )
     cfg.hal_read_f = (spiffs_read)hal_spiffs_flash_read;
     cfg.hal_write_f = (spiffs_write)hal_spiffs_flash_write;
     cfg.hal_erase_f = (spiffs_erase)hal_spiffs_flash_erase;
+
+    semaphore_spiffs = xSemaphoreCreateMutex();
+    if( !semaphore_spiffs )
+        halt("spiffs semphr create"); 
 
     hal_spiffs_flash_init();
 #if SPIFLASH_AUTO_DETECT
@@ -68,6 +87,8 @@ int mcush_spiffs_umount( void )
     if( !SPIFFS_mounted(&_fs) )
         return 1;
     SPIFFS_unmount( &_fs );
+    vSemaphoreDelete( semaphore_spiffs );
+    semaphore_spiffs = 0;
     return SPIFFS_mounted(&_fs) ? 0 : 1;
 }
 

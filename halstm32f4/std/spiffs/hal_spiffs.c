@@ -7,64 +7,92 @@
 #include "semphr.h"
 #include "mcush.h"
 #include "mcush_vfs.h"
-
-
 #if MCUSH_SPIFFS
 
-SemaphoreHandle_t semaphore_spiffs;
+/* NOTE:
+   mcush_spiffs_lock/unlock uses mutex locker and 
+   the flash is now not seperated to multi partitation,
+   the locker here is ignored */
+//#define USE_LOCK   1
+
+#if USE_LOCK
+SemaphoreHandle_t semaphore_spiflash;
+#endif
 
 void hal_spiffs_flash_init(void)
 {
-    semaphore_spiffs = xSemaphoreCreateMutex();
-    if( !semaphore_spiffs )
-        halt("spiffs semphr create"); 
+#if USE_LOCK
+    semaphore_spiflash = xSemaphoreCreateMutex();
+    if( !semaphore_spiflash )
+        halt("spiflash semphr create"); 
+#endif
     sFLASH_Init();
 }
 
 int hal_spiffs_flash_read_id(void)
 {
     int id;
-    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+#if USE_LOCK
+    xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
+#endif
     id = (int)sFLASH_ReadID();
-    xSemaphoreGive( semaphore_spiffs );
+#if USE_LOCK
+    xSemaphoreGive( semaphore_spiflash );
+#endif
     return id;
 }
 
 
 void hal_spiffs_flash_lock(int lock)
 {
-    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+#if USE_LOCK
+    xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
+#endif
     if( lock )
         sFLASH_Lock();
     else
         sFLASH_Unlock();
-    xSemaphoreGive( semaphore_spiffs );
+#if USE_LOCK
+    xSemaphoreGive( semaphore_spiflash );
+#endif
 }
 
 
 s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 {
-    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+#if USE_LOCK
+    xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
+#endif
     sFLASH_ReadBuffer(dst, addr, size);
-    xSemaphoreGive( semaphore_spiffs );
+#if USE_LOCK
+    xSemaphoreGive( semaphore_spiflash );
+#endif
     return SPIFFS_OK;
 }
 
 
 s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
 {
-    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+#if USE_LOCK
+    xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
+#endif
     sFLASH_WriteBuffer(src, addr, size);
-    xSemaphoreGive( semaphore_spiffs );
+#if USE_LOCK
+    xSemaphoreGive( semaphore_spiflash );
+#endif
     return SPIFFS_OK;
 }
 
 
 s32_t *hal_spiffs_flash_erase(u32_t addr, u32_t size)
 {
-    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+#if USE_LOCK
+    xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
+#endif
     sFLASH_EraseSector(addr);
-    xSemaphoreGive( semaphore_spiffs );
+#if USE_LOCK
+    xSemaphoreGive( semaphore_spiflash );
+#endif
     return SPIFFS_OK;
 }
 

@@ -8,8 +8,6 @@ typedef uint16_t u16_t;
 typedef int32_t s32_t;
 typedef uint32_t u32_t;
 #include "shell.h"
-#include "FreeRTOS.h"
-#include "task.h"
 
 //#define SPIFFS_DBG(...) {if(xTaskGetSchedulerState()!=taskSCHEDULER_NOT_STARTED) shell_printf(__VA_ARGS__);}
 
@@ -21,5 +19,11 @@ typedef uint32_t u32_t;
 //#define SPIFFS_USE_MAGIC_LENGTH  8
 
 //#define SPIFFS_SINGLETON   1
+
+struct spiffs_t;
+extern void mcush_spiffs_lock(struct spiffs_t *fs);
+extern void mcush_spiffs_unlock(struct spiffs_t *fs);
+#define SPIFFS_LOCK(fs)         mcush_spiffs_lock(fs)
+#define SPIFFS_UNLOCK(fs)       mcush_spiffs_unlock(fs)
 
 #endif
