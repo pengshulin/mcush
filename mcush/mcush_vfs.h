@@ -9,7 +9,7 @@
 #endif
 
 #ifndef MCUSH_VFS_FILE_DESCRIPTOR_NUM
-    #define MCUSH_VFS_FILE_DESCRIPTOR_NUM  3
+    #define MCUSH_VFS_FILE_DESCRIPTOR_NUM  5
 #endif
 
 

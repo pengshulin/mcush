@@ -171,22 +171,22 @@ int mcush_open( const char *pathname, const char *mode )
         return 0;
     if( ! vol )
         return 0;
-    fd = vol->driver->open( file_name, mode );
-    if( fd )
-    { 
-        for( i=0; i<MCUSH_VFS_FILE_DESCRIPTOR_NUM; i++ )
+    for( i=0; i<MCUSH_VFS_FILE_DESCRIPTOR_NUM; i++ )
+    {
+        if( ! vfs_fd_tab[i].handle ) 
         {
-            if( ! vfs_fd_tab[i].handle ) 
-            {
+            fd = vol->driver->open( file_name, mode );
+            if( fd )
+            { 
                 vfs_fd_tab[i].handle = fd;
                 vfs_fd_tab[i].driver = vol->driver;
                 return i+1+FD_RESERVED;
             }
+            *vol->driver->err = MCUSH_VFS_FAIL_TO_OPEN_FILE;
+            return 0;
         }
-        *vol->driver->err = MCUSH_VFS_RESOURCE_LIMIT;
     }
-    else
-        *vol->driver->err = MCUSH_VFS_FAIL_TO_OPEN_FILE;
+    *vol->driver->err = MCUSH_VFS_RESOURCE_LIMIT;
     return 0;
 }
 

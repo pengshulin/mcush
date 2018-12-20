@@ -62,7 +62,6 @@
 
 static uint8_t _chip_large_scale;
 
-
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
   */
@@ -102,17 +101,19 @@ void sFLASH_Init(void)
 
     sFLASH_LowLevel_Init();
       
+    /*!< Deselect the FLASH: Chip Select high */
     sFLASH_CS_HIGH();
 
     /*!< SPI configuration */
     spi_init.TransferDirection = LL_SPI_FULL_DUPLEX;
     spi_init.Mode = LL_SPI_MODE_MASTER;
     spi_init.DataWidth = LL_SPI_DATAWIDTH_8BIT;
-    spi_init.ClockPolarity = LL_SPI_POLARITY_LOW;
+    spi_init.ClockPolarity = LL_SPI_POLARITY_HIGH;
     spi_init.ClockPhase = LL_SPI_PHASE_2EDGE;
     spi_init.NSS = LL_SPI_NSS_SOFT;
     spi_init.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV2;
     spi_init.BitOrder = LL_SPI_MSB_FIRST;
+    spi_init.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
     spi_init.CRCPoly = 7;
     LL_SPI_Init(sFLASH_SPI, &spi_init);
 
@@ -172,6 +173,25 @@ void sFLASH_Lock(void)
         sFLASH_SendByte(0x00);
     }
     sFLASH_CS_HIGH();
+}
+
+
+uint32_t sFLASH_ReadStatus(void)
+{
+    uint32_t status = 0;
+
+    sFLASH_CS_LOW();
+    sFLASH_SendByte(sFLASH_CMD_RDSR);
+    status = sFLASH_SendByte(sFLASH_DUMMY_BYTE); 
+    sFLASH_SendByte(sFLASH_CMD_RDSR2);
+    status += ((uint32_t)sFLASH_SendByte(sFLASH_DUMMY_BYTE))<<8; 
+    if( _chip_large_scale )
+    {
+        sFLASH_SendByte(sFLASH_CMD_RDSR3);
+        status += ((uint32_t)sFLASH_SendByte(sFLASH_DUMMY_BYTE))<<16; 
+    }
+    sFLASH_CS_HIGH();
+    return status;
 }
 
 
@@ -419,7 +439,7 @@ uint32_t sFLASH_ReadID(void)
     {
         if( Temp0 == 0xEF )
             _chip_large_scale = Temp2 >= 0x18 ? 1 : 0;
-    } 
+    }
     return Temp;
 }
 
@@ -520,26 +540,6 @@ void sFLASH_WriteEnable(void)
     sFLASH_CS_HIGH();
 }
 
-
-uint32_t sFLASH_ReadStatus(void)
-{
-    uint32_t status = 0;
-
-    sFLASH_CS_LOW();
-    sFLASH_SendByte(sFLASH_CMD_RDSR);
-    status = sFLASH_SendByte(sFLASH_DUMMY_BYTE); 
-    sFLASH_SendByte(sFLASH_CMD_RDSR2);
-    status += ((uint32_t)sFLASH_SendByte(sFLASH_DUMMY_BYTE))<<8; 
-    if( _chip_large_scale )
-    {
-        sFLASH_SendByte(sFLASH_CMD_RDSR3);
-        status += ((uint32_t)sFLASH_SendByte(sFLASH_DUMMY_BYTE))<<16; 
-    }
-    sFLASH_CS_HIGH();
-    return status;
-}
-
-
 /**
   * @brief  Polls the status of the Write In Progress (WIP) flag in the FLASH's
   *         status register and loop until write opertaion has completed.
@@ -557,6 +557,8 @@ void sFLASH_WaitForWriteEnd(void)
         flashstatus = sFLASH_SendByte(sFLASH_DUMMY_BYTE); 
     }
     while ((flashstatus & sFLASH_WIP_FLAG) == SET); /* Write in progress */
+
+    /*!< Deselect the FLASH: Chip Select high */
     sFLASH_CS_HIGH();
 }
 
