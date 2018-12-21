@@ -159,7 +159,7 @@ int logger_printf( int type, char *fmt, ... )
 {
     va_list ap;
     int n;
-    char buf[256];
+    char buf[LOGGER_LINE_BUF_SIZE];
 
     va_start( ap, fmt );
     n = vsprintf( buf, fmt, ap );
@@ -338,9 +338,9 @@ void task_logger_entry(void *p)
     logger_event_t evt;
 #if MCUSH_SPIFFS
     int fd = 0;
-    char buf[256];
     int size = -1;
     int i, j;
+    char buf[LOGGER_LINE_BUF_SIZE];
 #endif
 
     while( 1 )
@@ -494,9 +494,9 @@ int cmd_logger( int argc, char *argv[] )
     uint8_t head_len=0;
     logger_event_t evt;
     char c;
-    char buf[256];
     char *tail[10];
     int i, j, fd;
+    char buf[LOGGER_LINE_BUF_SIZE];
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )

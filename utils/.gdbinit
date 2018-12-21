@@ -263,9 +263,5 @@ load_file
 connect
 #program
 reset
-
-    
 run2main
-
-
 
