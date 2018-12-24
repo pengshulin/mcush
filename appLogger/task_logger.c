@@ -497,7 +497,8 @@ int cmd_logger( int argc, char *argv[] )
     uint8_t head_len=0;
     logger_event_t evt;
     char c;
-    char *tail[10];
+    char *tail[LOGGER_TAIL_NUM];
+    int tail_len[LOGGER_TAIL_NUM], len;
     int i, j, fd;
     char buf[LOGGER_LINE_BUF_SIZE];
 
@@ -587,8 +588,11 @@ int cmd_logger( int argc, char *argv[] )
     {
         /* similar to linux tail command
            read file line by line, record last 10 lines, print them all when EOF */
-        for( i=0; i<10; i++ )
+        for( i=0; i<LOGGER_TAIL_NUM; i++ )
+        {
+            tail_len[i] = 0;
             tail[i] = 0;
+        }
         xSemaphoreTake( semaphore_logger, portMAX_DELAY );
         fd = mcush_open( _fname, "r" );
         if( fd )
@@ -598,26 +602,39 @@ int cmd_logger( int argc, char *argv[] )
             {
                 if( ! mcush_file_read_line( fd, buf ) )
                     break;
+                len = strlen(buf);
                 if( tail[i] )
-                    vPortFree( tail[i] );
-                tail[i] = pvPortMalloc( strlen(buf)+1 );
-                if( tail[i] )
-                    strcpy( tail[i], buf );
+                {
+                    if( len > tail_len[i] )
+                    {
+                        vPortFree( tail[i] );
+                        tail[i] = pvPortMalloc( len + 1 );
+                        if( tail[i] == NULL )
+                            break;
+                        tail_len[i] = len;
+                    }
+                }
                 else
-                    break;
-                i = (i+1) % 10;
+                {
+                    tail[i] = pvPortMalloc( len + 1 );
+                    if( tail[i] == NULL )
+                        break;
+                    tail_len[i] = len;
+                }
+                strcpy( tail[i], buf );
+                i = (i+1) % LOGGER_TAIL_NUM;
             }
             mcush_close( fd );
             xSemaphoreGive( semaphore_logger );
             /* print out */
-            for( j=0; j<10; j++ )
+            for( j=0; j<LOGGER_TAIL_NUM; j++ )
             {
                 if( tail[i] )
                 {
                     shell_write_line( tail[i] );
                     vPortFree( tail[i] );
                 }
-                i = (i+1) % 10;
+                i = (i+1) % LOGGER_TAIL_NUM;
             }
         }
         else

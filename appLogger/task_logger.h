@@ -23,6 +23,10 @@
     #define LOGGER_LINE_BUF_SIZE  1024
 #endif
 
+#ifndef LOGGER_TAIL_NUM
+    #define LOGGER_TAIL_NUM  10
+#endif
+
 #ifndef TASK_LOGGER_STACK_SIZE
     #define TASK_LOGGER_STACK_SIZE  (3*1024)
 #endif
@@ -38,6 +42,7 @@
 #ifndef TASK_LOGGER_MONITOR_QUEUE_SIZE
     #define TASK_LOGGER_MONITOR_QUEUE_SIZE  (20)
 #endif
+
 
 #define LOG_DEBUG   0x01
 #define LOG_INFO    0x02
