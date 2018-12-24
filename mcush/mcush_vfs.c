@@ -173,14 +173,14 @@ int mcush_open( const char *pathname, const char *mode )
         return 0;
     for( i=0; i<MCUSH_VFS_FILE_DESCRIPTOR_NUM; i++ )
     {
-        if( ! vfs_fd_tab[i].handle ) 
+        if( ! vfs_fd_tab[i].driver ) 
         {
             fd = vol->driver->open( file_name, mode );
             if( fd )
             { 
                 vfs_fd_tab[i].handle = fd;
                 vfs_fd_tab[i].driver = vol->driver;
-                return i+1+FD_RESERVED;
+                return i+FD_RESERVED;
             }
             *vol->driver->err = MCUSH_VFS_FAIL_TO_OPEN_FILE;
             return 0;
@@ -200,11 +200,16 @@ int mcush_seek( int fd, int offset, int where )
 int mcush_read( int fd, void *buf, int len )
 {
     int ret, unget=0;
+    const mcush_vfs_driver_t *driver;
+
+    /* fd == 0: map to shell input */
     if( fd == 0 )
         return shell_read( buf, len );
-    fd -= 1+FD_RESERVED;
-    if( fd < 0 )
+
+    fd -= FD_RESERVED;
+    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
         return -1;
+
     if( len <= 0 )
         return 0;
     if( vfs_fd_tab[fd].unget_char )
@@ -214,6 +219,9 @@ int mcush_read( int fd, void *buf, int len )
         len--;
         unget = 1;
     }
+    driver = vfs_fd_tab[fd].driver;
+    if( driver == NULL )
+        return -1;
     ret = vfs_fd_tab[fd].driver->read( vfs_fd_tab[fd].handle, buf, len );
     if( ret < 0 )
         return unget ? 1 : -1;
@@ -224,37 +232,55 @@ int mcush_read( int fd, void *buf, int len )
 
 int mcush_write( int fd, void *buf, int len )
 {
+    const mcush_vfs_driver_t *driver;
+
+    /* fd == 1/2: map to shell output */
     if( fd == 1 || fd == 2 )
     {
         shell_write( buf, len );
         return len;
     }
-    fd -= 1+FD_RESERVED;
-    if( fd < 0 )
+    fd -= FD_RESERVED;
+    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
         return -1;
-    return vfs_fd_tab[fd].driver->write( vfs_fd_tab[fd].handle, buf, len );
+    driver = vfs_fd_tab[fd].driver;
+    if( driver )
+        return vfs_fd_tab[fd].driver->write( vfs_fd_tab[fd].handle, buf, len );
+    else
+        return -1; 
 }
 
 
 int mcush_flush( int fd )
 {
-    fd -= 1+FD_RESERVED;
-    if( fd < 0 )
+    const mcush_vfs_driver_t *driver;
+
+    fd -= FD_RESERVED;
+    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
         return 0;
-    *vfs_fd_tab[fd].driver->err = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
+    driver = vfs_fd_tab[fd].driver;
+    if( driver )
+        *vfs_fd_tab[fd].driver->err = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
     return 1;
 }
 
 
 int mcush_close( int fd )
 {
-    fd -= 1+FD_RESERVED;
-    if( fd < 0 )
+    const mcush_vfs_driver_t *driver;
+
+    fd -= FD_RESERVED;
+    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+        return 0;
+    driver = vfs_fd_tab[fd].driver;
+    if( driver )
+    {
+        *vfs_fd_tab[fd].driver->err = driver->close( vfs_fd_tab[fd].handle );
+        vfs_fd_tab[fd].driver = 0;
+        vfs_fd_tab[fd].handle = 0;
         return 1;
-    *vfs_fd_tab[fd].driver->err = vfs_fd_tab[fd].driver->close( vfs_fd_tab[fd].handle );
-    vfs_fd_tab[fd].driver = 0;
-    vfs_fd_tab[fd].handle = 0;
-    return 1;
+    }
+    return 0;
 }
 
 
@@ -284,8 +310,8 @@ int mcush_getc( int fd )
 
 int mcush_ungetc( int fd, char c )
 {
-    fd -= 1+FD_RESERVED;
-    if( fd < 0 )
+    fd -= FD_RESERVED;
+    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
         return 0;
     if( vfs_fd_tab[fd].unget_char )
         return 0;
@@ -336,7 +362,7 @@ int fprintf(FILE *stream, const char *format, ...)
 {
     va_list vargs;
     int charCnt;
-    char str[256];
+    char str[1024];
 
     va_start(vargs,format);
     if( stream == stdout || stream == stderr )

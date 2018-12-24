@@ -83,7 +83,8 @@ static int _logger_str( int type, const char *str, int isr_mode )
     evt.type = type;
     evt.time = (uint32_t)xTaskGetTickCount();
     evt.str = buf;
-    strncpy( buf, str, length+1 );
+    strncpy( buf, str, length );
+    buf[length] = 0;
     if( isr_mode )
     {
         if( xQueueSendFromISR( queue_logger, &evt, &xHigherPriorityTaskWoken ) != pdTRUE )
@@ -386,6 +387,7 @@ void task_logger_entry(void *p)
             post_process_event( &evt );
             i = strlen(buf);
             j = mcush_write( fd, buf, i );
+            j = j > 0 ? j : 0;
             size = size < 0 ? j : size + j;
             /* write the remaining (if exists) in one cycle */
             while( xQueueReceive( queue_logger, &evt, 0 ) == pdTRUE )
@@ -394,6 +396,7 @@ void task_logger_entry(void *p)
                 post_process_event( &evt );
                 i = strlen(buf);
                 j = mcush_write( fd, buf, i );
+                j = j > 0 ? j : 0;
                 size = size < 0 ? j : size + j;
                 if( size > LOGGER_FSIZE_LIMIT )
                     break;

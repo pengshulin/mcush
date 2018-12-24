@@ -36,7 +36,7 @@ extern "C" {
  * 0 -- lowest (idle task)
  */
 #ifndef MCUSH_PRIORITY
-    #define MCUSH_PRIORITY  (3)  
+    #define MCUSH_PRIORITY  (3)
 #endif
 
 #ifndef MCUSH_STACK_SIZE
@@ -89,6 +89,10 @@ extern "C" {
         #undef MCUSH_FATFS
         #define MCUSH_FATFS  0
     #endif
+#endif
+
+#ifndef TASK_IDLE_PRIORITY
+    #define TASK_IDLE_PRIORITY  (tskIDLE_PRIORITY)
 #endif
 
 

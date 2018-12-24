@@ -1480,8 +1480,6 @@ int cmd_mapi( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           't', shell_str_test, 0, "test heap memory" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
-          0, shell_str_fill, 0, "fill heap memory" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'i', shell_str_info, 0, "print mallinfo" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'm', shell_str_malloc, 0, "allocate new memory" },
@@ -1498,12 +1496,12 @@ int cmd_mapi( int argc, char *argv[] )
     mcush_opt opt;
     void *addr=(void*)-1;
     int length=-1;
-    uint8_t malloc_set=0, realloc_set=0, free_set=0, test_mode=0, info_set=0, fill_mode=0;
-    void *mlist=0;
-    int *p;
+    uint8_t malloc_set=0, realloc_set=0, free_set=0, test_mode=0, info_set=0;
     int i,j,k;
     struct mallinfo info;
-    
+ #define MAPI_MLIST_LEN  64
+    void *mlist[MAPI_MLIST_LEN];
+   
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -1522,8 +1520,6 @@ int cmd_mapi( int argc, char *argv[] )
                 free_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
-            else if( STRCMP( opt.spec->name, shell_str_fill ) == 0 )
-                fill_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info_set = 1;
         }
@@ -1534,28 +1530,22 @@ int cmd_mapi( int argc, char *argv[] )
     if( info_set )
         goto print_mallinfo;
 
-#define MAPI_MLIST_LEN  64
 #define MAPI_TEST_MALLOC_SIZE  32768
-    if( test_mode || fill_mode )
+    if( test_mode )
     {
-        mlist = pvPortMalloc( 4*MAPI_MLIST_LEN );
-        if( ! mlist )
-            return 1;
-        shell_printf( "[L] 0x%08X %d\n", (unsigned int)mlist, 4*MAPI_MLIST_LEN );
-        memset( mlist, 0, 4*MAPI_MLIST_LEN );
-        p = (int*)mlist;
+        for( i=0; i<MAPI_MLIST_LEN; i++ )
+            mlist[i] = 0;
         //j = MAPI_TEST_MALLOC_SIZE;
         j = mallinfo().arena / 2;
-        k = 4*MAPI_MLIST_LEN;
+        k = 0;
         i = 0;
         while( i < MAPI_MLIST_LEN )
         {
-            *p = (int)pvPortMalloc( j );
-            if( *p )
+            mlist[i] = pvPortMalloc( j );
+            if( mlist[i] )
             {
                 k += j;
-                shell_printf( "[%d] 0x%08X %d\n", i+1, (unsigned int)*p, j );
-                p++;
+                shell_printf( "[%d] 0x%08X %d\n", i+1, (unsigned int)mlist[i], j );
                 i++;
             }
             else
@@ -1566,15 +1556,10 @@ int cmd_mapi( int argc, char *argv[] )
             }
         } 
         shell_printf( "%s: %d\n", shell_str_total, k );
-        p = (int*)mlist;
-        if( !fill_mode )
+        for( i=0; i<MAPI_MLIST_LEN; i++ )
         {
-            for( i=0; i<MAPI_MLIST_LEN; i++, p++ )
-            {
-                if( *p )
-                    vPortFree((void*)*p);
-            }
-            vPortFree( mlist );
+            if( mlist[i] )
+                vPortFree((void*)mlist[i]);
         }
         return 0;
     }

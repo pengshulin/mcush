@@ -124,7 +124,7 @@ static err_t wget_http_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len)
 
 static err_t wget_http_connected_cb(void *arg, struct tcp_pcb *pcb, err_t err)
 {
-    char buf[64];
+    char buf[256];
     if( err != ERR_OK )
     {
         tcp_close(pcb);
@@ -158,17 +158,17 @@ int wget_http_get_file(void)
 #define HEAD_CHECK_STATE_C  3  // \r\n\r
 #define HEAD_CHECK_STATE_D  4  // \r\n\r\n
 #define CACHE_SIZE  128
-int post_process_temp_file(void)
+int post_process_temp_file( const char *tmpfile, const char *dstfile )
 {
     int fd1, fd2=0, success=0, r;
     char c, state=0, sync=0;
     char buf[CACHE_SIZE];
 
-    fd1 = mcush_open( WGET_TEMP_FILE, "r" );
+    fd1 = mcush_open( tmpfile, "r" );
     if( fd1 )
     {
         /* sync for \r\n\r\n */
-        while( mcush_read( fd1, &c, 1 ) )
+        while( mcush_read( fd1, &c, 1 ) == 1 )
         {
             switch( state )
             {
@@ -206,15 +206,15 @@ int post_process_temp_file(void)
     /* copy remaining */
     if( sync )
     {
-        fd2 = mcush_open( wcb->local_file, "w+" );
+        fd2 = mcush_open( dstfile, "w+" );
         if( fd2 )
         {
             while( 1 )
             { 
                 r = mcush_read( fd1, buf, CACHE_SIZE );
-                if( r )
+                if( r > 0 )
                 {
-                    if( ! mcush_write( fd2, buf, r ) )
+                    if( mcush_write( fd2, buf, r ) <= 0 )
                         break;
                 }
                 else
@@ -395,7 +395,7 @@ int cmd_wget( int argc, char *argv[] )
         if( wcb->len > VALID_FILE_SIZE_MIN )
         {
             /* analysis temp file and cut out the head */
-            if( post_process_temp_file() )
+            if( post_process_temp_file(WGET_TEMP_FILE, wcb->local_file) )
             {
                 if( mcush_size( wcb->local_file, &size ) ) 
                 {

@@ -19,6 +19,8 @@ int mcush_file_load_string( const char *fname, char *str, int size_limit )
         return 0;
     r = mcush_read( fd, str, size_limit-1 );
     mcush_close( fd );
+    if( r < 0 )
+        return 0;
     str[r] = 0;
     return r;
 }
@@ -34,6 +36,8 @@ int mcush_file_write_string( const char *fname, char *str )
         return 0;
     r = mcush_write( fd, str, len );
     mcush_close( fd );
+    if( r < 0 )
+        return 0;
     return r==len ? 1 : 0;
 }
 
@@ -52,6 +56,8 @@ int mcush_file_crc8( const char *fname )
     while(1)
     { 
         r = mcush_read( fd, buf, _READ_BUF_SIZE );
+        if( r < 0 )
+            break;
         bytes += r;
         if( r > 0 )
             crc = _crc8( buf, r, crc, crc8_table ); 
@@ -84,16 +90,19 @@ int mcush_file_remove_retry( const char *fname, int retry_num )
 }
 
 
+
 int mcush_file_read_line( int fd, char *line )
 {
     int byte=0;
     int i;
-    char buf[256], *p=buf, c;
+    char *p, c;
+    char buf[1024];
 
+    p = buf;
     while( 1 )
     {
         i = mcush_read( fd, &c, 1 );
-        if( i == 0 )            /* EOF */
+        if( i <= 0 )            /* EOF */
             break;
         byte++;
         if( c == '\n' )         /* stop */

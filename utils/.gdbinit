@@ -262,6 +262,6 @@ init_regs
 load_file
 connect
 #program
-reset
-run2main
+#reset
+#run2main
 
