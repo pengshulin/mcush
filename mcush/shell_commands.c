@@ -1371,10 +1371,10 @@ int cmd_system( int argc, char *argv[] )
     mcush_task_info_t tinfo;
     mcush_kern_info_t kinfo;
     const char *name=0;
-    char buf[256];
     char *p;
     int i;
     const char *type=0;
+    char buf[1024];
     
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )

@@ -207,6 +207,9 @@ int set_rtc_by_str( char *s )
                      &t.tm_year, &t.tm_mon, &t.tm_mday,
                      &t.tm_hour, &t.tm_min, &t.tm_sec ) )
     {
+        /* format 18-1-1 --> 2018-1-1 */
+        if( t.tm_year < 100 )
+            t.tm_year += 2000;
         t.tm_wday = 0;
         t.tm_yday = 0;
         t.tm_isdst = 0;
@@ -222,7 +225,11 @@ int set_rtc_by_val( int year, int mon, int mday, int hour, int min, int sec )
 {
 #if HAL_RTC
     struct tm t;
-    t.tm_year = year;
+    /* format 18-1-1 --> 2018-1-1 */
+    if( year < 100 )
+        t.tm_year = year + 2000;
+    else
+        t.tm_year = year;
     t.tm_mon = mon;
     t.tm_mday = mday;
     t.tm_hour = hour;
