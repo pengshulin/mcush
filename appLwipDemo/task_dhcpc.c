@@ -83,7 +83,7 @@ err:
 }
 
 
-void send_dhcpc_event( uint8_t event )
+int send_dhcpc_event( uint8_t event )
 {
     if( xQueueSend( queue_dhcpc, &event, 0 ) == pdTRUE )
         return 1;
