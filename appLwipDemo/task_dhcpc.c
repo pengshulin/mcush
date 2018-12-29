@@ -85,7 +85,9 @@ err:
 
 void send_dhcpc_event( uint8_t event )
 {
-    xQueueSend( queue_dhcpc, &event, portMAX_DELAY );
+    if( xQueueSend( queue_dhcpc, &event, 0 ) == pdTRUE )
+        return 1;
+    return 0;
 }
 
 
@@ -201,6 +203,7 @@ void task_dhcpc_entry(void *p)
             logger_printf( LOG_INFO, "dhcpc: cable disconnected");
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
+            dhcp_stop(&gnetif);
 #if USE_NET_CHANGE_HOOK
             net_state_change_hook(0);
 #endif
@@ -309,6 +312,7 @@ void task_dhcpc_init(void)
     queue_dhcpc = xQueueCreate( TASK_DHCPC_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(uint8_t) );
     if( !queue_dhcpc )
         halt( "create dhdpc queue" );
+    vQueueAddToRegistry( queue_dhcpc, "dhcpcQ" );
 
     timer_dhcpc = xTimerCreate( (const char * const)"dhcpc", 
                                 DHCPC_TIMER_PERIOD_MS / portTICK_RATE_MS,
