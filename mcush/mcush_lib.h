@@ -25,6 +25,7 @@ void test_delay_ms(void);
 char *get_tick_time_str(char *buf, uint32_t tick, int ms);
 char *get_uptime_str(char *buf, int ms);
 char *get_rtc_str(char *buf);
+char *get_rtc_tick_str(char *buf, uint32_t tick);
 int set_rtc_by_str( char *s );
 int set_rtc_by_val( int year, int mon, int mday, int hour, int min, int sec );
 int get_rtc_tick( uint32_t *tick );

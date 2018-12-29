@@ -199,6 +199,29 @@ char *get_rtc_str(char *buf)
 }
 
 
+char *get_rtc_tick_str(char *buf, uint32_t tick)
+{
+#if HAL_RTC
+    struct tm *t;
+    uint32_t rt, s;
+
+    if( get_rtc_tick( &rt ) )
+    {
+        s = (xTaskGetTickCount() - tick) / configTICK_RATE_HZ;
+        rt = rt + 8*60*60 - s;
+        t = gmtime( (const time_t*)&rt );
+        t->tm_mon += 1;
+        t->tm_year += 1900;
+        sprintf( buf, "%d-%d-%d %02d:%02d:%02d", 
+                 t->tm_year, t->tm_mon, t->tm_mday,
+                 t->tm_hour, t->tm_min, t->tm_sec );
+        return buf;
+    }
+#endif
+    return 0;
+}
+
+
 int set_rtc_by_str( char *s )
 {
 #if HAL_RTC
