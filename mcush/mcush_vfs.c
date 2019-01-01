@@ -10,10 +10,16 @@
 mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];
 mcush_vfs_file_descriptor_t vfs_fd_tab[MCUSH_VFS_FILE_DESCRIPTOR_NUM];
 
+#if MCUSH_VFS_STATISTICS
+mcush_vfs_statistics_t vfs_stat;
+#endif
 
 int mcush_mount( const char *mount_point, const mcush_vfs_driver_t *driver )
 {
     int i;
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_mount++;
+#endif
     if( *mount_point == '/' )
         mount_point++;
     /* check if the mount_point is used */
@@ -21,7 +27,9 @@ int mcush_mount( const char *mount_point, const mcush_vfs_driver_t *driver )
     {
         if( vfs_vol_tab[i].mount_point && 
             (strcmp(vfs_vol_tab[i].mount_point, mount_point) == 0) )
+        {
             return 1;
+        }
     }
     /* insert into free space */
     for( i=0; i<MCUSH_VFS_VOLUME_NUM; i++ )
@@ -44,6 +52,9 @@ int mcush_mount( const char *mount_point, const mcush_vfs_driver_t *driver )
 int mcush_umount( const char *mount_point )
 {
     int i;
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_umount++;
+#endif
     if( *mount_point == '/' )
         mount_point++;
     /* check if the mount_point is used */
@@ -167,27 +178,49 @@ int mcush_open( const char *pathname, const char *mode )
     mcush_vfs_volume_t *vol = get_vol(pathname);
     char file_name[32];
     int fd, i;
+
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_open++;
+#endif
     if( ! get_file_name( pathname, file_name ) )
-        return 0;
+        goto err;
     if( ! vol )
-        return 0;
+        goto err;
+    portENTER_CRITICAL();
     for( i=0; i<MCUSH_VFS_FILE_DESCRIPTOR_NUM; i++ )
     {
-        if( ! vfs_fd_tab[i].driver ) 
+        if( vfs_fd_tab[i].driver == NULL ) 
         {
-            fd = vol->driver->open( file_name, mode );
-            if( fd )
-            { 
-                vfs_fd_tab[i].handle = fd;
-                vfs_fd_tab[i].driver = vol->driver;
-                return i+FD_RESERVED;
-            }
-            *vol->driver->err = MCUSH_VFS_FAIL_TO_OPEN_FILE;
-            return 0;
+            vfs_fd_tab[i].driver = vol->driver;
+            break;
         }
     }
-    *vol->driver->err = MCUSH_VFS_RESOURCE_LIMIT;
-    return 0;
+    portEXIT_CRITICAL();
+    if( i >= MCUSH_VFS_FILE_DESCRIPTOR_NUM )
+    {  
+        *vol->driver->err = MCUSH_VFS_RESOURCE_LIMIT;
+        goto err;
+    }
+    else
+    {
+        fd = vol->driver->open( file_name, mode );
+        if( fd )
+        { 
+            vfs_fd_tab[i].handle = fd;
+        }
+        else
+        {
+            *vol->driver->err = MCUSH_VFS_FAIL_TO_OPEN_FILE;
+            vfs_fd_tab[i].driver = NULL;
+            goto err;
+        }
+    }
+    return i+FD_RESERVED;
+err:
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_open_err++;
+#endif
+    return 0; 
 }
 
 
@@ -202,13 +235,16 @@ int mcush_read( int fd, void *buf, int len )
     int ret, unget=0;
     const mcush_vfs_driver_t *driver;
 
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_read++;
+#endif
     /* fd == 0: map to shell input */
     if( fd == 0 )
         return shell_read( buf, len );
 
     fd -= FD_RESERVED;
-    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
-        return -1;
+    if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+        goto err;
 
     if( len <= 0 )
         return 0;
@@ -221,12 +257,17 @@ int mcush_read( int fd, void *buf, int len )
     }
     driver = vfs_fd_tab[fd].driver;
     if( driver == NULL )
-        return -1;
-    ret = vfs_fd_tab[fd].driver->read( vfs_fd_tab[fd].handle, buf, len );
+        goto err;
+    ret = driver->read( vfs_fd_tab[fd].handle, buf, len );
     if( ret < 0 )
         return unget ? 1 : -1;
     else
         return unget ? ret+1 : ret;
+err:
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_read_err++;
+#endif
+    return -1;
 }
 
 
@@ -234,6 +275,9 @@ int mcush_write( int fd, void *buf, int len )
 {
     const mcush_vfs_driver_t *driver;
 
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_write++;
+#endif
     /* fd == 1/2: map to shell output */
     if( fd == 1 || fd == 2 )
     {
@@ -241,13 +285,16 @@ int mcush_write( int fd, void *buf, int len )
         return len;
     }
     fd -= FD_RESERVED;
-    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
-        return -1;
+    if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+        goto err;
     driver = vfs_fd_tab[fd].driver;
     if( driver )
-        return vfs_fd_tab[fd].driver->write( vfs_fd_tab[fd].handle, buf, len );
-    else
-        return -1; 
+        return driver->write( vfs_fd_tab[fd].handle, buf, len );
+err:
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_write_err++;
+#endif
+    return -1; 
 }
 
 
@@ -255,12 +302,20 @@ int mcush_flush( int fd )
 {
     const mcush_vfs_driver_t *driver;
 
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_flush++;
+#endif
     fd -= FD_RESERVED;
-    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+    if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+    {
+#if MCUSH_VFS_STATISTICS
+        vfs_stat.count_flush_err++;
+#endif
         return 0;
+    }
     driver = vfs_fd_tab[fd].driver;
     if( driver )
-        *vfs_fd_tab[fd].driver->err = vfs_fd_tab[fd].driver->flush( vfs_fd_tab[fd].handle );
+        *driver->err = driver->flush( vfs_fd_tab[fd].handle );
     return 1;
 }
 
@@ -269,17 +324,26 @@ int mcush_close( int fd )
 {
     const mcush_vfs_driver_t *driver;
 
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_close++;
+#endif
     fd -= FD_RESERVED;
-    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
-        return 0;
+    if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+        goto err;
     driver = vfs_fd_tab[fd].driver;
     if( driver )
     {
-        *vfs_fd_tab[fd].driver->err = driver->close( vfs_fd_tab[fd].handle );
-        vfs_fd_tab[fd].driver = 0;
+        *driver->err = driver->close( vfs_fd_tab[fd].handle );
+        portENTER_CRITICAL();
+        vfs_fd_tab[fd].driver = NULL;
         vfs_fd_tab[fd].handle = 0;
+        portEXIT_CRITICAL();
         return 1;
     }
+err:
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_close_err++;
+#endif
     return 0;
 }
 
@@ -311,7 +375,7 @@ int mcush_getc( int fd )
 int mcush_ungetc( int fd, char c )
 {
     fd -= FD_RESERVED;
-    if( (fd < 0) || (fd > MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+    if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
         return 0;
     if( vfs_fd_tab[fd].unget_char )
         return 0;

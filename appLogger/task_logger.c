@@ -376,22 +376,36 @@ void task_logger_entry(void *p)
             size = -1;
         }
 
+        /* recheck after check_size/rotate_log execution */
+        if( ! _enable )
+        {
+            xSemaphoreGive( semaphore_logger );
+            post_process_event( &evt );
+            continue;
+        }
+
         /* try to create/append logfile */
+        convert_logger_event_to_str( &evt, buf );
         fd = mcush_open( _fname, "a+" );
         if( fd != 0 )
         {
 #if DEBUG_WRITE_LED
             hal_led_set(DEBUG_WRITE_LED);
 #endif
-            convert_logger_event_to_str( &evt, buf );
             post_process_event( &evt );
             i = strlen(buf);
             j = mcush_write( fd, buf, i );
             j = j > 0 ? j : 0;
             size = size < 0 ? j : size + j;
             /* write the remaining (if exists) in one cycle */
-            while( xQueueReceive( queue_logger, &evt, 0 ) == pdTRUE )
+            while( xQueueReceive( queue_logger, &evt, \
+                TASK_LOGGER_LAZY_CLOSE_MS * configTICK_RATE_HZ / 1000 ) == pdTRUE )
             {
+                if( ! _enable )
+                {
+                    post_process_event( &evt );
+                    break;
+                }
                 convert_logger_event_to_str( &evt, buf );
                 post_process_event( &evt );
                 i = strlen(buf);
@@ -401,6 +415,7 @@ void task_logger_entry(void *p)
                 if( size > LOGGER_FSIZE_LIMIT )
                     break;
             }
+            mcush_flush( fd );
             mcush_close( fd );
 #if DEBUG_WRITE_LED
             hal_led_clr(DEBUG_WRITE_LED);
@@ -593,7 +608,10 @@ int cmd_logger( int argc, char *argv[] )
             tail_len[i] = 0;
             tail[i] = 0;
         }
-        xSemaphoreTake( semaphore_logger, portMAX_DELAY );
+        if( xSemaphoreTake( semaphore_logger, configTICK_RATE_HZ ) == pdFAIL )
+        {
+            return 1;  /* file locked, stop */
+        }
         fd = mcush_open( _fname, "r" );
         if( fd )
         {

@@ -1358,11 +1358,18 @@ int cmd_uptime( int argc, char *argv[] )
 
 
 #if USE_CMD_SYSTEM
+void task_idle_counter_entry(void *p)
+{
+    volatile uint32_t *cnt = (uint32_t*)p;
+    while(1)
+        (*cnt)++;
+}
+
 int cmd_system( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
-          0, shell_str_type, 0, "(t)ask|(q)ueue|(k)ern|heap|stack|trace" },
+          0, shell_str_type, 0, "(t)ask|(q)ueue|(k)ern|heap|stack|trace|(i)dle|v(f)s" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -1374,6 +1381,9 @@ int cmd_system( int argc, char *argv[] )
     char *p;
     int i;
     const char *type=0;
+    char c;
+    uint32_t idle_counter, idle_counter_last, idle_counter_max;
+    TaskHandle_t task_idle_counter;
     char buf[1024];
     
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -1463,6 +1473,75 @@ int cmd_system( int argc, char *argv[] )
     {
         vTaskList( buf );
         shell_write_str( buf ); 
+    }
+#endif
+    else if( (strcmp( type, "i" ) == 0 ) || (strcmp( type, "idle" ) == 0) )
+    {
+        /* create counter task to check the maximum count value available */
+        /* NOTE: the task runs at top priority and may involve side-effects */
+        idle_counter = 0;
+        vTaskPrioritySet( NULL, configMAX_PRIORITIES-1 );
+        xTaskCreate((TaskFunction_t)task_idle_counter_entry, (const char *)"idleCntT", 
+                configMINIMAL_STACK_SIZE / sizeof(portSTACK_TYPE),
+                &idle_counter, configMAX_PRIORITIES-1, &task_idle_counter);
+        if( task_idle_counter == NULL )
+        {
+            vTaskPrioritySet( NULL, MCUSH_PRIORITY );
+            return 1; 
+        }
+        /* check for continuous 0.5 second */
+        idle_counter_last = idle_counter;
+        hal_wdg_clear();
+        while( shell_driver_read_char_blocked(&c, configTICK_RATE_HZ / 2) != -1 )
+        {
+            hal_wdg_clear();
+            if( c == 0x03 ) /* Ctrl-C for stop */
+            {
+                vTaskDelete( task_idle_counter );
+                vTaskPrioritySet( NULL, MCUSH_PRIORITY );
+                return 0; 
+            }
+            else
+                idle_counter_last = idle_counter;  /* interrupted, reset */
+        }
+        hal_wdg_clear();
+        idle_counter_max = idle_counter - idle_counter_last;
+        idle_counter_max *= 2;
+        vTaskPrioritySet( task_idle_counter, TASK_IDLE_PRIORITY );
+        vTaskPrioritySet( NULL, MCUSH_PRIORITY );
+
+        /* loop check cpu idle rate at low priority */
+        idle_counter_last = idle_counter;
+        while( 1 )
+        {
+            while( shell_driver_read_char_blocked(&c, configTICK_RATE_HZ) != -1 )
+            {
+                if( c == 0x03 ) /* Ctrl-C for stop */
+                {
+                    vTaskDelete( task_idle_counter );
+                    return 0; 
+                }
+            }
+            i = idle_counter - idle_counter_last;
+            idle_counter_last = idle_counter;
+            shell_printf( "%d %%\n", i * 100 / idle_counter_max );
+        }
+    }
+#if MCUSH_VFS
+    else if( (strcmp( type, "f" ) == 0 ) || (strcmp( type, "vfs" ) == 0) )
+    {
+#if MCUSH_VFS_STATISTICS
+        extern mcush_vfs_statistics_t vfs_stat;
+        mcush_vfs_statistics_t stat;  /* take snapshot */
+        memcpy((void*)&stat, (const void*)&vfs_stat, sizeof(mcush_vfs_statistics_t)); 
+        shell_printf( "mount: %u\n", stat.count_mount );
+        shell_printf( "umount: %u\n", stat.count_umount );
+        shell_printf( "open:  %u / %u\n", stat.count_open, stat.count_open_err );
+        shell_printf( "close: %u / %u\n", stat.count_close, stat.count_close_err );
+        shell_printf( "read:  %u / %u\n", stat.count_read, stat.count_read_err );
+        shell_printf( "write: %u / %u\n", stat.count_write, stat.count_write_err );
+        shell_printf( "flush: %u / %u\n", stat.count_flush, stat.count_flush_err );
+#endif
     }
 #endif
     else
@@ -2899,14 +2978,20 @@ int cmd_spiffs( int argc, char *argv[] )
     {
         if( ! mcush_spiffs_mounted() )
             goto not_mounted;
-        fd = mcush_spiffs_open( "test.dat", "rwa+" );
-        if( fd < 0 )
+        fd = mcush_open( "/s/test.dat", "rwa+" );
+        if( fd <= 0 )
             return 1;
         strcpy( buf, "abcdefghijklmnopqrstuvwxyz\n" );
-        mcush_spiffs_write( fd, buf, strlen(buf) );
-        strcpy( buf, "01234567890\n" );
-        mcush_spiffs_write( fd, buf, strlen(buf) );
-        mcush_spiffs_close( fd );
+        i = strlen(buf);
+        j = mcush_write( fd, buf, i );
+        if( i == j )
+        {
+            strcpy( buf, "0123456789\n" );
+            i = strlen(buf);
+            j = mcush_write( fd, buf, i );
+        }
+        mcush_close( fd );
+        return (i == j) ? 0 : 1;
     }
     else if( strcmp( cmd, shell_str_format ) == 0 )
     {
@@ -3059,13 +3144,13 @@ int cmd_cat( int argc, char *argv[] )
         {
             if( i != mcush_write( fd, input, i ) )
             {
-                vPortFree(input);
                 mcush_close(fd);
+                vPortFree(input);
                 return 1;
             } 
         }
-        vPortFree(input);
         mcush_close(fd);
+        vPortFree(input);
     }
     else
     { 
@@ -3078,6 +3163,13 @@ int cmd_cat( int argc, char *argv[] )
         while( 1 )
         {    
             i = mcush_read( fd, buf, b64 ? CAT_BUF_RAW : CAT_BUF_LEN );
+            if( i < 0 )
+            {
+                mcush_close(fd);
+                shell_write_char( '\n' );
+                return 1;
+            }
+
             bytes += i;
             if( i==0  )
             {
@@ -3121,14 +3213,14 @@ int cmd_cat( int argc, char *argv[] )
             {
                 if( c == 0x03 ) /* Ctrl-C for stop */
                 {
-                    shell_write_char( '\n' );
                     mcush_close(fd);
+                    shell_write_char( '\n' );
                     return 0;
                 }
             }
         }
-        shell_write_str( "\n" );
         mcush_close(fd);
+        shell_write_str( "\n" );
     }
     return 0;
 }

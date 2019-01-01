@@ -18,7 +18,8 @@ typedef uint32_t u32_t;
 //#define SPIFFS_USE_MAGIC    1
 //#define SPIFFS_USE_MAGIC_LENGTH  8
 
-//#define SPIFFS_SINGLETON   1
+//#define SPIFFS_SINGLETON   1              // default 0
+//#define SPIFFS_TEMPORAL_FD_CACHE  0       // default 1
 
 struct spiffs_t;
 extern void mcush_spiffs_lock(struct spiffs_t *fs);

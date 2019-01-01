@@ -43,6 +43,10 @@
     #define TASK_LOGGER_MONITOR_QUEUE_SIZE  (20)
 #endif
 
+#ifndef TASK_LOGGER_LAZY_CLOSE_MS
+    #define TASK_LOGGER_LAZY_CLOSE_MS  (200)
+#endif
+
 
 #define LOG_DEBUG   0x01
 #define LOG_INFO    0x02

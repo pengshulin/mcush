@@ -353,6 +353,12 @@ class Mcush( Instrument.SerialInstrument ):
                 flist.append( (path, b, int(a)) )
         return flist
 
+    def checkFileExist( self, pathname ):
+        exist = False
+        for p, f, s in self.list( pathname ):
+            if s is not None:
+                exist = True
+        return exist
 
     def convPathname( self, pathname ):
         #print( pathname )

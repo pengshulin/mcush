@@ -1,16 +1,27 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
+#include "mcush_vfs.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
 
 #if MCUSH_SPIFFS
+#include "spiffs_nucleus.h"
+
 #define static
 
+#ifndef SPIFFS_FD_NUM
+#define SPIFFS_FD_NUM  MCUSH_VFS_FILE_DESCRIPTOR_NUM
+#endif
+
+#ifndef SPIFFS_CACHE_NUM
+#define SPIFFS_CACHE_NUM  MCUSH_VFS_FILE_DESCRIPTOR_NUM
+#endif
 
 static spiffs _fs;
 static char _work_buf[2*SPIFLASH_CFG_LOG_PAGE_SZ];
-static char _fds[1024];
-static char _cache_buf[4096];
+static char _fds[SPIFFS_FD_NUM * sizeof(spiffs_fd)];
+static char _cache_buf[sizeof(spiffs_cache) + SPIFFS_CACHE_NUM * 
+                     (sizeof(spiffs_cache_page)+SPIFLASH_CFG_LOG_PAGE_SZ)];
 SemaphoreHandle_t semaphore_spiffs;
 
 

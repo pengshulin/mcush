@@ -12,6 +12,11 @@
     #define MCUSH_VFS_FILE_DESCRIPTOR_NUM  5
 #endif
 
+#ifndef MCUSH_VFS_STATISTICS
+    #define MCUSH_VFS_STATISTICS  1
+#endif
+
+    
 
 typedef enum {
     MCUSH_VFS_OK = 0,
@@ -55,6 +60,17 @@ typedef struct {
     const mcush_vfs_driver_t *driver;
     char unget_char;
 } mcush_vfs_file_descriptor_t;
+
+
+typedef struct {
+    uint32_t count_mount;
+    uint32_t count_umount;
+    uint32_t count_open, count_open_err;
+    uint32_t count_read, count_read_err;
+    uint32_t count_write, count_write_err;
+    uint32_t count_flush, count_flush_err;
+    uint32_t count_close, count_close_err;
+} mcush_vfs_statistics_t;
 
 
 int mcush_mount( const char *mount_point, const mcush_vfs_driver_t *driver );
