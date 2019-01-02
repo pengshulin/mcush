@@ -666,6 +666,45 @@ class Mcush( Instrument.SerialInstrument ):
             cmdline += ' -m \"%s\"'% str(message)
         return self.writeCommand( cmdline )
 
+    def logEnter( self ):
+        self.writeLine('log')
+        self.port.read(4) 
+
+    def logExit( self ):
+        self.port.write( self.DEFAULT_TERMINATOR_RESET )
+        self.port.flush()
+        self.readUntilPrompts()
+
+    def logReadline( self ):
+        return self.readLine()
+
+    def ping( self, host, times=10, silent=True ):
+        cmd = 'ping %s'% host
+        self.writeLine(cmd)
+        self.port.read(len(cmd)+1) 
+        send, recv, ms = 0, 0, 0
+        while True:
+            line = self.readLine()
+            if 'dns resolve failed' in line:
+                self.readUntilPrompts()
+                return (0, 0, 0)
+            if 'ping: send' in line:
+                send += 1
+            elif 'ping: recv' in line:
+                recv += 1
+                ms += int(line.split(' ')[3])
+            if not silent:
+                print( line )
+            if send > times:
+                break
+        if recv:
+            ms /= recv
+        self.port.write( self.DEFAULT_TERMINATOR_RESET )
+        self.port.flush()
+        self.readUntilPrompts()
+        return (send, recv, ms)
+ 
+
     DEFAULT_TIMEOUT_UPRADE = 20
     def upgrade( self, upgrade_file='/s/upgrade.bin' ):
         command = 'upgrade -f %s'% upgrade_file

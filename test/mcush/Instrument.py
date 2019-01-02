@@ -192,6 +192,15 @@ class Instrument:
                 self.logger.debug( newline_str )
                 return contents
 
+    def readLine( self ):
+        chars = []
+        while True:
+            char = self.port.read(1) 
+            if char == '\n':
+                break
+            chars.append( char )
+        return ''.join(chars).rstrip()
+
     def writeLine( self, dat ):
         self.assertIsOpen() 
         self.port.write( dat + self.DEFAULT_TERMINATOR_WRITE )
