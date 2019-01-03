@@ -28,7 +28,11 @@ uint16_t tcp_bind_random_port( struct tcp_pcb *pcb )
         if( port == port2 )
             return 0;  /* failed to bind any address */
     }
-    return port;
+    /* prepare local port for next round */
+    port2 = port;
+    if( ++port > LOCAL_PORT_END )
+        port = LOCAL_PORT_START;
+    return port2;
 }
 
 

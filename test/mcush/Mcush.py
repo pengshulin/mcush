@@ -690,13 +690,15 @@ class Mcush( Instrument.SerialInstrument ):
                 return (0, 0, 0)
             if 'ping: send' in line:
                 send += 1
+                if send > times:
+                    break
             elif 'ping: recv' in line:
                 recv += 1
                 ms += int(line.split(' ')[3])
+                if send >= times:
+                    break
             if not silent:
                 print( line )
-            if send > times:
-                break
         if recv:
             ms /= recv
         self.port.write( self.DEFAULT_TERMINATOR_RESET )
