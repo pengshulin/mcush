@@ -12,6 +12,8 @@
 #define DHCPC_EVENT_NETIF_DOWN   2
 #define DHCPC_EVENT_CHECK_TIMER  3
 
+#define DHCPC_DISCOVER_TIMEOUT_S   60
+
 #if USE_NET_CHANGE_HOOK
 void net_state_change_hook(int connected);
 #endif

@@ -37,7 +37,9 @@ QueueHandle_t queue_dhcpc;
 TimerHandle_t timer_dhcpc;
 
 uint8_t dhcp_state;
+uint32_t dhcp_discover_timeout;
 struct netif gnetif;
+
 /* TODO: move it to hal layer */
 extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
 
@@ -107,7 +109,7 @@ void reset_address(void)
     ipaddr.addr = 0;
     netmask.addr = 0;
     gw.addr = 0;
-    netif_set_addr(&gnetif, &ipaddr , &netmask, &gw);
+    netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
 }
 
 
@@ -197,6 +199,7 @@ void task_dhcpc_entry(void *p)
             reset_address();
             dhcp_state = DHCP_WAIT_ADDRESS;
             dhcp_start(&gnetif);
+            dhcp_discover_timeout = 0;
             break;
 
         case DHCPC_EVENT_NETIF_DOWN:
@@ -235,6 +238,12 @@ void task_dhcpc_entry(void *p)
                     }
 #endif
                 }
+                else if( ++dhcp_discover_timeout >= DHCPC_DISCOVER_TIMEOUT_S*1000/DHCPC_TIMER_PERIOD_MS )
+                {
+                    logger_printf( LOG_INFO, "dhcpc: timeout, retry...");
+                    dhcp_start(&gnetif);  /* restart */
+                    dhcp_discover_timeout = 0;
+                }
             } 
             
             /* Check link status */
@@ -258,23 +267,65 @@ int cmd_lwip( int argc, char *argv[] )
 
 int cmd_netstat( int argc, char *argv[] )
 {
-    switch( dhcp_state )
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', "cmd", "command", "info|up|down|dhcp" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const char *cmd=0;
+ 
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
     {
-    case DHCP_LINK_DOWN:
-        shell_write_line("Disconnected");
-        break;
-    case DHCP_WAIT_ADDRESS:
-        shell_write_line("DHCP waiting");
-        break;
-    case DHCP_ADDRESS_ASSIGNED:
-        logger_mac( "mac:", mac_address_init, 1 );
-        logger_ip( "ip:", gnetif.ip_addr.addr, 1 );    
-        logger_ip( "netmask:", gnetif.netmask.addr, 1 );
-        logger_ip( "gateway:", gnetif.gw.addr, 1 );
-        break;
-    default:
-        break;
-    } 
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "cmd" ) == 0 )
+                cmd = opt.value;
+            else
+                STOP_AT_INVALID_ARGUMENT 
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( cmd==NULL || strcmp(cmd, "info") == 0 )
+    {
+        switch( dhcp_state )
+        {
+        case DHCP_LINK_DOWN:
+            shell_write_line("Disconnected");
+            break;
+        case DHCP_WAIT_ADDRESS:
+            shell_write_line("DHCP waiting");
+            break;
+        case DHCP_ADDRESS_ASSIGNED:
+            logger_mac( "mac:", mac_address_init, 1 );
+            logger_ip( "ip:", gnetif.ip_addr.addr, 1 );    
+            logger_ip( "netmask:", gnetif.netmask.addr, 1 );
+            logger_ip( "gateway:", gnetif.gw.addr, 1 );
+            break;
+        default:
+            break;
+        } 
+    }
+    else if( strcmp(cmd, "up") == 0 )
+    {
+        return send_dhcpc_event( DHCPC_EVENT_NETIF_UP ) ? 0 : 1;
+    }
+    else if( strcmp(cmd, "down") == 0 )
+    {
+        return send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN ) ? 0 : 1;
+    }
+    else if( strcmp(cmd, "dhcp") == 0 )
+    {
+        reset_address();
+        dhcp_state = DHCP_WAIT_ADDRESS;
+        dhcp_start(&gnetif);
+        dhcp_discover_timeout = 0;
+    }
+    else
+        return -1;
     return 0;
 }
 
