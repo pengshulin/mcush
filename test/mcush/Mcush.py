@@ -705,7 +705,10 @@ class Mcush( Instrument.SerialInstrument ):
         self.port.flush()
         self.readUntilPrompts()
         return (send, recv, ms)
- 
+
+    def netstat( self ):
+        r = self.writeCommand( "netstat" )
+        return Utils.parseKeyValueLines(r)
 
     DEFAULT_TIMEOUT_UPRADE = 20
     def upgrade( self, upgrade_file='/s/upgrade.bin' ):

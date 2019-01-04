@@ -80,11 +80,11 @@ def parseKeyValueLines( lines ):
     # if two or more keys are the same, preserve the last one
     var = {}
     for l in lines:
-        ab = l.split(':')
-        if len(ab) == 2:
-            a, b = ab
-        elif len(ab) == 1:
-            a, b = ab[0], ''
+        idx = l.find(': ')
+        if idx <= 0:
+            continue
+        a = l[:idx]
+        b = l[idx+2:]
         var[a.strip()] = b.strip()
     return var
 
