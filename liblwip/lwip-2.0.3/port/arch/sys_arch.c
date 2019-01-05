@@ -34,13 +34,14 @@
  */
 
 /* lwIP includes. */
+//#include "mcush.h"
+//#include "timers.h"
+#include "lwipopts.h"
 #include "lwip/debug.h"
 #include "lwip/def.h"
 #include "lwip/sys.h"
 #include "lwip/mem.h"
 #include "lwip/stats.h"
-#include "timers.h"
-#include "mcush.h"
 
 struct sys_timeouts {
   struct sys_timeo *next;
@@ -385,9 +386,9 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
 #if defined(APPEND_TASK_IDX)
         name2[len] = '0' + idx; 
         name2[len+1] = 0; 
-        result = xTaskCreate( thread, ( signed portCHAR * ) name2, stacksize, arg, prio, &CreatedTask );
+        result = xTaskCreate( thread, ( signed portCHAR * ) name2, stacksize / sizeof(portSTACK_TYPE), arg, prio, &CreatedTask );
 #else
-        result = xTaskCreate( thread, ( const char * ) name, stacksize, arg, prio, &CreatedTask );
+        result = xTaskCreate( thread, ( const char * ) name, stacksize / sizeof(portSTACK_TYPE), arg, prio, &CreatedTask );
 #endif
         if(result != pdPASS)
             CreatedTask = NULL;

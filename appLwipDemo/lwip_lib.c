@@ -15,8 +15,9 @@
 #include "lwip/prot/ip4.h"
 
 
-#define LOCAL_PORT_START  10000
-#define LOCAL_PORT_END    60000
+/* dynamic ports range (refer to RFC 6335) */
+#define LOCAL_PORT_START  0xC000
+#define LOCAL_PORT_END    0xFFFF
 uint16_t tcp_bind_random_port( struct tcp_pcb *pcb )
 {
     static uint16_t port = LOCAL_PORT_START, port2;

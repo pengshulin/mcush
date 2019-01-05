@@ -429,6 +429,8 @@ static int print (
     int cur_output_char = 0;
     int *cur_output_char_p = &cur_output_char;
     int use_leading_plus = 0 ;  //  start out with this clear
+    uint8_t flag_long, flag_half;
+    int integer;
 
     max_output_len--; // make room for a trailing '\0'
     for (; *format != 0; ++format) {
@@ -476,16 +478,25 @@ static int print (
                 }
             }
             if (*format == 'l')
+            {
                 ++format;
+                flag_long = 1;
+            }
+            else
+                flag_long = 0;
             if (*format == 'h')
+            {
                 ++format;
+                flag_half = 1;
+            }
+            else
+                flag_half = 0;
             switch (*format) {
             case 's':
             {
                 char *s = va_arg(vargs, char*);
-                int result = prints (
-                    out,
-                    s ? s : "(null)", width, pad, max_output_len, cur_output_char_p);
+                int result = prints ( out, s ? s : "(null)",
+                                width, pad, max_output_len, cur_output_char_p);
                 if (result<0) return result;
                 pc += result;
                 use_leading_plus = 0 ;  //  reset this flag after printing one value
@@ -493,9 +504,9 @@ static int print (
             break;
             case 'd':
             {
-                int result = printi (
-                        out,
-                        va_arg(vargs, int), 10, 1, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
+                integer = va_arg(vargs, int);
+                int result = printi ( out, flag_half ? (short)integer : integer,
+                                10, 1, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
                 if (result<0) return result;
                 pc += result;
 
@@ -504,30 +515,35 @@ static int print (
             break;
             case 'x':
             {
-                int result = printi (
-                        out,
-                        va_arg(vargs, int), 16, 0, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
-                if (result<0) return result;
-                pc += result;
-                use_leading_plus = 0 ;  //  reset this flag after printing one value
-            }
-            break;
-            case 'X':
-            {
-                int result = printi (
-                        out,
-                        va_arg(vargs, int), 16, 0, width, pad, 'A', max_output_len, cur_output_char_p, use_leading_plus);
+                integer = va_arg(vargs, int);
+                int result = printi ( out, flag_half ? (short)integer : integer, 
+                                16, 0, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
                 if (result<0) return result;
                 pc += result;
                 use_leading_plus = 0 ;  //  reset this flag after printing one value
             }
             break;
             case 'p':
+                **out = '0';
+                *out += 1;
+                **out = 'x';
+                *out += 1;
+                pc += 2;
+            case 'X':
+            {
+                integer = va_arg(vargs, int);
+                int result = printi ( out, flag_half ? (short)integer : integer, 
+                                16, 0, width, pad, 'A', max_output_len, cur_output_char_p, use_leading_plus);
+                if (result<0) return result;
+                pc += result;
+                use_leading_plus = 0 ;  //  reset this flag after printing one value
+            }
+            break;
             case 'u':
             {
-                int result = printi (
-                              out,
-                              va_arg(vargs, int), 10, 0, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
+                integer = va_arg(vargs, int);
+                int result = printi ( out, flag_half ? (unsigned short)integer : (unsigned)integer,
+                                10, 0, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
                 use_leading_plus = 0 ;  //  reset this flag after printing one value
                 if (result<0) return result;
                 pc += result;
@@ -575,15 +591,11 @@ static int print (
             break;
 
             default: {
-                int result = printchar (
-                           out,
-                           '%', max_output_len, cur_output_char_p);
+                int result = printchar ( out, '%', max_output_len, cur_output_char_p);
                 if (result<0) return result;
                 ++pc;
 
-                result = printchar (
-                           out,
-                           *format, max_output_len, cur_output_char_p);
+                result = printchar ( out, *format, max_output_len, cur_output_char_p);
                 if (result<0) return result;
                 ++pc;
 
@@ -593,9 +605,7 @@ static int print (
             }
         } else {
             out_lbl: {
-                int result = printchar (
-                           out,
-                           *format, max_output_len, cur_output_char_p);
+                int result = printchar ( out, *format, max_output_len, cur_output_char_p);
                 if (result<0) return result;
                 ++pc;
             }

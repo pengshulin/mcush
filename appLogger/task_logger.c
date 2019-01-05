@@ -85,6 +85,8 @@ static int _logger_str( int type, const char *str, int isr_mode )
     evt.str = buf;
     strncpy( buf, str, length );
     buf[length] = 0;
+    buf = rstrip(buf);
+
     if( isr_mode )
     {
         if( xQueueSendFromISR( queue_logger, &evt, &xHigherPriorityTaskWoken ) != pdTRUE )
@@ -156,16 +158,68 @@ int logger_error( const char *str )
 }
 
 /* printf APIs */
-int logger_printf( int type, char *fmt, ... )
+static int _logger_printf_args( int type, char *fmt, va_list ap )
 {
-    va_list ap;
     int n;
     char buf[LOGGER_LINE_BUF_SIZE];
 
-    va_start( ap, fmt );
     n = vsprintf( buf, fmt, ap );
-    va_end( ap );
     return logger_str( type, buf );
+}
+
+int logger_printf( int type, char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_printf_args( type, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_debug_printf( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_printf_args( LOG_DEBUG, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_info_printf( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_printf_args( LOG_INFO, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_warn_printf( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_printf_args( LOG_WARN, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_error_printf( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_printf_args( LOG_ERROR, fmt, ap );
+    va_end( ap );
+    return r;
 }
 
 

@@ -82,6 +82,12 @@ int logger_error_isr( const char *str );
 
 int logger_printf( int type, char *fmt, ... );
 
+int logger_debug_printf( char *fmt, ... );
+int logger_info_printf( char *fmt, ... );
+int logger_warn_printf( char *fmt, ... );
+int logger_error_printf( char *fmt, ... );
+
+
 int backup_all_log_files( void );
 
 

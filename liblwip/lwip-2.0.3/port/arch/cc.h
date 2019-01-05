@@ -50,13 +50,14 @@ typedef int sys_prot_t;
 #define LWIP_NO_STDINT_H  0
 
 
+#define X8_F  "02hX"
 #define U16_F "hu"
-#define S16_F "d"
-#define X16_F "hx"
+#define S16_F "hd"
+#define X16_F "hX"
 #define U32_F "u"
 #define S32_F "d"
-#define X32_F "x"
-#define SZT_F "uz" 
+#define X32_F "X"
+#define SZT_F "u" 
 
 
 
@@ -94,6 +95,6 @@ typedef int sys_prot_t;
 
 #endif
 
-#define LWIP_PLATFORM_ASSERT(x) //do { if(!(x)) while(1); } while(0)
+//#define LWIP_PLATFORM_ASSERT(x) //do { if(!(x)) while(1); } while(0)
 
 #endif /* __CC_H__ */
