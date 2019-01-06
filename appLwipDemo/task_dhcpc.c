@@ -14,7 +14,7 @@
 #include "ethernetif.h"
 #include "hal_eth.h"
 #ifdef USE_LWIP_DEMO
-  uint8_t httpd_started=0;
+  uint8_t lwip_demo_tasks_started=0;
   #ifdef USE_LWIP_HTTPSERVER_SIMPLE
     #include "httpserver-netconn.h"
   #else
@@ -22,6 +22,10 @@
   #endif
     #include "shell_example.h"
 #endif
+#if USE_NETBIOSNS
+#include "lwip/apps/netbiosns.h"
+#endif
+
 
 #define DHCP_START                  1
 #define DHCP_WAIT_ADDRESS           2
@@ -46,41 +50,28 @@ extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
 char mac_address_init[6]; 
 
    
-/* load from file /?/mac and parse in format AA:BB:CC:DD:EE:FF */
+/* mac address config file (/?/mac) ascii contents:
+   line 1: AA:BB:CC:DD:EE:FF
+ */
 int load_mac_from_conf_file(const char *fname)
 {
-    int fd;
-    char buf[32];
-    int i;
+    char buf[64];
     unsigned int a,b,c,d,e,f;
 
-    fd = mcush_open( fname, "r" );
-    if( fd == 0 )
-        return 0;
-
-    i = mcush_read( fd, buf, 2*6+5 );
-    if( i != (2*6+5) )
-        goto err;
-   
-    buf[2*6+5] = 0; 
-    i = sscanf( buf, "%x:%x:%x:%x:%x:%x", &a, &b, &c, &d, &e, &f );
-    if( i != 6 )
-        goto err;
-   
-    if( (a > 255) || (b > 255) || (c > 255) || (d > 255) || (e > 255) || (f > 255) )
-        goto err;
-
-    mac_address_init[0] = a;
-    mac_address_init[1] = b;
-    mac_address_init[2] = c;
-    mac_address_init[3] = d;
-    mac_address_init[4] = e;
-    mac_address_init[5] = f;
-
-    mcush_close(fd);
-    return 1;
-err:
-    mcush_close(fd);
+    if( ! mcush_file_load_string( fname, buf, 64 ) )
+        return 0; 
+    if( sscanf( buf, "%x:%x:%x:%x:%x:%x", &a, &b, &c, &d, &e, &f ) == 6 )
+    {
+        if( (a > 255) || (b > 255) || (c > 255) || (d > 255) || (e > 255) || (f > 255) )
+            return 0;
+        mac_address_init[0] = a;
+        mac_address_init[1] = b;
+        mac_address_init[2] = c;
+        mac_address_init[3] = d;
+        mac_address_init[4] = e;
+        mac_address_init[5] = f;
+        return 1;
+    }
     return 0;
 }
 
@@ -207,6 +198,10 @@ void task_dhcpc_entry(void *p)
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
             dhcp_stop(&gnetif);
+#if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
+            logger_info("dhcpc: netbiosns stop");
+            netbiosns_stop();
+#endif
 #if USE_NET_CHANGE_HOOK
             net_state_change_hook(0);
 #endif
@@ -218,30 +213,36 @@ void task_dhcpc_entry(void *p)
                 if( gnetif.ip_addr.addr != 0 )
                 {
                     dhcp_state = DHCP_ADDRESS_ASSIGNED;
-                    dhcp_stop(&gnetif);
                     logger_ip( "dhcpc: ip", gnetif.ip_addr.addr, 0 );    
                     logger_ip( "dhcpc: netmask", gnetif.netmask.addr, 0 );
                     logger_ip( "dhcpc: gateway", gnetif.gw.addr, 0 );
+#if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
+                    logger_info("dhcpc: netbiosns start");
+                    netbiosns_init();
+#endif
+
 #if USE_NET_CHANGE_HOOK
                     net_state_change_hook(1);
 #endif
-#ifdef USE_LWIP_DEMO
-                    if( httpd_started == 0 )
+#if USE_LWIP_DEMO
+                    if( lwip_demo_tasks_started == 0 )
                     {
-    #ifdef USE_LWIP_HTTPSERVER_SIMPLE
+    #if USE_LWIP_HTTPSERVER_SIMPLE
                         http_server_netconn_init();
     #else
                         httpd_init();
     #endif
-                        httpd_started=1;
+    #if USE_LWIP_SHELL_EXAMPLE
                         shell_example_init();
+    #endif
+                        lwip_demo_tasks_started=1;
                     }
 #endif
                 }
                 else if( ++dhcp_discover_timeout >= DHCPC_DISCOVER_TIMEOUT_S*1000/DHCPC_TIMER_PERIOD_MS )
                 {
                     logger_printf( LOG_INFO, "dhcpc: timeout, retry...");
-                    dhcp_start(&gnetif);  /* restart */
+                    //dhcp_start(&gnetif);  /* restart */
                     dhcp_discover_timeout = 0;
                 }
             } 
@@ -321,6 +322,7 @@ int cmd_netstat( int argc, char *argv[] )
     {
         reset_address();
         dhcp_state = DHCP_WAIT_ADDRESS;
+        dhcp_stop(&gnetif);
         dhcp_start(&gnetif);
         dhcp_discover_timeout = 0;
     }

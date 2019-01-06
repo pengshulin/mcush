@@ -441,6 +441,5 @@ void sys_arch_unprotect(sys_prot_t pval)
 /* return current time in ms */
 u32_t sys_now(void)
 {
-    //return (u32_t)xTaskGetTickCount() * 1000ul / configTICK_RATE_HZ;
-    return (u32_t)xTaskGetTickCount();
+    return (u32_t)xTaskGetTickCount() * 1000ul / configTICK_RATE_HZ;
 }

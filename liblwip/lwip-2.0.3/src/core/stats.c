@@ -47,6 +47,11 @@
 
 #include <string.h>
 
+/* NOTE: these functions will be called in cmd_lwip and output directly to shell */
+#include "shell.h"
+#undef LWIP_PLATFORM_DIAG
+#define LWIP_PLATFORM_DIAG(msg)  do{shell_printf msg;}while(0)
+
 struct stats_ lwip_stats;
 
 void

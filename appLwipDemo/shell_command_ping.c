@@ -101,6 +101,8 @@ void ping_prepare_echo(struct icmp_echo_hdr *iecho, u16_t len)
 u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
 {
     struct icmp_echo_hdr *iecho;
+    uint8_t *adr;
+        
     LWIP_UNUSED_ARG(arg);
     LWIP_UNUSED_ARG(pcb);
     LWIP_UNUSED_ARG(addr);
@@ -111,9 +113,9 @@ u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *
       iecho = (struct icmp_echo_hdr *)p->payload;
 
       if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(ping_pcb->ping_seq_num))) {
-        LWIP_DEBUGF( PING_DEBUG, ("ping: recv "));
-        ip_addr_debug_print(PING_DEBUG, addr);
-        LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (unsigned int)(sys_now()-ping_pcb->ping_time)));
+        adr = (uint8_t*)&(addr->addr);
+        shell_printf("ping: recv %u.%u.%u.%u  %u ms\n", adr[0], adr[1], adr[2], adr[3],
+            (unsigned int)(sys_now()-ping_pcb->ping_time));
 
         /* do some ping result processing */
         PING_RESULT(1);
@@ -132,10 +134,9 @@ void ping_send(struct raw_pcb *raw, ip_addr_t *addr)
     struct pbuf *p;
     struct icmp_echo_hdr *iecho;
     size_t ping_size = sizeof(struct icmp_echo_hdr) + PING_DATA_SIZE;
+    uint8_t *adr = (uint8_t*)&(addr->addr);
 
-    LWIP_DEBUGF( PING_DEBUG, ("ping: send "));
-    ip_addr_debug_print(PING_DEBUG, addr);
-    LWIP_DEBUGF( PING_DEBUG, ("\n"));
+    shell_printf("ping: send %u.%u.%u.%u\n", adr[0], adr[1], adr[2], adr[3] );
     LWIP_ASSERT("ping_size <= 0xffff", ping_size <= 0xffff);
 
     p = pbuf_alloc(PBUF_IP, (u16_t)ping_size, PBUF_RAM);

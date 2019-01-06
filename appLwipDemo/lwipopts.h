@@ -97,14 +97,26 @@
 //#define DHCP_DEBUG                      LWIP_DBG_ON
 //#define DNS_DEBUG                       LWIP_DBG_ON
 #include "task_logger.h"
-#define LWIP_PLATFORM_DIAG(message)       do{logger_debug_printf message;}while(0)
+#define LWIP_PLATFORM_DIAG(message)     do{logger_debug_printf message;}while(0)
 #else
 #define LWIP_DEBUG                      0
+#define LWIP_PLATFORM_DIAG(message)     
 #endif
 
 #define LWIP_DNS                        1  // Enable DNS API
 #define LWIP_DNS_SECURE                 0
 
+#ifndef USE_NETBIOSNS
+#define USE_NETBIOSNS                   0
+#endif
+
+#ifndef USE_NETBIOSNS_NAME
+#define USE_NETBIOSNS_NAME              "MCUSH"
+#endif
+
+#ifndef NETBIOS_LWIP_NAME
+#define NETBIOS_LWIP_NAME               "*"
+#endif
 
 #define TCPIP_THREAD_NAME               "tcpipT"
 #define TCPIP_THREAD_STACKSIZE          4*1024
@@ -113,7 +125,6 @@
 #define DEFAULT_TCP_RECVMBOX_SIZE       2000
 #define DEFAULT_ACCEPTMBOX_SIZE         2000
 #define DEFAULT_THREAD_STACKSIZE        2*1024
-//#define TCPIP_THREAD_PRIO               (configMAX_PRIORITIES - 2) 
 #define TCPIP_THREAD_PRIO               (MCUSH_PRIORITY - 1)
 
 #define LWIP_COMPAT_MUTEX               0

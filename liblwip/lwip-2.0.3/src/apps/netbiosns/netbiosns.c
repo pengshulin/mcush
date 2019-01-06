@@ -81,6 +81,8 @@
 #define NETB_NFLAG_NODETYPE_MNODE     0x4000U
 #define NETB_NFLAG_NODETYPE_PNODE     0x2000U
 #define NETB_NFLAG_NODETYPE_BNODE     0x0000U
+#define NETB_NFLAG_ACTIVE             0x0400U
+
 
 /** NetBIOS message header */
 #ifdef PACK_STRUCT_USE_INCLUDES
@@ -112,8 +114,9 @@ struct netbios_name_hdr {
   PACK_STRUCT_FIELD(u16_t cls);
   PACK_STRUCT_FIELD(u32_t ttl);
   PACK_STRUCT_FIELD(u16_t datalen);
-  PACK_STRUCT_FIELD(u16_t flags);
-  PACK_STRUCT_FLD_S(ip4_addr_p_t addr);
+  PACK_STRUCT_FLD_8(u8_t  names_num);
+  PACK_STRUCT_FLD_8(u8_t  name[NETBIOS_NAME_LEN]);
+  PACK_STRUCT_FIELD(u16_t name_flags);
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 #ifdef PACK_STRUCT_USE_INCLUDES
@@ -296,9 +299,12 @@ netbiosns_recv(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t 
             resp->resp_name.type         = netbios_name_hdr->type;
             resp->resp_name.cls          = netbios_name_hdr->cls;
             resp->resp_name.ttl          = PP_HTONL(NETBIOS_NAME_TTL);
-            resp->resp_name.datalen      = PP_HTONS(sizeof(resp->resp_name.flags)+sizeof(resp->resp_name.addr));
-            resp->resp_name.flags        = PP_HTONS(NETB_NFLAG_NODETYPE_BNODE);
-            ip4_addr_copy(resp->resp_name.addr, *netif_ip4_addr(netif_default));
+            resp->resp_name.datalen      = PP_HTONS(sizeof(resp->resp_name.names_num)+sizeof(resp->resp_name.name)+sizeof(resp->resp_name.name_flags));
+            resp->resp_name.names_num    = 1;
+            /* append name at the bottom */
+            memset( (void*)resp->resp_name.name, 0, NETBIOS_NAME_LEN );
+            strncpy( (char*)resp->resp_name.name, USE_NETBIOSNS_NAME, NETBIOS_NAME_LEN-1 );
+            resp->resp_name.name_flags   = PP_HTONS(NETB_NFLAG_NODETYPE_MNODE | NETB_NFLAG_ACTIVE);
 
             /* send the NetBIOS response */
             udp_sendto(upcb, q, addr, port);

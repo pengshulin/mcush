@@ -516,7 +516,9 @@ static int print (
             case 'x':
             {
                 integer = va_arg(vargs, int);
-                int result = printi ( out, flag_half ? (short)integer : integer, 
+                if( flag_half )
+                    integer &= 0xFFFF;
+                int result = printi ( out, integer, 
                                 16, 0, width, pad, 'a', max_output_len, cur_output_char_p, use_leading_plus);
                 if (result<0) return result;
                 pc += result;
@@ -532,7 +534,9 @@ static int print (
             case 'X':
             {
                 integer = va_arg(vargs, int);
-                int result = printi ( out, flag_half ? (short)integer : integer, 
+                if( flag_half )
+                    integer &= 0xFFFF;
+                int result = printi ( out, integer, 
                                 16, 0, width, pad, 'A', max_output_len, cur_output_char_p, use_leading_plus);
                 if (result<0) return result;
                 pc += result;
