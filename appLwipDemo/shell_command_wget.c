@@ -80,12 +80,7 @@ err_t wget_http_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t er
                 p2 = p2->next;
             }
             tcp_recved(pcb, p->tot_len);
-            while( p != NULL )
-            {
-                p2 = p->next;
-                pbuf_free(p);
-                p = p2;
-            }
+            pbuf_free(p);
         }
         else  /* connection closed */
         {
@@ -98,7 +93,7 @@ err_t wget_http_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t er
 
 static void wget_http_error_cb(void *arg, err_t err)
 {
-    logger_printf(LOG_ERROR, "tcp error" ); 
+    logger_const_error( "tcp error" ); 
 }
 
 
@@ -108,7 +103,7 @@ static err_t wget_http_poll_cb(void *arg, struct tcp_pcb *pcb)
     if( wcb->timeout > 20 )
     {
         tcp_abort(pcb);
-        logger_printf(LOG_ERROR, "tcp poll timeout, abort" ); 
+        logger_const_error( "tcp poll timeout, abort" ); 
     }
     return ERR_OK;
 }
@@ -368,7 +363,7 @@ int cmd_wget( int argc, char *argv[] )
         wcb->pcb = tcp_new();
         if( wcb->pcb == NULL )
         {
-            logger_printf(LOG_ERROR, "wget: no memory");
+            logger_const_error( "wget: no memory" );
         }
         else
         {

@@ -685,7 +685,7 @@ class Mcush( Instrument.SerialInstrument ):
         send, recv, ms = 0, 0, 0
         while True:
             line = self.readLine()
-            if 'dns resolve failed' in line:
+            if ('failed' in line) or ('timeout' in line):
                 self.readUntilPrompts()
                 return (0, 0, 0)
             if 'ping: send' in line:

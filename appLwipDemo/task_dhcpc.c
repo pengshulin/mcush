@@ -41,7 +41,6 @@ QueueHandle_t queue_dhcpc;
 TimerHandle_t timer_dhcpc;
 
 uint8_t dhcp_state;
-uint32_t dhcp_discover_timeout;
 struct netif gnetif;
 
 /* TODO: move it to hal layer */
@@ -147,7 +146,7 @@ void do_lwip_init(void)
     {
         if( !load_mac_from_conf_file("/c/mac") )
         {
-            logger_error( "no mac addr" );
+            logger_const_error( "no mac addr" );
             memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
         }
     }
@@ -185,21 +184,20 @@ void task_dhcpc_entry(void *p)
         switch( evt )
         {
         case DHCPC_EVENT_NETIF_UP:
-            logger_printf( LOG_INFO, "dhcpc: cable connected, dhcp discover...");
+            logger_const_info( "dhcpc: cable connected, dhcp discover..." );
             gnetif.flags |= NETIF_FLAG_LINK_UP;
             reset_address();
             dhcp_state = DHCP_WAIT_ADDRESS;
             dhcp_start(&gnetif);
-            dhcp_discover_timeout = 0;
             break;
 
         case DHCPC_EVENT_NETIF_DOWN:
-            logger_printf( LOG_INFO, "dhcpc: cable disconnected");
+            logger_const_info( "dhcpc: cable disconnected" );
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
             dhcp_stop(&gnetif);
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
-            logger_info("dhcpc: netbiosns stop");
+            logger_const_info( "dhcpc: netbiosns stop" );
             netbiosns_stop();
 #endif
 #if USE_NET_CHANGE_HOOK
@@ -217,7 +215,7 @@ void task_dhcpc_entry(void *p)
                     logger_ip( "dhcpc: netmask", gnetif.netmask.addr, 0 );
                     logger_ip( "dhcpc: gateway", gnetif.gw.addr, 0 );
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
-                    logger_info("dhcpc: netbiosns start");
+                    logger_const_info( "dhcpc: netbiosns start" );
                     netbiosns_init();
 #endif
 
@@ -239,12 +237,6 @@ void task_dhcpc_entry(void *p)
                     }
 #endif
                 }
-                else if( ++dhcp_discover_timeout >= DHCPC_DISCOVER_TIMEOUT_S*1000/DHCPC_TIMER_PERIOD_MS )
-                {
-                    logger_printf( LOG_INFO, "dhcpc: timeout, retry...");
-                    //dhcp_start(&gnetif);  /* restart */
-                    dhcp_discover_timeout = 0;
-                }
             } 
             
             /* Check link status */
@@ -252,7 +244,7 @@ void task_dhcpc_entry(void *p)
             break; 
  
         default:
-            //logger_printf( LOG_INFO, "unexpected dhcp event");
+            //logger_const_info( "unexpected dhcp event" );
             break;
         }
     }
@@ -324,7 +316,6 @@ int cmd_netstat( int argc, char *argv[] )
         dhcp_state = DHCP_WAIT_ADDRESS;
         dhcp_stop(&gnetif);
         dhcp_start(&gnetif);
-        dhcp_discover_timeout = 0;
     }
     else
         return -1;

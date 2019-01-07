@@ -58,7 +58,7 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
     else if( evt->type & LOG_DEBUG )
         tp[0] = _enable ? 'D' : 'd';
     else
-        tp[0] = 0;
+        tp[0] = '?';
     tp[1] = 0;
     strcat( buf, tp );
     strcat( buf, " " );
@@ -68,24 +68,33 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 }
 
  
-static int _logger_str( int type, const char *str, int isr_mode )
+static int _logger_str( int type, const char *str, int isr_mode, int flag )
 {
     logger_event_t evt;
     uint32_t length = strlen(str);
     char *buf;
     int err=0;
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-    
-    buf = (char*)pvPortMalloc(length+1);
-    if( buf == NULL )
-        return 0;
+   
+    if( !( flag & LOG_FLAG_CONST ) ) 
+    {
+        buf = (char*)pvPortMalloc(length+1);
+        if( buf == NULL )
+            return 0;
+    }
 
     evt.type = type;
     evt.time = (uint32_t)xTaskGetTickCount();
-    evt.str = buf;
-    strncpy( buf, str, length );
-    buf[length] = 0;
-    buf = rstrip(buf);
+    evt.flag = flag;
+    if( !( flag & LOG_FLAG_CONST ) ) 
+    {
+        evt.str = buf;
+        strncpy( buf, str, length );
+        buf[length] = 0;
+        buf = rstrip(buf);
+    }
+    else
+        evt.str = (char*)str;
 
     if( isr_mode )
     {
@@ -101,61 +110,94 @@ static int _logger_str( int type, const char *str, int isr_mode )
     }
 
     if( err )
-        vPortFree( (void*)buf );
+    {
+        if( !( flag & LOG_FLAG_CONST ) ) 
+            vPortFree( (void*)buf );
+    }
     return err ? 0 : 1;
 }
+
 
 /* isr APIs */
 int logger_str_isr( int type, const char *str )
 {
-    return _logger_str( type, str, 1 );
+    return _logger_str( type, str, 1, 0 );
 }
 
 int logger_debug_isr( const char *str )
 {
-    return _logger_str( LOG_DEBUG, str, 1 );
+    return _logger_str( LOG_DEBUG, str, 1, 0 );
 }
 
 int logger_info_isr( const char *str )
 {
-    return _logger_str( LOG_INFO, str, 1 );
+    return _logger_str( LOG_INFO, str, 1, 0 );
 }
 
 int logger_warn_isr( const char *str )
 {
-    return _logger_str( LOG_WARN, str, 1 );
+    return _logger_str( LOG_WARN, str, 1, 0 );
 }
 
 int logger_error_isr( const char *str )
 {
-    return _logger_str( LOG_ERROR, str, 1 );
+    return _logger_str( LOG_ERROR, str, 1, 0 );
 }
 
-/* normal APIs */
+
+/* duplicate buffer APIs */
 int logger_str( int type, const char *str )
 {
-    return _logger_str( type, str, 0 );
+    return _logger_str( type, str, 0, 0 );
 }
 
 int logger_debug( const char *str )
 {
-    return _logger_str( LOG_DEBUG, str, 0 );
+    return _logger_str( LOG_DEBUG, str, 0, 0 );
 }
 
 int logger_info( const char *str )
 {
-    return _logger_str( LOG_INFO, str, 0 );
+    return _logger_str( LOG_INFO, str, 0, 0 );
 }
 
 int logger_warn( const char *str )
 {
-    return _logger_str( LOG_WARN, str, 0 );
+    return _logger_str( LOG_WARN, str, 0, 0 );
 }
 
 int logger_error( const char *str )
 {
-    return _logger_str( LOG_ERROR, str, 0 );
+    return _logger_str( LOG_ERROR, str, 0, 0 );
 }
+
+
+/* const buffer apis */
+int logger_const_str( int type, const char *str )
+{
+    return _logger_str( type, str, 0, LOG_FLAG_CONST );
+}
+
+int logger_const_debug( const char *str )
+{
+    return _logger_str( LOG_DEBUG, str, 0, LOG_FLAG_CONST );
+}
+
+int logger_const_info( const char *str )
+{
+    return _logger_str( LOG_INFO, str, 0, LOG_FLAG_CONST );
+}
+
+int logger_const_warn( const char *str )
+{
+    return _logger_str( LOG_WARN, str, 0, LOG_FLAG_CONST );
+}
+
+int logger_const_error( const char *str )
+{
+    return _logger_str( LOG_ERROR, str, 0, LOG_FLAG_CONST );
+}
+
 
 /* printf APIs */
 static int _logger_printf_args( int type, char *fmt, va_list ap )
@@ -378,12 +420,14 @@ static void post_process_event( logger_event_t *evt )
         /* forward the event */
         if( xQueueSend( queue_logger_monitor, evt, 0 ) != pdTRUE )
         {
-            vPortFree(evt->str);
+            if( !( evt->flag & LOG_FLAG_CONST ) ) 
+                vPortFree(evt->str);
         }
     }
     else
     {
-        vPortFree(evt->str);
+        if( !( evt->flag & LOG_FLAG_CONST ) ) 
+            vPortFree(evt->str);
     }
 }
 
@@ -740,7 +784,8 @@ int cmd_logger( int argc, char *argv[] )
                         shell_write_str( buf );
                     }
                 }
-                vPortFree( evt.str );
+                if( !( evt.flag & LOG_FLAG_CONST ) ) 
+                    vPortFree( evt.str );
             }
 
             do
@@ -758,7 +803,8 @@ int cmd_logger( int argc, char *argv[] )
         /* free all remaining event */
         while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdTRUE ) 
         {
-            vPortFree( evt.str );
+            if( !( evt.flag & LOG_FLAG_CONST ) ) 
+                vPortFree( evt.str );
         }
     } 
     return 0;
