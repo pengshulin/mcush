@@ -13,11 +13,15 @@
 
 #define NO_SYS                          0
 
-#define MEM_LIBC_MALLOC                 1  /* use default malloc */
+#ifndef MEM_LIBC_MALLOC
+#define MEM_LIBC_MALLOC                 0  /* 1 - use default malloc, 0 - use lwip mem management */
+#endif
 
 #define MEM_ALIGNMENT                   4  // 4Bytes for ARM
 
+#ifndef MEM_SIZE
 #define MEM_SIZE                        (10*1024)  // heap size
+#endif
 
 #define MEMP_NUM_PBUF                   100  // memp size
 #define MEMP_NUM_UDP_PCB                6  // UDP protocol control blocks
