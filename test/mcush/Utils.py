@@ -182,10 +182,13 @@ def q2s( val ):
 def Q2s( val ):
     return pack('Q', val)
 
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+def DATETIME():
+    return strftime(DATETIME_FORMAT)
 
 def I2t( val, format=None ):
     if format is None:
-        format = '%y-%m-%d %H:%M:%S'
+        format = DATETIME_FORMAT
     return strftime(format, localtime(val))
 
 def dt2s( dt, need_ms=False ):

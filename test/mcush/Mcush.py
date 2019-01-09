@@ -360,6 +360,12 @@ class Mcush( Instrument.SerialInstrument ):
                 exist = True
         return exist
 
+    def checkFileSize( self, pathname ):
+        for p, f, s in self.list( pathname ):
+            if s is not None:
+                return s
+        return None
+
     def convPathname( self, pathname ):
         #print( pathname )
         if not Env.PYTHON_V3:
@@ -694,7 +700,9 @@ class Mcush( Instrument.SerialInstrument ):
                     break
             elif 'ping: recv' in line:
                 recv += 1
-                ms += int(line.split(' ')[3])
+                # parse response line in format:
+                # example: ping: recv 10.168.1.1  8 ms
+                ms += int(line.split(' ')[-2])
                 if send >= times:
                     break
             if not silent:
@@ -718,5 +726,24 @@ class Mcush( Instrument.SerialInstrument ):
             self.writeCommand( command )
         except Instrument.CommandTimeoutError:
             pass
+
+    def wget( self, url, local_file, timeout=30 ):
+        command = 'wget -u %s -f %s'% (url, local_file)
+        oldtimeout = self.setTimeout( timeout )
+        try:
+            ret = self.writeCommand( command )
+        except Instrument.CommandTimeoutError:
+            self.port.write( self.DEFAULT_TERMINATOR_RESET )
+            self.port.flush()
+            self.readUntilPrompts()
+            ret = None
+        self.setTimeout( oldtimeout )
+        if ret is None:
+            return False
+        if len(ret):
+            if 'bytes saved' in ret[-1]:
+                return True
+        return False 
+
 
 
