@@ -326,6 +326,7 @@ int cmd_netstat( int argc, char *argv[] )
 
 extern int cmd_ping( int argc, char *argv[] );
 extern int cmd_wget( int argc, char *argv[] );
+extern int cmd_nc( int argc, char *argv[] );
 
 const shell_cmd_t cmd_tab_lwip[] = {
 {   0, 0, "lwip",  cmd_lwip, 
@@ -343,6 +344,11 @@ const shell_cmd_t cmd_tab_lwip[] = {
 {   0, 0, "wget",  cmd_wget, 
     "get file by url",
     "wget -u <url> -f <file>"  },
+#endif
+#if USE_CMD_NC
+{   0, 0, "nc",  cmd_nc, 
+    "tcp test",
+    "nc host/ip port"  },
 #endif
 {   CMD_END  } };
 
