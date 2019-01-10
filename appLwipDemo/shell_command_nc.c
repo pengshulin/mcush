@@ -112,7 +112,6 @@ static err_t nc_tcp_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len)
 
 static err_t nc_tcp_connected_cb(void *arg, struct tcp_pcb *pcb, err_t err)
 {
-    char buf[256];
     if( err != ERR_OK )
     {
         tcp_abort(pcb);
