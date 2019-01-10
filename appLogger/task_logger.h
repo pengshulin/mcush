@@ -87,12 +87,12 @@ int logger_const_info( const char *str );
 int logger_const_warn( const char *str );
 int logger_const_error( const char *str );
 
-/* apis called from isr (still in development) */
-int logger_str_isr( int type, const char *str );
-int logger_debug_isr( const char *str );
-int logger_info_isr( const char *str );
-int logger_warn_isr( const char *str );
-int logger_error_isr( const char *str );
+/* apis called from isr (only const str is available) */
+int logger_const_str_isr( int type, const char *str );
+int logger_const_debug_isr( const char *str );
+int logger_const_info_isr( const char *str );
+int logger_const_warn_isr( const char *str );
+int logger_const_error_isr( const char *str );
 
 /* printf apis */
 int logger_printf( int type, char *fmt, ... );

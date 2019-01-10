@@ -118,30 +118,30 @@ static int _logger_str( int type, const char *str, int isr_mode, int flag )
 }
 
 
-/* isr APIs */
-int logger_str_isr( int type, const char *str )
+/* const buffer from isr APIs */
+int logger_const_str_isr( int type, const char *str )
 {
-    return _logger_str( type, str, 1, 0 );
+    return _logger_str( type, str, 1,  LOG_FLAG_CONST );
 }
 
-int logger_debug_isr( const char *str )
+int logger_const_debug_isr( const char *str )
 {
-    return _logger_str( LOG_DEBUG, str, 1, 0 );
+    return _logger_str( LOG_DEBUG, str, 1, LOG_FLAG_CONST );
 }
 
-int logger_info_isr( const char *str )
+int logger_const_info_isr( const char *str )
 {
-    return _logger_str( LOG_INFO, str, 1, 0 );
+    return _logger_str( LOG_INFO, str, 1, LOG_FLAG_CONST );
 }
 
-int logger_warn_isr( const char *str )
+int logger_const_warn_isr( const char *str )
 {
-    return _logger_str( LOG_WARN, str, 1, 0 );
+    return _logger_str( LOG_WARN, str, 1, LOG_FLAG_CONST );
 }
 
-int logger_error_isr( const char *str )
+int logger_const_error_isr( const char *str )
 {
-    return _logger_str( LOG_ERROR, str, 1, 0 );
+    return _logger_str( LOG_ERROR, str, 1, LOG_FLAG_CONST );
 }
 
 

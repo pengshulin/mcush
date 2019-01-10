@@ -17,6 +17,12 @@
 #define MEM_LIBC_MALLOC                 0  /* 1 - use default malloc, 0 - use lwip mem management */
 #endif
 
+#if MEM_LIBC_MALLOC
+#define mem_clib_malloc                 pvPortMalloc
+#define mem_clib_calloc                 pvPortCalloc
+#define mem_clib_free                   vPortFree
+#endif
+
 #define MEM_ALIGNMENT                   4  // 4Bytes for ARM
 
 #ifndef MEM_SIZE
@@ -107,10 +113,12 @@
 #define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
 #else
 #define LWIP_DEBUG                      0
-/* NOTE: 
-   in release mode, if ASSERT is ignored, the lwip stack MAYBE STILL WORKS.
-   if not ignored, "while(1);" will be executed as default (cpu then reset by wdg) */
+/* NOTE:
+   in release mode, there are two different methods below */
+/* 1: ignore ASSERT and the lwip stack MAY STILL WORKS (MAYBE NOT) */
 //#define LWIP_PLATFORM_ASSERT(message)  /* define macro as ignored */
+/* 2: halt the cpu on ASSERT, then reset by wdg */
+#define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
 #endif
 
 #define LWIP_DNS                        1  // Enable DNS API

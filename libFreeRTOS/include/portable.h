@@ -132,6 +132,9 @@ void vPortInitialiseBlocks( void ) PRIVILEGED_FUNCTION;
 size_t xPortGetFreeHeapSize( void ) PRIVILEGED_FUNCTION;
 size_t xPortGetMinimumEverFreeHeapSize( void ) PRIVILEGED_FUNCTION;
 
+void *pvPortCalloc( size_t nmemb, size_t size ) PRIVILEGED_FUNCTION;
+void *pvPortRealloc( void *pv, size_t size ) PRIVILEGED_FUNCTION;
+
 /*
  * Setup the hardware ready for the scheduler to take control.  This generally
  * sets up a tick interrupt and sets timers for the correct tick frequency.

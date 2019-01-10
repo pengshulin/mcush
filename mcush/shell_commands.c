@@ -1659,10 +1659,7 @@ int cmd_mapi( int argc, char *argv[] )
                 shell_write_err( shell_str_address );
                 return -1;
             }
-            /* protect for thread safe */
-	        vTaskSuspendAll();
-            addr = realloc( addr, length );
-	        (void)xTaskResumeAll();
+            addr = pvPortRealloc( addr, length );
         }
         else
         {

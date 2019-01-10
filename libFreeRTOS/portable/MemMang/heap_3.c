@@ -94,4 +94,34 @@ void vPortFree( void *pv )
 }
 
 
+/*-----------------------------------------------------------*/
+
+void *pvPortCalloc( size_t nmemb, size_t size )
+{
+    void *pvReturn;
+    
+    vTaskSuspendAll();
+    {
+        pvReturn = calloc( nmemb, size );
+    }
+    xTaskResumeAll();
+    
+    return pvReturn;
+}
+
+
+void *pvPortRealloc( void *pv, size_t size )
+{
+    void *pvReturn;
+    
+    vTaskSuspendAll();
+    {
+        pvReturn = realloc( pv, size );
+    }
+    xTaskResumeAll();
+    
+    return pvReturn;
+}
+
+
 
