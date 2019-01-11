@@ -3,7 +3,7 @@ from VEnvironment import *
 if not haldir:
     haldir='stm32f407zg_eu'
 
-env = loadHalConfig( haldir, use_vfs=True, use_romfs=True, use_spiffs=True, use_eth=True ).env
+env = loadHalConfig( haldir, use_hal_driver=False, use_vfs=True, use_romfs=True, use_spiffs=True, use_eth=True ).env
 
 env.appendDefineFlags( [ 'USE_LWIP_DEMO' ] )
 #env.appendDefineFlags( [ 'USE_LWIP_HTTPSERVER_SIMPLE' ] )
@@ -19,6 +19,7 @@ env.appendDefineFlags( [
     #'CHECKSUM_BY_HARDWARE',
     'USE_CMD_PING=1',
     'USE_CMD_WGET=1',
+    'USE_CMD_NC=1',
     ] ) 
     
 

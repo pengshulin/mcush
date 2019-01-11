@@ -115,6 +115,11 @@ void blink_digit( int digit, int led )
         vTaskDelay(DELAY_C);
         hal_led_clr(led);
     }
+   
+    /* NOTE:  if the blink task is the only running task, in release mode, 
+    cpu may reboot by the wdg (especially for long digits error code),
+    so clear the wdg on every digit */
+    hal_wdg_clear();
 }
 
 

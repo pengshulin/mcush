@@ -2,7 +2,7 @@
 # designed by PengShulin <trees_peng@163.com>
 
 python 
-import os
+import os, os.path
 _bool_true_list = ['1', 'Y', 'y', 'T', 't', 'yes', 'Yes', 'YES', 'true', 'True', 'TRUE']
 def getenv_bool( key, default=None ):
     ret = os.getenv(key, default)
@@ -23,16 +23,14 @@ if chip is None:
 else:
     print 'set chip as %s'% chip
 
-
-import glob
-import os, os.path
-try:
-    if DEBUG:
-        dbg_file=glob.glob('*_dbg.elf')[0]
-    else:
-        dbg_file=glob.glob('*.elf')[0]
-    print "found debug file %s..."% dbg_file
-except Exception as e: 
+# search for elf file
+dbg_file = os.path.basename(os.getcwd())
+if dbg_file.startswith('app'):
+    dbg_file = dbg_file[3:]
+dbg_file += '_dbg.elf' if DEBUG else '.elf'
+if os.path.isfile( dbg_file ):
+    print 'found debug file %s'% dbg_file
+else:
     dbg_file=None
     print "not debug file found."
     
