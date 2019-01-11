@@ -24,7 +24,8 @@
 #endif
 
 #define NC_DNS_RESOLVE_TIMEOUT_S  5
- 
+
+#define NC_SEND_BUF_LEN   512 
 
 typedef struct _nc_cb_t
 {
@@ -39,6 +40,8 @@ typedef struct _nc_cb_t
     uint8_t pending;
     struct tcp_pcb *pcb;
     uint8_t timeout;
+    char send_buf[NC_SEND_BUF_LEN];
+    uint32_t send_len;
 } nc_cb_t;
 nc_cb_t *ncb;
 
@@ -280,16 +283,25 @@ int cmd_nc( int argc, char *argv[] )
                 {
                     /* send input line */
                     shell_write_char( chr );
-                    tcp_write( ncb->pcb, &chr, 1, TCP_WRITE_FLAG_COPY );
+                    ncb->send_buf[ncb->send_len++] = chr;
                     ncb->pending = 1;
+                    if( ncb->send_len >= NC_SEND_BUF_LEN )
+                    {
+                        tcp_write( ncb->pcb, ncb->send_buf, NC_SEND_BUF_LEN, TCP_WRITE_FLAG_COPY );
+                        tcp_output( ncb->pcb );
+                        ncb->pending = 0;
+                        ncb->send_len = 0;
+                    }
                 }
             }
             else
             {
                 if( ncb->connected && ncb->pending )
                 {
+                    tcp_write( ncb->pcb, ncb->send_buf, ncb->send_len, TCP_WRITE_FLAG_COPY );
                     tcp_output( ncb->pcb );
                     ncb->pending = 0;
+                    ncb->send_len = 0;
                 }
             }
         }
