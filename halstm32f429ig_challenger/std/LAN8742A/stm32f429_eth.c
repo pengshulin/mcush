@@ -17,8 +17,8 @@
   *
   *        http://www.st.com/software_license_agreement_liberty_v2
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   * See the License for the specific language governing permissions and
   * limitations under the License.
@@ -31,6 +31,8 @@
 #include "stm32f4xx_rcc.h"
 #include "LAN8742A.h"
 #include <string.h>
+#include "FreeRTOS.h"
+#include "task.h"
 
 
 /** @defgroup ETH_Private_TypesDefinitions
@@ -98,10 +100,8 @@ __IO uint32_t Frame_Rx_index;
   */
 void ETH_Delay(__IO uint32_t nCount)
 {
-  __IO uint32_t index = 0; 
-  for(index = nCount; index != 0; index--)
-  {
-  }
+    /* NOTE: nCount in 10ms */
+    vTaskDelay( nCount * configTICK_RATE_HZ / 100 );
 }
 #endif /* USE_Delay*/
 
@@ -1877,7 +1877,7 @@ FlagStatus ETH_GetDMAFlagStatus(uint32_t ETH_DMA_FLAG)
 }
 
 /**
-  * @brief  Clears the ETHERNET’s DMA pending flag.
+  * @brief  Clears the ETHERNET's DMA pending flag.
   * @param  ETH_DMA_FLAG: specifies the flag to clear.
   *   This parameter can be any combination of the following values:
   *     @arg ETH_DMA_FLAG_NIS : Normal interrupt summary flag
@@ -1989,7 +1989,7 @@ ITStatus ETH_GetDMAITStatus(uint32_t ETH_DMA_IT)
 }
 
 /**
-  * @brief  Clears the ETHERNET’s DMA IT pending bit.
+  * @brief  Clears the ETHERNET's DMA IT pending bit.
   * @param  ETH_DMA_IT: specifies the interrupt pending bit to clear.
   *   This parameter can be any combination of the following values:
   *     @arg ETH_DMA_IT_NIS : Normal interrupt summary 

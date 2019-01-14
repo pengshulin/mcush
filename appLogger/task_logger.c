@@ -98,14 +98,14 @@ static int _logger_str( int type, const char *str, int isr_mode, int flag )
 
     if( isr_mode )
     {
-        if( xQueueSendFromISR( queue_logger, &evt, &xHigherPriorityTaskWoken ) != pdTRUE )
+        if( xQueueSendFromISR( queue_logger, &evt, &xHigherPriorityTaskWoken ) != pdPASS )
             err = 1;
         else
             portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     }
     else
     { 
-        if( xQueueSend( queue_logger, &evt, 0 ) != pdTRUE )
+        if( xQueueSend( queue_logger, &evt, 0 ) != pdPASS )
             err = 1;
     }
 
@@ -418,7 +418,7 @@ static void post_process_event( logger_event_t *evt )
     if( monitoring_mode )
     {
         /* forward the event */
-        if( xQueueSend( queue_logger_monitor, evt, 0 ) != pdTRUE )
+        if( xQueueSend( queue_logger_monitor, evt, 0 ) != pdPASS )
         {
             if( !( evt->flag & LOG_FLAG_CONST ) ) 
                 vPortFree(evt->str);
@@ -445,7 +445,7 @@ void task_logger_entry(void *p)
     while( 1 )
     {
         hal_wdg_clear();
-        if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) != pdTRUE )
+        if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) != pdPASS )
             continue;
  
         if( ! _enable )
@@ -497,7 +497,7 @@ void task_logger_entry(void *p)
             size = size < 0 ? j : size + j;
             /* write the remaining (if exists) in one cycle */
             while( xQueueReceive( queue_logger, &evt, \
-                TASK_LOGGER_LAZY_CLOSE_MS * configTICK_RATE_HZ / 1000 ) == pdTRUE )
+                TASK_LOGGER_LAZY_CLOSE_MS * configTICK_RATE_HZ / 1000 ) == pdPASS )
             {
                 if( ! _enable )
                 {
@@ -527,7 +527,7 @@ void task_logger_entry(void *p)
             set_errno( ERRNO_FILE_READ_WRITE_ERROR );
             /* stop writing remaining events */
             post_process_event( &evt );
-            while( xQueueReceive( queue_logger, &evt, 0 ) == pdTRUE )
+            while( xQueueReceive( queue_logger, &evt, 0 ) == pdPASS )
                 post_process_event( &evt );
         }
         xSemaphoreGive( semaphore_logger );
@@ -774,7 +774,7 @@ int cmd_logger( int argc, char *argv[] )
             filter_mode = LOG_DEBUG | LOG_INFO | LOG_WARN | LOG_ERROR;  /* all messages allowed */
         while( 1 )
         {
-            if( xQueueReceive( queue_logger_monitor, &evt, 100*configTICK_RATE_HZ/1000 ) == pdTRUE )
+            if( xQueueReceive( queue_logger_monitor, &evt, 100*configTICK_RATE_HZ/1000 ) == pdPASS )
             {
                 if( evt.type & filter_mode )
                 {
@@ -801,7 +801,7 @@ int cmd_logger( int argc, char *argv[] )
         }  
         monitoring_mode = 0;
         /* free all remaining event */
-        while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdTRUE ) 
+        while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdPASS ) 
         {
             if( !( evt.flag & LOG_FLAG_CONST ) ) 
                 vPortFree( evt.str );

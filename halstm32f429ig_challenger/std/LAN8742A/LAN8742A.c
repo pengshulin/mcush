@@ -28,7 +28,7 @@ static void ETH_MACDMA_Config(void);
 
 
 const int8_t reg_id[] = {0, 1, 2, 3, 4, 5, 6, 17, 18, 26, 27, 29, 30, 31, -1};
-const char *reg_name[] = {"BCR", "BSR", "IDN1", "IDN2", "NADV", "NLPA", "NEXP", "MODE", "SMOD", "SEC", "SCSI", "INTS", "INTM", "SCS"};
+const char * const reg_name[] = {"BCR", "BSR", "IDN1", "IDN2", "NADV", "NLPA", "NEXP", "MODE", "SMOD", "SEC", "SCSI", "INTS", "INTM", "SCS"};
 
 
 static void print_reg( const char *name, int value )
@@ -105,7 +105,7 @@ int cmd_lan8720( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', shell_str_command, shell_str_command, "info|reset" },
+          'c', shell_str_command, shell_str_command, "info|reset|read|write|down" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'n', shell_str_name, shell_str_name, "name param" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -155,7 +155,7 @@ int cmd_lan8720( int argc, char *argv[] )
     {
         ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Reset);
     }
-    else if( strcmp( cmd, "powerdown" ) == 0 )
+    else if( strcmp( cmd, "down" ) == 0 )
     {
         ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Powerdown);
     }
@@ -173,6 +173,8 @@ int cmd_lan8720( int argc, char *argv[] )
         else
             return -1;
     }
+    else
+        return -1;
     return 0;
 }
 

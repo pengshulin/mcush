@@ -30,6 +30,8 @@
 #include "stm32f4x7_eth.h"
 #include "stm32f4xx_rcc.h"
 #include <string.h>
+#include "FreeRTOS.h"
+#include "task.h"
 
 /** @addtogroup STM32F4x7_ETH_Driver
   * @brief ETH driver modules
@@ -134,12 +136,10 @@ __IO uint32_t Frame_Rx_index;
   * @param  nCount: specifies the delay time length.
   * @retval None
   */
-static void ETH_Delay(__IO uint32_t nCount)
+void ETH_Delay(__IO uint32_t nCount)
 {
-    __IO uint32_t index = 0;
-    for(index = nCount; index != 0; index--)
-    {
-    }
+    /* NOTE: nCount in 10ms */
+    vTaskDelay( nCount * configTICK_RATE_HZ / 100 );
 }
 #endif /* USE_Delay*/
 

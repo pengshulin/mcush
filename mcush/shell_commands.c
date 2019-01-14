@@ -1472,6 +1472,8 @@ int cmd_system( int argc, char *argv[] )
     else if( strcmp( type, "trace" ) == 0 )
     {
         vTaskList( buf );
+        if( buf[0] == 0 )
+            return 1;
         shell_write_str( buf ); 
     }
 #endif

@@ -48,7 +48,7 @@
 /** 
   * @brief  ETH MAC Init structure definition
   * @note   The user should not configure all the ETH_InitTypeDef structure's fields. 
-  *   By calling the ETH_StructInit function the structure’s fields are set to their default values.
+  *   By calling the ETH_StructInit function the structureæŠ¯ fields are set to their default values.
   *   Only the parameters that will be set to a non-default value should be configured.  
   */ 
 typedef struct {

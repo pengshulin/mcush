@@ -77,7 +77,7 @@ int load_mac_from_conf_file(const char *fname)
 
 int send_dhcpc_event( uint8_t event )
 {
-    if( xQueueSend( queue_dhcpc, &event, 0 ) == pdTRUE )
+    if( xQueueSend( queue_dhcpc, &event, 0 ) == pdPASS )
         return 1;
     return 0;
 }
