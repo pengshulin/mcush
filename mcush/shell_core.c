@@ -129,7 +129,7 @@ int shell_printf( char *fmt, ... )
 {
     va_list ap;
     int n;
-    char buf[256];
+    char buf[SHELL_LINE_BUF_SIZE];
 
     va_start( ap, fmt );
     n = vsprintf( buf, fmt, ap );

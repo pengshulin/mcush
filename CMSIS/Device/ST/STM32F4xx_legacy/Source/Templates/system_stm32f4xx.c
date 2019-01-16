@@ -449,7 +449,7 @@
   uint32_t SystemCoreClock = 100000000;
 #endif /* STM32F410xx || STM32F401xE || STM32F412xG || STM32F413_423xx */
 
-__I uint8_t const AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+const uint8_t const AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**
   * @}

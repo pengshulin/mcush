@@ -46,7 +46,10 @@ extern "C" {
     #define USE_SHELL_EVAL_SSCANF  0
 #endif
 #ifndef SHELL_QUOTE_PARSE_ENABLE
-    #define SHELL_QUOTE_PARSE_ENABLE   1
+    #define SHELL_QUOTE_PARSE_ENABLE  1
+#endif
+#ifndef SHELL_LINE_BUF_SIZE 
+    #define SHELL_LINE_BUF_SIZE  512
 #endif
 
 #define STOP_AT_INVALID_ARGUMENT   \

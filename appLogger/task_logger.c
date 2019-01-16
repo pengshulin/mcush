@@ -542,8 +542,8 @@ void task_logger_entry(void *p)
 int cmd_logger( int argc, char *argv[] );
 const shell_cmd_t cmd_tab_logger[] = {
 {   0, 0, "log",  cmd_logger, 
-    "disp logger",
-    "logger -d|u"  },
+    "logger",
+    "log [-e|d|t|b|D|I|W|E]"  },
 {   CMD_END  } };
 
 

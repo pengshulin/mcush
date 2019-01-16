@@ -8,7 +8,7 @@
 #define LUA_LIB
 
 #include "lprefix.h"
-
+#include "FreeRTOS.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -937,11 +937,11 @@ LUALIB_API const char *luaL_gsub (lua_State *L, const char *s, const char *p,
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud; (void)osize;  /* not used */
   if (nsize == 0) {
-    free(ptr);
+    vPortFree(ptr);
     return NULL;
   }
   else
-    return realloc(ptr, nsize);
+    return pvPortRealloc(ptr, nsize);
 }
 
 

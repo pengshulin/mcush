@@ -12,8 +12,6 @@
 #ifndef MCUSH_OPT_H
 #define MCUSH_OPT_H
 
-#include <stdio.h>
-
 /**
  * The type of argument to be parsed.
  */

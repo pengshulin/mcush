@@ -33,7 +33,9 @@
 ** ensure that all software connected to Lua will be compiled with the
 ** same configuration.
 */
-#define LUA_32BITS
+#ifndef LUA_32BITS
+#define LUA_32BITS   1
+#endif
 
 
 /*
@@ -742,9 +744,13 @@
 ** without modifying the main part of the file.
 */
 
+#include "mcush.h"
 
+#define lua_writestring(s,l)      do{shell_write_str(s);}while(0)
+#define lua_writeline()           do{shell_write_char('\n');}while(0)
+#define lua_writestringerror(s,p) do{shell_printf((s),(p));}while(0)
 
+#define lua_assert(x)             ((x)?(0):halt("lua_assert"))
 
 
 #endif
-

@@ -8,19 +8,15 @@
  * This file is part of adopt, distributed under the MIT license.
  * For full terms and conditions, see the included LICENSE file.
  */
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include "mcush.h"
 
-#include "mcush_opt.h"
-#include "shell.h"
-#include "shell_str.h"
-
-
-#define INLINE(type) static inline type
-
+#if DEBUG
+    #define INLINE(type) type
+    #define ASSERT(c)    ((c)?0:halt("opt assert"))
+#else
+    #define INLINE(type) static inline type
+    #define ASSERT(c)
+#endif
 
 INLINE(const mcush_opt_spec *) spec_byname(
     mcush_opt_parser *parser, const char *name, size_t namelen)
@@ -213,7 +209,7 @@ void mcush_opt_parser_init(
     const char **args,
     size_t args_len)
 {
-    //assert(parser);
+    ASSERT(parser);
 
     memset(parser, 0x0, sizeof(mcush_opt_parser));
 
@@ -225,7 +221,7 @@ void mcush_opt_parser_init(
 
 int mcush_opt_parser_next(mcush_opt *opt, mcush_opt_parser *parser)
 {
-    //assert(opt && parser);
+    ASSERT(opt && parser);
 
     memset(opt, 0x0, sizeof(mcush_opt));
 
