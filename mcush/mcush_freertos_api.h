@@ -12,6 +12,9 @@
     #define MCUSH_TASK_REGISTRY_SIZE  10
 #endif
 
+#ifndef MCUSH_HALT_ON_TASK_REGISTER_FAIL
+    #define MCUSH_HALT_ON_TASK_REGISTER_FAIL  1
+#endif 
 
 typedef struct {
     uint32_t uxCurrentNumberOfTasks;

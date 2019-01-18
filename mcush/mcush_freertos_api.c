@@ -1,6 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <string.h>
 #include <stdint.h>
+#include "mcush.h"
 #include "mcush_freertos_api.h"
 
 #if MCUSH_FREERTOS_PEEK_API
@@ -64,6 +65,9 @@ int mcushTaskAddToRegistered( void *pxHandle )
             return i;
         }
     }
+#if MCUSH_HALT_ON_TASK_REGISTER_FAIL
+    halt( "register task" );
+#endif
     return -1;  /* failed */
 }	
 

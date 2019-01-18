@@ -51,6 +51,9 @@ extern "C" {
 #ifndef SHELL_LINE_BUF_SIZE 
     #define SHELL_LINE_BUF_SIZE  512
 #endif
+#ifndef SHELL_HALT_ON_ADD_CMD_TABLE_FAIL
+    #define SHELL_HALT_ON_ADD_CMD_TABLE_FAIL  1
+#endif
 
 #define STOP_AT_INVALID_ARGUMENT   \
         return mcush_opt_check_invalid_argument(argv[0], &opt, opt_spec);

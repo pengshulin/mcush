@@ -7,6 +7,7 @@
 #include <limits.h>
 #include "shell.h"
 #include "FreeRTOS.h"
+#include "mcush.h"
 
 #if DEBUG_SHELL
 #define static
@@ -240,6 +241,9 @@ int shell_add_cmd_table( const shell_cmd_t *cmd_table )
             return 1;
         }
     }
+#if SHELL_HALT_ON_ADD_CMD_TABLE_FAIL
+    halt( "add cmd table" );
+#endif
     return 0;
 }
 

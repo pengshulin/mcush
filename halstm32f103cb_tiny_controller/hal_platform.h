@@ -38,8 +38,6 @@ float hal_adc_get( int index );
 #define USE_HAL_USB_DISCONNECT  0
 
 #define USE_CMD_POWER   0
-#define HAL_POWER_PORT  GPIOB
-#define HAL_POWER_PIN   GPIO_Pin_1
 void hal_power_set(int enable);
 int hal_is_power_set(void);
 
