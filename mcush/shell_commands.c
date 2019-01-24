@@ -2013,21 +2013,13 @@ static void i2c_stop(void)
 
 static int i2c_read_ack(void)
 {
-    //int ret;
-    //hal_gpio_set( i2c_port_sda, i2c_pin_sda );
-    //hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-    //hal_delay_us( i2c_delay_us );
-    //ret = hal_gpio_get( i2c_port_sda, i2c_pin_sda );
-    //hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
-    //hal_delay_us( i2c_delay_us );
-    //return ret ? 0 : 1;
     int ret;
     hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
     hal_gpio_set( i2c_port_sda, i2c_pin_sda );
     hal_delay_us( i2c_delay_us );
+    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
     ret = hal_gpio_get( i2c_port_sda, i2c_pin_sda );
+    hal_delay_us( i2c_delay_us );
     hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
     return ret ? 0 : 1;
 }
