@@ -860,7 +860,12 @@ s32_t SPIFFS_close(spiffs *fs, spiffs_file fh) {
   fh = SPIFFS_FH_UNOFFS(fs, fh);
 #if SPIFFS_CACHE
   res = spiffs_fflush_cache(fs, fh);
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  /* fixed by pengshulin:
+     if error return here, the file descriptor is not really closed,
+     this will involve ERR_OUT_OF_FILE_DESSCS later
+     so abort the cache failure, just close the fd and return
+   */
+  //SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
 #endif
   res = spiffs_fd_return(fs, fh);
   SPIFFS_API_CHECK_RES_UNLOCK(fs, res);

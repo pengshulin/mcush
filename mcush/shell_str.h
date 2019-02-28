@@ -32,6 +32,7 @@ extern const char shell_str_deinit[];
 extern const char shell_str_delay[];
 extern const char shell_str_delete[];
 extern const char shell_str_disable[];
+extern const char shell_str_done[];
 extern const char shell_str_enable[];
 extern const char shell_str_end[];
 extern const char shell_str_eol[];

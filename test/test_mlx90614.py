@@ -71,6 +71,7 @@ def main(argv=None):
     id4 = readE2prom( MLX90614_ID4 )
     print( 'ID: %s %s %s %s'% (hex(id1), hex(id2), hex(id3), hex(id4)) )
     print( 'FLAG: %s'% hex(readFlags()) )
+    print s.i2c( [0x7], 3 )
     time.sleep(1)
     counter = 1
     while True:

@@ -91,7 +91,11 @@ extern uint32_t SystemCoreClock;
 #ifndef configUSE_TRACE_FACILITY
     #define configUSE_TRACE_FACILITY            1
 #endif
-#define configUSE_STATS_FORMATTING_FUNCTIONS    1
+
+#ifndef configUSE_STATS_FORMATTING_FUNCTIONS 
+    #define configUSE_STATS_FORMATTING_FUNCTIONS    1
+#endif
+
 //#define configGENERATE_RUN_TIME_STATS           0
 
 //#define configUSE_PORT_OPTIMISED_TASK_SELECTION   0

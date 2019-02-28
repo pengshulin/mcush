@@ -61,6 +61,8 @@ extern "C" {
 #define LOOP_CHECK \
         if( loop ) \
         { \
+            if( loop_delay < 1000/configTICK_RATE_HZ )  \
+                loop_delay = 1000/configTICK_RATE_HZ;  \
             loop_tick = xTaskGetTickCount(); \
             while( xTaskGetTickCount() < loop_tick + loop_delay*configTICK_RATE_HZ/1000 ) \
             { \

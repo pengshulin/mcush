@@ -57,9 +57,12 @@ env.appendDefineFlags( [
     'configUSE_MUTEX=0',
     'configCHECK_FOR_STACK_OVERFLOW=0',
     'configTOTAL_HEAP_SIZE=10240',
+    'configUSE_TRACE_FACILITY=0',
     #'MCUSH_STACK_SIZE=10240',
     'SHELL_QUOTE_PARSE_ENALBE=0',
     'SUSPEND_ENABLED=0',
+    'USE_CMD_BEEP=0',
+    'USE_CMD_SGPIO=0',
     'USE_CMD_PWM=1',
     'USE_CMD_ADC=1',
     ] )

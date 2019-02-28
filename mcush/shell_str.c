@@ -23,6 +23,7 @@ __attribute__((aligned(1))) const char shell_str_deinit[] = "deinit";
 __attribute__((aligned(1))) const char shell_str_delay[] = "delay";
 __attribute__((aligned(1))) const char shell_str_delete[] = "delete";
 __attribute__((aligned(1))) const char shell_str_disable[] = "disable";
+__attribute__((aligned(1))) const char shell_str_done[] = "done";
 __attribute__((aligned(1))) const char shell_str_enable[] = "enable";
 __attribute__((aligned(1))) const char shell_str_end[] = "end";
 __attribute__((aligned(1))) const char shell_str_eol[] = "\r\n";
