@@ -68,6 +68,31 @@ int mcush_file_crc8( const char *fname )
 }
 
 
+int mcush_file_crc32( const char *fname )
+{
+    int fd = mcush_open( fname, "r" );
+    uint8_t buf[_READ_BUF_SIZE];
+    uint32_t crc=0;
+    int r;
+    int bytes=0;
+
+    if( fd == 0 )
+        return -1;
+    while(1)
+    { 
+        r = mcush_read( fd, buf, _READ_BUF_SIZE );
+        if( r < 0 )
+            break;
+        bytes += r;
+        if( r > 0 )
+            crc = _crc32( buf, r, crc, crc32_table ); 
+        if( r != _READ_BUF_SIZE )
+            break;
+    }
+    return bytes > 0 ? crc : -1;
+}
+
+
 int mcush_file_remove_retry( const char *fname, int retry_num )
 {
     int retry;

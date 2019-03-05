@@ -439,8 +439,9 @@ class SerialPort(Port):
                 pass
 
     def disconnect( self ):
-        self.ser.close()
-        self._connected = False
+        if self._connected:
+            self.ser.close()
+            self._connected = False
  
     def update_timeout( self, timeout ):
         self.ser.timeout = timeout
