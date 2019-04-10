@@ -32,7 +32,7 @@
 #define DHCP_ADDRESS_ASSIGNED       3
 #define DHCP_TIMEOUT                4
 #define DHCP_LINK_DOWN              5
-
+#define DHCP_ADDRESS_MANUAL         6
 
  
 #define DHCPC_TIMER_PERIOD_MS   2000 
@@ -40,8 +40,10 @@
 QueueHandle_t queue_dhcpc;
 TimerHandle_t timer_dhcpc;
 
-uint8_t dhcp_state;
+uint8_t dhcp_state, ip_manual;
 struct netif gnetif;
+    
+const ip_addr_t dns_google={.addr=0x08080808};
 
 /* TODO: move it to hal layer */
 extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
@@ -71,6 +73,39 @@ int load_mac_from_conf_file(const char *fname)
         mac_address_init[5] = f;
         return 1;
     }
+    return 0;
+}
+
+
+/* ipv4 address config file (/?/ip) ascii contents:
+   line 1: aaa.bbb.ccc.ddd   (ip)
+   line 2: aaa.bbb.ccc.ddd   (netmask)
+   line 3: aaa.bbb.ccc.ddd   (gateway)
+ */
+int load_ip_from_conf_file(const char *fname, ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gateway )
+{
+    int fd;
+    char buf[128];
+
+    fd = mcush_open( fname, "r" );
+    if( fd == 0 )
+        return 0;
+    if( ! mcush_file_read_line( fd, buf ) )
+        goto err;
+    if( ! ip4addr_aton( buf, (ip4_addr_t*)ipaddr ) )
+        goto err;
+    if( ! mcush_file_read_line( fd, buf ) )
+        goto err;
+    if( ! ip4addr_aton( buf, (ip4_addr_t*)netmask ) )
+        goto err;
+    if( ! mcush_file_read_line( fd, buf ) )
+        goto err;
+    if( ! ip4addr_aton( buf, (ip4_addr_t*)gateway ) )
+        goto err;
+    mcush_close( fd );
+    return 1;
+err:
+    mcush_close( fd );
     return 0;
 }
 
@@ -132,27 +167,42 @@ void logger_ip( const char *prompt, uint32_t address, int shell_mode )
 
 void do_lwip_init(void)
 {
-    ip_addr_t ipaddr, netmask, gw;
+    ip_addr_t ipaddr, netmask, gateway;
 
     ETH_BSP_Config();
 
     tcpip_init( NULL, NULL );
-
-    ipaddr.addr = 0;
-    netmask.addr = 0;
-    gw.addr = 0;
-    
-    if( !load_mac_from_conf_file("/s/mac") )
+   
+    if( !load_mac_from_conf_file("/s/mac") && 
+        !load_mac_from_conf_file("/c/mac") )
     {
-        if( !load_mac_from_conf_file("/c/mac") )
-        {
-            logger_const_error( "no mac addr" );
-            memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
-        }
+        logger_const_error( "no mac config" );
+        memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
     }
     logger_mac( "mac:", mac_address_init, 0 );
+ 
+    if( !load_ip_from_conf_file("/s/ip", &ipaddr, &netmask, &gateway) && 
+        !load_ip_from_conf_file("/c/ip", &ipaddr, &netmask, &gateway) )
+    {
+        logger_const_warn( "no ip config" );
+        ipaddr.addr = 0;
+        netmask.addr = 0;
+        gateway.addr = 0;
+        ip_manual = 0;
+    }
+    else
+    {
+        logger_ip( "ip:", ipaddr.addr, 0 );    
+        logger_ip( "netmask:", netmask.addr, 0 );
+        logger_ip( "gateway:", gateway.addr, 0 );
+        ip_manual = 1;
+        dns_setserver( 0, (const ip_addr_t *)&gateway );
+#if DNS_MAX_SERVERS > 1
+        dns_setserver( 1, (const ip_addr_t *)&dns_google );
+#endif
+    }
     
-    netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
+    netif_add(&gnetif, &ipaddr, &netmask, &gateway, NULL, &ethernetif_init, &tcpip_input);
     netif_set_default(&gnetif);
 
     if( EthStatus == (ETH_INIT_FLAG | ETH_LINK_FLAG) )
@@ -184,18 +234,38 @@ void task_dhcpc_entry(void *p)
         switch( evt )
         {
         case DHCPC_EVENT_NETIF_UP:
-            logger_const_info( "dhcpc: cable connected, dhcp discover..." );
+            logger_const_info( "dhcpc: cable connected" );
             gnetif.flags |= NETIF_FLAG_LINK_UP;
-            reset_address();
-            dhcp_state = DHCP_WAIT_ADDRESS;
-            dhcp_start(&gnetif);
+            if( ip_manual ) 
+            {
+                dhcp_state = DHCP_ADDRESS_MANUAL;
+#if USE_NET_CHANGE_HOOK
+                net_state_change_hook(1);
+#if USE_LWIP_DEMO
+                send_dhcpc_event( DHCPC_EVENT_START_DEMO );
+#endif
+#endif
+            }
+            else
+            {
+                logger_const_info( "dhcpc: dhcp discover..." );
+                reset_address();
+                dhcp_state = DHCP_WAIT_ADDRESS;
+                dhcp_start(&gnetif);
+            }
             break;
 
         case DHCPC_EVENT_NETIF_DOWN:
             logger_const_info( "dhcpc: cable disconnected" );
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
-            dhcp_stop(&gnetif);
+            if( ip_manual ) 
+            {
+            }
+            else
+            {
+                dhcp_stop(&gnetif);
+            }
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
             logger_const_info( "dhcpc: netbiosns stop" );
             netbiosns_stop();
@@ -221,20 +291,9 @@ void task_dhcpc_entry(void *p)
 
 #if USE_NET_CHANGE_HOOK
                     net_state_change_hook(1);
-#endif
 #if USE_LWIP_DEMO
-                    if( lwip_demo_tasks_started == 0 )
-                    {
-    #if USE_LWIP_HTTPSERVER_SIMPLE
-                        http_server_netconn_init();
-    #else
-                        httpd_init();
-    #endif
-    #if USE_LWIP_SHELL_EXAMPLE
-                        shell_example_init();
-    #endif
-                        lwip_demo_tasks_started=1;
-                    }
+                    send_dhcpc_event( DHCPC_EVENT_START_DEMO );
+#endif
 #endif
                 }
             } 
@@ -243,6 +302,23 @@ void task_dhcpc_entry(void *p)
             ETH_CheckLinkStatus( ETHERNET_PHY_ADDRESS ); 
             break; 
  
+#if USE_LWIP_DEMO
+        case DHCPC_EVENT_START_DEMO:
+            if( lwip_demo_tasks_started )
+                break;
+
+#if USE_LWIP_HTTPSERVER_SIMPLE
+            http_server_netconn_init();
+#else
+            httpd_init();
+#endif
+#if USE_LWIP_SHELL_EXAMPLE
+            shell_example_init();
+#endif
+            lwip_demo_tasks_started=1;
+            break;
+#endif
+
         default:
             //logger_const_info( "unexpected dhcp event" );
             break;
@@ -262,12 +338,16 @@ int cmd_netstat( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', "cmd", "command", "info|up|down|dhcp" },
+          'c', "cmd", "command", "info|up|down|dhcp|ip" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     const char *cmd=0;
- 
+    int i;
+    char buf[8], *p, *p2, *p3, succ;
+    char *input=0;
+    ip_addr_t ipaddr, netmask, gateway;
+
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -284,6 +364,8 @@ int cmd_netstat( int argc, char *argv[] )
 
     if( cmd==NULL || strcmp(cmd, "info") == 0 )
     {
+        logger_mac( "mac:", mac_address_init, 1 );
+        shell_printf( "dhcp: %u\n", ip_manual ? 0 : 1 );
         switch( dhcp_state )
         {
         case DHCP_LINK_DOWN:
@@ -293,10 +375,15 @@ int cmd_netstat( int argc, char *argv[] )
             shell_write_line("DHCP waiting");
             break;
         case DHCP_ADDRESS_ASSIGNED:
-            logger_mac( "mac:", mac_address_init, 1 );
+        case DHCP_ADDRESS_MANUAL:
             logger_ip( "ip:", gnetif.ip_addr.addr, 1 );    
             logger_ip( "netmask:", gnetif.netmask.addr, 1 );
             logger_ip( "gateway:", gnetif.gw.addr, 1 );
+            for( i=0; i<DNS_MAX_SERVERS; i++ )
+            {
+                sprintf( buf, "dns%u:", i+1 );
+                logger_ip( buf, dns_getserver(i)->addr, 1 );
+            }
             break;
         default:
             break;
@@ -313,9 +400,57 @@ int cmd_netstat( int argc, char *argv[] )
     else if( strcmp(cmd, "dhcp") == 0 )
     {
         reset_address();
+        ip_manual = 0;
         dhcp_state = DHCP_WAIT_ADDRESS;
         dhcp_stop(&gnetif);
         dhcp_start(&gnetif);
+    }
+    else if( strcmp(cmd, "ip") == 0 )
+    {
+        input = shell_read_multi_lines(0);
+        if( input )
+        {
+            /* parse manual setting */
+            // line 1: aaa.bbb.ccc.ddd   (ip)
+            // line 2: aaa.bbb.ccc.ddd   (netmask)
+            // line 3: aaa.bbb.ccc.ddd   (gateway)
+            succ = 0;
+            p = p2 = input;
+            while( *p2 && (*p2 != '\n') )
+                p2++;
+            if( *p2 == '\n' )
+            {
+                *p2++ = 0;
+                p3 = p2;
+                while( *p3 && (*p3 != '\n') )
+                    p3++;
+                if( *p3 == '\n' )
+                    *p3++ = 0;
+                else
+                    p3 = 0;
+            }
+            else
+                p2 = 0;
+            if( p && p2 && p3 )
+            {
+                p = strip(p);
+                p2 = strip(p2);
+                p3 = strip(p3);
+                if( ip4addr_aton( p, (ip4_addr_t*)&ipaddr ) && 
+                    ip4addr_aton( p2, (ip4_addr_t*)&netmask ) &&
+                    ip4addr_aton( p3, (ip4_addr_t*)&gateway ) )
+                {
+                    dhcp_stop(&gnetif);
+                    netif_set_addr(&gnetif, &ipaddr, &netmask, &gateway);
+                    dns_setserver( 0, (const ip_addr_t *)&gateway );
+                    ip_manual = 1;
+                    succ = 1;
+                }
+            }
+            vPortFree( (void*)input );
+            if( !succ )
+                return 1;
+        }
     }
     else
         return -1;
