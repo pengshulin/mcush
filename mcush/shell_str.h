@@ -112,6 +112,7 @@ extern const char shell_str_tail[];
 extern const char shell_str_test[];
 extern const char shell_str_test_mode[];
 extern const char shell_str_time[];
+extern const char shell_str_timeout[];
 extern const char shell_str_toggle[];
 extern const char shell_str_total[];
 extern const char shell_str_type[];

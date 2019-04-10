@@ -55,7 +55,9 @@ void hal_clk_init(void)
     }
 
     SystemCoreClockUpdate();
+#if HAL_TEST_CLK_OUTPUT
     _test_clk_output();
+#endif
 
 
     /* Enable CRC module (needed by STemWin) */

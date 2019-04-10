@@ -102,6 +102,7 @@ __attribute__((aligned(1))) const char shell_str_tail[] = "tail";
 __attribute__((aligned(1))) const char shell_str_test[] = "test";
 __attribute__((aligned(1))) const char shell_str_test_mode[] = "test_mode";
 __attribute__((aligned(1))) const char shell_str_time[] = "time";
+__attribute__((aligned(1))) const char shell_str_timeout[] = "timeout";
 __attribute__((aligned(1))) const char shell_str_toggle[] = "toggle";
 __attribute__((aligned(1))) const char shell_str_total[] = "total";
 __attribute__((aligned(1))) const char shell_str_type[] = "type";

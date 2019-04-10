@@ -302,6 +302,20 @@ int get_rtc_tick64( uint64_t *tick )
 }
 
 
+/* a safe version of strdup that calls malloc */
+char *strdup2( const char *s )
+{
+    char *p = NULL;
+
+    if( s != NULL )
+    {
+         p = (char *)pvPortMalloc( strlen(s) + 1 );
+         strcpy( p, s );
+    }
+    return p;
+}
+
+
 char *rstrip( char *s )
 {
     unsigned int l = strlen(s);

@@ -79,16 +79,32 @@ int mcush_spiffs_mount( void )
 #if SPIFLASH_AUTO_DETECT
     switch( hal_spiffs_flash_read_id() )
     {
-    case 0xEF4014: cfg.phys_size = 1*1024*1024; break;  // W25Q80
-    case 0xEF4015: cfg.phys_size = 2*1024*1024; break;  // W25Q16
-    case 0xEF4016: cfg.phys_size = 4*1024*1024; break;  // W25Q32
+    case 0xEF4014:  // W25Q80 (Winbond)
+        cfg.phys_size = 1*1024*1024;
+        break;
+    case 0xEF4015:  // W25Q16 (Winbond)
+        cfg.phys_size = 2*1024*1024;
+        break;
+    case 0xEF4016:  // W25Q32 (Winbond)
+    case 0x856016:  // P25Q32 (PUYA)
+        cfg.phys_size = 4*1024*1024;
+        break;
     case 0xEF4017:
-    case 0xEF6017: cfg.phys_size = 8*1024*1024; break;  // W25Q64
+    case 0xEF6017:  // W25Q64 (Winbond)
+    case 0x856017:  // P25Q64 (PUYA)
+        cfg.phys_size = 8*1024*1024;
+        break;
     case 0xEF4018:
-    case 0xEF6018: cfg.phys_size = 16*1024*1024; break;  // W25Q128
+    case 0xEF6018:  // W25Q128 (Winbond)
+        cfg.phys_size = 16*1024*1024;
+        break;
     case 0xEF4019:
-    case 0xEF6019: cfg.phys_size = 32*1024*1024; break;  // W25Q256
-    default: return 0; break;  // unknown
+    case 0xEF6019:  // W25Q256
+        cfg.phys_size = 32*1024*1024;
+        break;
+    default:
+        return 0;
+        break;  // unknown
     }
 #else
     if( hal_spiffs_flash_read_id() != HAL_SPIFFS_CHIPID )
