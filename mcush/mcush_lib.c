@@ -484,4 +484,11 @@ void byte_to_unicode( uint8_t *buf_in, uint16_t *buf_out, int len, int add_null_
 }
 
 
+void swap_bytes( uint8_t *a, uint8_t *b )
+{
+    uint8_t c = *b;
+    *b = *a;
+    *a = c;
+}
+
 

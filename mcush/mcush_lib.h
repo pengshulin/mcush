@@ -45,6 +45,7 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
 
 void byte_to_unicode( uint8_t *buf_in, uint16_t *buf_out, int len, int add_null_end );
 
+void swap_bytes( uint8_t *a, uint8_t *b );
 
 #ifdef __cplusplus
 }
