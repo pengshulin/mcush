@@ -352,16 +352,9 @@ int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uin
     case MODBUS_CODE_READ_MULTIPLE_INPUT_REGISTER:
         /* recv: TID     PID     LEN     UID  CODE       ADDR    DAT
                 (29 33) (00 00) (00 06) (01) (04)  ---  (27 56) (00 00)
+           send: TID     PID     LEN     UID  CODE       BYTES  DAT0    DAT1   ... 
+                (29 33) (00 00) (00 17) (01) (04)  ---  (14)   (61 4E) (00 BC) ...
          */
-        while( size-- )
-        {
-            if( modbus_read_input_register( address, buf++ ) == 0 )
-                return MODBUS_ERROR_DATA_ADDRESS;
-            (*write)++;
-            address++;
-        }
-        break;
-
     case MODBUS_CODE_READ_MULTIPLE_REGISTER:
         /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE 
                 (29 33) (00 00) (00 06) (01) (03)  ---  (27 56) (00 0A)
@@ -372,8 +365,16 @@ int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uin
         buf2 = (uint8_t*)payload + 1;
         while( size-- )
         {
-            if( modbus_read_hold_register( address, &dat ) == 0 )
-                return MODBUS_ERROR_DATA_ADDRESS;
+            if( head->function_code == MODBUS_CODE_READ_MULTIPLE_REGISTER )
+            {
+                if( modbus_read_hold_register( address, &dat ) == 0 )
+                    return MODBUS_ERROR_DATA_ADDRESS;
+            }
+            else
+            {
+                if( modbus_read_input_register( address, &dat ) == 0 )
+                    return MODBUS_ERROR_DATA_ADDRESS;
+            }
             *buf2++ = (dat>>8) & 0xFF;  /* big endian */
             *buf2++ = dat & 0xFF;
             bytes += 2;
