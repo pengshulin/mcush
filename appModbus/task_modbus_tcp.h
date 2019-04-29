@@ -82,6 +82,15 @@ struct modbus_tcp_state
 #define MODBUS_CODE_WRITE_FILE_RECORD               21
 #define MODBUS_CODE_READ_DEVICE_CODE                43
 
+#define MODBUS_ERROR_FUNCTION                       1
+#define MODBUS_ERROR_DATA_ADDRESS                   2
+#define MODBUS_ERROR_DATA_VALUE                     3
+#define MODBUS_ERROR_DEVICE_FAULT                   4
+#define MODBUS_ERROR_CONFIRM                        5
+#define MODBUS_ERROR_DEVICE_BUSY                    6
+#define MODBUS_ERROR_CHECK                          8
+
+
 
 int send_modbus_tcp_event( uint8_t type, uint32_t data );
 

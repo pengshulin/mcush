@@ -275,7 +275,7 @@ static char *_join_log_fname( char *buf, int level )
 }
 
 
-static int delete_all_log_files( int delete_backup )
+int delete_all_log_files( int delete_backup )
 {
     char fname[20];
     char fname_bak[20];

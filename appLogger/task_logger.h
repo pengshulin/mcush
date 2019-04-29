@@ -141,6 +141,8 @@ int logger_error_printf( char *fmt, ... );
    copy /?/logger -> /?/logger.bak, /?/logger.N -> /?/logger.N.bak */
 int backup_all_log_files( void );
 
+/* remove /?/logger(.?) or /?/logger(.?).bak */
+int delete_all_log_files( int delete_backup );
 
 #endif
 

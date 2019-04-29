@@ -2,6 +2,7 @@ from VEnvironment import *
 
 if not haldir:
     haldir='stm32f407zg_eu'
+    haldir='stm32f407ve_rabbit'
 
 env = loadHalConfig( haldir, use_hal_driver=False, use_vfs=True, use_romfs=True, use_spiffs=True, use_eth=True ).env
 
@@ -20,6 +21,7 @@ env.appendDefineFlags( [
     'USE_CMD_PING=1',
     'USE_CMD_WGET=1',
     'USE_CMD_NC=1',
+    'USE_NET_CHANGE_HOOK=1',
     ] ) 
     
 

@@ -112,6 +112,8 @@ static void modbus_tcp_error(void *arg, err_t err)
     LWIP_UNUSED_ARG(err);
 
     es = (struct modbus_tcp_state *)arg;
+                
+    logger_const_error( "modbus: tcp_err" );
 
     modbus_tcp_free(es);
 }
@@ -327,59 +329,91 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
 }
 
 
-int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uint16_t size, uint16_t *buf, int *write )
+int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uint16_t size, uint16_t *payload, int *write )
 {
+    uint16_t *buf = payload + 2;
+    uint8_t *buf2 = (uint8_t*)buf;
+    uint16_t dat;
+    uint8_t bytes; 
+
     *write = 0;
     switch( head->function_code )
     {
     case MODBUS_CODE_READ_SINGLE_COIL:
-        if( modbus_read_coil( address, (uint8_t*)buf ) )
-            return 1;
+        if( modbus_read_coil( address, (uint8_t*)buf ) == 0 )
+            return MODBUS_ERROR_DATA_ADDRESS;
         break;
 
     case MODBUS_CODE_WRITE_SINGLE_COIL:
-        return modbus_write_coil( address, *buf );
-        break;
-
-    case MODBUS_CODE_READ_MULTIPLE_REGISTER:
-        while( size-- )
-        {
-            if( modbus_read_hold_register( address, buf++ ) == 0 )
-                return *write ? 1 : 0;
-            (*write)++;
-            address++;
-        }
-        return 1;
-        break;
-
-    case MODBUS_CODE_WRITE_SINGLE_REGISTER:
-        if( modbus_write_hold_register( address, size ) == 0 )
-            return 0;
-        return 1;
-        break;
-
-    case MODBUS_CODE_WRITE_MULTIPLE_REGISTER:
-        while( size-- )
-        {
-            if( modbus_write_hold_register( address, *buf++ ) == 0 )
-                return 0;
-            address++;
-        }
-        return 1;
+        if( modbus_write_coil( address, *buf ) == 0 )
+            return MODBUS_ERROR_DATA_ADDRESS;
         break;
 
     case MODBUS_CODE_READ_MULTIPLE_INPUT_REGISTER:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    DAT
+                (29 33) (00 00) (00 06) (01) (04)  ---  (27 56) (00 00)
+         */
         while( size-- )
         {
             if( modbus_read_input_register( address, buf++ ) == 0 )
-                return *write ? 1 : 0;
+                return MODBUS_ERROR_DATA_ADDRESS;
             (*write)++;
             address++;
         }
-        return 1;
         break;
 
+    case MODBUS_CODE_READ_MULTIPLE_REGISTER:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE 
+                (29 33) (00 00) (00 06) (01) (03)  ---  (27 56) (00 0A)
+           send: TID     PID     LEN     UID  CODE       BYTES  DAT0    DAT1   ... 
+                (29 33) (00 00) (00 17) (01) (03)  ---  (14)   (61 4E) (00 BC) ...
+         */
+        bytes = 0;
+        buf2 = (uint8_t*)payload + 1;
+        while( size-- )
+        {
+            if( modbus_read_hold_register( address, &dat ) == 0 )
+                return MODBUS_ERROR_DATA_ADDRESS;
+            *buf2++ = (dat>>8) & 0xFF;  /* big endian */
+            *buf2++ = dat & 0xFF;
+            bytes += 2;
+            address++;
+        }
+        *((uint8_t*)payload) = bytes;
+        *write = bytes + 1;
+        break;
+
+    case MODBUS_CODE_WRITE_SINGLE_REGISTER:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    DAT
+                (29 33) (00 00) (00 06) (01) (06)  ---  (27 56) (00 00)
+         */
+        if( modbus_write_hold_register( address, size ) == 0 )
+            return MODBUS_ERROR_DATA_ADDRESS;
+        *write = 4;
+        break;
+
+    case MODBUS_CODE_WRITE_MULTIPLE_REGISTER:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE    BYTES  DAT0  DAT1
+                (29 33) (00 00) (00 0B) (01) (10)  ---  (27 56) (00 02) (04) (61 4E) (00 BC)
+           NOTE: payload data are not half-word address aligned
+         */
+        if( *buf2 != 2*size )
+            return MODBUS_ERROR_DATA_VALUE;
+        buf2++;
+        while( size-- )
+        {
+            dat = *(buf2++);
+            dat = (dat << 8) + *(buf2++);
+            if( modbus_write_hold_register( address, dat ) == 0 )
+                return MODBUS_ERROR_DATA_ADDRESS;
+            address++;
+        }
+        *write = 4;
+        break;
+
+
     default:
+        return MODBUS_ERROR_FUNCTION;
         break;
     }
     return 0;
@@ -392,9 +426,8 @@ void task_modbus_tcp_entry(void *arg)
     err_t err;
     struct modbus_tcp_state *es;
     modbus_tcp_head_t *head;
-    uint16_t transaction_id, protocol_id, address, size, *dat;
+    uint16_t transaction_id, protocol_id, address, size, *payload;
     int write;
-    uint8_t *p;
     int i;
 
     while( 1 )
@@ -470,31 +503,26 @@ void task_modbus_tcp_entry(void *arg)
             //    "modbus: TID 0x%04X, PID 0x%04X, LEN %u, UID 0x%04X, CODE %u, ADDR 0x%04X, SIZE %u",
             //    transaction_id, protocol_id, head->bytes,
             //    head->unit_id, head->function_code, address, size );
-            dat = (uint16_t*)(es->buf+sizeof(modbus_tcp_head_t)+4);
-            if( do_process_modbus_tcp_packet( (modbus_tcp_head_t*)es->buf, address, size, dat, &write ) )
+            payload = (uint16_t*)(es->buf+sizeof(modbus_tcp_head_t));
+            i = do_process_modbus_tcp_packet( (modbus_tcp_head_t*)es->buf, address, size, payload, &write );
+            if( i )
             {
-                /* calculate bytes fields */
-                head->bytes = 3 + 2*write;
-                es->buf_len = sizeof(modbus_tcp_head_t) + 1 + 2*write;
-                swap_bytes( (uint8_t*)&head->bytes, ((uint8_t*)&head->bytes)+1 );
-                *((uint8_t*)(es->buf+sizeof(modbus_tcp_head_t))) = 2*write;
-                /* pack data area and swap bytes */
-                for( i=0, p=(uint8_t*)(es->buf+sizeof(modbus_tcp_head_t)+1); i<write; i++ )
+                /* send error response */
+                head->function_code |= 0x80;
+                *((uint8_t*)payload) = i;
+                write = 1;
+            }
+            /* send response packet */
+            head->bytes = 2 + write;
+            swap_bytes( (uint8_t*)&(head->bytes), ((uint8_t*)&(head->bytes))+1 );
+            if( ERR_OK == tcp_write( es->pcb, (char*)es->buf, sizeof(modbus_tcp_head_t) + write, 1 ) )
+            {
+                if( ERR_OK == tcp_output( es->pcb ) )
                 {
-                    *p = *(p+4);
-                    p++;
-                    *p = *(p+2);
-                    p++;
-                }
-
-                if( ERR_OK == tcp_write( es->pcb, (char*)es->buf, es->buf_len, 1 ) )
-                {
-                    if( ERR_OK == tcp_output( es->pcb ) )
-                    {
-
-                    }
+                    /* fail to send */
                 }
             }
+
             es->state = ES_READY;
             break;
 
