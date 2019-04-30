@@ -333,50 +333,113 @@ int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uin
 {
     uint16_t *buf = payload + 2;
     uint8_t *buf2 = (uint8_t*)buf;
-    uint16_t dat;
+    uint16_t word;
+    uint8_t byte, byte2;
     uint8_t bytes; 
+    int i, err;
 
     *write = 0;
     switch( head->function_code )
     {
-    case MODBUS_CODE_READ_SINGLE_COIL:
-        if( modbus_read_coil( address, (uint8_t*)buf ) == 0 )
-            return MODBUS_ERROR_DATA_ADDRESS;
+    case MODBUS_CODE_READ_COILS:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE
+                (29 33) (00 00) (00 06) (01) (01)  ---  (00 64) (00 0A)
+           send: TID     PID     LEN     UID  CODE       BYTES  DAT0   DAT1  ... 
+                (29 33) (00 00) (00 05) (01) (01)  ---  (02)   (00)   (00)   ...  */
+    case MODBUS_CODE_READ_DISCRETE_INPUTS:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE
+                (29 33) (00 00) (00 06) (01) (02)  ---  (00 64) (00 0A)
+           send: TID     PID     LEN     UID  CODE       BYTES  DAT0   DAT1  ... 
+                (29 33) (00 00) (00 05) (01) (02)  ---  (02)   (00)   (00)   ...  */
+        bytes = 0;
+        buf2 = (uint8_t*)payload + 1;
+        byte = i = 0;
+        while( size-- )
+        { 
+            if( head->function_code == MODBUS_CODE_READ_DISCRETE_INPUTS )
+                err = modbus_read_discrete( address, &byte2 );
+            else
+                err = modbus_read_coil( address, &byte2 );
+            if( err )
+                return err;
+            if( byte2 )
+                byte |= 1<<i;
+            if( ++i >= 8 )
+            {
+                bytes++;
+                *buf2++ = byte;
+                byte = i = 0;
+            }
+            address++;
+        }
+        if( i != 0 )
+        {
+            bytes++;
+            *buf2 = byte;
+        }
+        *((uint8_t*)payload) = bytes;
+        *write = bytes + 1;
         break;
 
     case MODBUS_CODE_WRITE_SINGLE_COIL:
-        if( modbus_write_coil( address, *buf ) == 0 )
-            return MODBUS_ERROR_DATA_ADDRESS;
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    DAT
+                (29 33) (00 00) (00 06) (01) (05)  ---  (00 10) (FF 00)
+           send: TID     PID     LEN     UID  CODE       ADDR    DAT
+                (29 33) (00 00) (00 06) (01) (05)  ---  (00 10) (FF 00) */
+        if( (size != 0xFF00) && (size != 0) )
+            return MODBUS_ERROR_DATA_VALUE;
+        err = modbus_write_coil( address, size ? 1 : 0 );
+        if( err )
+            return err;
+        *write = 4;
         break;
 
-    case MODBUS_CODE_READ_MULTIPLE_INPUT_REGISTER:
+    case MODBUS_CODE_WRITE_MULTI_COILS:
+        /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE    BYTES DAT0 DAT1 ...
+                (29 33) (00 00) (00 08) (01) (0F)  ---  (00 10) (00 02) (04)  (00) (00)  ...
+           send: TID     PID     LEN     UID  CODE       ADDR    SIZE
+                (29 33) (00 00) (00 06) (01) (0F)  ---  (00 10) (00 02) */
+        if( *buf2 != (size-1)/8+1 )
+            return MODBUS_ERROR_DATA_VALUE;
+        buf2++;
+        i = 0;
+        while( size-- )
+        { 
+            err = modbus_write_coil( address, (*buf2) & (1<<i) );
+            if( err )
+                return err;
+            if( ++i >= 8 )
+            {
+                i = 0;
+                buf2++;
+            }
+            address++;
+        }
+        *write = 4;
+        break;
+
+    case MODBUS_CODE_READ_INPUT_REGISTERS:
         /* recv: TID     PID     LEN     UID  CODE       ADDR    DAT
                 (29 33) (00 00) (00 06) (01) (04)  ---  (27 56) (00 00)
            send: TID     PID     LEN     UID  CODE       BYTES  DAT0    DAT1   ... 
-                (29 33) (00 00) (00 17) (01) (04)  ---  (14)   (61 4E) (00 BC) ...
-         */
-    case MODBUS_CODE_READ_MULTIPLE_REGISTER:
+                (29 33) (00 00) (00 17) (01) (04)  ---  (14)   (61 4E) (00 BC) ...  */
+    case MODBUS_CODE_READ_HOLD_REGISTERS:
         /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE 
                 (29 33) (00 00) (00 06) (01) (03)  ---  (27 56) (00 0A)
            send: TID     PID     LEN     UID  CODE       BYTES  DAT0    DAT1   ... 
-                (29 33) (00 00) (00 17) (01) (03)  ---  (14)   (61 4E) (00 BC) ...
-         */
+                (29 33) (00 00) (00 17) (01) (03)  ---  (14)   (61 4E) (00 BC) ...  */
         bytes = 0;
         buf2 = (uint8_t*)payload + 1;
         while( size-- )
         {
-            if( head->function_code == MODBUS_CODE_READ_MULTIPLE_REGISTER )
-            {
-                if( modbus_read_hold_register( address, &dat ) == 0 )
-                    return MODBUS_ERROR_DATA_ADDRESS;
-            }
+            if( head->function_code == MODBUS_CODE_READ_HOLD_REGISTERS )
+                err = modbus_read_hold_register( address, &word );
             else
-            {
-                if( modbus_read_input_register( address, &dat ) == 0 )
-                    return MODBUS_ERROR_DATA_ADDRESS;
-            }
-            *buf2++ = (dat>>8) & 0xFF;  /* big endian */
-            *buf2++ = dat & 0xFF;
+                err = modbus_read_input_register( address, &word );
+            if( err )
+                return err; 
+            *buf2++ = (word>>8) & 0xFF;  /* big endian */
+            *buf2++ = word & 0xFF;
             bytes += 2;
             address++;
         }
@@ -387,31 +450,33 @@ int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uin
     case MODBUS_CODE_WRITE_SINGLE_REGISTER:
         /* recv: TID     PID     LEN     UID  CODE       ADDR    DAT
                 (29 33) (00 00) (00 06) (01) (06)  ---  (27 56) (00 00)
-         */
-        if( modbus_write_hold_register( address, size ) == 0 )
-            return MODBUS_ERROR_DATA_ADDRESS;
+           send: TID     PID     LEN     UID  CODE       ADDR    DAT
+                (29 33) (00 00) (00 06) (01) (06)  ---  (27 56) (00 00) */
+        err = modbus_write_hold_register( address, size );
+        if( err )
+            return err;
         *write = 4;
         break;
 
-    case MODBUS_CODE_WRITE_MULTIPLE_REGISTER:
+    case MODBUS_CODE_WRITE_MULTI_REGISTERS:
         /* recv: TID     PID     LEN     UID  CODE       ADDR    SIZE    BYTES  DAT0  DAT1
                 (29 33) (00 00) (00 0B) (01) (10)  ---  (27 56) (00 02) (04) (61 4E) (00 BC)
-           NOTE: payload data are not half-word address aligned
-         */
+           send: TID     PID     LEN     UID  CODE       ADDR    SIZE   
+                (29 33) (00 00) (00 06) (01) (10)  ---  (27 56) (00 02) */
         if( *buf2 != 2*size )
             return MODBUS_ERROR_DATA_VALUE;
         buf2++;
         while( size-- )
         {
-            dat = *(buf2++);
-            dat = (dat << 8) + *(buf2++);
-            if( modbus_write_hold_register( address, dat ) == 0 )
-                return MODBUS_ERROR_DATA_ADDRESS;
+            word = *(buf2++);
+            word = (word << 8) + *(buf2++);
+            err = modbus_write_hold_register( address, word );
+            if( err )
+                return err;
             address++;
         }
         *write = 4;
         break;
-
 
     default:
         return MODBUS_ERROR_FUNCTION;
@@ -513,6 +578,11 @@ void task_modbus_tcp_entry(void *arg)
                 *((uint8_t*)payload) = i;
                 write = 1;
             }
+            else
+            {
+                /* normal packet, update tick */
+                es->tick_last = xTaskGetTickCount();
+            }
             /* send response packet */
             head->bytes = 2 + write;
             swap_bytes( (uint8_t*)&(head->bytes), ((uint8_t*)&(head->bytes))+1 );
@@ -523,7 +593,6 @@ void task_modbus_tcp_entry(void *arg)
                     /* fail to send */
                 }
             }
-
             es->state = ES_READY;
             break;
 

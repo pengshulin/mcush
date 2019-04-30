@@ -16,8 +16,8 @@
 #endif
 
 
-#define MODBUS_MULTIPLE_REGISTER_LIMIT  (125)
-#define MODBUS_TCP_BUF_LEN_MAX   (12+2*MODBUS_MULTIPLE_REGISTER_LIMIT)
+#define MODBUS_MULTI_REGISTER_LIMIT  (125)
+#define MODBUS_TCP_BUF_LEN_MAX   (12+2*MODBUS_MULTI_REGISTER_LIMIT)
 
 
 typedef struct {
@@ -51,6 +51,7 @@ struct modbus_tcp_state
     struct pbuf *p;  /* chain buffer */
     int buf_len;
     char buf[MODBUS_TCP_BUF_LEN_MAX];
+    uint32_t tick_last;
 };
 
 #define MODBUS_TCP_EVENT_NET_UP          1
@@ -68,15 +69,15 @@ struct modbus_tcp_state
 #define MODBUS_TCP_RECONNECT_TIMEOUT_S   60
 
 
-#define MODBUS_CODE_READ_SINGLE_DISCRETE            2
-#define MODBUS_CODE_READ_SINGLE_COIL                1
+#define MODBUS_CODE_READ_COILS                      1
+#define MODBUS_CODE_READ_DISCRETE_INPUTS            2
+#define MODBUS_CODE_READ_HOLD_REGISTERS             3
+#define MODBUS_CODE_READ_INPUT_REGISTERS            4
 #define MODBUS_CODE_WRITE_SINGLE_COIL               5
-#define MODBUS_CODE_WRITE_MULTIPLE_COIL             15
-#define MODBUS_CODE_READ_MULTIPLE_INPUT_REGISTER    4
-#define MODBUS_CODE_READ_MULTIPLE_REGISTER          3
 #define MODBUS_CODE_WRITE_SINGLE_REGISTER           6
-#define MODBUS_CODE_WRITE_MULTIPLE_REGISTER         16
-#define MODBUS_CODE_READ_WRITE_MULTIPLE_REGISTER    23
+#define MODBUS_CODE_WRITE_MULTI_COILS               15
+#define MODBUS_CODE_WRITE_MULTI_REGISTERS           16
+#define MODBUS_CODE_READ_WRITE_MULTI_REGISTER       23
 #define MODBUS_CODE_DISABLE_WRITE_REGISTER          22
 #define MODBUS_CODE_READ_FILE_RECORD                20
 #define MODBUS_CODE_WRITE_FILE_RECORD               21
@@ -97,6 +98,7 @@ int send_modbus_tcp_event( uint8_t type, uint32_t data );
 void task_modbus_tcp_init(void);
 
 /* application hook function */
+int modbus_read_discrete( uint16_t address, uint8_t *value );
 int modbus_read_coil( uint16_t address, uint8_t *value );
 int modbus_write_coil( uint16_t address, uint8_t value );
 int modbus_read_input_register( uint16_t address, uint16_t *value );
