@@ -294,7 +294,21 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
             break;
     }
     if( i >= MODBUS_TCP_NUM )
-        return ERR_VAL;  /* fail */
+    {
+        /* check for the the first timeout socket (this is not the best policy) */
+        for( i=0; i<MODBUS_TCP_NUM; i++ )
+        {
+            es = (struct modbus_tcp_state *)(modbus_client_pcb[i]->callback_arg);
+            if( xTaskGetTickCount() - es->tick_last > MODBUS_TCP_TIMEOUT * configTICK_RATE_HZ )
+            {
+                /* find one, close it */
+                modbus_tcp_close( modbus_client_pcb[i], es );
+                break;
+            }
+        }
+        if( i >= MODBUS_TCP_NUM )
+            return ERR_VAL;  /* fail */
+    }
     modbus_client_pcb[i] = newpcb;
 
     /* Unless this pcb should have NORMAL priority, set its priority now.
