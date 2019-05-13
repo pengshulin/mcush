@@ -64,6 +64,7 @@ int mcush_file_crc8( const char *fname )
         if( r != _READ_BUF_SIZE )
             break;
     }
+    mcush_close( fd );
     return bytes > 0 ? crc : -1;
 }
 
@@ -89,6 +90,7 @@ int mcush_file_crc32( const char *fname )
         if( r != _READ_BUF_SIZE )
             break;
     }
+    mcush_close( fd );
     return bytes > 0 ? crc : -1;
 }
 
