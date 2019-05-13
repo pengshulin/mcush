@@ -118,6 +118,9 @@
     #ifndef USE_CMD_LOAD
         #define USE_CMD_LOAD  1
     #endif
+    #ifndef USE_CMD_CRC
+        #define USE_CMD_CRC  1
+    #endif
 #else
     #ifdef USE_CMD_CAT
         #undef USE_CMD_CAT
@@ -143,7 +146,11 @@
         #undef USE_CMD_LOAD
     #endif
     #define USE_CMD_LOAD  0
-    
+    #ifdef USE_CMD_CRC
+        #undef USE_CMD_CRC
+    #endif
+    #define USE_CMD_CRC  0
+
     #undef USE_CMD_UPGRADE
     #define USE_CMD_UPGRADE  0
 #endif
@@ -182,6 +189,7 @@ int cmd_rename( int argc, char *argv[] );
 int cmd_copy( int argc, char *argv[] );
 int cmd_list( int argc, char *argv[] );
 int cmd_load( int argc, char *argv[] );
+int cmd_crc( int argc, char *argv[] );
 
 
 
@@ -350,6 +358,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0,  0,  "load",  cmd_load, 
     "load script",
     "load <pathname>" },
+#endif
+#if USE_CMD_CRC
+{   0, 0, "crc",  cmd_crc, 
+    "file crc check",
+    "crc <pathname>"  },
 #endif
 
 {   CMD_END  } };
@@ -3474,3 +3487,38 @@ int cmd_load( int argc, char *argv[] )
 #endif
 
 
+#if USE_CMD_CRC
+int cmd_crc( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_file, 0, shell_str_file_name },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    char *fname=0;
+    int size;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
+                fname = (char*)opt.value;   
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !fname )
+        return -1;
+        
+    size = mcush_file_exists( fname );
+    if( size == 0 )
+        return 1;
+    
+    shell_printf("0x%08X\n", mcush_file_crc32(fname));
+    return 0;
+}
+#endif
