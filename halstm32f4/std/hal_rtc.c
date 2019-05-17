@@ -68,24 +68,27 @@ int hal_rtc_set( struct tm *t )
 }
 
 
-static void hal_rtc_reset(void)
+static int hal_rtc_reset(void)
 {
     RTC_InitTypeDef RTC_InitStructure;
     RTC_DateTypeDef RTC_DateStructure;
     RTC_TimeTypeDef RTC_TimeStructure;
     uint32_t uwAsynchPrediv;
     uint32_t uwSynchPrediv;
+    uint32_t i;
  
-    /* Enable the PWR clock */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
-
     /* Enable the LSE OSC */
     RCC_LSEConfig(RCC_LSE_ON);
 
-    /* Wait till LSE is ready */  
+    /* Wait till LSE is ready */
+    i = 1000;
     while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
     {
+        hal_delay_ms( 1 );
+        if( --i == 0 )
+            return 0;
     }
+
     /* Select the RTC Clock Source */
     RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
     /* ck_spre(1Hz) = RTCCLK(LSE) /(uwAsynchPrediv + 1)*(uwSynchPrediv + 1)*/
@@ -116,24 +119,31 @@ static void hal_rtc_reset(void)
     RTC_TimeStructure.RTC_Hours   = 0x00;
     RTC_TimeStructure.RTC_Minutes = 0x00;
     RTC_TimeStructure.RTC_Seconds = 0x00; 
-    
-    RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);   
+    RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);
+
+    PWR_BackupRegulatorCmd(ENABLE);
+    i = 1000;
+    while(PWR_GetFlagStatus(PWR_FLAG_BRR) == RESET)
+    {
+        hal_delay_ms( 1 );
+        if( --i == 0 )
+            //return 0;
+            break;
+    }
+
+    return 1;
 }
+
 
 void hal_rtc_init(void)
 {
-    /* Allow access to RTC */
     PWR_BackupAccessCmd(ENABLE);
+    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_BKPSRAM, ENABLE );
 
     if( RTC_ReadBackupRegister(RTC_BKP_DR0 ) != RTC_MARK )
     {
-        hal_rtc_reset();
-        RTC_WriteBackupRegister(RTC_BKP_DR0, RTC_MARK);
-    }
-    else
-    {
-        /* Wait for RTC APB registers synchronisation */
-        RTC_WaitForSynchro();
+        if( hal_rtc_reset() )
+            RTC_WriteBackupRegister(RTC_BKP_DR0, RTC_MARK);
     }
 }
 

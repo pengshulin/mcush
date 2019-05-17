@@ -28,7 +28,7 @@
 
 #include "ownet.h"
 #include "owlink.h"
-#include <string.h> /*for memset*/
+#include <math.h>
 #include "ds18b20.h"
 
 device_t devices[ NUM_DEVICES ];
@@ -45,14 +45,19 @@ static state_t state;
 
 
 static void ds18b20_scan(void);
-static char ds18b20_isParasite();
+//static char ds18b20_isParasite(void);
 static void ds18b20_startConvert(void);
 static void ds18b20_fetchTemp( unsigned char device );
 
 void ds18b20_init()
 {
-    memset( devices, 0, sizeof(devices) );
+    int i;
 
+    for( i=0; i<NUM_DEVICES; i++ )
+    {
+        devices[i].serial[0] = 0;
+        devices[i].ftemp = NAN;  /* mark as not inited */
+    }
     state = STATE_SCAN;
 }
 
@@ -109,13 +114,13 @@ static void ds18b20_scan()
     }
 }
 
-static char ds18b20_isParasite()
-{
-    owTouchReset();
-    owWriteByte(0xCC);
-    owWriteByte(0xB4);
-    return ( owReadBit() == 0 );
-}
+//static char ds18b20_isParasite()
+//{
+//    owTouchReset();
+//    owWriteByte(0xCC);
+//    owWriteByte(0xB4);
+//    return ( owReadBit() == 0 );
+//}
 
 static void ds18b20_startConvert()
 {
@@ -133,7 +138,10 @@ static void ds18b20_fetchTemp( unsigned char device )
         unsigned char b1, b2;
 
         /*address specified device*/
-        owTouchReset();
+        if( !owTouchReset() )
+        {
+            return;
+        }
         owWriteByte(0x55);
         for (i = 0; i < 8; i++)
         {
