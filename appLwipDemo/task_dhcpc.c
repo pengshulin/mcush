@@ -26,6 +26,7 @@
 #include "lwip/apps/netbiosns.h"
 #endif
 
+static const char logger_module_name[] = "dhcpc";
 
 #define DHCP_START                  1
 #define DHCP_WAIT_ADDRESS           2
@@ -148,7 +149,7 @@ void logger_mac( const char *prompt, char *address, int shell_mode )
     if( shell_mode )
         shell_write_line( buf );
     else
-        logger_str( LOG_INFO, buf );
+        logger_info( buf );
 }
 
 void logger_ip( const char *prompt, uint32_t address, int shell_mode )
@@ -161,7 +162,7 @@ void logger_ip( const char *prompt, uint32_t address, int shell_mode )
     if( shell_mode )
         shell_write_line( buf );
     else
-        logger_str( LOG_INFO, buf );
+        logger_info( buf );
 }
 
 
@@ -234,7 +235,7 @@ void task_dhcpc_entry(void *p)
         switch( evt )
         {
         case DHCPC_EVENT_NETIF_UP:
-            logger_const_info( "dhcpc: cable connected" );
+            logger_const_info( "cable connected" );
             gnetif.flags |= NETIF_FLAG_LINK_UP;
             if( ip_manual ) 
             {
@@ -248,7 +249,7 @@ void task_dhcpc_entry(void *p)
             }
             else
             {
-                logger_const_info( "dhcpc: dhcp discover..." );
+                logger_const_info( "dhcp discover..." );
                 reset_address();
                 dhcp_state = DHCP_WAIT_ADDRESS;
                 dhcp_start(&gnetif);
@@ -256,7 +257,7 @@ void task_dhcpc_entry(void *p)
             break;
 
         case DHCPC_EVENT_NETIF_DOWN:
-            logger_const_info( "dhcpc: cable disconnected" );
+            logger_const_info( "cable disconnected" );
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
             if( ip_manual ) 
@@ -267,7 +268,7 @@ void task_dhcpc_entry(void *p)
                 dhcp_stop(&gnetif);
             }
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
-            logger_const_info( "dhcpc: netbiosns stop" );
+            logger_const_info( "netbiosns stop" );
             netbiosns_stop();
 #endif
 #if USE_NET_CHANGE_HOOK
@@ -281,11 +282,11 @@ void task_dhcpc_entry(void *p)
                 if( gnetif.ip_addr.addr != 0 )
                 {
                     dhcp_state = DHCP_ADDRESS_ASSIGNED;
-                    logger_ip( "dhcpc: ip", gnetif.ip_addr.addr, 0 );    
-                    logger_ip( "dhcpc: netmask", gnetif.netmask.addr, 0 );
-                    logger_ip( "dhcpc: gateway", gnetif.gw.addr, 0 );
+                    logger_ip( "ip", gnetif.ip_addr.addr, 0 );    
+                    logger_ip( "netmask", gnetif.netmask.addr, 0 );
+                    logger_ip( "gateway", gnetif.gw.addr, 0 );
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
-                    logger_const_info( "dhcpc: netbiosns start" );
+                    logger_const_info( "netbiosns start" );
                     netbiosns_init();
 #endif
 

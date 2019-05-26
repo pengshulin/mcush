@@ -62,13 +62,18 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
     tp[1] = 0;
     strcat( buf, tp );
     strcat( buf, " " );
+    if( evt->module ) 
+    {
+        strcat( buf, evt->module);
+        strcat( buf, ": " );
+    } 
     strcat( buf, evt->str );
     strcat( buf, "\n" );
     return buf;    
 }
 
  
-static int _logger_str( int type, const char *str, int isr_mode, int flag )
+static int _logger_module_str( int type, const char *module, const char *str, int isr_mode, int flag )
 {
     logger_event_t evt;
     uint32_t length = strlen(str);
@@ -86,6 +91,7 @@ static int _logger_str( int type, const char *str, int isr_mode, int flag )
     evt.type = type;
     evt.time = (uint32_t)xTaskGetTickCount();
     evt.flag = flag;
+    evt.module = module;
     if( !( flag & LOG_FLAG_CONST ) ) 
     {
         evt.str = buf;
@@ -119,147 +125,192 @@ static int _logger_str( int type, const char *str, int isr_mode, int flag )
 
 
 /* const buffer from isr APIs */
-int logger_const_str_isr( int type, const char *str )
+int logger_module_const_str_isr( int type, const char *module, const char *str )
 {
-    return _logger_str( type, str, 1,  LOG_FLAG_CONST );
+    return _logger_module_str( type, module, str, 1,  LOG_FLAG_CONST );
 }
 
-int logger_const_debug_isr( const char *str )
+int logger_module_const_debug_isr( const char *module, const char *str )
 {
-    return _logger_str( LOG_DEBUG, str, 1, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_DEBUG, module, str, 1, LOG_FLAG_CONST );
 }
 
-int logger_const_info_isr( const char *str )
+int logger_module_const_info_isr( const char *module, const char *str )
 {
-    return _logger_str( LOG_INFO, str, 1, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_INFO, module, str, 1, LOG_FLAG_CONST );
 }
 
-int logger_const_warn_isr( const char *str )
+int logger_module_const_warn_isr( const char *module, const char *str )
 {
-    return _logger_str( LOG_WARN, str, 1, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_WARN, module, str, 1, LOG_FLAG_CONST );
 }
 
-int logger_const_error_isr( const char *str )
+int logger_module_const_error_isr( const char *module, const char *str )
 {
-    return _logger_str( LOG_ERROR, str, 1, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_ERROR, module, str, 1, LOG_FLAG_CONST );
 }
 
 
 /* duplicate buffer APIs */
-int logger_str( int type, const char *str )
+int logger_module_str( int type, const char *module, const char *str )
 {
-    return _logger_str( type, str, 0, 0 );
+    return _logger_module_str( type, module, str, 0, 0 );
 }
 
-int logger_debug( const char *str )
+int logger_module_debug( const char *module, const char *str )
 {
-    return _logger_str( LOG_DEBUG, str, 0, 0 );
+    return _logger_module_str( LOG_DEBUG, module, str, 0, 0 );
 }
 
-int logger_info( const char *str )
+int logger_module_info( const char *module, const char *str )
 {
-    return _logger_str( LOG_INFO, str, 0, 0 );
+    return _logger_module_str( LOG_INFO, module, str, 0, 0 );
 }
 
-int logger_warn( const char *str )
+int logger_module_warn( const char *module, const char *str )
 {
-    return _logger_str( LOG_WARN, str, 0, 0 );
+    return _logger_module_str( LOG_WARN, module, str, 0, 0 );
 }
 
-int logger_error( const char *str )
+int logger_module_error( const char *module, const char *str )
 {
-    return _logger_str( LOG_ERROR, str, 0, 0 );
+    return _logger_module_str( LOG_ERROR, module, str, 0, 0 );
 }
 
 
 /* const buffer apis */
-int logger_const_str( int type, const char *str )
+int logger_module_const_str( int type, const char *module, const char *str )
 {
-    return _logger_str( type, str, 0, LOG_FLAG_CONST );
+    return _logger_module_str( type, module, str, 0, LOG_FLAG_CONST );
 }
 
-int logger_const_debug( const char *str )
+int logger_module_const_debug( const char *module, const char *str )
 {
-    return _logger_str( LOG_DEBUG, str, 0, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_DEBUG, module, str, 0, LOG_FLAG_CONST );
 }
 
-int logger_const_info( const char *str )
+int logger_module_const_info( const char *module, const char *str )
 {
-    return _logger_str( LOG_INFO, str, 0, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_INFO, module, str, 0, LOG_FLAG_CONST );
 }
 
-int logger_const_warn( const char *str )
+int logger_module_const_warn( const char *module, const char *str )
 {
-    return _logger_str( LOG_WARN, str, 0, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_WARN, module, str, 0, LOG_FLAG_CONST );
 }
 
-int logger_const_error( const char *str )
+int logger_module_const_error( const char *module, const char *str )
 {
-    return _logger_str( LOG_ERROR, str, 0, LOG_FLAG_CONST );
+    return _logger_module_str( LOG_ERROR, module, str, 0, LOG_FLAG_CONST );
 }
 
 
 /* printf APIs */
-static int _logger_printf_args( int type, char *fmt, va_list ap )
+static int _logger_module_printf_args( int type, const char *module, char *fmt, va_list ap )
 {
     int n;
     char buf[LOGGER_LINE_BUF_SIZE];
 
     n = vsprintf( buf, fmt, ap );
-    return logger_str( type, buf );
+    return logger_module_str( type, module, buf );
 }
 
-int logger_printf( int type, char *fmt, ... )
+int logger_module_printf( int type, const char *module, char *fmt, ... )
 {
     va_list ap;
     int r;
 
     va_start( ap, fmt );
-    r = _logger_printf_args( type, fmt, ap );
+    r = _logger_module_printf_args( type, module, fmt, ap );
     va_end( ap );
     return r;
 }
 
-int logger_debug_printf( char *fmt, ... )
+int logger_module_printf_debug( const char *module, char *fmt, ... )
 {
     va_list ap;
     int r;
 
     va_start( ap, fmt );
-    r = _logger_printf_args( LOG_DEBUG, fmt, ap );
+    r = _logger_module_printf_args( LOG_DEBUG, module, fmt, ap );
     va_end( ap );
     return r;
 }
 
-int logger_info_printf( char *fmt, ... )
+int logger_module_printf_info( const char *module, char *fmt, ... )
 {
     va_list ap;
     int r;
 
     va_start( ap, fmt );
-    r = _logger_printf_args( LOG_INFO, fmt, ap );
+    r = _logger_module_printf_args( LOG_INFO, module, fmt, ap );
     va_end( ap );
     return r;
 }
 
-int logger_warn_printf( char *fmt, ... )
+int logger_module_printf_warn( const char *module, char *fmt, ... )
 {
     va_list ap;
     int r;
 
     va_start( ap, fmt );
-    r = _logger_printf_args( LOG_WARN, fmt, ap );
+    r = _logger_module_printf_args( LOG_WARN, module, fmt, ap );
     va_end( ap );
     return r;
 }
 
-int logger_error_printf( char *fmt, ... )
+int logger_module_printf_error( const char *module, char *fmt, ... )
 {
     va_list ap;
     int r;
 
     va_start( ap, fmt );
-    r = _logger_printf_args( LOG_ERROR, fmt, ap );
+    r = _logger_module_printf_args( LOG_ERROR, module, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+
+int logger_printf_debug2( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_module_printf_args( LOG_DEBUG, 0, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_printf_info2( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_module_printf_args( LOG_INFO, 0, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_printf_warn2( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_module_printf_args( LOG_WARN, 0, fmt, ap );
+    va_end( ap );
+    return r;
+}
+
+int logger_printf_error2( char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_module_printf_args( LOG_ERROR, 0, fmt, ap );
     va_end( ap );
     return r;
 }
@@ -695,7 +746,7 @@ int cmd_logger( int argc, char *argv[] )
      */
     if( msg )
     {
-        logger_str( LOG_INFO, msg );
+        logger_module_str( LOG_INFO, "user", msg );
     }
     else if( tail_set )
     {

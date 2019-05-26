@@ -109,7 +109,7 @@
 //#define DHCP_DEBUG                      LWIP_DBG_ON
 //#define DNS_DEBUG                       LWIP_DBG_ON
 #include "task_logger.h"
-#define LWIP_PLATFORM_DIAG(message)     do{logger_debug_printf message;}while(0)
+#define LWIP_PLATFORM_DIAG(message)     do{logger_printf_debug2 message;}while(0)
 #define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
 #else
 #define LWIP_DEBUG                      0

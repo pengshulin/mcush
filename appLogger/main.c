@@ -8,13 +8,15 @@
 
 static TimerHandle_t timer_event_generator;
 
+LOGGER_MODULE_NAME("test");
+
 static void cb_timer_event_generator(TimerHandle_t *xTimer)
 {
     static int msgid=0;
     char buf[50];
     //hal_led_toggle(1);
     sprintf( buf, "This is a demo log event %d!", msgid++ );
-    logger_str( LOG_INFO, buf );
+    logger_info( buf );
 }
 
 

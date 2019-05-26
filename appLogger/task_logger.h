@@ -90,6 +90,7 @@ typedef struct _logger_event_t
     uint32_t time; 
     uint8_t type;
     uint8_t flag;
+    const char *module;
     char *str;
 } logger_event_t;
 
@@ -104,38 +105,90 @@ int logger_is_enabled(void);
 /* these apis will malloc new buffer and copy from the original str,
    so they are safe to use, not mater whether the buffer is in stack or
    will be destroied later */
-int logger_str( int type, const char *str );
-int logger_debug( const char *str );
-int logger_info( const char *str );
-int logger_warn( const char *str );
-int logger_error( const char *str );
+int logger_module_str( int type, const char *module, const char *str );
+int logger_module_debug( const char *module, const char *str );
+int logger_module_info( const char *module, const char *str );
+int logger_module_warn( const char *module, const char *str );
+int logger_module_error( const char *module, const char *str );
+/* apis without module name */
+int logger_str2( int type, const char *str );
+int logger_debug2( const char *str );
+int logger_info2( const char *str );
+int logger_warn2( const char *str );
+int logger_error2( const char *str );
+/* macro wrapper */
+#define logger_str(type, str)   logger_module_str(type, logger_module_name, str)
+#define logger_debug(str)       logger_module_debug(logger_module_name, str)
+#define logger_info(str)        logger_module_info(logger_module_name, str)
+#define logger_warn(str)        logger_module_warn(logger_module_name, str)
+#define logger_error(str)       logger_module_error(logger_module_name, str)
 
 /* these apis will directly use the original str (no malloc/free needed),
    very suitable for const string in flash memory.
    if you want to use buffer in stacks/heaps/sram, you must take care that 
    the string should be still alive before they are written to file and 
    forwarded to shell monitor and printed out */
-int logger_const_str( int type, const char *str );
-int logger_const_debug( const char *str );
-int logger_const_info( const char *str );
-int logger_const_warn( const char *str );
-int logger_const_error( const char *str );
+int logger_module_const_str( int type, const char *module, const char *str );
+int logger_module_const_debug( const char *module, const char *str );
+int logger_module_const_info( const char *module, const char *str );
+int logger_module_const_warn( const char *module, const char *str );
+int logger_module_const_error( const char *module, const char *str );
+/* apis without module name */
+int logger_const_str2( int type, const char *str );
+int logger_const_debug2( const char *str );
+int logger_const_info2( const char *str );
+int logger_const_warn2( const char *str );
+int logger_const_error2( const char *str );
+/* macro wrapper */
+#define logger_const_str(type, str)   logger_module_const_str(type, logger_module_name, str)
+#define logger_const_debug(str)       logger_module_const_debug(logger_module_name, str)
+#define logger_const_info(str)        logger_module_const_info(logger_module_name, str)
+#define logger_const_warn(str)        logger_module_const_warn(logger_module_name, str)
+#define logger_const_error(str)       logger_module_const_error(logger_module_name, str)
 
 /* apis called from isr (only const str is available) */
-int logger_const_str_isr( int type, const char *str );
-int logger_const_debug_isr( const char *str );
-int logger_const_info_isr( const char *str );
-int logger_const_warn_isr( const char *str );
-int logger_const_error_isr( const char *str );
+int logger_module_const_str_isr( int type, const char *module, const char *str );
+int logger_module_const_debug_isr( const char *module, const char *str );
+int logger_module_const_info_isr( const char *module, const char *str );
+int logger_module_const_warn_isr( const char *module, const char *str );
+int logger_module_const_error_isr( const char *module, const char *str );
+/* apis without module name */
+int logger_const_str_isr2( int type, const char *module, const char *str );
+int logger_const_debug_isr2( const char *str );
+int logger_const_info_isr2( const char *str );
+int logger_const_warn_isr2( const char *str );
+int logger_const_error_isr2( const char *str );
+/* macro wrapper */
+#define logger_const_str_isr(type, str)   logger_module_const_str_isr(type, logger_module_name, str)
+#define logger_const_debug_isr(str)       logger_module_const_debug_isr(logger_module_name, str)
+#define logger_const_info_isr(str)        logger_module_const_info_isr(logger_module_name, str)
+#define logger_const_warn_isr(str)        logger_module_const_warn_isr(logger_module_name, str)
+#define logger_const_error_isr(str)       logger_module_const_error_isr(logger_module_name, str)
 
 /* printf apis,
    note that sprintf will be firstly called, the line buffer is located
    in current task stack, the stack should be large enough */
-int logger_printf( int type, char *fmt, ... );
-int logger_debug_printf( char *fmt, ... );
-int logger_info_printf( char *fmt, ... );
-int logger_warn_printf( char *fmt, ... );
-int logger_error_printf( char *fmt, ... );
+int logger_module_printf( int type, const char *module, char *fmt, ... );
+int logger_module_printf_debug( const char *module, char *fmt, ... );
+int logger_module_printf_info( const char *module, char *fmt, ... );
+int logger_module_printf_warn( const char *module, char *fmt, ... );
+int logger_module_printf_error( const char *module, char *fmt, ... );
+/* apis without module name */
+int logger_printf2( int type, char *fmt, ... );
+int logger_printf_debug2( char *fmt, ... );
+int logger_printf_info2( char *fmt, ... );
+int logger_printf_warn2( char *fmt, ... );
+int logger_printf_error2( char *fmt, ... );
+/* macro wrapper */
+#define logger_printf(type, fmt, ...)  logger_module_printf(type, logger_module_name, fmt, __VA_ARGS__)
+#define logger_printf_debug(fmt, ...)  logger_module_printf_debug(logger_module_name, fmt, __VA_ARGS__)
+#define logger_printf_info(fmt, ...)   logger_module_printf_info(logger_module_name, fmt, __VA_ARGS__)
+#define logger_printf_warn(fmt, ...)   logger_module_printf_warn(logger_module_name, fmt, __VA_ARGS__)
+#define logger_printf_error(fmt, ...)  logger_module_printf_error(logger_module_name, fmt, __VA_ARGS__)
+
+
+/* module name define macro */
+#define LOGGER_MODULE_NAME( name )  static const char logger_module_name[] = name
 
 /* backup policy:
    copy /?/logger -> /?/logger.bak, /?/logger.N -> /?/logger.N.bak */

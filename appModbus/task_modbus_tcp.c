@@ -12,6 +12,8 @@
 #include "lwip/tcp.h"
 
 
+static const char logger_module_name[] = "modbus";
+
 QueueHandle_t queue_modbus_tcp;
 
 struct tcp_pcb *modbus_pcb;
@@ -54,7 +56,7 @@ static void modbus_tcp_close(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
     tcp_poll(tpcb, NULL, 0);
     modbus_tcp_free(es);
     tcp_close(tpcb);
-    logger_printf( LOG_INFO, "modbus: client #%u closed 0x%08X", es->client_id, (void*)tpcb );
+    logger_printf_info( "client #%u closed 0x%08X", es->client_id, (void*)tpcb );
     /* unregister the client pcb */
     for( i=0; i<MODBUS_TCP_NUM; i++ )
     {
@@ -113,7 +115,7 @@ static void modbus_tcp_error(void *arg, err_t err)
 
     es = (struct modbus_tcp_state *)arg;
                 
-    logger_const_error( "modbus: tcp_err" );
+    logger_const_error( "tcp_err" );
 
     modbus_tcp_free(es);
 }
@@ -222,7 +224,7 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
         {
             if( p2->len + es->buf_len + 1 > MODBUS_TCP_BUF_LEN_MAX )
             {
-                //logger_const_error( "modbus: buffer too small to recv" );
+                //logger_const_error( "buffer too small to recv" );
                 memcpy( es->buf+es->buf_len, p2->payload, MODBUS_TCP_BUF_LEN_MAX-p2->len );
                 es->buf_len = MODBUS_TCP_BUF_LEN_MAX;
                 break;
@@ -243,12 +245,12 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
             if( es->buf_len != sizeof(modbus_tcp_head_t) - 2 + head->bytes )
             {
                 /* invalid data length */
-                logger_const_warn( "modbus: length err" );
+                logger_const_warn( "length err" );
             }
             else
             {
                 if( head->bytes < 6 )
-                    logger_const_warn( "modbus: parm err" );
+                    logger_const_warn( "parm err" );
                 else
                 {
                     es->state = ES_BUSY;
@@ -259,7 +261,7 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
         else
         {
             /* ignore packets with invalid head size */
-            logger_const_warn( "modbus: head err" );
+            logger_const_warn( "head err" );
         }
 
         ret_err = ERR_OK;
@@ -331,13 +333,13 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
         tcp_poll(newpcb, modbus_tcp_poll, 0);
         tcp_sent(newpcb, modbus_tcp_sent);
         ret_err = ERR_OK;
-        logger_printf( LOG_INFO, "modbus: client #%u connected 0x%08X", es->client_id, (void*)newpcb );
-        logger_ip( "modbus: client ip", newpcb->remote_ip.addr, 0 );
+        logger_printf_info( "client #%u connected 0x%08X", es->client_id, (void*)newpcb );
+        logger_ip( "client ip", newpcb->remote_ip.addr, 0 );
     }
     else
     {
         ret_err = ERR_MEM;
-        logger_error( "modbus: mem err" );
+        logger_error( "mem err" );
     }
     return ret_err;
 }
@@ -531,7 +533,7 @@ void task_modbus_tcp_entry(void *arg)
             break;
 
         case MODBUS_TCP_EVENT_START:
-            logger_info( "modbus: start" );
+            logger_info( "start" );
             modbus_pcb = tcp_new_ip_type( IPADDR_TYPE_ANY );
             if( modbus_pcb != NULL )
             {
@@ -540,7 +542,7 @@ void task_modbus_tcp_entry(void *arg)
                 {
                     modbus_pcb = tcp_listen(modbus_pcb);
                     tcp_accept( modbus_pcb, modbus_tcp_accept );
-                    logger_printf( LOG_INFO, "modbus: listening on port %d, pcb=0x%08X", MODBUS_TCP_PORT, modbus_pcb );
+                    logger_printf_info( "listening on port %d, pcb=0x%08X", MODBUS_TCP_PORT, modbus_pcb );
                 }
                 else
                 {
@@ -564,7 +566,7 @@ void task_modbus_tcp_entry(void *arg)
             {
                 tcp_close( modbus_pcb );
                 modbus_pcb = 0;
-                logger_info( "modbus: closed" );
+                logger_info( "closed" );
             }
             break;
 
@@ -579,10 +581,8 @@ void task_modbus_tcp_entry(void *arg)
             swap_bytes( (uint8_t*)&protocol_id, ((uint8_t*)&protocol_id)+1 );
             swap_bytes( (uint8_t*)&address, ((uint8_t*)&address)+1 );
             swap_bytes( (uint8_t*)&size, ((uint8_t*)&size)+1 );
-            //logger_printf( LOG_INFO,
-            //    "modbus: TID 0x%04X, PID 0x%04X, LEN %u, UID 0x%04X, CODE %u, ADDR 0x%04X, SIZE %u",
-            //    transaction_id, protocol_id, head->bytes,
-            //    head->unit_id, head->function_code, address, size );
+            //logger_printf_info( "TID 0x%04X, PID 0x%04X, LEN %u, UID 0x%04X, CODE %u, ADDR 0x%04X, SIZE %u",
+            //    transaction_id, protocol_id, head->bytes, head->unit_id, head->function_code, address, size );
             payload = (uint16_t*)(es->buf+sizeof(modbus_tcp_head_t));
             i = do_process_modbus_tcp_packet( (modbus_tcp_head_t*)es->buf, address, size, payload, &write );
             if( i )
