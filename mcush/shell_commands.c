@@ -1431,7 +1431,7 @@ int cmd_system( int argc, char *argv[] )
     {
         for( i=0; i<configQUEUE_REGISTRY_SIZE; i++ )
         {
-            if( mcushGetQueueRegistered( i, &xQueue, &name ) )
+            if( mcushGetQueueRegistered( i, (void**)&xQueue, &name ) )
             {
                 if( mcushGetQueueInfo( xQueue, &qinfo ) )
                 {

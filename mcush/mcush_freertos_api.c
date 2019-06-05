@@ -28,7 +28,7 @@ int mcushGetQueueInfo( void *pxHandle, mcush_queue_info_t *info )
     if( !q )
         return 0;
     info->pcHead = q->pcHead;
-    info->pcTail = q->pcTail;
+    info->pcTail = q->u.xQueue.pcTail;
     info->pcWriteTo = q->pcWriteTo;
     info->uxMessagesWaiting = q->uxMessagesWaiting;
     info->uxLength = q->uxLength;

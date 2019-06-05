@@ -141,13 +141,13 @@ void test_delay_us(void)
 {
     while(1)
     {
-        hal_led_toggle(0);
+        hal_led_set(0);
         hal_delay_us(1);
-        hal_led_toggle(0);
+        hal_led_clr(0);
         hal_delay_us(10);
-        hal_led_toggle(0);
+        hal_led_set(0);
         hal_delay_us(100);
-        hal_led_toggle(0);
+        hal_led_clr(0);
         hal_delay_us(1000);
     }
 }

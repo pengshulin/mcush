@@ -26,7 +26,7 @@
 #include "lwip/apps/netbiosns.h"
 #endif
 
-static const char logger_module_name[] = "dhcpc";
+LOGGER_MODULE_NAME("dhcpc");
 
 #define DHCP_START                  1
 #define DHCP_WAIT_ADDRESS           2
