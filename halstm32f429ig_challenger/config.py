@@ -1,7 +1,6 @@
 from Arm.Stm32 import *
 env = Stm32f429xx( use_hal_driver=hal_config.use_hal_driver )
-#env.setLinkfile( '/ld/stm32f429ig_sdram.ld' )
-env.setLinkfile( '/ld2/prototype.ld' )
+env.setLinkfile( '/ld2/yl300.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=25000000', 'NEED_FMC' ] )
 
 hal_config.paths += ['common']

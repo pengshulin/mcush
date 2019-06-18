@@ -1,5 +1,5 @@
-# Simplified-Chinese translations for mcush
-# Peng Shulin <trees_peng@163.com> 2018
+# Simplified-Chinese translations for MCUSH
+# Peng Shulin <trees_peng@163.com> 2019
 # All rights reserved
 #
 msgid ""
@@ -9,6 +9,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+msgid "Shanghai Linkong Software Technologies Co., Ltd."
+msgstr "上海林控软件技术有限公司"
+
+msgid "All rights reserved."
+msgstr "保留所有权利"
+
+msgid "About"
+msgstr "关于"
 
 msgid "About..."
 msgstr "关于..."
@@ -34,19 +42,14 @@ msgstr "另存为"
 msgid "Save as..."
 msgstr "另存为..."
 
-
 msgid "Add"
 msgstr "添加"
 
 msgid "Edit"
 msgstr "编辑"
 
-msgid "About"
-msgstr "关于"
-
 msgid "Exit"
 msgstr "退出"
-
 
 msgid "Port"
 msgstr "端口"
@@ -57,8 +60,17 @@ msgstr "测试"
 msgid "Run"
 msgstr "运行"
 
+msgid "Start"
+msgstr "启动"
+
 msgid "Stop"
 msgstr "停止"
+
+msgid "Pause"
+msgstr "暂停"
+
+msgid "Continue"
+msgstr "继续"
 
 msgid "Reset"
 msgstr "复位"
@@ -84,6 +96,9 @@ msgstr "重命名"
 msgid "Update"
 msgstr "更新"
 
+msgid "Refresh"
+msgstr "刷新"
+
 msgid "Format"
 msgstr "格式化"
 
@@ -101,9 +116,6 @@ msgstr "写数据"
 
 msgid "Save..."
 msgstr "保存..."
-
-msgid "Mcush Debug Utility"
-msgstr "Mcush调试工具"
 
 msgid "Address"
 msgstr "地址"
@@ -129,8 +141,17 @@ msgstr "至"
 msgid "Scripts"
 msgstr "脚本"
 
+msgid "File"
+msgstr "文件"
+
+msgid "Size"
+msgstr "尺寸"
+
 msgid "File system"
 msgstr "文件系统"
+
+msgid "Filesystem info"
+msgstr "文件系统信息"
 
 msgid "I2C"
 msgstr "I2C"
@@ -150,6 +171,23 @@ msgstr "序列号"
 msgid "Serial number"
 msgstr "序列号"
 
+msgid "Device name"
+msgstr "设备名"
+
+msgid "Firmware version"
+msgstr "固件版本"
+
+msgid "Build time"
+msgstr "构造时间"
+
+msgid "Compile time"
+msgstr "编译时间"
+
+msgid "Uptime"
+msgstr "上电时间"
+
+msgid "Connect time"
+msgstr "连接时间"
 
 msgid "Done"
 msgstr "完成"
@@ -172,23 +210,32 @@ msgstr "加载文件..."
 msgid "Choose python script file"
 msgstr "选择Python脚本文件"
 
+msgid "Choose local file to save"
+msgstr "选择保存本地文件"
+
+msgid "Choose source file"
+msgstr "选择源文件"
+
+msgid "Choose destination file"
+msgstr "选择目标文件"
+
 msgid "Choose data file"
 msgstr "选择数据文件"
-
-msgid "port error"
-msgstr "端口错误"
 
 msgid "Writing..."
 msgstr "正在写入..."
 
+msgid "Writing"
+msgstr "正在写入"
+
 msgid "Reading..."
 msgstr "正在读取..."
 
+msgid "Reading"
+msgstr "正在读取"
+
 msgid "Open port..."
 msgstr "打开端口..."
-
-msgid "Shell Kit Workbench"
-msgstr "Shell Kit 工作台"
 
 msgid "script"
 msgstr "脚本"
@@ -199,6 +246,204 @@ msgstr "绘图"
 msgid "log"
 msgstr "日志"
 
+msgid "Basic"
+msgstr "基础"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Network"
+msgstr "网络"
+
+msgid "Calibrate"
+msgstr "校准"
+
+msgid "Measure"
+msgstr "测量"
+
+msgid "Measuring..."
+msgstr "正在测量..."
+
+msgid "Extract"
+msgstr "提取"
+
+msgid "Extracting..."
+msgstr "正在提取..."
+
+msgid "Waveform"
+msgstr "波形"
+
+msgid "Config"
+msgstr "配置"
+
+msgid "Option"
+msgstr "选项"
+
+msgid "Logger"
+msgstr "日志"
+
+msgid "View log"
+msgstr "查看日志"
+
+msgid "Clear log"
+msgstr "清除日志"
+
+msgid "History log"
+msgstr "历史日志"
+
+msgid "Read config"
+msgstr "读配置"
+
+msgid "Write config"
+msgstr "写配置"
+
+msgid "Reading config..."
+msgstr "正在读取配置..."
+
+msgid "Writing config..."
+msgstr "正在写配置..."
+
+msgid "View status"
+msgstr "查看状态"
+
+msgid "Querying..."
+msgstr "正在查询..."
+
+msgid "Downloading"
+msgstr "正在下载"
+
+msgid "Downloading..."
+msgstr "正在下载..."
+
+msgid "Uploading"
+msgstr "正在上传"
+
+msgid "Uploading..."
+msgstr "正在上传..."
+
+msgid "Syncing..."
+msgstr "正在同步..."
+
+msgid "Deleting..."
+msgstr "正在删除..."
+
+msgid "Formating..."
+msgstr "正在格式化..."
+
+msgid "Stopping..."
+msgstr "正在停止..."
+
+msgid "Stopped"
+msgstr "已停止"
+
+msgid "Starting..."
+msgstr "正在启动..."
+
+msgid "Started"
+msgstr "已启动"
+
+msgid "Erasing..."
+msgstr "正在擦除..."
+
+msgid "Erased"
+msgstr "已擦除"
+
+msgid "RTC Sync"
+msgstr "时钟同步"
+
+msgid "Upgrade"
+msgstr "升级"
+
+msgid "Upgrading..."
+msgstr "正在升级..."
+
+msgid "Length"
+msgstr "长度"
+
+msgid "Mode"
+msgstr "模式"
+
+msgid "Loop"
+msgstr "循环"
+
+msgid "Channel"
+msgstr "通道"
+
+msgid "Server address"
+msgstr "服务器地址"
+
+msgid "Server port"
+msgstr "服务器端口"
+
+msgid "MAC Address"
+msgstr "MAC地址"
+
+msgid "Static IP"
+msgstr "静态IP"
+
+msgid "Netmask"
+msgstr "子网掩码"
+
+msgid "Gateway"
+msgstr "网关"
+
+msgid "Notes"
+msgstr "注释"
+
+msgid "Event"
+msgstr "事件"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Fault"
+msgstr "故障"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Connected"
+msgstr "已连接"
+
+msgid "Disconnected"
+msgstr "已断开"
+
+
+msgid "Mcush Debug Utility"
+msgstr "Mcush调试工具"
+
+msgid "Shell Kit Workbench"
+msgstr "Shell Kit 工作台"
+
+msgid "Shell Lab Workbench"
+msgstr "Shell Lab 工作台"
+
+msgid "VAP Debug Utility"
+msgstr "VAP调试工具"
+
+msgid "Sensors"
+msgstr "传感器"
+
+msgid "Sample rate"
+msgstr "采样率"
+
+msgid "Temperature"
+msgstr "温度"
+
+msgid "Pressure"
+msgstr "压力"
+
+msgid "Acceleration"
+msgstr "加速度"
+
+msgid "Speed"
+msgstr "速度"
+
+msgid "Distance"
+msgstr "位移"
+
+msgid "Tacho"
+msgstr "转速"
 
 
 

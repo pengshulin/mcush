@@ -96,6 +96,7 @@ elif platform == 'linux2':
     NOTEPAD_BIN = '/usr/bin/mousepad'
 
 REV = getenv_bool( 'REV' )
+SIM = getenv_bool( 'SIM' )
 
 LANGUAGES = {'en', 'zh_cn'}
 LANGUAGE = getenv( 'LANGUAGE', 'en' ).split(':')[0].lower()

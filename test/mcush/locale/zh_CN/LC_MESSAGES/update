@@ -1,0 +1,2 @@
+#!/bin/sh
+msgfmt -o mcush.mo mcush.pot 

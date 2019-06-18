@@ -5,7 +5,7 @@
 
 /* file write option default state (power-up state),
    no matter it's disabled or not, real-time shell log monitoring
-   is always avaiilable  */
+   is always available  */
 #ifndef LOGGER_ENABLE
     #define LOGGER_ENABLE  1
 #endif
@@ -41,7 +41,8 @@
 #endif
 
 /* use command 'log -t' to print the last N lines in log file
-   note this only check the default log file, not the older history files */
+   note this only check the default log file, older history files
+   are all ignored */
 #ifndef LOGGER_TAIL_NUM
     #define LOGGER_TAIL_NUM  10
 #endif
@@ -51,9 +52,9 @@
     #define TASK_LOGGER_STACK_SIZE  (3*1024)
 #endif
 
-/* default priority is one level higher than the idle task, so if you found
-   the logger queue is blocked, check if some other tasks refuse to give back
-   the cpu */
+/* default priority is one level higher than the idle task, so if you 
+   found the logger queue blocked, check if some other tasks refuse to
+   give back the cpu */
 #ifndef TASK_LOGGER_PRIORITY
     #define TASK_LOGGER_PRIORITY    (TASK_IDLE_PRIORITY+1)
 #endif
@@ -63,15 +64,17 @@
     #define TASK_LOGGER_QUEUE_SIZE  (20)
 #endif
 
-/* default shell monitor queue size, events from logger queue will be forwarded 
-   here, as shell writing is often very slow, this queue cache may be set larger,
-   or some events will not be obseleted if the queue is full */
+/* default shell monitor queue size, events from logger queue will be
+   forwarded here, as shell writing is often very slow, this queue cache
+   may be set larger, or some events will not be obseleted if the queue
+   is full */
 #ifndef TASK_LOGGER_MONITOR_QUEUE_SIZE
     #define TASK_LOGGER_MONITOR_QUEUE_SIZE  (20)
 #endif
 
-/* if any queue event is got and has been written to file, file will not be
-   closed immediately, lazy close policy will reduce the open/close cycles */
+/* if any queue event is got and has been written to file, file will not
+   be closed immediately, lazy close policy will reduce the open/close
+   cycles */
 #ifndef TASK_LOGGER_LAZY_CLOSE_MS
     #define TASK_LOGGER_LAZY_CLOSE_MS  (200)
 #endif
@@ -104,7 +107,7 @@ int logger_is_enabled(void);
 
 /* these apis will malloc new buffer and copy from the original str,
    so they are safe to use, not mater whether the buffer is in stack or
-   will be destroied later */
+   will be destroied later, but not the most optimized */
 int logger_module_str( int type, const char *module, const char *str );
 int logger_module_debug( const char *module, const char *str );
 int logger_module_info( const char *module, const char *str );
@@ -187,7 +190,7 @@ int logger_printf_error2( char *fmt, ... );
 #define logger_printf_error(fmt, ...)  logger_module_printf_error(logger_module_name, fmt, __VA_ARGS__)
 
 
-/* module name define macro */
+/* module name define macro, declare this at the top of each module */
 #define LOGGER_MODULE_NAME( name )  static const char logger_module_name[] = name
 
 /* backup policy:

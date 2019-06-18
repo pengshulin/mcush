@@ -492,3 +492,46 @@ void swap_bytes( uint8_t *a, uint8_t *b )
 }
 
 
+int cmp_int8(const void *a, const void *b)
+{
+    return (*(int8_t*)a > *(int8_t*)b) ? 1 : (*(int8_t*)a==*(int8_t*)b ? 0 : -1);
+}
+
+
+int cmp_int16(const void *a, const void *b)
+{
+    return (*(int16_t*)a > *(int16_t*)b) ? 1 : (*(int16_t*)a==*(int16_t*)b ? 0 : -1);
+}
+
+
+int cmp_int32(const void *a, const void *b)
+{
+    return (*(int32_t*)a > *(int32_t*)b) ? 1 : (*(int32_t*)a==*(int32_t*)b ? 0 : -1);
+}
+
+
+int cmp_uint8(const void *a, const void *b)
+{
+    return (*(uint8_t*)a > *(uint8_t*)b) ? 1 : (*(uint8_t*)a==*(uint8_t*)b ? 0 : -1);
+}
+
+
+int cmp_uint16(const void *a, const void *b)
+{
+    return (*(uint16_t*)a > *(uint16_t*)b) ? 1 : (*(uint16_t*)a==*(uint16_t*)b ? 0 : -1);
+}
+
+
+int cmp_uint32(const void *a, const void *b)
+{
+    return (*(uint32_t*)a > *(uint32_t*)b) ? 1 : (*(uint32_t*)a==*(uint32_t*)b ? 0 : -1);
+}
+
+
+int cmp_float(const void *a, const void *b)
+{
+    return (*(float*)a > *(float*)b) ? 1 : (*(float*)a==*(float*)b ? 0 : -1);
+}
+
+
+

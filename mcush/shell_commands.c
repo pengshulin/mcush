@@ -1869,14 +1869,14 @@ int cmd_sgpio( int argc, char *argv[] )
         cfg = hal_sgpio_info();
         if( cfg->inited )
         {
-            shell_printf( "%s  %s:%d  %s:0x%04x  %s:0x%04x  %s:%c  %s:%.1f\n", 
+            shell_printf( "%s  %s:%d  %s:0x%04X  %s:0x%04X  %s:%c  %s:%.1f\n", 
                 cfg->run ? shell_str_run : shell_str_stop, 
                 shell_str_port, cfg->port,
                 shell_str_output, cfg->output_mode,
                 shell_str_input, cfg->input_mode,
                 shell_str_loop, cfg->loop_mode?'1':'0', 
                 shell_str_frequency, cfg->freq );
-            shell_printf( "buf_out:0x%08x  buf_in:0x%08X  %s:%d\n", 
+            shell_printf( "buf_out:0x%08X  buf_in:0x%08X  %s:%d\n", 
                 cfg->buf_out, cfg->buf_in, 
                 shell_str_length, cfg->buf_len );
         } 

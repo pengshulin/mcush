@@ -47,12 +47,14 @@ int hal_sgpio_init(void)
     TIM_OC2Init( TIM1, &timoc );
     TIM_DMACmd( TIM1, TIM_DMA_CC1, ENABLE );
     TIM_DMACmd( TIM1, TIM_DMA_CC2, ENABLE );
+
     return 1;
 }
 
 
 int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, void *buf_out, void *buf_in, int buf_len, float freq )
 {
+    NVIC_InitTypeDef nvic_init;
 	DMA_InitTypeDef dma;
 
 	TIM_Cmd( TIM1, DISABLE );
@@ -97,8 +99,14 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
 	dma.DMA_Priority = DMA_Priority_Medium;
 	dma.DMA_M2M = DMA_M2M_Disable;
             
-    DMA_ClearITPendingBit( DMA_IT_TC );
+    DMA_ClearITPendingBit( DMA1_IT_GL2 | DMA1_IT_TC2 );
+    DMA_ClearITPendingBit( DMA1_IT_GL3 | DMA1_IT_TC3 );
 	
+    /* Interrupt Enable */  
+    nvic_init.NVIC_IRQChannelPreemptionPriority = 10;
+    nvic_init.NVIC_IRQChannelSubPriority = 0;
+    nvic_init.NVIC_IRQChannelCmd = ENABLE;
+
     // output
 	if( output_mode && buf_out )
     {
@@ -113,6 +121,8 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
         }
 	    DMA_Init( DMA1_Channel2, &dma );
 	    DMA_Cmd( DMA1_Channel2, ENABLE );
+        nvic_init.NVIC_IRQChannel = DMA1_Channel2_IRQn;
+        NVIC_Init( &nvic_init );
     }
 
     // input
@@ -127,6 +137,8 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
             DMA_ITConfig( DMA1_Channel3, DMA_IT_TC, ENABLE );
         DMA_Init( DMA1_Channel3, &dma );
 	    DMA_Cmd( DMA1_Channel3, ENABLE );
+        nvic_init.NVIC_IRQChannel = DMA1_Channel3_IRQn;
+        NVIC_Init( &nvic_init );
     }
 
     return 1;

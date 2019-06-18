@@ -15,48 +15,9 @@ except ImportError:
     termios_error = None
 from . import Env
 from . import Instrument
-
-__INFO_STR = {
-    'STOPPING': {'en': u'Stopping...',
-                 'zh_cn': u'正在停止...',
-                },
-    'STOPPED':  {'en': u'Stopped',
-                 'zh_cn': u'已停止',
-                },
-    'TIMEOUT':  {'en': u'Timeout',
-                 'zh_cn': u'超时',
-                },
-    'PORT_NOT_EXIST':   {'en': u'Communication port not exist',
-                         'zh_cn': u'端口不存在',
-                        },
-    'UNKNOWN_PORT_ERROR':     {'en': u'Unknown port error',
-                                'zh_cn': u'未知端口错误',
-                              },
-    'UNKNOWN_ERROR':    {'en': u'Unknown error',
-                         'zh_cn': u'未知错误',
-                        },
-}
-
-
-
-def _getStr( key, lang=None ):
-    if lang is None:
-        lang = Env.LANGUAGE
-    if not lang in Env.LANGUAGES:
-        lang = 'en'
-    en_str = __INFO_STR[key]['en']
-    # use localization result first
-    try:
-        trans_str = _(en_str)
-        if trans_str != en_str: 
-            return trans_str
-    except:
-        pass
-    try:
-        return __INFO_STR[key][lang]
-    except:
-        pass
-    return en_str
+from os.path import join, dirname
+import gettext
+_getStr = gettext.translation( "mcush", join(dirname(__file__), "locale"), codeset='utf8', fallback=True ).ugettext
 
 
 class Task():
@@ -81,7 +42,7 @@ class Task():
         try:
             ret = self.control_queue.get( block=True, timeout=timeout  )
             assert ret == 'stop', ret
-            self.info( _getStr('STOPPING') )
+            self.info( _getStr('Stopping') )
             return True
         except Empty:
             pass 
@@ -113,16 +74,18 @@ class Task():
             self.queue.put( ('lock', True) )
             self.target( self.args )
         except Instrument.CommandTimeoutError:
-            self.info( _getStr('STOPPING') )
-            self.info( _getStr('TIMEOUT'), 'error' )
+            self.info( _getStr('Stopping') )
+            self.info( _getStr('Timeout'), 'error' )
         except Instrument.PortNotFound as e:
-            self.info( _getStr('PORT_NOT_EXIST') + ': ' + unicode(e), 'error' )
+            self.info( _getStr('Port not exist') + ': ' + unicode(e), 'error' )
         except Instrument.UnknownPortError as e:
-            self.info( _getStr('UNKNOWN_PORT_ERROR') + ': ' + unicode(e), 'error' )
+            self.info( _getStr('Unknown port error') + ': ' + unicode(e), 'error' )
+        except Instrument.IDNMatchError as e:
+            self.info( _getStr('IDN not match') + ': ' + unicode(e), 'error' )
         except Exception as e:
             if Env.VERBOSE:
                 print( type(e), str(e) )
-            info = _getStr('UNKNOWN_ERROR') + ': '
+            info = _getStr('Unknown error') + ': '
             if termios_error and isinstance(e, termios_error):
                 a,b = e.args
                 info += u'%d %s'% (a, b.decode(encoding='utf8'))
@@ -148,7 +111,7 @@ class Task():
                 return
         if self.p.is_alive():
             self.p.terminate()
-        self.info( _getStr('STOPPED') )
+        self.info( _getStr('Stopped') )
         self.end()
 
     def pause( self, prompt ):

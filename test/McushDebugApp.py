@@ -32,7 +32,6 @@ import pprint
 
 (UpdateEvent, EVT_UPDATE) = wx.lib.newevent.NewEvent()
 import gettext
-_ = gettext.gettext
 
 PRESET = [ \
 ["Tiny controller self test", '''\
@@ -115,7 +114,7 @@ port = 0  # PA
 pins = 0x3F  # [0:5]
 freq = 1
 buf = range(64)
-s.sgpio( port, pins, buf, freq, loop=True )
+s.sgpioOutput( port, pins, buf, freq, loop=True )
 '''],
 
 ]

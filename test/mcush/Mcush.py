@@ -515,14 +515,14 @@ class Mcush( Instrument.SerialInstrument ):
         self.setPrompts()
         self.writeCommand( '' )
 
-    def sgpio_stop( self ):
+    def sgpioStop( self ):
         self.writeCommand( 'sgpio --stop' )
 
-    def sgpio_start( self ):
+    def sgpioStart( self ):
         self.writeCommand( 'sgpio --start' )
 
-    def sgpio( self, port, pins, buf, freq=10, loop=True, start=True ):
-        self.writeCommand( 'sgpio --stop' )
+    def sgpioOutput( self, port, pins, buf, freq=10, loop=True, start=True ):
+        self.sgpioStop()
         cmd = 'sgpio -p%s -o0x%X -f%d'% (int(port), int(pins), int(freq))
         if loop:
             cmd += ' -l'
@@ -539,8 +539,20 @@ class Mcush( Instrument.SerialInstrument ):
         self.setPrompts()
         self.writeCommand( '' )
         if start:
-            self.writeCommand( 'sgpio --start' )
-               
+            self.sgpioStart()
+
+    def sgpioInput( self, port, pins, freq, length ):
+        self.sgpioStop()
+        cmd = 'sgpio -p%s -i0x%X -f%d --input_len=%d'% (int(port), int(pins), int(freq), int(length))
+        self.writeCommand( cmd )
+        self.sgpioStart()
+        while True:
+            r = self.writeCommand( 'sgpio --info' )
+            if r[0].startswith("stop"):
+                addr = int(r[1].split('  ')[1].split(':')[-1], 16)
+                return addr
+            time.sleep(0.1)
+ 
     def i2c_init( self, addr, scl=None, sda=None, lsb=None, delay=None ):
         cmd = 'i2c -a0x%X -I' % (addr)
         if scl:

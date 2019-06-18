@@ -33,7 +33,10 @@ class CommandExecuteError( Exception ):
 class CommandTimeoutError( Exception ):
     pass
 
-    
+class IDNMatchError( Exception ):
+    pass
+
+
 
 
 class Instrument:
@@ -284,7 +287,7 @@ class Instrument:
         self.logger.info( 'IDN:%s', str(self.idn) )
         if not Env.NO_IDN_CHECK:
             if not self.DEFAULT_IDN.match( self.idn ):
-                raise Exception( "IDN not match" )
+                raise IDNMatchError(self.idn.split(',')[0])
         return self.idn
 
     def reboot( self, delay=None ):

@@ -47,6 +47,14 @@ void byte_to_unicode( uint8_t *buf_in, uint16_t *buf_out, int len, int add_null_
 
 void swap_bytes( uint8_t *a, uint8_t *b );
 
+int cmp_int8(const void *a, const void *b);
+int cmp_int16(const void *a, const void *b);
+int cmp_int32(const void *a, const void *b);
+int cmp_uint8(const void *a, const void *b);
+int cmp_uint16(const void *a, const void *b);
+int cmp_uint32(const void *a, const void *b);
+int cmp_float(const void *a, const void *b);
+
 #ifdef __cplusplus
 }
 #endif

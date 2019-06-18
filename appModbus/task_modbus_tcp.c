@@ -12,7 +12,7 @@
 #include "lwip/tcp.h"
 
 
-static const char logger_module_name[] = "modbus";
+LOGGER_MODULE_NAME("modbus");
 
 QueueHandle_t queue_modbus_tcp;
 
