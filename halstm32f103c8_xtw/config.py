@@ -29,8 +29,8 @@ else:
 
 
 
-#env.appendDefineFlags( ['BLACK_BOARD'] )
-env.appendDefineFlags( ['BLUE_BOARD'] )
+env.appendDefineFlags( ['BLACK_BOARD'] )
+#env.appendDefineFlags( ['BLUE_BOARD'] )
 
 env.appendDefineFlags( [
     #'USE_CMD_HELP=0',
@@ -65,5 +65,6 @@ env.appendDefineFlags( [
     'USE_CMD_SGPIO=0',
     'USE_CMD_PWM=1',
     'USE_CMD_ADC=1',
+    'USE_CMD_CRC=0',
     ] )
 

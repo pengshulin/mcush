@@ -1,2 +1,2 @@
 #!/bin/sh
-msgfmt messages.pot 
+msgfmt messages.pot

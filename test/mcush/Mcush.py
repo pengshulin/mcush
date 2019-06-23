@@ -757,5 +757,9 @@ class Mcush( Instrument.SerialInstrument ):
                 return True
         return False 
 
-
+    def crc( self, pathname ):
+        command = 'crc %s'% pathname 
+        ret = self.writeCommand( command )
+        return int(ret[0], 16)
+        
 

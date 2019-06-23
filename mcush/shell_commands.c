@@ -119,7 +119,7 @@
         #define USE_CMD_LOAD  1
     #endif
     #ifndef USE_CMD_CRC
-        #define USE_CMD_CRC  1
+        #define USE_CMD_CRC  0
     #endif
 #else
     #ifdef USE_CMD_CAT

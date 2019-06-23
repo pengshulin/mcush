@@ -280,20 +280,21 @@ char *shell_get_buf( void )
 #define IS_END_QUOTE( c )        ((c)==quote)
 #define IS_NOT_END_QUOTE( c )    ((c)!=quote)
 
-static int shell_split_cmdline_into_argvs( char *cmd_line )
+static int shell_split_cmdline_into_argvs( char *cmd_line, uint8_t *argc, char *argv[] )
 {
 #if SHELL_QUOTE_PARSE_ENABLE
     char *p = cmd_line, *p2;
     char quote=0;
 
-    scb.argc = 0;
+    *argc = 0;
     while( *p && IS_SPACE(*p) )
         p++;
     if( IS_START_QUOTE(*p) )
         quote = *p++;
-    while( (scb.argc < SHELL_ARGV_LEN) && *p )
+    while( (*argc < SHELL_ARGV_LEN) && *p )
     {
-        scb.argv[scb.argc++] = p;
+        argv[*argc] = p;
+        *argc += 1;
         if( quote )
         {
             while( *p && IS_NOT_END_QUOTE(*p) )
@@ -318,12 +319,12 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
             {
                 quote = *p;
                 p2 = p++;
-                while( p2 > scb.argv[scb.argc-1] )
+                while( p2 > argv[*argc-1] )
                 {
                     *p2 = *(p2-1);
                     p2--;
                 }
-                scb.argv[scb.argc-1] += 1;
+                argv[*argc-1] += 1;
                 while( *p && IS_NOT_END_QUOTE(*p) )
                     p++;
                 if( !*p )
@@ -342,16 +343,17 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
         if( IS_START_QUOTE(*p) )
             quote = *p++;
     }
-    return scb.argc; 
+    return *argc; 
 #else
     char *p = cmd_line;
 
-    scb.argc = 0;
+    *argc = 0;
     while( *p && IS_SPACE(*p) )
         p++;
-    while( (scb.argc < SHELL_ARGV_LEN) && *p )
+    while( (*argc < SHELL_ARGV_LEN) && *p )
     {
-        scb.argv[scb.argc++] = p;
+        argv[*argc] = p;
+        *argc += 1;
         while( *p && IS_NOT_SPACE(*p) )
             p++;
         if( !*p )
@@ -362,7 +364,7 @@ static int shell_split_cmdline_into_argvs( char *cmd_line )
         if( !*p )
             break;
     }
-    return scb.argc; 
+    return *argc; 
 #endif
 }
 
@@ -611,7 +613,7 @@ static int shell_process_command( void )
     int (*cmd)(int argc, char *argv[]);
     int i, j;
 
-    if( shell_split_cmdline_into_argvs( scb.cmdline ) )
+    if( shell_split_cmdline_into_argvs( scb.cmdline, &scb.argc, &scb.argv[0] ) )
     {
         for( j = 0; j < SHELL_CMD_TABLE_LEN; j++ )
         {
@@ -919,7 +921,7 @@ void shell_run( void )
 
 
 /* call cmd_xxx with arguments
-   NOTE: arguments must be zero ended */
+   NOTE: the last argument must be zero */
 int shell_call( const char *cmd_name, ... )
 {
     va_list ap;
@@ -947,6 +949,28 @@ int shell_call( const char *cmd_name, ... )
         ret = cmd( argc, argv );
     }
     va_end( ap );
+    return ret;
+}
+
+
+/* call cmd_xxx with complete command line string,
+   NOTE: cmd_line will be split into several sub-strings */
+int shell_call_line( char *cmd_line )
+{
+    int ret=-1;
+    int (*cmd)(int argc, char *argv[]);
+    char *argv[SHELL_ARGV_LEN];   
+    uint8_t argc;
+
+    if( shell_split_cmdline_into_argvs( cmd_line, &argc, &argv[0] ) )
+    {
+        if( argc > 0 )
+        {
+            cmd = shell_get_cmd_by_name( argv[0] );
+            if( cmd ) 
+                ret = cmd( argc, argv );
+        }
+    }
     return ret;
 }
 

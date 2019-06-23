@@ -144,6 +144,7 @@ int  shell_make_16bits_data_buffer( void **pbuf, int *len );
 int  shell_make_float_data_buffer( void **pbuf, int *len );
 int  (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[]);
 int  shell_call( const char *cmd_name, ... );
+int  shell_call_line( char *cmd_line );
 
 /* driver APIs needed */
 extern int  shell_driver_init( void );
