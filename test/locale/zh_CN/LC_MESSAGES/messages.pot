@@ -282,14 +282,26 @@ msgstr "选项"
 msgid "Logger"
 msgstr "日志"
 
+msgid "Logging"
+msgstr "正在记录"
+
+msgid "Logging..."
+msgstr "正在记录..."
+
 msgid "View log"
 msgstr "查看日志"
 
 msgid "Clear log"
 msgstr "清除日志"
 
+msgid "Tail log"
+msgstr "末尾日志"
+
 msgid "History log"
 msgstr "历史日志"
+
+msgid "All history log"
+msgstr "全部历史日志"
 
 msgid "Read config"
 msgstr "读配置"
@@ -424,6 +436,12 @@ msgstr "VAP调试工具"
 msgid "Sensors"
 msgstr "传感器"
 
+msgid "Sample"
+msgstr "采样"
+
+msgid "Sampling"
+msgstr "采样..."
+
 msgid "Sample rate"
 msgstr "采样率"
 
@@ -439,11 +457,20 @@ msgstr "加速度"
 msgid "Speed"
 msgstr "速度"
 
-msgid "Distance"
+msgid "Displacement"
 msgstr "位移"
 
 msgid "Tacho"
 msgstr "转速"
+
+msgid "Distance"
+msgstr "距离"
+
+msgid "Height"
+msgstr "高度"
+
+msgid "Weight"
+msgstr "重量"
 
 
 

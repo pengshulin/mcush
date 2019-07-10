@@ -55,11 +55,11 @@ int hal_sgpio_init(void)
 int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, void *buf_out, void *buf_in, int buf_len, float freq )
 {
     NVIC_InitTypeDef nvic_init;
-	DMA_InitTypeDef dma;
+    DMA_InitTypeDef dma;
 
-	TIM_Cmd( TIM1, DISABLE );
-	DMA_Cmd( DMA1_Channel2, DISABLE );
-	DMA_Cmd( DMA1_Channel3, DISABLE );
+    TIM_Cmd( TIM1, DISABLE );
+    DMA_Cmd( DMA1_Channel2, DISABLE );
+    DMA_Cmd( DMA1_Channel3, DISABLE );
 	
     if( sgpio_cfg.inited )
     {
@@ -91,13 +91,13 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
         hal_gpio_set_input( port, input_mode );
     hal_sgpio_set_freq( freq );
 
-	// DMA config
-	dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-	dma.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-	dma.DMA_Priority = DMA_Priority_Medium;
-	dma.DMA_M2M = DMA_M2M_Disable;
+    // DMA config
+    dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+    dma.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+    dma.DMA_Priority = DMA_Priority_Medium;
+    dma.DMA_M2M = DMA_M2M_Disable;
             
     DMA_ClearITPendingBit( DMA1_IT_GL2 | DMA1_IT_TC2 );
     DMA_ClearITPendingBit( DMA1_IT_GL3 | DMA1_IT_TC3 );
@@ -108,35 +108,35 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
     nvic_init.NVIC_IRQChannelCmd = ENABLE;
 
     // output
-	if( output_mode && buf_out )
+    if( output_mode && buf_out )
     {
-	    dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->ODR);
-	    dma.DMA_MemoryBaseAddr = (uint32_t)buf_out;
-	    dma.DMA_DIR = DMA_DIR_PeripheralDST;
-	    dma.DMA_BufferSize = sgpio_cfg.buf_len;
-	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
+        dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->ODR);
+        dma.DMA_MemoryBaseAddr = (uint32_t)buf_out;
+        dma.DMA_DIR = DMA_DIR_PeripheralDST;
+        dma.DMA_BufferSize = sgpio_cfg.buf_len;
+        dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
         if( ! sgpio_cfg.loop_mode )
         {
             DMA_ITConfig( DMA1_Channel2, DMA_IT_TC, ENABLE );
         }
-	    DMA_Init( DMA1_Channel2, &dma );
-	    DMA_Cmd( DMA1_Channel2, ENABLE );
+        DMA_Init( DMA1_Channel2, &dma );
+        DMA_Cmd( DMA1_Channel2, ENABLE );
         nvic_init.NVIC_IRQChannel = DMA1_Channel2_IRQn;
         NVIC_Init( &nvic_init );
     }
 
     // input
-	if( input_mode && buf_in )
+    if( input_mode && buf_in )
     {
-	    dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->IDR);
-	    dma.DMA_MemoryBaseAddr = (uint32_t)buf_in;
-	    dma.DMA_DIR = DMA_DIR_PeripheralSRC;
-	    dma.DMA_BufferSize = buf_len;
-	    dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
+        dma.DMA_PeripheralBaseAddr = (uint32_t)&(ports[sgpio_cfg.port]->IDR);
+        dma.DMA_MemoryBaseAddr = (uint32_t)buf_in;
+        dma.DMA_DIR = DMA_DIR_PeripheralSRC;
+        dma.DMA_BufferSize = buf_len;
+        dma.DMA_Mode = sgpio_cfg.loop_mode ? DMA_Mode_Circular : DMA_Mode_Normal;
         if( ! sgpio_cfg.loop_mode  )
             DMA_ITConfig( DMA1_Channel3, DMA_IT_TC, ENABLE );
         DMA_Init( DMA1_Channel3, &dma );
-	    DMA_Cmd( DMA1_Channel3, ENABLE );
+        DMA_Cmd( DMA1_Channel3, ENABLE );
         nvic_init.NVIC_IRQChannel = DMA1_Channel3_IRQn;
         NVIC_Init( &nvic_init );
     }

@@ -339,7 +339,7 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
     else
     {
         ret_err = ERR_MEM;
-        logger_error( "mem err" );
+        logger_const_error( "mem err" );
     }
     return ret_err;
 }
@@ -444,6 +444,8 @@ int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uin
                 (29 33) (00 00) (00 06) (01) (03)  ---  (27 56) (00 0A)
            send: TID     PID     LEN     UID  CODE       BYTES  DAT0    DAT1   ... 
                 (29 33) (00 00) (00 17) (01) (03)  ---  (14)   (61 4E) (00 BC) ...  */
+        if( size > MODBUS_MULTI_REGISTER_LIMIT )
+            return MODBUS_ERROR_DATA_VALUE;
         bytes = 0;
         buf2 = (uint8_t*)payload + 1;
         while( size-- )
@@ -533,7 +535,6 @@ void task_modbus_tcp_entry(void *arg)
             break;
 
         case MODBUS_TCP_EVENT_START:
-            logger_info( "start" );
             modbus_pcb = tcp_new_ip_type( IPADDR_TYPE_ANY );
             if( modbus_pcb != NULL )
             {
@@ -566,7 +567,7 @@ void task_modbus_tcp_entry(void *arg)
             {
                 tcp_close( modbus_pcb );
                 modbus_pcb = 0;
-                logger_info( "closed" );
+                logger_const_info( "closed" );
             }
             break;
 

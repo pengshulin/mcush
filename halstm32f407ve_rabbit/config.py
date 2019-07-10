@@ -6,7 +6,7 @@ if hal_config.use_hal_driver is None:
         hal_config.use_vcp = False  # use uart as default
 
 env = Stm32f407xx( use_hal_driver=hal_config.use_hal_driver  )
-env.setLinkfile( '/ld/stm32f407xe_min.ld' )
+env.setLinkfile( '/ld/stm32f407xe_ccmsram.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=25000000' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )

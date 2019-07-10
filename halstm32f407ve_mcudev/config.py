@@ -1,6 +1,7 @@
 from Arm.Stm32 import *
 env = Stm32f407xx( use_hal_driver=hal_config.use_hal_driver  )
-env.setLinkfile( '/ld/stm32f407xe_min.ld' )
+#env.setLinkfile( '/ld/stm32f407xe_min.ld' )
+env.setLinkfile( '/ld/stm32f407xe_ccmsram.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )

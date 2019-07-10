@@ -16,8 +16,9 @@ reboot_counter_cb_t reboot_counter_cb  __attribute__((section(".bkpsram")));
 
 void hal_reboot_counter_init(void)
 {
-    PWR_BackupAccessCmd(ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
     RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_BKPSRAM, ENABLE );
+    PWR_BackupAccessCmd(ENABLE);
     
     if( (reboot_counter_cb.magic_code != MAGIC_CODE) 
         || (reboot_counter_cb.counter != ~reboot_counter_cb.counter_rev) )

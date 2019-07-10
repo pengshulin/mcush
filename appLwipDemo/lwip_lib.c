@@ -20,7 +20,14 @@
 #define LOCAL_PORT_END    0xFFFF
 uint16_t tcp_bind_random_port( struct tcp_pcb *pcb )
 {
-    static uint16_t port = LOCAL_PORT_START, port2;
+    static uint16_t port = 0, port2;
+    if( port == 0 )
+    {
+        /* init random port (ignore start/end ports) */
+        port = xTaskGetTickCount();
+        while( (port <= LOCAL_PORT_START) || (port >= LOCAL_PORT_END) )
+            port *= 997;  /* the largest prime number under 1000 */
+    }
     port2 = port;
     while( tcp_bind( pcb, IP_ADDR_ANY, port ) != ERR_OK )
     {

@@ -85,6 +85,10 @@
 #ifndef USE_CMD_RTC
     #define USE_CMD_RTC  0
 #endif
+#ifndef USE_CMD_LOOP
+    #define USE_CMD_LOOP  1
+#endif
+
 
 
 
@@ -190,6 +194,7 @@ int cmd_copy( int argc, char *argv[] );
 int cmd_list( int argc, char *argv[] );
 int cmd_load( int argc, char *argv[] );
 int cmd_crc( int argc, char *argv[] );
+int cmd_loop( int argc, char *argv[] );
 
 
 
@@ -364,6 +369,12 @@ const shell_cmd_t CMD_TAB[] = {
     "file crc check",
     "crc <pathname>"  },
 #endif
+#if USE_CMD_LOOP
+{   0, 0, "loop",  cmd_loop, 
+    "run command looply",
+    "loop <cmd and args>"  },
+#endif
+
 
 {   CMD_END  } };
 
@@ -3519,6 +3530,81 @@ int cmd_crc( int argc, char *argv[] )
         return 1;
     
     shell_printf("0x%08X\n", mcush_file_crc32(fname));
+    return 0;
+}
+#endif
+
+
+#if USE_CMD_LOOP
+int cmd_loop( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'l', shell_str_loop, "loop_delay_ms", "default 1000ms" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'n', shell_str_number, "cycle_limit", "cycle_limit" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_command, 0, "cmd with args" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    unsigned int loop=1, loop_delay=1000, loop_tick;
+    char c;
+    uint8_t cycle_set=0;
+    int cycle_current, cycle_limit=-1;
+    int (*cmd)(int argc, char *argv[]) = 0;
+ 
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
+            {
+                shell_eval_int(opt.value, (int*)&loop_delay);
+            }
+            else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
+            {
+                shell_eval_int(opt.value, (int*)&cycle_limit);
+                if( cycle_limit > 0 )
+                {
+                    cycle_current = 0;
+                    cycle_set = 1;
+                }
+                else
+                    return -1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
+            {
+                cmd = shell_get_cmd_by_name( argv[parser.idx] );
+                argc -= parser.idx;
+                argv += parser.idx;
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    /* command not set/found */ 
+    if( cmd == 0 )
+        return 1;
+
+    /* cannot run "loop loop ..." */
+    if( cmd == cmd_loop )
+        return 1;
+
+loop_start:
+    if( cmd( argc, argv ) != 0 )
+        return 1;
+
+    if( cycle_set )
+    {
+        if( ++cycle_current >= cycle_limit )
+            return 0;
+    }
+    
+    LOOP_CHECK 
     return 0;
 }
 #endif

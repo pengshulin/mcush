@@ -104,7 +104,10 @@ int mcush_romfs_read( int fh, void *buf, int len )
     if( i > len )
         i = len;
     if( i )
-        memcpy( buf, (const void*)&_fds[fh].file->contents[_fds[fh].pos], i ); 
+    {
+        memcpy( buf, (const void*)&_fds[fh].file->contents[_fds[fh].pos], i );
+        _fds[fh].pos += i;
+    }
     return i;
 }
 

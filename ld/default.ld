@@ -61,6 +61,13 @@ SECTIONS
         _ebss = . ;
     } > SRAM
     
+    .dma :
+    {
+        . = ALIGN(4);
+        *(.dma)
+        . = ALIGN(4);
+    } > SRAM
+
     .userheap :
     {
         . = ALIGN(4);

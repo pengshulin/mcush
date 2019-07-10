@@ -10,24 +10,24 @@
 
 int hal_rtc_get( struct tm *t )
 {
-    RTC_DateTypeDef RTC_DateStructure;
-    RTC_TimeTypeDef RTC_TimeStructure;
+    RTC_DateTypeDef rtc_date;
+    RTC_TimeTypeDef rtc_time;
 
     if( RTC_ReadBackupRegister(RTC_BKP_DR0 ) != RTC_MARK )
         return 0; 
     
-    RTC_GetDate(RTC_Format_BIN, &RTC_DateStructure);
-    RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);   
+    RTC_GetDate(RTC_Format_BIN, &rtc_date);
+    RTC_GetTime(RTC_Format_BIN, &rtc_time);   
   
-    t->tm_sec  = RTC_TimeStructure.RTC_Seconds;
-    t->tm_min  = RTC_TimeStructure.RTC_Minutes;
-    t->tm_hour = RTC_TimeStructure.RTC_Hours;
-    if( RTC_TimeStructure.RTC_H12 == RTC_H12_PM )
+    t->tm_sec  = rtc_time.RTC_Seconds;
+    t->tm_min  = rtc_time.RTC_Minutes;
+    t->tm_hour = rtc_time.RTC_Hours;
+    if( rtc_time.RTC_H12 == RTC_H12_PM )
         t->tm_hour += 12;
-    t->tm_mday = RTC_DateStructure.RTC_Date;
-    t->tm_wday = RTC_DateStructure.RTC_WeekDay;
-    t->tm_mon  = RTC_DateStructure.RTC_Month;
-    t->tm_year = RTC_DateStructure.RTC_Year + 2000;
+    t->tm_mday = rtc_date.RTC_Date;
+    t->tm_wday = rtc_date.RTC_WeekDay;
+    t->tm_mon  = rtc_date.RTC_Month;
+    t->tm_year = rtc_date.RTC_Year + 2000;
 
     return 1;
 }
@@ -49,104 +49,132 @@ int hal_rtc_get_tick( uint64_t *tick )
 
 int hal_rtc_set( struct tm *t )
 {
-    RTC_DateTypeDef RTC_DateStructure;
-    RTC_TimeTypeDef RTC_TimeStructure;
+    RTC_DateTypeDef rtc_date;
+    RTC_TimeTypeDef rtc_time;
+    int err1, err2;
 
-    RTC_DateStructure.RTC_Year = t->tm_year - 2000;
-    RTC_DateStructure.RTC_Month = t->tm_mon;
-    RTC_DateStructure.RTC_Date = t->tm_mday;
-    RTC_DateStructure.RTC_WeekDay = t->tm_wday;
-    RTC_SetDate(RTC_Format_BIN, &RTC_DateStructure);
-    
-    RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
-    RTC_TimeStructure.RTC_Hours   = t->tm_hour;
-    RTC_TimeStructure.RTC_Minutes = t->tm_min;
-    RTC_TimeStructure.RTC_Seconds = t->tm_sec;
-    
-    RTC_SetTime(RTC_Format_BIN, &RTC_TimeStructure);   
-    return 1;
+    rtc_date.RTC_Year = t->tm_year - 2000;
+    rtc_date.RTC_Month = t->tm_mon;
+    rtc_date.RTC_Date = t->tm_mday;
+    rtc_date.RTC_WeekDay = t->tm_wday;
+    err1 = RTC_SetDate(RTC_Format_BIN, &rtc_date);
+   
+    rtc_time.RTC_H12     = RTC_H12_AM;
+    rtc_time.RTC_Hours   = t->tm_hour;
+    rtc_time.RTC_Minutes = t->tm_min;
+    rtc_time.RTC_Seconds = t->tm_sec;
+    err2 = RTC_SetTime(RTC_Format_BIN, &rtc_time);
+
+    return ((err1==SUCCESS) && (err2==SUCCESS)) ? 1 : 0;
 }
 
 
-static int hal_rtc_reset(void)
+static int hal_rtc_clk_init(void)
 {
-    RTC_InitTypeDef RTC_InitStructure;
-    RTC_DateTypeDef RTC_DateStructure;
-    RTC_TimeTypeDef RTC_TimeStructure;
-    uint32_t uwAsynchPrediv;
-    uint32_t uwSynchPrediv;
-    uint32_t i;
+    RTC_InitTypeDef rtc_init;
+    int succ;
+    int i;
  
-    /* Enable the LSE OSC */
+    /* Enable the LSE */
     RCC_LSEConfig(RCC_LSE_ON);
 
-    /* Wait till LSE is ready */
-    i = 1000;
-    while(RCC_GetFlagStatus(RCC_FLAG_LSERDY) == RESET)
+    /* Wait for LSE ready */
+    for( i=5000; i; i-- )
     {
+        if( RCC_GetFlagStatus(RCC_FLAG_LSERDY) == SET )
+            break;
         hal_delay_ms( 1 );
-        if( --i == 0 )
-            return 0;
     }
 
-    /* Select the RTC Clock Source */
-    RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
-    /* ck_spre(1Hz) = RTCCLK(LSE) /(uwAsynchPrediv + 1)*(uwSynchPrediv + 1)*/
-    uwSynchPrediv = 0xFF;
-    uwAsynchPrediv = 0x7F;
+    if( i )
+    {
+        /* Select the RTC Clock Source */
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
+    }
+    else
+    {
+        RCC_LSEConfig(RCC_LSE_OFF);
+        
+        /* Switch to LSI instead */
+        RCC_LSICmd(ENABLE);
+        for( i=1000; i; i-- )
+        {
+            if( RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == SET )
+                break;
+            hal_delay_ms( 1 );
+        }
+
+        RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI);
+    }
 
     /* Enable the RTC Clock */
     RCC_RTCCLKCmd(ENABLE);
 
     /* Wait for RTC APB registers synchronisation */
     RTC_WaitForSynchro();
-    
-    /* Configure the RTC data register and RTC prescaler */
-    RTC_InitStructure.RTC_AsynchPrediv = uwAsynchPrediv;
-    RTC_InitStructure.RTC_SynchPrediv = uwSynchPrediv;
-    RTC_InitStructure.RTC_HourFormat = RTC_HourFormat_24;
-    RTC_Init(&RTC_InitStructure);
-    
-    /* Set the date: 2017-1-1 */
-    RTC_DateStructure.RTC_Year = 0x17;
-    RTC_DateStructure.RTC_Month = RTC_Month_January;
-    RTC_DateStructure.RTC_Date = 0x1;
-    RTC_DateStructure.RTC_WeekDay = RTC_Weekday_Sunday;
-    RTC_SetDate(RTC_Format_BCD, &RTC_DateStructure);
-    
-    /* Set the time to 00:00:00 */
-    RTC_TimeStructure.RTC_H12     = RTC_H12_AM;
-    RTC_TimeStructure.RTC_Hours   = 0x00;
-    RTC_TimeStructure.RTC_Minutes = 0x00;
-    RTC_TimeStructure.RTC_Seconds = 0x00; 
-    RTC_SetTime(RTC_Format_BCD, &RTC_TimeStructure);
 
+    RTC_WriteProtectionCmd(DISABLE);
+    
+    /* Init RTC clock */
+    RTC_StructInit(&rtc_init);
+    succ = (RTC_Init(&rtc_init) == SUCCESS ) ? 1 : 0;
+
+    RTC_WriteProtectionCmd(ENABLE);
+
+    return succ;
+}
+
+
+static int hal_rtc_reset(void)
+{
+    struct tm t;
+
+    /* 2017-1-1 00:00:00 */
+    t.tm_year = 2017;
+    t.tm_mon = 1;
+    t.tm_mday = 1;
+    t.tm_wday = 0;
+    t.tm_hour = 0;
+    t.tm_min = 0;
+    t.tm_sec = 0;
+    return hal_rtc_set( &t );
+}
+
+
+int hal_backup_sram_init(void)
+{
+    int i;
+
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_BKPSRAM, ENABLE);
+    PWR_BackupAccessCmd(ENABLE);
     PWR_BackupRegulatorCmd(ENABLE);
-    i = 1000;
-    while(PWR_GetFlagStatus(PWR_FLAG_BRR) == RESET)
-    {
-        hal_delay_ms( 1 );
-        if( --i == 0 )
-            //return 0;
-            break;
-    }
 
-    return 1;
+    /* Wait for backup regulator ready */
+    for( i=100; i; i-- )
+    {
+        if( PWR_GetFlagStatus(PWR_FLAG_BRR) == SET )
+            break;
+        hal_delay_ms( 1 );
+    }
+   
+    PWR_MainRegulatorModeConfig( PWR_Regulator_Voltage_Scale1 );  /* at maximum freq */
+    return i == 0 ? 0 : 1;
 }
 
 
 void hal_rtc_init(void)
 {
-    PWR_BackupAccessCmd(ENABLE);
-    RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_BKPSRAM, ENABLE );
-
-    if( RTC_ReadBackupRegister(RTC_BKP_DR0 ) != RTC_MARK )
+    hal_backup_sram_init();
+    if( hal_rtc_clk_init() )
     {
-        if( hal_rtc_reset() )
-            RTC_WriteBackupRegister(RTC_BKP_DR0, RTC_MARK);
+        if( RTC_ReadBackupRegister(RTC_BKP_DR0 ) != RTC_MARK )
+        {
+            if( hal_rtc_reset() )
+                RTC_WriteBackupRegister(RTC_BKP_DR0, RTC_MARK);
+        }
     }
 }
 
 
 #endif
-

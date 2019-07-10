@@ -40,6 +40,14 @@
     #define LOGGER_LINE_BUF_SIZE  1024
 #endif
 
+/* logger_buffer api will dump memory in both hex/ascii format,
+   this option defines the memory bytes in single line
+   do not define it too small, that will involve too many lines
+   and make the message queue overload */
+#ifndef LOGGER_BUFFER_LINE_BYTES
+    #define LOGGER_BUFFER_LINE_BYTES  32
+#endif
+
 /* use command 'log -t' to print the last N lines in log file
    note this only check the default log file, older history files
    are all ignored */
@@ -189,6 +197,10 @@ int logger_printf_error2( char *fmt, ... );
 #define logger_printf_warn(fmt, ...)   logger_module_printf_warn(logger_module_name, fmt, __VA_ARGS__)
 #define logger_printf_error(fmt, ...)  logger_module_printf_error(logger_module_name, fmt, __VA_ARGS__)
 
+/* memory blocks hexlify/ascii log */
+void logger_module_buffer( const char *module, const char *buf, int len );
+/* macro wrapper */
+#define logger_buffer(buf, len)  logger_module_buffer( logger_module_name, buf, len )
 
 /* module name define macro, declare this at the top of each module */
 #define LOGGER_MODULE_NAME( name )  static const char logger_module_name[] = name

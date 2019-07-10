@@ -58,5 +58,6 @@ uint32_t hal_rng_get(void);
 #define sFLASH_CS_GPIO_PORT                  GPIOA
 #define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOA
 
+#include "hal_motion.h"
 
 #endif

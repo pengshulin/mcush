@@ -567,6 +567,7 @@ static int print (
             }
             break;
 
+            case 'g':
             case 'f':
             {
                 double d = va_arg(vargs,double);
@@ -748,6 +749,12 @@ int sprintf(char *str, const char *format, ...)
 int vsprintf(char *str, const char *format, va_list ap)
 {
     return print( &str, PRINTF2_FLAGS_NONE, UINT_MAX, format, ap );
+}
+
+
+int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{
+    return print( &str, PRINTF2_FLAGS_NONE, size, format, ap );
 }
 
 

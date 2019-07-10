@@ -684,6 +684,11 @@ class Mcush( Instrument.SerialInstrument ):
             cmdline += ' -m \"%s\"'% str(message)
         return self.writeCommand( cmdline )
 
+    def logTail( self ):
+        cmd = 'log -t'
+        r = self.writeCommand( cmd )
+        return '\n'.join(r[1:]) + '\n'
+
     def logEnter( self ):
         self.writeLine('log')
         self.port.read(4) 

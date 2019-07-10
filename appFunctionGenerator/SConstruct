@@ -11,6 +11,10 @@ env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     ] ) 
 
+if not env.DEBUG:
+    env.appendDefineFlags( [ 'HAL_WDG_ENABLE=1' ] ) 
+
+
 env.appendPath([
     '.',
 ])

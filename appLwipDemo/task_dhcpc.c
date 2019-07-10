@@ -506,7 +506,8 @@ void task_dhcpc_init(void)
     if( !timer_dhcpc )
         halt( "create dhdpc timer" );
     
-    xTaskCreate(task_dhcpc_entry, (const char *)"dhcpcT", TASK_DHCPC_STACK_SIZE, NULL, TASK_DHCPC_PRIORITY, &task_dhcpc);
+    xTaskCreate(task_dhcpc_entry, (const char *)"dhcpcT", 
+                TASK_DHCPC_STACK_SIZE/sizeof(portSTACK_TYPE), NULL, TASK_DHCPC_PRIORITY, &task_dhcpc);
     if( !task_dhcpc )
         halt("create dhcpc task");
     mcushTaskAddToRegistered((void*)task_dhcpc);

@@ -13,8 +13,12 @@ extern uint32_t SystemCoreClock;
 #ifdef CONFIG_TICK_RATE_HZ
     #define configTICK_RATE_HZ                  ((TickType_t)CONFIG_TICK_RATE_HZ)
 #else
-    /* max uptime counter support at 250 Hz:
-       (4*1024*1024*1024) * (1/250) / (24*60*60) = 198.84 days = 6.6 months
+    /* max uptime counter support:
+       @100 Hz:  (4*1024*1024*1024) * (1/150) / (24*60*60)  = 497.10 days = 16.6 months
+       @200 Hz:  (4*1024*1024*1024) * (1/200) / (24*60*60)  = 248.55 days =  8.3 months
+       @250 Hz:  (4*1024*1024*1024) * (1/250) / (24*60*60)  = 198.84 days =  6.6 months
+       @500 Hz:  (4*1024*1024*1024) * (1/500) / (24*60*60)  =  99.42 days =  3.3 months
+       @1000 Hz: (4*1024*1024*1024) * (1/1000) / (24*60*60) =  47.71 days =  1.7 months
      */
     #define configTICK_RATE_HZ                  ((TickType_t)250)
 #endif

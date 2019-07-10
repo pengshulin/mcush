@@ -1,5 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdarg.h>
+#include <ctype.h>
 #include "mcush.h"
 #include "semphr.h"
 #include "task_logger.h"
@@ -270,6 +271,16 @@ int logger_module_printf_error( const char *module, char *fmt, ... )
     return r;
 }
 
+int logger_printf2( int type, char *fmt, ... )
+{
+    va_list ap;
+    int r;
+
+    va_start( ap, fmt );
+    r = _logger_module_printf_args( type, 0, fmt, ap );
+    va_end( ap );
+    return r;
+}
 
 int logger_printf_debug2( char *fmt, ... )
 {
@@ -313,6 +324,38 @@ int logger_printf_error2( char *fmt, ... )
     r = _logger_module_printf_args( LOG_ERROR, 0, fmt, ap );
     va_end( ap );
     return r;
+}
+
+
+/* dump memory in both hex/ascii format */
+void logger_module_buffer( const char *module, const char *buf, int len )
+{
+    int i=0, j;
+    char log[LOGGER_BUFFER_LINE_BYTES*3+5], *p;
+
+    while( i<len )
+    {
+        j = len-i;
+        if( j>LOGGER_BUFFER_LINE_BYTES )
+            j = LOGGER_BUFFER_LINE_BYTES;
+        hexlify( buf+i, log, j, 1 );
+        strcat( log, " " );
+        p = log + strlen(log);
+        while( p < log+(LOGGER_BUFFER_LINE_BYTES*2+1) )
+            *p++ = ' ';
+        *p++ = '|';
+        memcpy( (void*)p, (void*)(buf+i), j );
+        p[j] = '|';
+        p[j+1] = 0;
+        i += j;
+        do
+        {
+            --j; 
+            if( isprint((int)p[j]) == 0 )
+                p[j] = '.';
+        } while(j);
+        logger_module_debug( module, log );
+    }
 }
 
 
