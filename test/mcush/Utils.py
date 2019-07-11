@@ -15,13 +15,16 @@ from . import Env
 
 MAX_LINE_LEN = 80
 
-def writeTitle( title='', mark='=' ):
+def writeTitle( title='', mark='=', color=True ):
     title = unicode(title)
     line = title.join( '  ' ) if title.strip() else ''
     marks = mark + mark
     while len(line) < MAX_LINE_LEN:
         line = line.join( marks )
-    stdout.write( line[:MAX_LINE_LEN] + '\n' )
+    line = line[:MAX_LINE_LEN]
+    if color:
+        line = colored_string(line, 'cyan', style='bold')
+    stdout.write( unicode(line) + '\n' )
     stdout.flush()
 
 def generateRandomFile( size ):
@@ -254,4 +257,86 @@ def STR(s):
 def crc( data, oldcrc=0 ):
     v = crc32( data, oldcrc )
     return v & 0xFFFFFFFF
+
+
+class colored_string():
+    COLOR = {
+        'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34,
+        'magenta': 35, 'cyan': 36, 'white': 37, 'reset': 39, }
+    STYLE = {
+        'bold': 1, 'faint': 2, 'italic': 3, 'underline': 4, 'blink': 5, 
+        'reverse': 7, 'concealed': 8, 'crossed': 9, 'normal': 22, }
+    def __init__( self, string, fgcolor=None, bgcolor=None, style=None ):
+        self.string = string
+        self.fgcolor = fgcolor
+        self.bgcolor = bgcolor
+        self.style = style
+
+    def __str__( self ):
+        head = ''
+        if self.style is not None:
+            head += '\x1b[%dm'% (self.STYLE[self.style])
+        if self.bgcolor is not None:
+            head += '\x1b[%dm'% (self.COLOR[self.bgcolor]+10)
+        if self.fgcolor is not None:
+            head += '\x1b[%dm'% self.COLOR[self.fgcolor]
+        if head:
+            return self.string.join([head, '\x1b[0m'])
+        else:
+            return self.string
+
+def red_string(string):
+    return colored_string(string, 'red')
+
+def green_string(string):
+    return colored_string(string, 'green')
+
+def blue_string(string):
+    return colored_string(string, 'blue')
+
+def yellow_string(string):
+    return colored_string(string, 'yellow')
+
+def magenta_string(string):
+    return colored_string(string, 'magenta')
+
+def cyan_string(string):
+    return colored_string(string, 'cyan')
+
+def bold_string(string):
+    return colored_string(string, style='bold')
+
+def faint_string(string):
+    return colored_string(string, style='faint')
+
+RED = red_string
+GREEN = green_string
+BLUE = blue_string
+YELLOW = yellow_string
+MAGENTA = magenta_string
+CYAN = cyan_string
+BOLD = bold_string
+FAINT = faint_string
+
+def colored_log( log_string ):
+    # parse log type and colorized it
+    items = log_string.split(' ')
+    if len(items[2]) == 1:
+        # format: 20YY-M-D HH:MM:SS T module: msg
+        TYPE = items[2] 
+    elif len(items[1] == 1):
+        # format: HH:MM:SS.ms T module: msg
+        TYPE = items[1] 
+    else:
+        return log_string
+    if TYPE in ['E']:
+        return red_string(log_string)
+    elif TYPE in ['W']:
+        return yellow_string(log_string)
+    elif TYPE in ['I']:
+        return log_string
+    elif TYPE in ['D']:
+        return faint_string(log_string)
+        
+
 

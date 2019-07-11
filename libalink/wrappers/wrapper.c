@@ -243,7 +243,29 @@ void HAL_Printf(const char *fmt, ...)
 
     va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
-    logger_debug( buf );
+    if( (buf[0]=='[') && (buf[2]==']') )
+    {
+        switch( buf[1] )
+        {
+        case 'E':
+        case 'C':
+            logger_error( buf );
+            break;
+        case 'W':
+            logger_warn( buf );
+            break;
+        case 'I':
+            logger_info( buf );
+            break;
+        case 'D':
+        case 'F':
+        default:
+            logger_debug( buf );
+            break;
+        }
+    }
+    else
+        logger_debug( buf );
     va_end(ap);
 }
 

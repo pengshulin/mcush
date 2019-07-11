@@ -195,13 +195,18 @@ class Instrument:
                 self.logger.debug( newline_str )
                 return contents
 
-    def readLine( self ):
+    def readLine( self, timeout=None ):
         chars = []
+        t0 = time.time()
         while True:
             char = self.port.read(1) 
-            if char == '\n':
-                break
-            chars.append( char )
+            if char:
+                if char == '\n':
+                    break
+                chars.append( char )
+            elif timeout:
+                if time.time() > t0 + timeout:
+                    break
         return ''.join(chars).rstrip()
 
     def writeLine( self, dat ):

@@ -28,7 +28,7 @@ else:
 env.appendDefineFlags( [
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
-    'USE_CMD_SCPI_RST=0',
+    #'USE_CMD_SCPI_RST=0',
     #'USE_CMD_REBOOT=0',
     'USE_CMD_RESET=0',
     #'USE_CMD_GPIO=0',

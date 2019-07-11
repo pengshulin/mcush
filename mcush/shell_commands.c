@@ -421,6 +421,7 @@ int cmd_help( int argc, char *argv[] )
 }
 #endif
 
+
 #if USE_CMD_SCPI_IDN_CUSTOM
 int cmd_scpi_idn_custom( int argc, char *argv[] );
 #endif
@@ -446,12 +447,19 @@ int cmd_scpi_idn( int argc, char *argv[] )
 #endif
 
 
+#if USE_CMD_SCPI_RST_CUSTOM
+int cmd_scpi_rst_custom( int argc, char *argv[] );
+#endif
 #if USE_CMD_SCPI_RST
 int cmd_scpi_rst( int argc, char *argv[] )
 {
+#if USE_CMD_SCPI_RST_CUSTOM
+    return cmd_scpi_rst_custom( argc, argv );
+#else
     /* *rst command ignore all arguments */
     hal_platform_reset();
     return 0;
+#endif
 }
 #endif
 
