@@ -34,7 +34,7 @@ extern "C" {
 	ETH_MII_TXD0/ETH_RMII_TXD0 -------> PG13
 	ETH_MII_TXD1/ETH_RMII_TXD1 -------> PG14
 	ETH_NRST -------------------------> PI1
-																						*/
+*/
 /* ETH_MDIO */
 #define ETH_MDIO_GPIO_CLK               RCC_AHB1Periph_GPIOA
 #define ETH_MDIO_PORT                   GPIOA

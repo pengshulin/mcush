@@ -13,6 +13,7 @@
 #include "lwip/dns.h"
 #include "ethernetif.h"
 #include "hal_eth.h"
+#include "lwip_lib.h"
 #ifdef USE_LWIP_DEMO
   uint8_t lwip_demo_tasks_started=0;
   #ifdef USE_LWIP_HTTPSERVER_SIMPLE
@@ -139,35 +140,9 @@ void reset_address(void)
 }
 
 
-void logger_mac( const char *prompt, char *address, int shell_mode )
-{
-    const char format[] = "%s %02X:%02X:%02X:%02X:%02X:%02X";
-    char buf[128];
-    sprintf( buf, format, prompt,
-            address[0], address[1], address[2], 
-            address[3], address[4], address[5] );
-    if( shell_mode )
-        shell_write_line( buf );
-    else
-        logger_info( buf );
-}
-
-void logger_ip( const char *prompt, uint32_t address, int shell_mode )
-{
-    const char format[] = "%s %u.%u.%u.%u";
-    char buf[128];
-    sprintf( buf, format, prompt,
-            (uint8_t)(address), (uint8_t)(address >> 8),
-            (uint8_t)(address >> 16), (uint8_t)(address >> 24) );
-    if( shell_mode )
-        shell_write_line( buf );
-    else
-        logger_info( buf );
-}
-
-
 void do_lwip_init(void)
 {
+    char buf[256];
     ip_addr_t ipaddr, netmask, gateway;
 
     ETH_BSP_Config();
@@ -180,7 +155,7 @@ void do_lwip_init(void)
         logger_const_error( "no mac config" );
         memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
     }
-    logger_mac( "mac:", mac_address_init, 0 );
+    logger_info( sprintf_mac( buf, mac_address_init, "mac:", 0 ) );
  
     if( !load_ip_from_conf_file("/s/ip", &ipaddr, &netmask, &gateway) && 
         !load_ip_from_conf_file("/c/ip", &ipaddr, &netmask, &gateway) )
@@ -193,9 +168,7 @@ void do_lwip_init(void)
     }
     else
     {
-        logger_ip( "ip:", ipaddr.addr, 0 );    
-        logger_ip( "netmask:", netmask.addr, 0 );
-        logger_ip( "gateway:", gateway.addr, 0 );
+        logger_info( sprintf_ip_mask_gw( buf, ipaddr.addr, netmask.addr, gateway.addr, "config", 0 ) );
         ip_manual = 1;
         dns_setserver( 0, (const ip_addr_t *)&gateway );
 #if DNS_MAX_SERVERS > 1
@@ -223,6 +196,7 @@ void do_lwip_init(void)
 
 void task_dhcpc_entry(void *p)
 {
+    char buf[256];
     uint8_t evt;
 
     do_lwip_init();
@@ -282,9 +256,8 @@ void task_dhcpc_entry(void *p)
                 if( gnetif.ip_addr.addr != 0 )
                 {
                     dhcp_state = DHCP_ADDRESS_ASSIGNED;
-                    logger_ip( "ip", gnetif.ip_addr.addr, 0 );    
-                    logger_ip( "netmask", gnetif.netmask.addr, 0 );
-                    logger_ip( "gateway", gnetif.gw.addr, 0 );
+                    sprintf_ip_mask_gw( buf, gnetif.ip_addr.addr, gnetif.netmask.addr, gnetif.gw.addr, "assigned", 0 );
+                    logger_info( buf );
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
                     logger_const_info( "netbiosns start" );
                     netbiosns_init();
@@ -345,7 +318,7 @@ int cmd_netstat( int argc, char *argv[] )
     mcush_opt opt;
     const char *cmd=0;
     int i;
-    char buf[8], *p, *p2, *p3, succ;
+    char buf[64], *p, *p2, *p3, succ;
     char *input=0;
     ip_addr_t ipaddr, netmask, gateway;
 
@@ -365,7 +338,7 @@ int cmd_netstat( int argc, char *argv[] )
 
     if( cmd==NULL || strcmp(cmd, "info") == 0 )
     {
-        logger_mac( "mac:", mac_address_init, 1 );
+        logger_info( sprintf_mac( buf, mac_address_init, "mac:", 0) );
         shell_printf( "dhcp: %u\n", ip_manual ? 0 : 1 );
         switch( dhcp_state )
         {
@@ -377,13 +350,14 @@ int cmd_netstat( int argc, char *argv[] )
             break;
         case DHCP_ADDRESS_ASSIGNED:
         case DHCP_ADDRESS_MANUAL:
-            logger_ip( "ip:", gnetif.ip_addr.addr, 1 );    
-            logger_ip( "netmask:", gnetif.netmask.addr, 1 );
-            logger_ip( "gateway:", gnetif.gw.addr, 1 );
+            shell_write_line( sprintf_ip( buf, gnetif.ip_addr.addr, "ip:", 0 ) );
+            shell_write_line( sprintf_ip( buf, gnetif.netmask.addr, "netmask:", 0 ) );
+            shell_write_line( sprintf_ip( buf, gnetif.gw.addr, "gateway:", 0 ) );
             for( i=0; i<DNS_MAX_SERVERS; i++ )
             {
-                sprintf( buf, "dns%u:", i+1 );
-                logger_ip( buf, dns_getserver(i)->addr, 1 );
+                sprintf( buf, "dns%u: ", i+1 );
+                sprintf_ip( buf+strlen(buf), dns_getserver(i)->addr, 0, 0 );
+                shell_write_line( buf );
             }
             break;
         default:

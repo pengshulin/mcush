@@ -691,7 +691,7 @@ class Mcush( Instrument.SerialInstrument ):
 
     def logEnter( self ):
         self.writeLine('log')
-        self.port.read(4) 
+        self.port.read(4)
 
     def logExit( self ):
         self.port.write( self.DEFAULT_TERMINATOR_RESET )

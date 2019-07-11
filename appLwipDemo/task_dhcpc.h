@@ -22,8 +22,6 @@ void net_state_change_hook(int connected);
 int send_dhcpc_event(uint8_t event); 
 
 void task_dhcpc_init(void);
-void logger_ip( const char *prompt, uint32_t address, int shell_mode );
-void logger_mac( const char *prompt, char *address, int shell_mode );
 
 #endif
 

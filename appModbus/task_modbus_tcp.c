@@ -10,6 +10,7 @@
 #include "lwip/debug.h"
 #include "lwip/stats.h"
 #include "lwip/tcp.h"
+#include "lwip_lib.h"
 
 
 LOGGER_MODULE_NAME("modbus");
@@ -282,6 +283,7 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
     err_t ret_err;
     struct modbus_tcp_state *es;
     int i;
+    char buf[64];
 
     LWIP_UNUSED_ARG(arg);
     if((err != ERR_OK) || (newpcb == NULL))
@@ -334,7 +336,7 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
         tcp_sent(newpcb, modbus_tcp_sent);
         ret_err = ERR_OK;
         logger_printf_info( "client #%u connected 0x%08X", es->client_id, (void*)newpcb );
-        logger_ip( "client ip", newpcb->remote_ip.addr, 0 );
+        logger_info( sprintf_ip( buf, newpcb->remote_ip.addr, "client ip", 0 ) );
     }
     else
     {
@@ -543,7 +545,7 @@ void task_modbus_tcp_entry(void *arg)
                 {
                     modbus_pcb = tcp_listen(modbus_pcb);
                     tcp_accept( modbus_pcb, modbus_tcp_accept );
-                    logger_printf_info( "listening on port %d, pcb=0x%08X", MODBUS_TCP_PORT, modbus_pcb );
+                    logger_printf_debug( "listening on port %d, pcb=0x%08X", MODBUS_TCP_PORT, modbus_pcb );
                 }
                 else
                 {

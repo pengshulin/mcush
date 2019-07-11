@@ -44,3 +44,58 @@ uint16_t tcp_bind_random_port( struct tcp_pcb *pcb )
 }
 
 
+static char *sprintf_join_prefix_suffix( char *buf, const char *prefix, const char *content, const char *suffix )
+{
+    if( buf == NULL )
+        return NULL;
+
+    if( prefix )
+    {
+        strcpy( buf, prefix );
+        strcat( buf, " " );
+        strcat( buf, content );
+    }
+    else
+        strcpy( buf, content );
+
+    if( suffix )
+    {
+        strcat( buf, " " );
+        strcat( buf, suffix );
+    }
+    return buf; 
+}
+
+
+char *sprintf_ip( char *buf, uint32_t address, const char *prefix, const char *suffix )
+{
+    char buf2[16];
+ 
+    sprintf( buf2, "%u.%u.%u.%u", 
+            (uint8_t)(address), (uint8_t)(address >> 8),
+            (uint8_t)(address >> 16), (uint8_t)(address >> 24) );
+    return sprintf_join_prefix_suffix( buf, prefix, buf2, suffix );
+}
+
+
+char *sprintf_ip_mask_gw( char *buf, uint32_t ip, uint32_t mask, uint32_t gw, const char *prefix, const char *suffix )
+{
+    char buf2[256];
+
+    sprintf( buf2, "ip(%u.%u.%u.%u) netmask(%u.%u.%u.%u) gateway(%u.%u.%u.%u)", 
+            (uint8_t)(ip), (uint8_t)(ip >> 8), (uint8_t)(ip >> 16), (uint8_t)(ip >> 24),
+            (uint8_t)(mask), (uint8_t)(mask >> 8), (uint8_t)(mask >> 16), (uint8_t)(mask >> 24),
+            (uint8_t)(gw), (uint8_t)(gw >> 8), (uint8_t)(gw >> 16), (uint8_t)(gw >> 24) );
+    return sprintf_join_prefix_suffix( buf, prefix, buf2, suffix );
+}
+
+
+char *sprintf_mac( char *buf, char *address, const char *prefix, const char *suffix )
+{
+    char buf2[32];
+ 
+    sprintf( buf2, "%02X:%02X:%02X:%02X:%02X:%02X", 
+            address[0], address[1], address[2], 
+            address[3], address[4], address[5] );
+    return sprintf_join_prefix_suffix( buf, prefix, buf2, suffix );
+}

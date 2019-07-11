@@ -321,10 +321,11 @@ FAINT = faint_string
 def colored_log( log_string ):
     # parse log type and colorized it
     items = log_string.split(' ')
-    if len(items[2]) == 1:
+    items_len = len(items)
+    if (items_len >= 4) and (len(items[2]) == 1):
         # format: 20YY-M-D HH:MM:SS T module: msg
         TYPE = items[2] 
-    elif len(items[1] == 1):
+    elif (items_len >= 3) and (len(items[1] == 1)):
         # format: HH:MM:SS.ms T module: msg
         TYPE = items[1] 
     else:

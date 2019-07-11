@@ -19,6 +19,8 @@
 #include "lwip_commands.h"
 #include "lwip_lib.h"
 
+LOGGER_MODULE_NAME("wget");
+
 #ifndef WGET_DEBUG
 #define WGET_DEBUG     LWIP_DBG_ON
 #endif
@@ -249,6 +251,7 @@ int cmd_wget( int argc, char *argv[] )
     char *pathfile = 0;
     char *file = 0;
     int size;
+    char buf[64];
 
     memset( &lwcb, 0, sizeof(wget_cb_t) );
     wcb = &lwcb;
@@ -346,7 +349,7 @@ int cmd_wget( int argc, char *argv[] )
         }
         if( wcb->server_ip.addr )
         {
-            logger_ip( "dns resolved:", wcb->server_ip.addr, 1 ); 
+            shell_write_line( sprintf_ip(buf, wcb->server_ip.addr, "dns resolved:", 0) ); 
         }
         else
         {

@@ -23,6 +23,8 @@
 #define NC_DEBUG     LWIP_DBG_ON
 #endif
 
+LOGGER_MODULE_NAME("nc");
+
 #define NC_DNS_RESOLVE_TIMEOUT_S  5
 
 #define NC_SEND_BUF_LEN   512 
@@ -148,6 +150,7 @@ int cmd_nc( int argc, char *argv[] )
     char chr;
     ip_addr_t ipaddr;
     int i;
+    char buf[64];
 
     memset( &lncb, 0, sizeof(nc_cb_t) );
     ncb = &lncb;
@@ -239,7 +242,7 @@ int cmd_nc( int argc, char *argv[] )
         }
         if( ncb->server_ip.addr )
         {
-            logger_ip( "dns resolved:", ncb->server_ip.addr, 1 ); 
+            shell_write_line( sprintf_ip( buf, ncb->server_ip.addr, "dns resolved", 0 ) );
         }
         else
         {

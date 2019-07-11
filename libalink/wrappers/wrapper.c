@@ -547,6 +547,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     alink_cb_t *pacb;
     ip_addr_t ipaddr;
     TickType_t t0;
+    char buf[64];
 
 #if DEBUG_ALINK_WRAPPER
     logger_printf_debug("HAL_TCP_Establish(%s, %d)", (char*)host, port);
@@ -588,7 +589,7 @@ uintptr_t HAL_TCP_Establish(const char *host, uint16_t port)
     }
         
     /* tcp connect */
-    logger_ip( "alink: server ip", acb->server_ip, 0 );
+    logger_info( sprintf_ip( buf, acb->server_ip, "server ip", 0) );
     acb->server_port = port;
     acb->pcb = tcp_new();
     if( acb->pcb == NULL )

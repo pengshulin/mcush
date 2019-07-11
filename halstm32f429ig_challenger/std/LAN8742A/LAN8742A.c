@@ -13,8 +13,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 ETH_InitTypeDef ETH_InitStructure;
-__IO uint32_t  EthStatus = 0;
-__IO uint8_t EthLinkStatus = 0;
+__IO uint32_t EthStatus = 0;
 extern struct netif gnetif;
 
 
@@ -22,9 +21,7 @@ extern struct netif gnetif;
 static void ETH_GPIO_Config(void);
 static void ETH_MACDMA_Config(void);
 
-/* Private functions ---------------------------------------------------------*/
-/* Bit 2 from Basic Status Register in PHY */
-#define GET_PHY_LINK_STATUS()		(ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & 0x00000004)
+
 
 
 const int8_t reg_id[] = {0, 1, 2, 3, 4, 5, 6, 17, 18, 26, 27, 29, 30, 31, -1};
@@ -154,6 +151,7 @@ int cmd_lan8720( int argc, char *argv[] )
     else if( strcmp( cmd, shell_str_reset ) == 0 )
     {
         ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Reset);
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_AutoNegotiation);
     }
     else if( strcmp( cmd, "down" ) == 0 )
     {
@@ -201,7 +199,7 @@ void ETH_BSP_Config(void)
     ETH_MACDMA_Config();
 
     /* Get Ethernet link status*/
-    if(GET_PHY_LINK_STATUS())
+    if((ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & PHY_Linked_Status))
     {
         EthStatus |= ETH_LINK_FLAG;
     }
@@ -300,6 +298,10 @@ static void ETH_MACDMA_Config(void)
     /* 配置ETH */
     EthStatus = ETH_Init(&ETH_InitStructure, ETHERNET_PHY_ADDRESS);
     ETH_DMAITConfig(ETH_DMA_IT_NIS|ETH_DMA_IT_R,ENABLE);
+
+    /* reset */
+    ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Reset);
+    ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_AutoNegotiation);
 }
 
 /**
@@ -413,27 +415,42 @@ void ETH_GPIO_Config(void)
     GPIO_PinAFConfig(ETH_RMII_TXD1_PORT, ETH_RMII_TXD1_SOURCE, ETH_RMII_TXD1_AF);
 }
 
-/* This function is called periodically each second */
-/* It checks link status for ethernet controller */
+
+#define ETH_CHECK_LINK_RETRY  3
+/* check ethernet link status every second */
 void ETH_CheckLinkStatus(uint16_t PHYAddress)
 {
-    static uint8_t status = 0;
-    uint32_t t = GET_PHY_LINK_STATUS();
+    static uint8_t check_link_retry = 0;
 
-    /* If we have link and previous check was not yet */
-    if (t && !status) {
-        /* Set link up */
-        netif_set_link_up(&gnetif);
-
-        status = 1;
+    if( ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & PHY_Linked_Status )
+    {
+        check_link_retry = ETH_CHECK_LINK_RETRY;
+        if( ! (EthStatus & ETH_LINK_FLAG)  )
+        {
+            netif_set_link_up( &gnetif );  /* set link up */
+            EthStatus |= ETH_LINK_FLAG;
+        }
     }
-    /* If we don't have link and it was on previous check */
-    if (!t && status) {
-        EthLinkStatus = 1;
-        /* Set link down */
-        netif_set_link_down(&gnetif);
-
-        status = 0;
+    else if( EthStatus & ETH_LINK_FLAG )
+    {
+        if( check_link_retry == 0 )
+        {
+            netif_set_link_down( &gnetif );  /* set link down */
+            EthStatus &= ~ETH_LINK_FLAG;
+            check_link_retry = ETH_CHECK_LINK_RETRY;
+        }
+        else
+            check_link_retry--;
+    }
+    else
+    {
+        if( check_link_retry == 0 )
+        {
+            ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_AutoNegotiation);
+            check_link_retry = ETH_CHECK_LINK_RETRY;
+        }
+        else
+            check_link_retry--;
     }
 }
 
@@ -445,7 +462,7 @@ void ETH_CheckLinkStatus(uint16_t PHYAddress)
 void ETH_link_callback(struct netif *netif)
 {
     __IO uint32_t timeout = 0;
-    uint32_t tmpreg,RegValue;
+    uint32_t tmpreg, RegValue;
 
     if(netif_is_link_up(netif))
     {
@@ -515,15 +532,12 @@ void ETH_link_callback(struct netif *netif)
         /* Restart MAC interface */
         ETH_Start();
 
-        
         send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
 
         //netif_set_addr(&gnetif, &ipaddr , &netmask, &gw);
 
         /* When the netif is fully configured this function must be called.*/
         netif_set_up(&gnetif);
-
-        EthLinkStatus = 0;
     }
     else
     {
@@ -531,7 +545,7 @@ void ETH_link_callback(struct netif *netif)
 
         send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
 
-        /*  When the netif link is down this function must be called.*/
+        /* When the netif link is down this function must be called.*/
         netif_set_down(&gnetif);
     }
 }

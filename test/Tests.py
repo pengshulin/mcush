@@ -156,6 +156,14 @@ def rtc( argv=None ):
     print( s.rtcRead() )
 
    
+#############################################################################
+# LOGGER
+def log_mon( argv=None ):
+    s = Mcush()
+    s.logEnter()
+    while True:
+        line = s.readLine()
+        print Utils.colored_log(line)
 
 
 #############################################################################

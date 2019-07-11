@@ -14,7 +14,9 @@
 #include "lwip/inet_chksum.h"
 #include "lwip/prot/ip4.h"
 #include "lwip_commands.h"
+#include "lwip_lib.h"
 
+LOGGER_MODULE_NAME("ping");
 
 /**
  * PING_DEBUG: Enable debugging for PING.
@@ -188,6 +190,7 @@ int cmd_ping( int argc, char *argv[] )
     ping_cb_t pcb;
     char chr;
     ip_addr_t ipaddr;
+    char buf[64];
 
     ping_pcb = 0;
     memset( &pcb, 0, sizeof(ping_cb_t) );
@@ -256,7 +259,7 @@ int cmd_ping( int argc, char *argv[] )
         }
         if( pcb.ping_target.addr )
         {
-            logger_ip( "dns resolved:", pcb.ping_target.addr, 1 ); 
+            shell_write_line( sprintf_ip(buf, pcb.ping_target.addr, "dns resolved:", 0) ); 
         }
         else
         {
