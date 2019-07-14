@@ -23,7 +23,7 @@ def writeTitle( title='', mark='=', color=True ):
         line = line.join( marks )
     line = line[:MAX_LINE_LEN]
     if color:
-        line = colored_string(line, 'cyan', style='bold')
+        line = colored_string(line, 'black', 'white', style='bold')
     stdout.write( unicode(line) + '\n' )
     stdout.flush()
 
@@ -262,7 +262,10 @@ def crc( data, oldcrc=0 ):
 class colored_string():
     COLOR = {
         'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34,
-        'magenta': 35, 'cyan': 36, 'white': 37, 'reset': 39, }
+        'magenta': 35, 'cyan': 36, 'white': 37, 'reset': 39, 
+        'lightblack': 90, 'lightred': 91, 'lightgreen': 92,
+        'lightyellow': 93, 'lightblue': 94, 'lightmagenta': 95,
+        'lightcyan': 96, 'lightwhite': 97 }
     STYLE = {
         'bold': 1, 'faint': 2, 'italic': 3, 'underline': 4, 'blink': 5, 
         'reverse': 7, 'concealed': 8, 'crossed': 9, 'normal': 22, }
@@ -329,15 +332,17 @@ def colored_log( log_string ):
         # format: HH:MM:SS.ms T module: msg
         TYPE = items[1] 
     else:
-        return log_string
+        return colored_string(log_string, 'white', 'red', 'bold')
     if TYPE in ['E']:
-        return red_string(log_string)
+        return colored_string(log_string, 'lightred')
     elif TYPE in ['W']:
-        return yellow_string(log_string)
+        return colored_string(log_string, 'lightyellow')
     elif TYPE in ['I']:
         return log_string
     elif TYPE in ['D']:
         return faint_string(log_string)
+    else:
+        return colored_string(log_string, 'white', 'red', 'bold')
         
 
 

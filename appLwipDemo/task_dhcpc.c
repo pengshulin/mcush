@@ -338,7 +338,7 @@ int cmd_netstat( int argc, char *argv[] )
 
     if( cmd==NULL || strcmp(cmd, "info") == 0 )
     {
-        logger_info( sprintf_mac( buf, mac_address_init, "mac:", 0) );
+        shell_write_line( sprintf_mac( buf, mac_address_init, "mac:", 0) );
         shell_printf( "dhcp: %u\n", ip_manual ? 0 : 1 );
         switch( dhcp_state )
         {

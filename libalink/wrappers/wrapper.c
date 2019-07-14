@@ -426,9 +426,12 @@ err_t alink_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
     struct pbuf *p2;
     int i;
 
+    if( acb == NULL )
+        return ERR_OK;
+ 
     if( pcb != acb->pcb )
     {
-        logger_printf_warn( "old tcp input ignored (port %d)", pcb->local_port );
+        logger_printf_debug( "old tcp input ignored (port %d)", pcb->local_port );
         return tcp_close( pcb );
     }
 
@@ -491,6 +494,9 @@ err_t alink_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
  
 static err_t alink_connected_cb(void *arg, struct tcp_pcb *pcb, err_t err)
 {
+    if( acb == NULL )
+        return ERR_OK;
+ 
     if( err != ERR_OK )
     {
         tcp_close(pcb);
@@ -524,6 +530,7 @@ int HAL_TCP_Destroy(uintptr_t fd)
 #if DEBUG_ALINK_WRAPPER
     logger_printf_debug("HAL_TCP_Destroy(0x%08X)", (uint32_t)fd);
 #endif
+    acb = 0;
     if( (void*)fd == NULL )
         return 0;
     tcp_close( pacb->pcb ); 
