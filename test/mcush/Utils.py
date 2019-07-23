@@ -328,7 +328,7 @@ def colored_log( log_string ):
     if (items_len >= 4) and (len(items[2]) == 1):
         # format: 20YY-M-D HH:MM:SS T module: msg
         TYPE = items[2] 
-    elif (items_len >= 3) and (len(items[1] == 1)):
+    elif (items_len >= 3) and (len(items[1]) == 1):
         # format: HH:MM:SS.ms T module: msg
         TYPE = items[1] 
     else:

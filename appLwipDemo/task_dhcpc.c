@@ -198,6 +198,7 @@ void task_dhcpc_entry(void *p)
 {
     char buf[256];
     uint8_t evt;
+    int i;
 
     do_lwip_init();
     xTimerStart( timer_dhcpc, 0 );
@@ -256,7 +257,13 @@ void task_dhcpc_entry(void *p)
                 if( gnetif.ip_addr.addr != 0 )
                 {
                     dhcp_state = DHCP_ADDRESS_ASSIGNED;
-                    sprintf_ip_mask_gw( buf, gnetif.ip_addr.addr, gnetif.netmask.addr, gnetif.gw.addr, "assigned", 0 );
+                    logger_info( sprintf_ip_mask_gw( buf, gnetif.ip_addr.addr, gnetif.netmask.addr, gnetif.gw.addr, "assigned", 0 ) );
+                    strcpy( buf, "assigned" );
+                    for( i=0; i<DNS_MAX_SERVERS; i++ )
+                    {
+                        sprintf( buf+strlen(buf), " dns%u: ", i+1 );
+                        sprintf_ip( buf+strlen(buf), dns_getserver(i)->addr, 0, 0 );
+                    }
                     logger_info( buf );
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
                     logger_const_info( "netbiosns start" );
