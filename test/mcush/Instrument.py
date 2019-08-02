@@ -498,11 +498,51 @@ class SerialPort(Port):
             raise UnknownPortError( str(e) )
  
 
+class SocketPort(Port):
+        
+    def __init__( self, parent, *args, **kwargs ):
+        import socket
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        Port.__init__( self, parent, *args, **kwargs )
+        
+    def connect( self ):
+        if self._connected:
+            return
+        self.s.connect( (self.ip, self.port) )
+        self.s.settimeout( self.timeout )
+        self._connected = True
+
+    def disconnect( self ):
+        self._connected = False
+        self.s.close()
+    
+    def read( self, read_bytes=1 ):
+        if self._connected:
+            ret = []
+            for i in range(read_bytes):
+                r = self.s.recv(1)
+                if r:
+                    ret.append( r )
+                else:
+                    break
+            #print( 'read', ret )
+            return ''.join(ret)
+
+    def write( self, buf ):
+        if self._connected:
+            self.s.sendall(buf)
+ 
+
+
+
 
 class SerialInstrument(Instrument):
     '''Serial port based instruments'''
-
     PORT_TYPE = SerialPort
 
+
+class SocketInstrument(Instrument):
+    '''Socket port based instruments'''
+    PORT_TYPE = SocketPort
 
 

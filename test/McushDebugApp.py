@@ -133,6 +133,8 @@ INFO = info
 PORT = None
 
 class MyTask(AppUtils.Task):
+    last_info = None
+
     def addResult( self, info=None ):
         if info is None:
             self.queue.put( ('add_result', '') )
@@ -206,9 +208,17 @@ class ExecuteScriptTask(MyTask):
         (port, script) = args
         task_obj = self
         PORT = port
-        code = compile(script, '', 'exec')
-        exec( code )
-        self.info( _("Done") )
+        try:
+            code = compile(script, '', 'exec')
+            exec( code )
+            if self.last_info is None: 
+                self.info( _("Done") )
+        except Exception as e:
+            err_line = Utils.check_traceback_for_errline(e)
+            if err_line is not None:
+                self.queue.put( ('add_exception_mark', err_line) )
+            raise e
+
 
 
 class QueryTask(MyTask):
@@ -563,8 +573,8 @@ class MainFrame(MyFrame):
         ctrl.StyleSetSpec(wx.stc.STC_P_STRINGEOL, "fore:#000000,face:%(mono)s,back:#E0C0E0,eol,size:%(size)d" % faces)
         ctrl.SetCaretForeground("BLACK")
         ctrl.SetMarginType(1, wx.stc.STC_MARGIN_NUMBER)
-        ctrl.SetMarginWidth(1, 40)
-
+        ctrl.SetMarginWidth(1, 50) 
+        ctrl.MarkerDefine(0, wx.stc.STC_MARK_ARROW, "blue", "blue")
         self.SetAcceleratorTable(wx.AcceleratorTable([  \
             (wx.ACCEL_NORMAL, wx.WXK_F5,  self.button_run.GetId()),  # run
             ]))
@@ -720,6 +730,10 @@ class MainFrame(MyFrame):
             self.notebook_1.Enable( not lock )
             self.button_stop.Show( lock )
             self.Layout()
+        elif event.cmd == 'add_exception_mark':
+            line = event.val
+            self.text_ctrl_script.MarkerAdd( line-1, 0 )
+            self.text_ctrl_script.GotoLine( line-1 )
         elif event.cmd == 'update_filelist':
             lst = event.val
             self.tree_ctrl_fs.DeleteAllItems()
@@ -808,6 +822,7 @@ class MainFrame(MyFrame):
             return
         script = self.text_ctrl_script.GetValue().rstrip()
         if len(script) > 0:
+            self.text_ctrl_script.MarkerDeleteAll(0)
             self.task = ExecuteScriptTask( (port, script), self.msgq )
         event.Skip()
 
@@ -848,6 +863,8 @@ class MainFrame(MyFrame):
                 for k,v in PRESET:
                     if k == name:
                         self.text_ctrl_script.SetValue(v)
+                        self.text_ctrl_script.EmptyUndoBuffer()
+                        self.text_ctrl_script.MarkerDeleteAll(0)
         event.Skip()
  
     def OnLoadFile( self, event ):
@@ -856,6 +873,8 @@ class MainFrame(MyFrame):
                 defaultFile='', wildcard="Python script file (*.py)|*.py", style=wx.OPEN|wx.CHANGE_DIR)
         if dlg.ShowModal() == wx.ID_OK:
             self.text_ctrl_script.LoadFile( dlg.GetPath().strip() )
+            self.text_ctrl_script.EmptyUndoBuffer()
+            self.text_ctrl_script.MarkerDeleteAll(0)
         event.Skip()
 
     def OnSaveAs( self, event ):

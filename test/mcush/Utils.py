@@ -11,6 +11,7 @@ from struct import pack, unpack
 from time import strftime, localtime
 import json
 from . import Env
+import traceback
 
 
 MAX_LINE_LEN = 80
@@ -344,5 +345,35 @@ def colored_log( log_string ):
     else:
         return colored_string(log_string, 'white', 'red', 'bold')
         
+
+def check_traceback_for_errline(e):
+    if Env.DEBUG:
+        traceback.print_exc(sys.stdout)
+    err = []
+    for line in traceback.format_exc().splitlines():
+        line = line.rstrip()
+        if line:
+            err.append(line)
+    err_info = err.pop()
+    err_file, err_line, err_module = None, None, None
+    while err:
+        l = err.pop()
+        try:
+            if not l.startswith('  File '):
+                continue
+        except UnicodeDecodeError:
+            continue
+        try:
+            _file, _line, _module = l.split(', ')
+        except ValueError:
+            _file, _line = l.split(', ')
+            _module = '<module>'
+        err_module = _module.lstrip('in ')
+        if err_module == '<module>':
+            err_file = _file.lstrip('  File ')
+            err_line = int(_line.lstrip('line '))
+            break
+    return err_line
+
 
 

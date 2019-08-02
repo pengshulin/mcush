@@ -139,7 +139,7 @@ static void parse_short(mcush_opt *opt, mcush_opt_parser *parser)
     const mcush_opt_spec *spec;
     const char *arg = parser->args[parser->idx++], alias = *(arg + 1);
 
-    if( (spec = spec_byalias(parser, alias)) == NULL )
+    if( (alias == 0) || ((spec = spec_byalias(parser, alias)) == NULL) )
     {
         opt->spec = NULL;
         opt->value = arg;

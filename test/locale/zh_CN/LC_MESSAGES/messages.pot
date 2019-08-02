@@ -84,6 +84,9 @@ msgstr "查询"
 msgid "Remove"
 msgstr "删除"
 
+msgid "Clear"
+msgstr "清除"
+
 msgid "Put file"
 msgstr "下传文件"
 
@@ -420,6 +423,8 @@ msgstr "已连接"
 msgid "Disconnected"
 msgstr "已断开"
 
+msgid "Device secret"
+msgstr "设备密钥"
 
 msgid "Mcush Debug Utility"
 msgstr "Mcush调试工具"
