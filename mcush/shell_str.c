@@ -62,6 +62,7 @@ __attribute__((aligned(1))) const char shell_str_malloc[] = "malloc";
 __attribute__((aligned(1))) const char shell_str_mcush[] = "mcush";
 __attribute__((aligned(1))) const char shell_str_message[] = "message";
 __attribute__((aligned(1))) const char shell_str_memory[] = "memory";
+__attribute__((aligned(1))) const char shell_str_module[] = "module";
 __attribute__((aligned(1))) const char shell_str_mount[] = "mount";
 __attribute__((aligned(1))) const char shell_str_ms[] = "ms";
 __attribute__((aligned(1))) const char shell_str_msg[] = "msg";

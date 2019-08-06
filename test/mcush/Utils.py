@@ -348,7 +348,7 @@ def colored_log( log_string ):
 
 def check_traceback_for_errline(e):
     if Env.DEBUG:
-        traceback.print_exc(sys.stdout)
+        traceback.print_exc(stdout)
     err = []
     for line in traceback.format_exc().splitlines():
         line = line.rstrip()

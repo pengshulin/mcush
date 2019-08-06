@@ -30,6 +30,9 @@ extern "C" {
 #ifndef SHELL_INPUT_SUB_PROMPT
     #define SHELL_INPUT_SUB_PROMPT  ">"
 #endif
+#ifndef SHELL_IGNORE_ESC_CHAR
+    #define SHELL_IGNORE_ESC_CHAR  1 
+#endif
 #ifndef SHELL_IGNORE_LEADING_SPACE
     #define SHELL_IGNORE_LEADING_SPACE  0
 #endif

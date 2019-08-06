@@ -17,8 +17,11 @@ from . import Env
 from . import Instrument
 from os.path import join, dirname
 import gettext
-#_getStr = gettext.translation( "mcush", join(dirname(__file__), "locale"), codeset='utf8', fallback=True ).ugettext
-_getStr = gettext.translation( "mcush", join(dirname(__file__), "locale"), codeset='utf8', fallback=True ).gettext
+_t = gettext.translation( "mcush", join(dirname(__file__), "locale"), codeset='utf8', fallback=True )
+try:
+    _getStr = _t.ugettext
+except AttributeError:
+    _getStr = _t.gettext
 
 
 class Task():

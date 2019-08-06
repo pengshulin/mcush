@@ -212,8 +212,6 @@ int shell_eval_float( const char *str, float *f )
     return 1;
 #endif
 }
-
-
 #endif
 
 
@@ -446,6 +444,11 @@ static int shell_process_char( char c )
     else if( c == '\r' )  /* ignored */
     {
     }
+#if SHELL_IGNORE_ESC_CHAR
+    else if( c == 0x1B )  /* ESC ignored */
+    {
+    }
+#endif
 #if SHELL_IGNORE_LEADING_SPACE
     else if( (scb.cmdline_len == 0) && ((c == ' ') || (c == '\t')) )  /* ignore */
     {

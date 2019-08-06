@@ -692,6 +692,8 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'E', shell_str_error, 0, "ERROR type filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'M', shell_str_module, "module", "module filter" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'H', shell_str_head, "head", "message head filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'm', shell_str_msg, shell_str_message, "log message" },
@@ -700,7 +702,7 @@ int cmd_logger( int argc, char *argv[] )
     mcush_opt opt;
     int8_t enable, enable_set=0, tail_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
     int8_t filter_mode=0;
-    const char *msg=0, *head=0;
+    const char *msg=0, *head=0, *module=0;
     uint8_t head_len=0;
     logger_event_t evt;
     char c;
@@ -748,6 +750,15 @@ int cmd_logger( int argc, char *argv[] )
                 }
                 else
                     head_len = strlen(head);
+            }
+            else if( STRCMP( opt.spec->name, shell_str_module ) == 0 )
+            {
+                module = opt.value;
+                if( module == 0 )
+                {
+                    shell_write_err(shell_str_module);
+                    return -1;
+                }
             }
             else if( STRCMP( opt.spec->name, shell_str_msg ) == 0 )
             {
@@ -850,7 +861,8 @@ int cmd_logger( int argc, char *argv[] )
         else
         {
             xSemaphoreGive( semaphore_logger );
-            return 1;
+            /* TODO: find better solution for logger file switched */
+            return 0;
         }
     }
     else
@@ -872,7 +884,8 @@ int cmd_logger( int argc, char *argv[] )
             {
                 if( evt.type & filter_mode )
                 {
-                    if( (head==0) || (strncmp(evt.str, head, head_len) == 0) )
+                    if( ((head==0) || (strncmp(evt.str, head, head_len) == 0)) && 
+                        ((module==0) || (strcmp(evt.module, module) == 0)) )
                     {
                         convert_logger_event_to_str( &evt, buf );
                         shell_write_str( buf );

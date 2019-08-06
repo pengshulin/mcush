@@ -10,38 +10,6 @@ int mcush_file_exists( const char *fname )
 }
 
 
-int mcush_file_load_string( const char *fname, char *str, int size_limit )
-{
-    int fd = mcush_open( fname, "r" );
-    int r;
-
-    if( fd == 0 )
-        return 0;
-    r = mcush_read( fd, str, size_limit-1 );
-    mcush_close( fd );
-    if( r < 0 )
-        return 0;
-    str[r] = 0;
-    return r;
-}
-
-
-int mcush_file_write_string( const char *fname, char *str )
-{
-    int fd = mcush_open( fname, "w+" );
-    int len = strlen(str);
-    int r;
-
-    if( fd == 0 )
-        return 0;
-    r = mcush_write( fd, str, len );
-    mcush_close( fd );
-    if( r < 0 )
-        return 0;
-    return r==len ? 1 : 0;
-}
-
-
 #define _READ_BUF_SIZE  128
 int mcush_file_crc8( const char *fname )
 {
@@ -117,15 +85,14 @@ int mcush_file_remove_retry( const char *fname, int retry_num )
 }
 
 
-
 int mcush_file_read_line( int fd, char *line )
 {
     int byte=0;
     int i;
-    char *p, c;
-    char buf[1024];
+    char *p=line, c;
 
-    p = buf;
+    if( p == 0 )
+        return 0;
     while( 1 )
     {
         i = mcush_read( fd, &c, 1 );
@@ -142,11 +109,108 @@ int mcush_file_read_line( int fd, char *line )
     if( byte == 0 )
         return 0;
     *p = 0;
-    strcpy( line, buf );
     return 1;
 }
 
 
+int mcush_file_read_lines( int fd, char *line1, char *line2, char *line3, char *line4 )
+{
+    if( (line1==0) || (mcush_file_read_line( fd, line1 )==0) )
+        return 0;
+    if( (line2==0) || (mcush_file_read_line( fd, line2 )==0) )
+        return 1;
+    if( (line3==0) || (mcush_file_read_line( fd, line3 )==0) )
+        return 2;
+    if( (line4==0) || (mcush_file_read_line( fd, line4 )==0) )
+        return 3;
+    return 4;
+}
+
+
+int mcush_file_load_string( const char *fname, char *str, int size_limit )
+{
+    int fd = mcush_open( fname, "r" );
+    int r;
+
+    if( fd == 0 )
+        return 0;
+    r = mcush_read( fd, str, size_limit-1 );
+    mcush_close( fd );
+    if( r < 0 )
+        return 0;
+    str[r] = 0;
+    return r;
+}
+
+
+int mcush_file_write_string( const char *fname, char *str )
+{
+    int fd = mcush_open( fname, "w+" );
+    int len = strlen(str);
+    int r;
+
+    if( fd == 0 )
+        return 0;
+    r = mcush_write( fd, str, len );
+    mcush_close( fd );
+    if( r < 0 )
+        return 0;
+    return r==len ? 1 : 0;
+}
+
+
+int mcush_file_load_int( const char *fname, int *val )
+{
+    char line[256];
+    int fd = mcush_open( fname, "r" );
+    int ret=0;
+
+    if( fd )
+    {
+        if( mcush_file_read_line( fd, line ) )
+        {
+            ret = shell_eval_int( (const char*)line, val );
+        }
+        mcush_close( fd );
+    }
+    return ret;
+}
+
+
+int mcush_file_write_int( const char *fname, int val )
+{
+    char buf[64];
+
+    sprintf( buf, "%d", val );
+    return mcush_file_write_string( fname, buf );
+}
+
+
+int mcush_file_load_float( const char *fname, float *val )
+{
+    char line[256];
+    int fd = mcush_open( fname, "r" );
+    int ret=0;
+
+    if( fd )
+    {
+        if( mcush_file_read_line( fd, line ) )
+        {
+            ret = shell_eval_float( (const char*)line, val );
+        }
+        mcush_close( fd );
+    }
+    return ret;
+}
+
+
+int mcush_file_write_float( const char *fname, float val )
+{
+    char buf[64];
+
+    sprintf( buf, "%f", val );
+    return mcush_file_write_string( fname, buf );
+}
 
 
 

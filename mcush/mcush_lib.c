@@ -222,13 +222,84 @@ char *get_rtc_tick_str(char *buf, uint32_t tick)
 }
 
 
+/* format: "%d-%d-%d" */
+int parse_date( const char *str, int *year, int *mon, int *mday )
+{
+    char *p=(char*)str, *p2;
+    int y, m, d;
+
+    y = strtol( (const char *)p, &p2, 10 );
+    if( (p == p2) || (*p2 != '-') )
+        return 0;
+    p = p2+1;
+    m = strtol( (const char *)p, &p2, 10 );
+    if( (p == p2) || (*p2 != '-') )
+        return 0;
+    p = p2+1;
+    d = strtol( (const char *)p, &p2, 10 );
+    if( (p == p2) )
+        return 0;
+    if( y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1 || d > 31 )
+        return 0;
+    *year = y;
+    *mon = m;
+    *mday = d;
+    return 1;
+}
+
+
+/* format: "%d:%d:%d" */
+int parse_time( const char *str, int *hour, int *min, int *sec )
+{
+    char *p=(char*)str, *p2;
+    int h, m, s;
+
+    h = strtol( (const char *)p, &p2, 10 );
+    if( (p == p2) || (*p2 != ':') )
+        return 0;
+    p = p2+1;
+    m = strtol( (const char *)p, &p2, 10 );
+    if( (p == p2) || (*p2 != ':') )
+        return 0;
+    p = p2+1;
+    s = strtol( (const char *)p, &p2, 10 );
+    if( (p == p2) )
+        return 0;
+    if( h < 0 || h > 23 || m < 0 || m > 59 || s < 0 || s > 59 )
+        return 0;
+    *hour = h;
+    *min = m;
+    *sec = s;
+    return 1;
+}
+
+
+/* format: "%d-%d-%d %d:%d:%d" */
+int parse_date_time( const char *str, int *year, int *mon, int *mday, int *hour, int *min, int *sec )
+{
+    char *p, *p2;
+
+    /* split into two parts */ 
+    p = p2 = lstrip((char*)str);
+    if( *p == 0 )
+        return 0;
+    while( *p2 && (*p2 != ' ') )
+        p2++;
+    if( *p2 != ' ' )
+        return 0;
+    p2 = lstrip(p2);
+    if( *p2 == 0 )
+        return 0;
+    return (parse_date( (const char*)p, year, mon, mday ) && parse_time( (const char*)p2, hour, min, sec)) ? 1 : 0;
+}
+
+
 int set_rtc_by_str( char *s )
 {
 #if HAL_RTC
     struct tm t;
-    if( 6 == sscanf( s, "%d-%d-%d %d:%d:%d", 
-                     &t.tm_year, &t.tm_mon, &t.tm_mday,
-                     &t.tm_hour, &t.tm_min, &t.tm_sec ) )
+   
+    if( parse_date_time( s, &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec ) )
     {
         /* format 18-1-1 --> 2018-1-1 */
         if( t.tm_year < 100 )

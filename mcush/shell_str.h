@@ -71,6 +71,7 @@ extern const char shell_str_malloc[];
 extern const char shell_str_mcush[];
 extern const char shell_str_message[];
 extern const char shell_str_memory[];
+extern const char shell_str_module[];
 extern const char shell_str_mount[];
 extern const char shell_str_ms[];
 extern const char shell_str_msg[];

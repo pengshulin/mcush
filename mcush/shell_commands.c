@@ -2842,9 +2842,7 @@ int cmd_rtc( int argc, char *argv[] )
 
     if( set == 1 )
     {
-        if( (parser.idx >= argc) || \
-            (3 != sscanf( argv[parser.idx], "%d-%d-%d", 
-                      &t.tm_year, &t.tm_mon, &t.tm_mday )) )
+        if( (parser.idx >= argc) || !parse_date(argv[parser.idx], &t.tm_year, &t.tm_mon, &t.tm_mday) )
         {
             shell_write_err( shell_str_data );
             return 1;
@@ -2852,9 +2850,7 @@ int cmd_rtc( int argc, char *argv[] )
         t.tm_wday = 0;
  
         parser.idx++;     
-        if( (parser.idx >= argc) || \
-            (3 != sscanf( argv[parser.idx], "%d:%d:%d", 
-                      &t.tm_hour, &t.tm_min, &t.tm_sec )) )
+        if( (parser.idx >= argc) || !parse_time(argv[parser.idx], &t.tm_hour, &t.tm_min, &t.tm_sec) )
         {
             shell_write_err( shell_str_time );
             return 1;
