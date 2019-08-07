@@ -175,7 +175,7 @@ int cmd_nc( int argc, char *argv[] )
             }
             else if( strcmp( opt.spec->name, "port" ) == 0 )
             {
-                if( shell_eval_int( opt.value, &i ) )
+                if( parse_int( opt.value, &i ) )
                 {
                     ncb->server_port = i;
                     port_set = 1;

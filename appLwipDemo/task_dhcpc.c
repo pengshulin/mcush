@@ -52,30 +52,18 @@ extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
 
 char mac_address_init[6]; 
 
-   
+  
+
 /* mac address config file (/?/mac) ascii contents:
    line 1: AA:BB:CC:DD:EE:FF
  */
 int load_mac_from_conf_file(const char *fname)
 {
     char buf[64];
-    unsigned int a,b,c,d,e,f;
 
     if( ! mcush_file_load_string( fname, buf, 64 ) )
-        return 0; 
-    if( sscanf( buf, "%x:%x:%x:%x:%x:%x", &a, &b, &c, &d, &e, &f ) == 6 )
-    {
-        if( (a > 255) || (b > 255) || (c > 255) || (d > 255) || (e > 255) || (f > 255) )
-            return 0;
-        mac_address_init[0] = a;
-        mac_address_init[1] = b;
-        mac_address_init[2] = c;
-        mac_address_init[3] = d;
-        mac_address_init[4] = e;
-        mac_address_init[5] = f;
-        return 1;
-    }
-    return 0;
+        return 0;
+    return parse_mac_addr( strip(buf), mac_address_init );
 }
 
 
@@ -86,29 +74,11 @@ int load_mac_from_conf_file(const char *fname)
  */
 int load_ip_from_conf_file(const char *fname, ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gateway )
 {
-    int fd;
     char buf[128];
 
-    fd = mcush_open( fname, "r" );
-    if( fd == 0 )
+    if( ! mcush_file_load_string( fname, buf, 128 ) )
         return 0;
-    if( ! mcush_file_read_line( fd, buf ) )
-        goto err;
-    if( ! ip4addr_aton( buf, (ip4_addr_t*)ipaddr ) )
-        goto err;
-    if( ! mcush_file_read_line( fd, buf ) )
-        goto err;
-    if( ! ip4addr_aton( buf, (ip4_addr_t*)netmask ) )
-        goto err;
-    if( ! mcush_file_read_line( fd, buf ) )
-        goto err;
-    if( ! ip4addr_aton( buf, (ip4_addr_t*)gateway ) )
-        goto err;
-    mcush_close( fd );
-    return 1;
-err:
-    mcush_close( fd );
-    return 0;
+    return parse_ip_netmask_gateway( buf, (char*)ipaddr, (char*)netmask, (char*)gateway );
 }
 
 
@@ -262,7 +232,7 @@ void task_dhcpc_entry(void *p)
                     for( i=0; i<DNS_MAX_SERVERS; i++ )
                     {
                         sprintf( buf+strlen(buf), " dns%u: ", i+1 );
-                        sprintf_ip( buf+strlen(buf), dns_getserver(i)->addr, 0, 0 );
+                        sprintf_ip( buf+strlen(buf), dns_getserver(i)->addr, 0, "" );
                     }
                     logger_info( buf );
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
@@ -325,7 +295,7 @@ int cmd_netstat( int argc, char *argv[] )
     mcush_opt opt;
     const char *cmd=0;
     int i;
-    char buf[64], *p, *p2, *p3, succ;
+    char buf[64], succ;
     char *input=0;
     ip_addr_t ipaddr, netmask, gateway;
 
@@ -393,41 +363,13 @@ int cmd_netstat( int argc, char *argv[] )
         if( input )
         {
             /* parse manual setting */
-            // line 1: aaa.bbb.ccc.ddd   (ip)
-            // line 2: aaa.bbb.ccc.ddd   (netmask)
-            // line 3: aaa.bbb.ccc.ddd   (gateway)
-            succ = 0;
-            p = p2 = input;
-            while( *p2 && (*p2 != '\n') )
-                p2++;
-            if( *p2 == '\n' )
+            if( parse_ip_netmask_gateway( (const char*)input, (char*)&ipaddr, (char*)&netmask, (char*)&gateway ) )
             {
-                *p2++ = 0;
-                p3 = p2;
-                while( *p3 && (*p3 != '\n') )
-                    p3++;
-                if( *p3 == '\n' )
-                    *p3++ = 0;
-                else
-                    p3 = 0;
-            }
-            else
-                p2 = 0;
-            if( p && p2 && p3 )
-            {
-                p = strip(p);
-                p2 = strip(p2);
-                p3 = strip(p3);
-                if( ip4addr_aton( p, (ip4_addr_t*)&ipaddr ) && 
-                    ip4addr_aton( p2, (ip4_addr_t*)&netmask ) &&
-                    ip4addr_aton( p3, (ip4_addr_t*)&gateway ) )
-                {
-                    dhcp_stop(&gnetif);
-                    netif_set_addr(&gnetif, &ipaddr, &netmask, &gateway);
-                    dns_setserver( 0, (const ip_addr_t *)&gateway );
-                    ip_manual = 1;
-                    succ = 1;
-                }
+                dhcp_stop(&gnetif);
+                netif_set_addr(&gnetif, &ipaddr, &netmask, &gateway);
+                dns_setserver( 0, (const ip_addr_t *)&gateway );
+                ip_manual = 1;
+                succ = 1;
             }
             vPortFree( (void*)input );
             if( !succ )

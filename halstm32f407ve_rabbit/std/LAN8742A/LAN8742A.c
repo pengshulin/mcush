@@ -130,7 +130,7 @@ int cmd_lan8720( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
-                if( shell_eval_int( opt.value, &value ) == 0 )
+                if( parse_int( opt.value, &value ) == 0 )
                 {
                     shell_write_line("val err");
                     return 1;

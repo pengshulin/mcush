@@ -27,6 +27,8 @@ char *get_uptime_str(char *buf, int ms);
 char *get_rtc_str(char *buf);
 char *get_rtc_tick_str(char *buf, uint32_t tick);
 
+int parse_int( const char *str, int *i );
+int parse_float( const char *str, float *f );
 int parse_date( const char *str, int *year, int *mon, int *mday );
 int parse_time( const char *str, int *hour, int *min, int *sec );
 int parse_date_time( const char *str, int *year, int *mon, int *mday, int *hour, int *min, int *sec );
@@ -41,6 +43,8 @@ char *strdup2( const char *s );
 char *rstrip( char *s );
 char *lstrip( char *s );
 char *strip( char *s );
+char *split_line( char *head );
+char *strip_line( char **head );
 
 char *hexlify( const char *buf_in, char *buf_out, int len, int add_null_end );
 int unhexlify( const char *buf_in, char *buf_out, int len );

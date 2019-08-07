@@ -159,19 +159,46 @@ int mcush_file_write_string( const char *fname, char *str )
 }
 
 
-int mcush_file_load_int( const char *fname, int *val )
+/* read stripped head line from file */
+int mcush_file_load_line( const char *fname, char *str, int size_limit )
 {
-    char line[256];
-    int fd = mcush_open( fname, "r" );
+    char buf[512], *p;
     int ret=0;
 
-    if( fd )
+    if( mcush_file_load_string( fname, buf, 512 ) )
     {
-        if( mcush_file_read_line( fd, line ) )
+        p = lstrip(buf);
+        strip_line( &p );
+        if( *p )
         {
-            ret = shell_eval_int( (const char*)line, val );
+            strncpy( str, p, size_limit-1 );
+            str[size_limit-1] = 0;
+            ret = 1;
         }
-        mcush_close( fd );
+    }
+    return ret;
+}
+
+
+int mcush_file_write_line( const char *fname, char *str )
+{
+    str = strip(str);
+    if( *str == 0 )
+        return 0;
+    return mcush_file_write_string( fname, str );
+}
+
+
+/* read integer from file */
+int mcush_file_load_int( const char *fname, int *val )
+{
+    char buf[64], *p=buf;
+    int ret=0;
+
+    if( mcush_file_load_string( fname, buf, 64 ) )
+    {
+        strip_line( &p ); 
+        ret = parse_int( (const char*)p, val );
     }
     return ret;
 }
@@ -186,19 +213,16 @@ int mcush_file_write_int( const char *fname, int val )
 }
 
 
+/* read float value from file */
 int mcush_file_load_float( const char *fname, float *val )
 {
-    char line[256];
-    int fd = mcush_open( fname, "r" );
+    char buf[64], *p=buf;
     int ret=0;
 
-    if( fd )
+    if( mcush_file_load_string( fname, buf, 64 ) )
     {
-        if( mcush_file_read_line( fd, line ) )
-        {
-            ret = shell_eval_float( (const char*)line, val );
-        }
-        mcush_close( fd );
+        strip_line( &p ); 
+        ret = parse_float( (const char*)p, val );
     }
     return ret;
 }

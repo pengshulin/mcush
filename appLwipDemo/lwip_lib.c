@@ -82,7 +82,7 @@ char *sprintf_ip_mask_gw( char *buf, uint32_t ip, uint32_t mask, uint32_t gw, co
 {
     char buf2[256];
 
-    sprintf( buf2, "ip(%u.%u.%u.%u) netmask(%u.%u.%u.%u) gateway(%u.%u.%u.%u)", 
+    sprintf( buf2, "ip: %u.%u.%u.%u  netmask: %u.%u.%u.%u  gateway: %u.%u.%u.%u", 
             (uint8_t)(ip), (uint8_t)(ip >> 8), (uint8_t)(ip >> 16), (uint8_t)(ip >> 24),
             (uint8_t)(mask), (uint8_t)(mask >> 8), (uint8_t)(mask >> 16), (uint8_t)(mask >> 24),
             (uint8_t)(gw), (uint8_t)(gw >> 8), (uint8_t)(gw >> 16), (uint8_t)(gw >> 24) );
@@ -99,3 +99,73 @@ char *sprintf_mac( char *buf, char *address, const char *prefix, const char *suf
             address[3], address[4], address[5] );
     return sprintf_join_prefix_suffix( buf, prefix, buf2, suffix );
 }
+
+
+int parse_mac_addr( const char *str, char *addr )
+{
+    char *p=(char*)str, *p2;
+    int buf[6], i, j;
+
+    if( (addr == 0 ) || strlen(str) < 11 )
+        return 0;
+    for( i=0; i<6; i++ )
+    {
+        j = strtol( (const char *)p, &p2, 16 );
+        if( (p == p2) || (j < 0) || (j > 0xFF) )
+            return 0;
+        if( (i<5) && (*p2 != '-') && (*p2 != ':') )
+            return 0;
+        buf[i] = j;
+        p = p2+1;
+    }
+    for( i=0; i<6; i++ )
+        addr[i] = buf[i];
+    return 1;
+}
+
+
+int parse_ip( const char *str, char *addr )
+{
+    char *p=(char*)str, *p2;
+    int buf[6], i, j;
+
+    if( (addr == 0 ) || strlen(str) < 7 )
+        return 0;
+    for( i=0; i<4; i++ )
+    {
+        j = strtol( (const char *)p, &p2, 10 );
+        if( (p == p2) || (j < 0) || (j > 0xFF) )
+            return 0;
+        if( (i<3) && (*p2 != '.') )
+            return 0;
+        buf[i] = j;
+        p = p2+1;
+    }
+    for( i=0; i<4; i++ )
+        addr[i] = buf[i];
+    return 1;
+}
+
+
+int parse_ip_netmask_gateway( const char *str, char *ip, char *netmask, char *gateway )
+{
+    char *p=lstrip((char*)str), *p2, *p3;
+    
+    if( *p == 0 )
+        return 0;
+    p2 = strip_line( &p );
+    if( *p2 == 0 )
+        return 0;
+    p3 = strip_line( &p2 );
+    if( *p3 == 0 )
+        return 0;
+    if( !parse_ip( (const char*)p, ip ) ||
+        !parse_ip( (const char*)p2, netmask ) ||
+        !parse_ip( (const char*)p3, gateway ) )
+    {
+        return 0;
+    }
+    return 1;
+}
+
+

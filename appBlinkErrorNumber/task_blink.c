@@ -45,7 +45,7 @@ int cmd_error( int argc, char *argv[] )
         {
             if( strcmp( opt.spec->name, "errno" ) == 0 )
             {
-                if( ! shell_eval_int(opt.value, (int*)&new) )
+                if( ! parse_int(opt.value, (int*)&new) )
                     return -1;
             }
             else if( STRCMP( opt.spec->name, shell_str_stop ) == 0 )

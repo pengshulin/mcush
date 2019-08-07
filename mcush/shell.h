@@ -45,9 +45,6 @@ extern "C" {
 #ifndef USE_SHELL_EVAL
     #define USE_SHELL_EVAL  1
 #endif
-#ifndef USE_SHELL_EVAL_SSCANF
-    #define USE_SHELL_EVAL_SSCANF  0
-#endif
 #ifndef SHELL_QUOTE_PARSE_ENABLE
     #define SHELL_QUOTE_PARSE_ENABLE  1
 #endif
@@ -140,8 +137,6 @@ void shell_write_float( float f );
 void shell_write_hex( int x );
 void shell_write_mem( const char *mem, int length );
 int  shell_printf( char *fmt, ... );
-int  shell_eval_int( const char *str, int *i );
-int  shell_eval_float( const char *str, float *f );
 const char *shell_get_prompt( void );
 int  shell_make_16bits_data_buffer( void **pbuf, int *len );
 int  shell_make_float_data_buffer( void **pbuf, int *len );

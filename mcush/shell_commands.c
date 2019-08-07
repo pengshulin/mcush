@@ -635,7 +635,7 @@ int cmd_gpio( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
                 loop=1;
-                shell_eval_int(opt.value, (int*)&loop_delay);
+                parse_int(opt.value, (int*)&loop_delay);
             }
         }
         else
@@ -677,15 +677,15 @@ int cmd_gpio( int argc, char *argv[] )
 
     if( !bit_mode )
     {
-        if( input_set && !shell_eval_int(pinput, (int*)&input_val) )
+        if( input_set && !parse_int(pinput, (int*)&input_val) )
             goto parm_error;
-        if( output_set && !shell_eval_int(poutput, (int*)&output_val) )
+        if( output_set && !parse_int(poutput, (int*)&output_val) )
             goto parm_error;
-        if( set_set && !shell_eval_int(pset, (int*)&set_val) )
+        if( set_set && !parse_int(pset, (int*)&set_val) )
             goto parm_error;
-        if( clr_set && !shell_eval_int(pclr, (int*)&clr_val) )
+        if( clr_set && !parse_int(pclr, (int*)&clr_val) )
             goto parm_error;
-        if( toggle_set && !shell_eval_int(ptoggle, (int*)&toggle_val) )
+        if( toggle_set && !parse_int(ptoggle, (int*)&toggle_val) )
             goto parm_error;
     }
 
@@ -787,7 +787,7 @@ int cmd_led( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_toggle ) == 0 )
                 cmd = 2;
             else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
-                shell_eval_int(opt.value, (int*)&index);
+                parse_int(opt.value, (int*)&index);
             else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
             {
                 shell_printf( "%d\n", led_num );
@@ -879,11 +879,11 @@ int cmd_dump( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
-                shell_eval_int(opt.value, (int*)&addr);
+                parse_int(opt.value, (int*)&addr);
             else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
-                shell_eval_int(opt.value, (int*)&length);
+                parse_int(opt.value, (int*)&length);
             else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
-                shell_eval_int(opt.value, (int*)&width);
+                parse_int(opt.value, (int*)&width);
             else if( STRCMP( opt.spec->name, shell_str_compact ) == 0 )
                 compact_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_ascii ) == 0 )
@@ -1100,9 +1100,9 @@ int cmd_write( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
-                shell_eval_int(opt.value, (int*)&addr);
+                parse_int(opt.value, (int*)&addr);
             else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
-                shell_eval_int(opt.value, (int*)&width);
+                parse_int(opt.value, (int*)&width);
             else if( STRCMP( opt.spec->name, shell_str_data ) == 0 )
             {
                 parser.idx--;
@@ -1127,7 +1127,7 @@ int cmd_write( int argc, char *argv[] )
     parser.idx++;
     while( parser.idx < argc )
     {
-        if( ! shell_eval_int(argv[parser.idx], &dat) )
+        if( ! parse_int(argv[parser.idx], &dat) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
@@ -1186,13 +1186,13 @@ int cmd_mfill( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
-                shell_eval_int(opt.value, (int*)&addr);
+                parse_int(opt.value, (int*)&addr);
             else if( STRCMP( opt.spec->name, shell_str_pattern ) == 0 )
-                shell_eval_int(opt.value, (int*)&pattern);
+                parse_int(opt.value, (int*)&pattern);
             else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
-                shell_eval_int(opt.value, (int*)&length);
+                parse_int(opt.value, (int*)&length);
             else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
-                shell_eval_int(opt.value, (int*)&width);
+                parse_int(opt.value, (int*)&width);
             else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
         }
@@ -1285,7 +1285,7 @@ int cmd_wait( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_time ) == 0 )
-                shell_eval_int(opt.value, (int*)&ms);
+                parse_int(opt.value, (int*)&ms);
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -1622,9 +1622,9 @@ int cmd_mapi( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
-                shell_eval_int(opt.value, (int*)&addr);
+                parse_int(opt.value, (int*)&addr);
             else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
-                shell_eval_int(opt.value, (int*)&length);
+                parse_int(opt.value, (int*)&length);
             else if( STRCMP( opt.spec->name, shell_str_malloc ) == 0 )
                 malloc_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_realloc ) == 0 )
@@ -1748,9 +1748,9 @@ int cmd_beep( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
-                shell_eval_int(opt.value, (int*)&freq);
+                parse_int(opt.value, (int*)&freq);
             else if( STRCMP( opt.spec->name, shell_str_ms ) == 0 )
-                shell_eval_int(opt.value, (int*)&ms);
+                parse_int(opt.value, (int*)&ms);
         }
         else
              STOP_AT_INVALID_ARGUMENT  
@@ -1854,18 +1854,18 @@ int cmd_sgpio( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_port ) == 0 )
-                shell_eval_int(opt.value, (int*)&port);
+                parse_int(opt.value, (int*)&port);
             else if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
             {
-                if( shell_eval_float(opt.value, (float*)&freq_val) )
+                if( parse_float(opt.value, (float*)&freq_val) )
                     freq = 1;
             }
             else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
                 loop = 1;
             else if( STRCMP( opt.spec->name, shell_str_output ) == 0 )
-                shell_eval_int(opt.value, (int*)&output);
+                parse_int(opt.value, (int*)&output);
             else if( STRCMP( opt.spec->name, shell_str_input ) == 0 )
-                shell_eval_int(opt.value, (int*)&input);
+                parse_int(opt.value, (int*)&input);
             else if( STRCMP( opt.spec->name, shell_str_start ) == 0 )
                 start = 1;
             else if( STRCMP( opt.spec->name, shell_str_stop ) == 0 )
@@ -1873,7 +1873,7 @@ int cmd_sgpio( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info = 1;
             else if( strcmp( opt.spec->name, "input_len" ) == 0 )
-                shell_eval_int(opt.value, (int*)&input_len);
+                parse_int(opt.value, (int*)&input_len);
  
         }
         else
@@ -2152,15 +2152,15 @@ int cmd_i2c( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
             {
-                if( shell_eval_int(opt.value, (int*)&i2c_addr) )
+                if( parse_int(opt.value, (int*)&i2c_addr) )
                     addr_set = 1;
                 else
                     goto err_addr;
             }
             else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
-                shell_eval_int(opt.value, (int*)&i2c_delay_us);
+                parse_int(opt.value, (int*)&i2c_delay_us);
             else if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
-                shell_eval_int(opt.value, (int*)&read_cycle);
+                parse_int(opt.value, (int*)&read_cycle);
             else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
             else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
@@ -2235,7 +2235,7 @@ int cmd_i2c( int argc, char *argv[] )
     parser.idx++;
     while( parser.idx < argc )
     {
-        if( ! shell_eval_int(argv[parser.idx], &dat) )
+        if( ! parse_int(argv[parser.idx], &dat) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
@@ -2392,11 +2392,11 @@ int cmd_spi( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
-                shell_eval_int(opt.value, (int*)&spi_delay_us);
+                parse_int(opt.value, (int*)&spi_delay_us);
             else if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
                 read_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
-                shell_eval_int(opt.value, (int*)&spi_width);
+                parse_int(opt.value, (int*)&spi_width);
             else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
             else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
@@ -2501,7 +2501,7 @@ int cmd_spi( int argc, char *argv[] )
     line_count = 0;
     while( parser.idx < argc )
     {
-        if( ! shell_eval_int(argv[parser.idx], &dat_out) )
+        if( ! parse_int(argv[parser.idx], &dat_out) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
@@ -2569,7 +2569,7 @@ int cmd_pwm( int argc, char *argv[] )
                 deinit = 1;
             else if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
             {
-                shell_eval_int(opt.value, (int*)&freq);
+                parse_int(opt.value, (int*)&freq);
                 if( freq < 0 || freq > 100000 )
                 {
                     shell_write_err( shell_str_range );
@@ -2579,7 +2579,7 @@ int cmd_pwm( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_range ) == 0 )
             {
-                shell_eval_int(opt.value, (int*)&range);
+                parse_int(opt.value, (int*)&range);
                 if( range < 2 || range > 10000 )
                 {
                     shell_write_err( shell_str_range );
@@ -2594,7 +2594,7 @@ int cmd_pwm( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
             {
-                shell_eval_int(opt.value, (int*)&index);
+                parse_int(opt.value, (int*)&index);
                 index_set = 1;
                 if( (index < 0) || (index > (pwm_num-1)) )
                 {
@@ -2604,7 +2604,7 @@ int cmd_pwm( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
-                shell_eval_int(opt.value, (int*)&value);
+                parse_int(opt.value, (int*)&value);
                 value_set = 1;
                 if( (value < 0) || (value > 10000) ) 
                 {
@@ -2680,7 +2680,7 @@ int cmd_adc( int argc, char *argv[] )
             {
                 if( opt.value )
                 {
-                    shell_eval_int( opt.value, &index ); 
+                    parse_int( opt.value, &index ); 
                     if( index < 0 || index >= adc_num )
                     {
                         shell_write_err( shell_str_index );
@@ -2692,7 +2692,7 @@ int cmd_adc( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
                 loop=1;
-                shell_eval_int(opt.value, (int*)&loop_delay);
+                parse_int(opt.value, (int*)&loop_delay);
             }
         }
         else
@@ -2911,7 +2911,7 @@ int cmd_spiffs( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
-                shell_eval_int(opt.value, (int*)&addr);
+                parse_int(opt.value, (int*)&addr);
             else if( STRCMP( opt.spec->name, shell_str_compact ) == 0 )
                 compact_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_ascii ) == 0 )
@@ -3097,7 +3097,7 @@ int cmd_cat( int argc, char *argv[] )
                 strcpy( fname, (char*)opt.value );
             else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
             {
-                if( ! shell_eval_int(opt.value, (int*)&delay) )
+                if( ! parse_int(opt.value, (int*)&delay) )
                 {
                     shell_write_err( shell_str_parameter );
                     return -1;
@@ -3565,11 +3565,11 @@ int cmd_loop( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
-                shell_eval_int(opt.value, (int*)&loop_delay);
+                parse_int(opt.value, (int*)&loop_delay);
             }
             else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
             {
-                shell_eval_int(opt.value, (int*)&cycle_limit);
+                parse_int(opt.value, (int*)&cycle_limit);
                 if( cycle_limit > 0 )
                 {
                     cycle_current = 0;

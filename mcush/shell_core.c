@@ -167,54 +167,6 @@ void shell_write_mem( const char *mem, int length )
 #endif
 
 
-#if USE_SHELL_EVAL
-int shell_eval_int( const char *str, int *i )
-{
-#if USE_SHELL_EVAL_SSCANF
-    return sscanf(str, "%i", i) ? 1 : 0;
-#else
-    long long int r;
-    char *p;
-    if( !str )
-        return 0;
-    r = strtoll( str, &p, 0 );
-    if( !p )
-        return 0;
-    while( (*p==' ') || (*p=='\t') )
-        p++;
-    if( *p ) 
-        return 0;
-    //if( (r == LONG_MAX) || (r == LONG_MIN) )
-    //    return 0;
-    *i = r;
-    return 1;
-#endif
-}
-
-
-int shell_eval_float( const char *str, float *f )
-{
-#if USE_SHELL_EVAL_SSCANF
-    return sscanf(str, "%f", f) ? 1 : 0;
-#else
-    float r;
-    char *p;
-    if( !str )
-        return 0;
-    r = strtof( str, &p );
-    if( !p )
-        return 0;
-    while( (*p==' ') || (*p=='\t') )
-        p++;
-    if( *p ) 
-        return 0;
-    *f = r;
-    return 1;
-#endif
-}
-#endif
-
-
 void shell_set_errnum( int errnum )
 {
     scb.errnum = errnum;

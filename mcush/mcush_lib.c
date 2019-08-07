@@ -222,6 +222,46 @@ char *get_rtc_tick_str(char *buf, uint32_t tick)
 }
 
 
+/* parse signed integer in dec/hex mode */
+int parse_int( const char *str, int *i )
+{
+    long long int r;
+    char *p;
+    if( !str )
+        return 0;
+    r = strtoll( str, &p, 0 );
+    if( !p )
+        return 0;
+    while( (*p==' ') || (*p=='\t') )
+        p++;
+    if( *p ) 
+        return 0;
+    //if( (r == LONG_MAX) || (r == LONG_MIN) )
+    //    return 0;
+    *i = r;
+    return 1;
+}
+
+
+/* parse float */
+int parse_float( const char *str, float *f )
+{
+    float r;
+    char *p;
+    if( !str )
+        return 0;
+    r = strtof( str, &p );
+    if( !p )
+        return 0;
+    while( (*p==' ') || (*p=='\t') )
+        p++;
+    if( *p ) 
+        return 0;
+    *f = r;
+    return 1;
+}
+
+
 /* format: "%d-%d-%d" */
 int parse_date( const char *str, int *year, int *mon, int *mday )
 {
@@ -389,7 +429,11 @@ char *strdup2( const char *s )
 
 char *rstrip( char *s )
 {
-    unsigned int l = strlen(s);
+    unsigned int l;
+
+    if( s == 0 )
+        return 0;
+    l = strlen(s);
     while( l )
     {
         switch( s[l-1] )
@@ -412,6 +456,8 @@ char *rstrip( char *s )
 
 char *lstrip( char *s )
 {
+    if( s == 0 )
+        return 0;
     while( 1 )
     {
         switch( *s )
@@ -433,6 +479,58 @@ char *lstrip( char *s )
 char *strip( char *s )
 {
     return rstrip(lstrip(s));
+}
+
+
+/* Split multi-line string into two parts: head line and the remaining tail lines.
+   Terminate the head line and return the entire following string,
+   seperated by '\r', '\n' or any combination
+   NOTE:
+   1) both two strings are not stripped for blank chars (SPACE, TAB)
+   2) head line will be right stripped for NEWLINE char (\r, \n), 
+      so it may be zero-length if it's really empty
+   3) tail lines pointer will be left stripped for NEWLINE char (\r, \n)
+ */
+char *split_line( char *head )
+{
+    char *p; 
+    int newline=0;
+
+    if( (head == 0) || (*head==0) )
+        return 0;
+    p = head;
+    while( *p )
+    {
+        if( (*p=='\n') || (*p=='\r') )
+        {
+            *p = 0;
+            newline = 1;
+        }
+        else if(newline)
+        {
+            break;
+        }
+        p++;
+    }
+    return (newline && *p) ? p : 0;
+}
+
+
+/* similar to the split_line function, continue to strip both two parts,
+   so argument should be the pointer to the head line pointer
+ */
+char *strip_line( char **head )
+{
+    char *tail;
+    
+    if( (head==0) || (*head==0) )
+        return 0;
+    tail = split_line( *head );
+    if( **head != 0 )
+        *head = strip(*head);
+    if( tail && (*tail != 0) )
+        tail = strip(tail);
+    return tail;
 }
 
 
@@ -537,7 +635,7 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
             p++;
     }
     if( p2 && *p2 )
-        shell_eval_int( (const char*)p2, port );
+        parse_int( (const char*)p2, port );
     //if( *pathfile == NULL )
     //    return 2;
     return 0;

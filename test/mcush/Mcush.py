@@ -735,6 +735,16 @@ class Mcush( Instrument.SerialInstrument ):
         r = self.writeCommand( "netstat" )
         return Utils.parseKeyValueLines(r)
 
+    def setNewIP( self, ip, netmask, gateway ):
+        self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
+        self.writeCommand('netstat -c ip')
+        self.writeCommand( str(ip) )
+        self.writeCommand( str(netmask) )
+        self.writeCommand( str(gateway) )
+        self.setPrompts()
+        self.writeCommand('')
+        
+
     DEFAULT_TIMEOUT_UPRADE = 20
     def upgrade( self, upgrade_file='/s/upgrade.bin' ):
         command = 'upgrade -f %s'% upgrade_file
