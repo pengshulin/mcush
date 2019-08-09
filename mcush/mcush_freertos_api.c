@@ -42,39 +42,10 @@ int mcushGetQueueInfo( void *pxHandle, mcush_queue_info_t *info )
 
 #ifdef INCLUDE_MCUSH_TASK_API
     
-TCB_t *mcush_task_registry[MCUSH_TASK_REGISTRY_SIZE];
-uint8_t mcush_task_registry_inited;
 
-int mcushTaskAddToRegistered( void *pxHandle )
+int mcushGetTaskInfo( void *handle, mcush_task_info_t *info )
 {
-    int i;
-    if( !mcush_task_registry_inited )
-    {
-        for( i=0; i<MCUSH_TASK_REGISTRY_SIZE; i++ )
-            mcush_task_registry[i] = 0;
-        mcush_task_registry_inited = 1;
-    }
-
-    for( i=0; i<MCUSH_TASK_REGISTRY_SIZE; i++ )
-    {
-        if( mcush_task_registry[i] == (TCB_t*)pxHandle )
-            return i;  /* registered */
-        if( mcush_task_registry[i] == 0 )
-        {
-            mcush_task_registry[i] = (TCB_t*)pxHandle;
-            return i;
-        }
-    }
-#if MCUSH_HALT_ON_TASK_REGISTER_FAIL
-    halt( "register task" );
-#endif
-    return -1;  /* failed */
-}	
-
-
-int mcushGetTaskInfo( int index, mcush_task_info_t *info )
-{
-    TCB_t *t = (TCB_t *)mcush_task_registry[index];
+    TCB_t *t = (TCB_t *)handle;
     int i;
     if( !t )
         return 0;
@@ -91,6 +62,13 @@ int mcushGetTaskInfo( int index, mcush_task_info_t *info )
  
     return 1;
 }
+
+
+void *mcushGetTaskStackTop( void *handle )
+{
+    return (void*)(((TCB_t *)handle)->pxTopOfStack);
+}
+
 
 void mcushGetKernInfo( mcush_kern_info_t *info )
 {

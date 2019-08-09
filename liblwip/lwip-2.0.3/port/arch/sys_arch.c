@@ -397,7 +397,6 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
             // For each task created, store the task handle (pid) in the timers array.
             // This scheme doesn't allow for threads to be deleted
             s_timeoutlist[s_nextthread++].pid = CreatedTask;
-            mcushTaskAddToRegistered((void*)CreatedTask);
 #if defined(APPEND_TASK_IDX)
             idx++;
 #endif

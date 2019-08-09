@@ -12,9 +12,6 @@
     #define MCUSH_TASK_REGISTRY_SIZE  10
 #endif
 
-#ifndef MCUSH_HALT_ON_TASK_REGISTER_FAIL
-    #define MCUSH_HALT_ON_TASK_REGISTER_FAIL  1
-#endif 
 
 typedef struct {
     uint32_t uxCurrentNumberOfTasks;
@@ -60,8 +57,8 @@ typedef struct {
 int mcushGetQueueRegistered( int index, void **pxHandle, const char **pcQueueName );
 int mcushGetQueueInfo( void *xHandle, mcush_queue_info_t *info );
 
-int mcushTaskAddToRegistered( void *xHandle );
-int mcushGetTaskInfo( int index, mcush_task_info_t *info );
+int mcushGetTaskInfo( void *handle, mcush_task_info_t *info );
+void *mcushGetTaskStackTop( void *handle );
 
 void mcushGetKernInfo( mcush_kern_info_t *info );
 

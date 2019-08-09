@@ -315,7 +315,7 @@ int cmd_fgen( int argc, char *argv[] )
             }
             else if( strcmp( opt.spec->name, "freq" ) == 0 )
             {
-                if( ! shell_eval_float(opt.value, &freq) )
+                if( ! parse_float(opt.value, &freq) )
                     return 1;
                 if( freq < 100.0 || freq > 6000000 )
                 {

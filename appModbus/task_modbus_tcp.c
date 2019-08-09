@@ -634,6 +634,5 @@ void task_modbus_tcp_init(void)
                       NULL, TASK_MODBUS_TCP_PRIORITY, &task_modbus_tcp);
     if( task_modbus_tcp == NULL )
         halt("create modbus tcp task");
-    mcushTaskAddToRegistered((void*)task_modbus_tcp);
 }
 

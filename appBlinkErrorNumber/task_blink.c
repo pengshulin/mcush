@@ -176,6 +176,5 @@ void task_blink_init(void)
                 NULL, TASK_BLINK_PRIORITY, &task_blink);
     if( task_blink == NULL )
         halt("create blink task");
-    mcushTaskAddToRegistered((void*)task_blink);
 }
 

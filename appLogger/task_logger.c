@@ -664,7 +664,6 @@ void task_logger_init(void)
         NULL, TASK_LOGGER_PRIORITY, &task_logger);
     if( task_logger == NULL )
         halt("create logger task");
-    mcushTaskAddToRegistered((void*)task_logger);
     
     shell_add_cmd_table( cmd_tab_logger );
 }

@@ -48,7 +48,6 @@ void mcush_init(void)
                 NULL, MCUSH_PRIORITY, &task_mcush);
     if( !task_mcush )
         halt("mcush task create");
-    mcushTaskAddToRegistered(task_mcush);
     mcush_inited = 1;
 }
 
