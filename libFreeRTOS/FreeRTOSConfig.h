@@ -41,8 +41,11 @@ extern uint32_t SystemCoreClock;
 
 #define configIDLE_SHOULD_YIELD                 1
 
+#define configIDLE_TASK_NAME                    "idleT"
+
 #ifndef configUSE_TIMERS
     #define configUSE_TIMERS                    1
+	#define configTIMER_SERVICE_TASK_NAME       "tmrSvrT"
     #define configTIMER_TASK_PRIORITY           (configMAX_PRIORITIES - 1)
     #ifndef configTIMER_TASK_STACK_DEPTH
         #define configTIMER_TASK_STACK_DEPTH    (configMINIMAL_STACK_SIZE)

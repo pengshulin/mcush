@@ -17,8 +17,11 @@
 #include "mcush_ver.h"
 #include "mcush_opt.h"
 #include "mcush_vfs.h"
-#include "mcush_lib.h"
 #include "mcush_base64.h"
+#include "mcush_lib.h"
+#include "mcush_lib_crc.h"
+#include "mcush_lib_fs.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,16 +110,6 @@ extern TaskHandle_t task_mcush;
     #define NULL  (void*)0
 #endif
 
-    
-    
-extern void _halt_with_message(const char *message);
-extern void _halt(void);
-#if DEBUG
-    #define halt(message)  _halt_with_message(message)
-#else
-    #define halt(message)  _halt() 
-#endif
-
 
 
 #ifdef __cplusplus
@@ -125,6 +118,3 @@ extern void _halt(void);
 
 
 #endif
-
-
-

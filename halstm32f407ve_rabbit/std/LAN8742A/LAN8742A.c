@@ -102,7 +102,7 @@ int cmd_lan8720( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', shell_str_command, shell_str_command, "info|reset|read|write|down" },
+          'c', shell_str_command, shell_str_command, "info|reset|read|write|down|loop" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'n', shell_str_name, shell_str_name, "name param" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -112,7 +112,7 @@ int cmd_lan8720( int argc, char *argv[] )
     mcush_opt opt;
     const char *cmd=0;
     const char *name=0;
-    int value;
+    int value, reg;
     uint8_t name_set=0, value_set=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -156,6 +156,15 @@ int cmd_lan8720( int argc, char *argv[] )
     else if( strcmp( cmd, "down" ) == 0 )
     {
         ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Powerdown);
+    }
+    else if( strcmp( cmd, "loop" ) == 0 )
+    {
+        reg = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR);
+        if( value_set && (value==0) )
+            reg &= ~0x4000;
+        else
+            reg |= 0x4000;
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, reg);
     }
     else if( strcmp( cmd, shell_str_read ) == 0 )
     {

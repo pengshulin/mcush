@@ -5,8 +5,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <limits.h>
-#include "shell.h"
-#include "FreeRTOS.h"
 #include "mcush.h"
 
 #if DEBUG_SHELL

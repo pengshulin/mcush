@@ -1,11 +1,18 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #ifndef __MCUSH_LIB_H__
 #define __MCUSH_LIB_H__
-#include "mcush_lib_crc.h"
-#include "mcush_lib_fs.h"
+
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+extern void _halt_with_message(const char *message);
+extern void _halt(void);
+#if DEBUG
+    #define halt(message)  _halt_with_message(message)
+#else
+    #define halt(message)  _halt() 
 #endif
 
 
@@ -63,6 +70,8 @@ int cmp_uint8(const void *a, const void *b);
 int cmp_uint16(const void *a, const void *b);
 int cmp_uint32(const void *a, const void *b);
 int cmp_float(const void *a, const void *b);
+
+
 
 #ifdef __cplusplus
 }

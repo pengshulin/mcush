@@ -260,6 +260,7 @@ static void lua_repl( lua_State *L )
 
 extern int luaopen_ledlib(lua_State *L);
 extern int luaopen_gpiolib(lua_State *L);
+extern int luaopen_loglib(lua_State *L);
 
 int cmd_lua( int argc, char *argv[] )
 {
@@ -280,6 +281,9 @@ int cmd_lua( int argc, char *argv[] )
     lua_pop(L, 1);
     luaL_requiref(L, "gpio", luaopen_gpiolib, 1 );
     lua_pop(L, 1);
+    luaL_requiref(L, "log", luaopen_loglib, 1 );
+    lua_pop(L, 1);
+
 
 #if 0
     //dostring(L,"print('hello')","Test_lua");

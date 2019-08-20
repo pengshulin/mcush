@@ -744,7 +744,8 @@
 ** without modifying the main part of the file.
 */
 
-#include "mcush.h"
+#include "shell.h"
+#include "mcush_lib.h"
 
 #define lua_writestring(s,l)      do{shell_write_str(s);}while(0)
 #define lua_writeline()           do{shell_write_char('\n');}while(0)

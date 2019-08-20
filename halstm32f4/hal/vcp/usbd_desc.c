@@ -101,9 +101,17 @@
     #define USBD_VID            0xFFFF
     #define USBD_PID_FS         0xFFFF
 #endif
+
 #define USBD_LANGID_STRING      0x0409  /* lang: US */
-#define USBD_MANUFACTURER_STRING        "mcush designed by pengshulin"
-#define USBD_PRODUCT_STRING_FS          "mcush vcp"
+
+#ifndef USBD_MANUFACTURER_STRING
+    #define USBD_MANUFACTURER_STRING        "mcush designed by pengshulin"
+#endif
+
+#ifndef USBD_PRODUCT_STRING
+    #define USBD_PRODUCT_STRING             "mcush vcp"
+#endif
+
 #define USBD_CONFIGURATION_STRING_FS    "CDC Config"
 #define USBD_INTERFACE_STRING_FS        "CDC Interface"
 
@@ -302,7 +310,7 @@ uint8_t * USBD_FS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   */
 uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
+  USBD_GetString((uint8_t *)USBD_PRODUCT_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 

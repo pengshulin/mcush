@@ -1,7 +1,4 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#include <string.h>
-#include <stdint.h>
-#include "mcush.h"
 #include "mcush_freertos_api.h"
 
 #if MCUSH_FREERTOS_PEEK_API
