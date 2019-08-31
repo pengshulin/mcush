@@ -13,7 +13,7 @@ char *sprintf_ip_mask_gw( char *buf, uint32_t ip, uint32_t mask, uint32_t gw, co
 int parse_mac_addr( const char *str, char *addr );
 int parse_ip( const char *str, char *addr );
 int parse_ip_netmask_gateway( const char *str, char *ip, char *netmask, char *gateway );
-
+int parse_dns1_dns2( const char *str, char *dns1, char *dns2 );
 
 
 #endif

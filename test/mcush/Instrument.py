@@ -54,18 +54,23 @@ class Instrument:
     DEFAULT_LINE_LIMIT = 128
     DEFAULT_CHECK_RETURN_COMMAND = True
    
+
     def __init__( self, *args, **kwargs ):
         '''init'''
         # logging level 
         self.verbose = Env.VERBOSE
         self.debug = Env.DEBUG
         self.info = Env.INFO
+        self.warning = Env.WARNING
         if self.debug:
-            logging.basicConfig( level=logging.DEBUG )
+            level = logging.DEBUG
         elif self.info:
-            logging.basicConfig( level=logging.INFO )
+            level = logging.INFO
+        elif self.warning:
+            level = logging.WARNING
         else:
-            logging.basicConfig( level=logging.FATAL )
+            level = logging.FATAL
+        logging.basicConfig( level=level, format=Env.LOG_FORMAT, datefmt=Env.LOG_DATEFMT )
         self.logger = logging.getLogger( self.DEFAULT_NAME )
         self.check_return_command = self.DEFAULT_CHECK_RETURN_COMMAND
         self.returned_cmd = None
@@ -188,7 +193,7 @@ class Instrument:
                     raise CommandTimeoutError( ' | '.join(contents) )
                 else:
                     raise CommandTimeoutError( 'No response' )
-            #print newline_str  # for port debug
+            #print( newline_str )  # for port debug
             match = self.prompts.match( newline_str )
             if match:
                 contents.append( newline_str )
@@ -211,7 +216,15 @@ class Instrument:
 
     def writeLine( self, dat ):
         self.assertIsOpen() 
-        self.port.write( dat + self.DEFAULT_TERMINATOR_WRITE )
+        #print(type(dat), dat)
+        if Env.PYTHON_V3:
+            if isinstance( dat, str ):
+                dat = dat.encode('utf8')
+        else:
+            if isinstance( dat, unicode ):
+                dat = dat.encode('utf8')
+        self.port.write( dat )
+        self.port.write( self.DEFAULT_TERMINATOR_WRITE )
         self.port.flush()
    
     def writeCommand( self, cmd ):
@@ -247,7 +260,11 @@ class Instrument:
         if Env.NO_ECHO_CHECK:
             return
         cmdret = ret[0]
-        if cmd and cmd != cmdret:
+        if not cmd:
+            return
+        if Env.PYTHON_V3 and isinstance(cmd, bytes):
+            cmdret = cmdret.encode('utf8')
+        if cmd != cmdret:
             raise ResponseError('Command %s, but returned %s'% (cmd, cmdret))
 
     def checkReturnedPrompt( self, ret ):
@@ -437,8 +454,11 @@ class SerialPort(Port):
         try:
             self.ser.open()
             self._connected = True
-        except Exception:
+        except IOError:
             raise PortNotFound( self.port )
+        except Exception as e:
+            #print( e )
+            raise UnknownPortError( e )
         if self._connected:
             try:
                 self.ser.reset_input_buffer()
@@ -465,28 +485,9 @@ class SerialPort(Port):
 
     def write( self, buf ):
         try:
-            #print( type(buf), len(buf), buf )
-            convert = []
-            if Env.PYTHON_V3:
-                for i in buf:
-                    j = i.encode(encoding='utf8')
-                    if len(j) == 2:
-                        convert.append(bytes([ord(i)]))  # do not convert
-                    else:
-                        convert.append(j)
-                buf = b''.join(convert)
-            else:
-                for i in buf:
-                    try:
-                        j = i.encode(encoding='utf8')
-                        if len(j) == 2:  # do not convert
-                            convert.append(i)
-                        else:
-                            convert.append(j)
-                    except UnicodeDecodeError:
-                        convert.append( i )
-                buf = ''.join(convert)
-            #print( buf )
+            #print(type(buf), buf)
+            if Env.PYTHON_V3 and isinstance(buf, str):
+                buf = buf.encode("utf8")
             self.ser.write( buf )
         except self.serial_exception as e:
             raise UnknownPortError( str(e) )

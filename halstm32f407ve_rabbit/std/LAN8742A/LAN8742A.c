@@ -112,7 +112,7 @@ int cmd_lan8720( int argc, char *argv[] )
     mcush_opt opt;
     const char *cmd=0;
     const char *name=0;
-    int value, reg;
+    int value, reg, reg2;
     uint8_t name_set=0, value_set=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -159,12 +159,30 @@ int cmd_lan8720( int argc, char *argv[] )
     }
     else if( strcmp( cmd, "loop" ) == 0 )
     {
-        reg = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR);
-        if( value_set && (value==0) )
+        /* lan8720 -c loop        --> near loop
+           lan8720 -c loop -v 1   --> near loop
+           lan8720 -c loop -v 2   --> far loop
+           lan8720 -c loop -v 0   --> back normal
+         */
+        reg = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, 0);
+        reg2 = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, 17);
+        if( value_set && (value==2) )  /* far loopback mode */
+        {
             reg &= ~0x4000;
-        else
+            reg2 |= 0x0200;
+        }
+        else if( value_set && (value==0) )  /* back to normal */
+        {
+            reg &= ~0x4000;
+            reg2 &= ~0x0200;
+        }
+        else  /* near loopback mode */
+        {
             reg |= 0x4000;
-        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, reg);
+            reg2 &= ~0x0200;
+        }
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, 0, reg);
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, 17, reg2);
     }
     else if( strcmp( cmd, shell_str_read ) == 0 )
     {

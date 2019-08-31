@@ -63,6 +63,32 @@ class Mcush( Instrument.SerialInstrument ):
                 cmd += ' -s' if on else ' -c'
             self.writeCommand( cmd )
 
+    def ledOn( self, idx ):
+        if isinstance(idx, list):
+            for led in dx:
+                self.led( led, on=True )
+        else:
+            self.led( idx, on=True )
+
+    def ledOff( self, idx ):
+        if isinstance(idx, list):
+            for led in dx:
+                self.led( led, on=False )
+        else:
+            self.led( idx, on=False )
+
+    def ledToggle( self, idx ):
+        if isinstance(idx, list):
+            for led in dx:
+                self.led( led, toggle=True )
+        else:
+            self.led( idx, toggle=True )
+
+    ledSet = ledOn
+    ledClr = ledOff
+    ledReset = ledOff
+    ledClear = ledOff
+
     # raw gpio command
     def gpio( self, port, i=None, o=None, s=None, c=None, t=None ):
         '''gpio control'''
@@ -195,7 +221,7 @@ class Mcush( Instrument.SerialInstrument ):
             m = [binascii.unhexlify(line[i:i+2]) for i in range(0,line_len,2)]
         else:
             m = [binascii.unhexlify(line[i:i+2]) for i in range(10,line_len,3)]
-        ret = (b'' if Env.PYTHON_V3 else '').join(m)
+        ret = Env.EMPTY_BYTE.join(m)
         #print( type(ret), len(ret), ret )
         return ret
        
@@ -261,7 +287,7 @@ class Mcush( Instrument.SerialInstrument ):
         assert 1 <= len(ret)
         for line in ret:
             self.logger.info( line )
-        mem = (b'' if Env.PYTHON_V3 else '').join( \
+        mem = Env.EMPTY_BYTE.join( \
                [self.parseMemLine(line.strip(), compact_mode) for line in ret])
         #print( type(mem), len(mem), mem )
         return mem[:length]
@@ -367,7 +393,6 @@ class Mcush( Instrument.SerialInstrument ):
         return None
 
     def convPathname( self, pathname ):
-        #print( pathname )
         if not Env.PYTHON_V3:
             pathname = unicode(pathname)
         else:
@@ -377,7 +402,7 @@ class Mcush( Instrument.SerialInstrument ):
             raise Exception( "File name length too long %d"% namelen )
         if pathname.find(' ') != -1:
             pathname = '\"' + pathname + '\"'
-        return pathname.encode('utf8')
+        return pathname
 
     def cat( self, pathname, b64=False, write=False, append=False, buf='' ):
         pathname = self.convPathname(pathname)
@@ -406,6 +431,8 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += pathname
             ret = '\n'.join(self.writeCommand( cmd ))
             if b64:
+                if Env.PYTHON_V3 and isinstance(ret, str):
+                     ret = ret.encode('utf8')
                 ret = base64.decodestring( ret )
             return ret
 
@@ -429,7 +456,7 @@ class Mcush( Instrument.SerialInstrument ):
     def getFile( self, pathname, local_pathname ):
         # read remote_file and save locally
         dat = self.cat( pathname, b64=True )
-        open( local_pathname, 'w+' ).write(dat)
+        open( local_pathname, 'wb+' ).write(dat)
 
     def putFile( self, pathname, local_pathname, segment_size=512, segment_done_callback=None ):
         # split local_file into pieces and write
@@ -437,7 +464,7 @@ class Mcush( Instrument.SerialInstrument ):
         dat_size = len(dat)
         if dat_size == 0:
             return
-        dat_segments = (dat_size-1) / segment_size + 1
+        dat_segments = int((dat_size-1) / segment_size) + 1
         # write the first
         d = dat[0:segment_size]
         self.cat( pathname, b64=True, write=True, buf=d )
@@ -494,7 +521,7 @@ class Mcush( Instrument.SerialInstrument ):
     def spiffsReadPage( self, page, pagesize=256 ):
         compact_mode = True
         ret = self.spiffs( "read", addr=page*pagesize, compact_mode=compact_mode ) 
-        mem = (b'' if Env.PYTHON_V3 else '').join( \
+        mem = Env.EMPTY_BYTE.join( \
                [self.parseMemLine(line.strip(), compact_mode=compact_mode) for line in ret])
         return mem
  

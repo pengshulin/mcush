@@ -86,10 +86,10 @@ uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE]; /* Ethernet Receive Buffer */
 uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE]; /* Ethernet Transmit Buffer */
 
 #elif defined (__GNUC__) /*!< GNU Compiler */
-ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB] __attribute__ ((section(".dma"))) __attribute__ ((aligned (4))); /* Ethernet Rx DMA Descriptor */
-ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB] __attribute__ ((section(".dma"))) __attribute__ ((aligned (4))); /* Ethernet Tx DMA Descriptor */
-uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __attribute__ ((section(".dma"))) __attribute__ ((aligned (4))); /* Ethernet Receive Buffer */
-uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __attribute__ ((section(".dma"))) __attribute__ ((aligned (4))); /* Ethernet Transmit Buffer */
+ETH_DMADESCTypeDef  DMARxDscrTab[ETH_RXBUFNB] __attribute__((section(".dma"))) __attribute__((aligned (4))); /* Ethernet Rx DMA Descriptor */
+ETH_DMADESCTypeDef  DMATxDscrTab[ETH_TXBUFNB] __attribute__((section(".dma"))) __attribute__((aligned (4))); /* Ethernet Tx DMA Descriptor */
+uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __attribute__((section(".dma"))) __attribute__((aligned (4))); /* Ethernet Receive Buffer */
+uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __attribute__((section(".dma"))) __attribute__((aligned (4))); /* Ethernet Transmit Buffer */
 
 #elif defined  (__TASKING__) /*!< TASKING Compiler */
 __align(4)
@@ -276,7 +276,9 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
     //__IO uint32_t i = 0;
     RCC_ClocksTypeDef  rcc_clocks;
     uint32_t hclk = 60000000;
-    __IO uint32_t timeout = 0, err = ETH_SUCCESS;
+    __IO uint32_t err = ETH_SUCCESS;
+    TickType_t t0;
+
     /* Check the parameters */
     /* MAC --------------------------*/
     assert_param(IS_ETH_AUTONEGOTIATION(ETH_InitStruct->ETH_AutoNegotiation));
@@ -379,20 +381,18 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
     if(ETH_InitStruct->ETH_AutoNegotiation != ETH_AutoNegotiation_Disable)
     {
         /* We wait for linked status...*/
-        do
+        t0 = xTaskGetTickCount();
+        while( !(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_Linked_Status) )
         {
-            timeout++;
-        } while (!(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_Linked_Status) && (timeout < PHY_READ_TO));
+            if( xTaskGetTickCount() > t0 + 2 * configTICK_RATE_HZ )
+            {
+                err = ETH_ERROR;
+                goto error;
+            }
+            else
+                vTaskDelay(1);
+        } 
 
-        /* Return ERROR in case of timeout */
-        if(timeout == PHY_READ_TO)
-        {
-            err = ETH_ERROR;
-            goto error;
-        }
-
-        /* Reset Timeout counter */
-        timeout = 0;
         /* Enable Auto-Negotiation */
         if(!(ETH_WritePHYRegister(PHYAddress, PHY_BCR, PHY_AutoNegotiation)))
         {
@@ -401,20 +401,18 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
         }
 
         /* Wait until the auto-negotiation will be completed */
-        do
+        t0 = xTaskGetTickCount();
+        while( !(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_AutoNego_Complete) )
         {
-            timeout++;
-        } while (!(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_AutoNego_Complete) && (timeout < (uint32_t)PHY_READ_TO));
+            if( xTaskGetTickCount() > t0 + 2 * configTICK_RATE_HZ )
+            {
+                err = ETH_ERROR;
+                goto error;
+            }
+            else
+                vTaskDelay(1);
+        } 
 
-        /* Return ERROR in case of timeout */
-        if(timeout == PHY_READ_TO)
-        {
-            err = ETH_ERROR;
-            goto error;
-        }
-
-        /* Reset Timeout counter */
-        timeout = 0;
         /* Read the result of the auto-negotiation */
         RegValue = ETH_ReadPHYRegister(PHYAddress, PHY_SPECIAL_CTRL_STA);
         /* Configure the MAC with the Duplex Mode fixed by the auto-negotiation process */
@@ -1913,7 +1911,7 @@ FlagStatus ETH_GetDMAFlagStatus(uint32_t ETH_DMA_FLAG)
 }
 
 /**
-  * @brief  Clears the ETHERNET’s DMA pending flag.
+  * @brief  Clears the ETHERNET's DMA pending flag.
   * @param  ETH_DMA_FLAG: specifies the flag to clear.
   *   This parameter can be any combination of the following values:
   *     @arg ETH_DMA_FLAG_NIS : Normal interrupt summary flag
@@ -2025,7 +2023,7 @@ ITStatus ETH_GetDMAITStatus(uint32_t ETH_DMA_IT)
 }
 
 /**
-  * @brief  Clears the ETHERNET’s DMA IT pending bit.
+  * @brief  Clears the ETHERNET's DMA IT pending bit.
   * @param  ETH_DMA_IT: specifies the interrupt pending bit to clear.
   *   This parameter can be any combination of the following values:
   *     @arg ETH_DMA_IT_NIS : Normal interrupt summary

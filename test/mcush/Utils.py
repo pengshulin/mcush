@@ -17,7 +17,10 @@ import traceback
 MAX_LINE_LEN = 80
 
 def writeTitle( title='', mark='=', color=True ):
-    title = unicode(title)
+    if Env.PYTHON_V3:
+        title = str(title)
+    else:
+        title = unicode(title)
     line = title.join( '  ' ) if title.strip() else ''
     marks = mark + mark
     while len(line) < MAX_LINE_LEN:
@@ -25,11 +28,14 @@ def writeTitle( title='', mark='=', color=True ):
     line = line[:MAX_LINE_LEN]
     if color:
         line = colored_string(line, 'black', 'white', style='bold')
-    stdout.write( unicode(line) + '\n' )
+    if Env.PYTHON_V3:
+        stdout.write( str(line) + '\n' )
+    else:
+        stdout.write( unicode(line) + '\n' )
     stdout.flush()
 
 def generateRandomFile( size ):
-    FILE = open( Env.TEST_WR, 'wb+' )
+    FILE = open( Env.TEST_WR, 'w+' )
     counter = 0
     while counter < size:
         FILE.write( chr(randint(0, 255)) )

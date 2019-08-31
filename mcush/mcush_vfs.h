@@ -69,6 +69,7 @@ typedef struct {
     uint32_t count_read, count_read_err;
     uint32_t count_write, count_write_err;
     uint32_t count_flush, count_flush_err;
+    uint32_t count_seek, count_seek_err;
     uint32_t count_close, count_close_err;
 } mcush_vfs_statistics_t;
 

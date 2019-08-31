@@ -169,3 +169,25 @@ int parse_ip_netmask_gateway( const char *str, char *ip, char *netmask, char *ga
 }
 
 
+int parse_dns1_dns2( const char *str, char *dns1, char *dns2 )
+{
+    char *p=lstrip((char*)str), *p2;
+    
+    if( *p == 0 )
+        return 0;
+    p2 = strip_line( &p );
+    if( !parse_ip( (const char*)p, dns1 ) )
+        return 0;
+    if( dns2 == 0 )
+        return 1;
+    if( *p2 == 0 )
+    {
+        memset( (void*)dns2, 0, 4 );
+        return 1;
+    }
+    if( !parse_ip( (const char*)p2, dns2 ) )
+        return 0;
+    return 1;
+}
+
+

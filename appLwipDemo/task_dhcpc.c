@@ -45,7 +45,15 @@ TimerHandle_t timer_dhcpc;
 uint8_t dhcp_state, ip_manual;
 struct netif gnetif;
     
-const ip_addr_t dns_google={.addr=0x08080808};
+const ip_addr_t dns_google={.addr=0x08080808};  // 8.8.8.8
+const ip_addr_t dns_google2={.addr=0x04040808};  // 8.8.4.4
+const ip_addr_t dns_alibaba={.addr=0x050505DF};  // 223.5.5.5
+const ip_addr_t dns_alibaba2={.addr=0x060606DF};  // 223.6.6.6
+const ip_addr_t dns_114={.addr=0x72727272};  // 114.114.114.114
+const ip_addr_t dns_114_2={.addr=0x73737272};  // 114.114.115.115
+const ip_addr_t dns_baidu={.addr=0x4CB4B4B4};  // 180.76.76.76
+const ip_addr_t dns_open={.addr=0xDCDC43D0};  // 208.67.220.220
+const ip_addr_t dns_open2={.addr=0xDEDC43D0};  // 208.67.222.222
 
 /* TODO: move it to hal layer */
 extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
@@ -143,6 +151,7 @@ void do_lwip_init(void)
         dns_setserver( 0, (const ip_addr_t *)&gateway );
 #if DNS_MAX_SERVERS > 1
         dns_setserver( 1, (const ip_addr_t *)&dns_google );
+        //dns_setserver( 1, (const ip_addr_t *)&dns_114 );
 #endif
     }
     
@@ -289,7 +298,7 @@ int cmd_netstat( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', "cmd", "command", "info|up|down|dhcp|ip" },
+          'c', "cmd", "command", "info|up|down|dhcp|ip|dns" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -362,7 +371,7 @@ int cmd_netstat( int argc, char *argv[] )
         input = shell_read_multi_lines(0);
         if( input )
         {
-            /* parse manual setting */
+            /* parse manual ip/netmask/gateway setting */
             if( parse_ip_netmask_gateway( (const char*)input, (char*)&ipaddr, (char*)&netmask, (char*)&gateway ) )
             {
                 dhcp_stop(&gnetif);
@@ -374,6 +383,19 @@ int cmd_netstat( int argc, char *argv[] )
             vPortFree( (void*)input );
             if( !succ )
                 return 1;
+        }
+    }
+    else if( strcmp(cmd, "dns") == 0 )
+    {
+        input = shell_read_multi_lines(0);
+        if( input )
+        {
+            /* parse manual dns1/dns2 setting */
+            if( parse_dns1_dns2( (const char*)input, (char*)&ipaddr, (char*)&netmask ) )
+            {
+                dns_setserver( 0, (const ip_addr_t *)&ipaddr );
+                dns_setserver( 1, (const ip_addr_t *)&netmask );
+            }
         }
     }
     else

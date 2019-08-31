@@ -226,6 +226,28 @@ err:
 
 int mcush_seek( int fd, int offset, int where )
 {
+    const mcush_vfs_driver_t *driver;
+    int ret;
+
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_seek++;
+#endif
+    if( fd == 0 )
+        return 0;
+
+    fd -= FD_RESERVED;
+    if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
+        goto err;
+
+    driver = vfs_fd_tab[fd].driver;
+    if( driver == NULL )
+        goto err;
+    ret = driver->seek( vfs_fd_tab[fd].handle, offset, where );
+    return ret;
+err:
+#if MCUSH_VFS_STATISTICS
+    vfs_stat.count_seek_err++;
+#endif
     return 0;
 }
 

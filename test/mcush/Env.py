@@ -102,7 +102,14 @@ LANGUAGES = {'en', 'zh_cn'}
 LANGUAGE = getenv( 'LANGUAGE', 'en' ).split(':')[0].lower()
 
 PYTHON_V3 = bool(version_info > (3, 0))
+if PYTHON_V3:
+    EMPTY_BYTE = b''
+else:
+    EMPTY_BYTE = ''
 
+LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
+LOG_FORMAT = '%(asctime)s %(name)s %(levelname)s %(message)s'
+ 
 try:
     if PYTHON_V3:
         from mcush.EnvExtra import *

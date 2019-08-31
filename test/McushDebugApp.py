@@ -89,6 +89,29 @@ s.errno(0)
 s.beep(freq=2000, times=3)
 '''],
 
+["Opto-isolated IO controller self test", '''\
+# Opto-isolated IO controller self test
+# toggle all pins and beep
+s = Mcush(PORT)
+s.beep()
+PINS=['0.0','0.1','0.2','0.3','0.4','0.5','0.6','0.7']
+s.scpiRst()
+s.errnoStop()  # stop errno blink
+sleep(1)
+# toggle all pins
+while True:
+    s.ledOn(0)
+    s.pinSet(PINS)
+    s.beep(freq=300)
+    sleep(2)
+    s.ledOff(0)
+    s.pinClr(PINS)
+    s.beep(freq=100)
+    sleep(2)
+'''],
+
+
+
 ["Output impulse counter", '''\
 pin = '0.0'  # PA0
 s = Mcush(PORT)
@@ -548,6 +571,12 @@ class MainFrame(MyFrame):
         ctrl.SetKeyWords(0, " ".join(keyword.kwlist + KEYWORDS))
         ctrl.SetProperty("tab.timmy.whinge.level", "1")
         ctrl.SetMargins(0,0)
+        ctrl.SetIndent(4)
+        ctrl.SetIndentationGuides(True)
+        ctrl.SetBackSpaceUnIndents(True)
+        ctrl.SetTabIndents(True)
+        ctrl.SetTabWidth(4)
+        ctrl.SetUseTabs(False)
         ctrl.SetViewWhiteSpace(False)
         ctrl.Bind(wx.stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         ctrl.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT,     "face:%(helv)s,size:%(size)d" % faces)
