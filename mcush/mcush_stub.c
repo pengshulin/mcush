@@ -2,6 +2,8 @@
 #include "mcush.h"
 #include "hal.h"
 #include <sys/types.h>
+#include <sys/fcntl.h>
+
 
 #ifndef HALT_ON_SBRK_FAIL
 #define HALT_ON_SBRK_FAIL  0
@@ -62,28 +64,43 @@ void _halt_with_message(const char *message)
 
 int _open( const char *name, int flag, int m )
 {
-    return -1;
+    char mode[8];
+
+    mode[0] = 0;
+
+    switch( flag & 0x03 )
+    {
+    case O_RDONLY: strcpy(mode, "r");  break;
+    case O_WRONLY: strcpy(mode, "w");  break;
+    case O_RDWR:
+    default:       strcpy(mode, "rw");  break;
+    }
+    if( flag & O_CREAT )
+        strcat(mode, "+");
+    if( flag & O_APPEND )
+        strcat(mode, "a");
+    return mcush_open( name, (const char *)mode );
 }
 
 size_t _read( int fd, void *buf, size_t len )
 {
-    return 0;
+    return mcush_read( fd, buf, len );
 }
 
 
 size_t _write( int fd, const void *buf, size_t len )
 {
-    return shell_driver_write( buf, len );
+    return mcush_write( fd, (void*)buf, len );
 }
 
 int _close( int fd )
 {
-    return 0;
+    return mcush_close( fd );
 }
 
 off_t _lseek( int fd, off_t offset, int w )
 {
-    return 0;
+    return mcush_seek( fd, offset, w );
 }
 
 //int _fstat( int fd, struct stat *s )

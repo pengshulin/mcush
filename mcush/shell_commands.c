@@ -3325,7 +3325,7 @@ int cmd_copy( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
-          0, shell_str_file, 0, shell_str_file_name },
+          0, shell_str_file, 0, "src -> dst" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;

@@ -205,11 +205,10 @@ void logger_module_buffer( const char *module, const char *buf, int len );
 /* module name define macro, declare this at the top of each module */
 #define LOGGER_MODULE_NAME( name )  static const char logger_module_name[] = name
 
-/* backup policy:
-   copy /?/logger -> /?/logger.bak, /?/logger.N -> /?/logger.N.bak */
+/* backup policy: rename /?/logger -> /?/logger.bak, /?/logger.N -> /?/logger.N.bak */
 int backup_all_log_files( void );
 
-/* remove /?/logger(.?) or /?/logger(.?).bak */
+/* remove /?/logger(.?) (and /?/logger(.?).bak) */
 int delete_all_log_files( int delete_backup );
 
 #endif

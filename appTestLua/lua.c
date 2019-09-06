@@ -84,17 +84,21 @@ static int docall (lua_State *L, int narg, int nres) {
   return status;
 }
 
-//static int dochunk (lua_State *L, int status) {
-//  if (status == LUA_OK) status = docall(L, 0, 0);
-//  return report(L, status);
-//}
-//
-//static int dofile (lua_State *L, const char *name) {
-//  return dochunk(L, luaL_loadfile(L, name));
-//}
-//
-//static int dostring (lua_State *L, const char *s, const char *name) {
-//  return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
+static int dochunk (lua_State *L, int status)
+{
+    if (status == LUA_OK) 
+        status = docall(L, 0, 0);
+    return lua_print_error(L, status);
+}
+
+static int dofile (lua_State *L, const char *name)
+{
+    return dochunk(L, luaL_loadfile(L, name));
+}
+
+//static int dostring (lua_State *L, const char *s, const char *name)
+//{
+//    return dochunk(L, luaL_loadbuffer(L, s, strlen(s), name));
 //}
 
 /*
@@ -261,11 +265,39 @@ static void lua_repl( lua_State *L )
 extern int luaopen_ledlib(lua_State *L);
 extern int luaopen_gpiolib(lua_State *L);
 extern int luaopen_loglib(lua_State *L);
+extern int luaopen_systemlib(lua_State *L);
 
 int cmd_lua( int argc, char *argv[] )
 {
-    lua_State *L = luaL_newstate();
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'v', shell_str_version, shell_str_version, shell_str_version },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_file, 0, shell_str_file_name },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    lua_State *L;
+    char *script=0;
 
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_version ) == 0 )
+            {
+                shell_write_line( LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE );
+                return 0;
+            }
+            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
+                script = (char*)opt.value;   
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+ 
+    L = luaL_newstate();
     if( L == NULL )
     {
         shell_write_err(shell_str_memory);
@@ -283,13 +315,25 @@ int cmd_lua( int argc, char *argv[] )
     lua_pop(L, 1);
     luaL_requiref(L, "log", luaopen_loglib, 1 );
     lua_pop(L, 1);
+    luaL_requiref(L, "sys", luaopen_systemlib, 1 );
+    lua_pop(L, 1);
 
 
-#if 0
-    //dostring(L,"print('hello')","Test_lua");
-    //dofile(L, NULL);  /* executes stdin as a file */
-#endif
-    lua_repl(L);
+    if( script )
+    {
+        if( mcush_file_exists(script) )
+            dofile(L, script);
+        else
+        {
+            shell_write_err( shell_str_file );
+            lua_close(L);
+            return 1; 
+        }
+    }
+    else
+    {
+        lua_repl(L);
+    }
     
     lua_close(L);
     return 0;

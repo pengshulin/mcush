@@ -193,7 +193,10 @@ class Mcush( Instrument.SerialInstrument ):
             self.gpio( pin, t=True )
 
     def pinRead( self, pin ):
-        return self.gpio( pin )
+        if isinstance(pin, list):
+            return [self.gpio(p) for p in pin]
+        else:
+            return self.gpio( pin )
 
     def pinIsHigh( self, pin ):
         return bool(self.gpio( pin ))

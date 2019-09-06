@@ -11,9 +11,12 @@ from mcush.misc import Motion
 
 
 def main(argv=None):
-    m = Motion.Mpu6050(Mcush.Mcush())
+    m = Motion.Mpu6050(Mcush.Mcush(),scl='1.6', sda='1.7')
+    m.printAllReg()
     counter = 1
     while True:
+        #print( 'WHO_AM_I', hex(m.readByName('WHO_AM_I')) )
+        #m.printAllReg()
         temp = m.getTemperature()
         ax = m.getAccelX()
         ay = m.getAccelY()
