@@ -753,11 +753,6 @@
 
 #define lua_assert(x)             ((x)?(0):halt("lua_assert"))
 
-//#define fopen   mcush_open
-//#define fread   mcush_read
-//#define fwrite  mcush_write
-//#define fgetc   mcush_getc
-//#define fclose  mcush_close
-
+#define LUA_TMPNAMTEMPLATE  "/s/lua_XXXXXX"
 
 #endif

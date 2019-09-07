@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "lua.h"
 #include "lualib.h"
@@ -9,18 +10,24 @@ static int _log_write_message( lua_State *L, int type )
 {
     size_t l;
     const char *p;
+    int i, top=lua_gettop(L);
 
-    if( lua_gettop(L) != 1 )
+    if( top < 1 )
     {
         shell_write_err( "message" );
         return 0;
     }
-    
-    p = luaL_checklstring(L, 1, &l);
-    if( p == 0 || *p == 0 )
-        return 0;
+    else
+    {
+        for( i=1; i<=top; i++ )
+        {
+            p = luaL_checklstring(L, i, &l);
+            if( p == 0 || *p == 0 )
+                break;
  
-    logger_module_str( type, "lua", p );
+            logger_module_str( type, "lua", p );
+        }
+    }
 
     return 0;
 }

@@ -1,8 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "hal.h"
-#include <sys/types.h>
-#include <sys/fcntl.h>
 
 
 #ifndef HALT_ON_SBRK_FAIL
@@ -64,22 +62,8 @@ void _halt_with_message(const char *message)
 
 int _open( const char *name, int flag, int m )
 {
-    char mode[8];
-
-    mode[0] = 0;
-
-    switch( flag & 0x03 )
-    {
-    case O_RDONLY: strcpy(mode, "r");  break;
-    case O_WRONLY: strcpy(mode, "w");  break;
-    case O_RDWR:
-    default:       strcpy(mode, "rw");  break;
-    }
-    if( flag & O_CREAT )
-        strcat(mode, "+");
-    if( flag & O_APPEND )
-        strcat(mode, "a");
-    return mcush_open( name, (const char *)mode );
+    char buf[8];
+    return mcush_open( name, (const char *)parse_file_flag(flag, buf) );
 }
 
 size_t _read( int fd, void *buf, size_t len )

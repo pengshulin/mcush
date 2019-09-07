@@ -1,7 +1,28 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#include "mcush.h"
-
 #if MCUSH_VFS
+#include "mcush.h"
+#include <sys/fcntl.h>
+
+
+char *parse_file_flag( int flag, char *buf )
+{
+    buf[0] = 0;
+
+    switch( flag & 0x03 )
+    {
+    case O_RDONLY: strcpy(buf, "r");  break;
+    case O_WRONLY: strcpy(buf, "w");  break;
+    case O_RDWR:
+    default:       strcpy(buf, "rw");  break;
+    }
+    if( flag & O_CREAT )
+        strcat(buf, "+");
+    if( flag & O_APPEND )
+        strcat(buf, "a");
+
+    return buf;
+}
+
 
 int mcush_file_exists( const char *fname )
 {

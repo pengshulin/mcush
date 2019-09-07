@@ -2,6 +2,9 @@
 #ifndef __MCUSH_LIB_FS_H__
 #define __MCUSH_LIB_FS_H__
 
+char *parse_file_flag( int flag, char *buf );
+
+
 int mcush_file_exists( const char *fname );
 int mcush_file_crc8( const char *fname );
 int mcush_file_crc32( const char *fname );

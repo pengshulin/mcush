@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "lua.h"
 #include "lualib.h"
@@ -48,7 +49,7 @@ static int lua_gpio_toggle(lua_State *L)
     return _gpio_process( L, hal_gpio_toggle );
 }
 
-static int lua_gpio_read(lua_State *L)
+static int lua_gpio_get(lua_State *L)
 {
     int port, pin;
 
@@ -56,12 +57,14 @@ static int lua_gpio_read(lua_State *L)
     {
     case 1:
         port = luaL_checkinteger(L, 1);
-        shell_printf( "0x%04X\n", hal_gpio_get(port, -1) );
+        lua_pushinteger( L, hal_gpio_get(port, -1) );
+        return 1;
         break;
     case 2:
         port = luaL_checkinteger(L, 1);
         pin = luaL_checkinteger(L, 2);
-        shell_write_line( hal_gpio_get(port, 1<<pin) ? shell_str_1 : shell_str_0 );
+        lua_pushboolean( L, hal_gpio_get(port, 1<<pin) );
+        return 1;
         break;
     default:
         shell_write_line( "parms: (port[, pin])" );
@@ -78,7 +81,7 @@ static const struct luaL_Reg gpiolib[] =
     { "set", lua_gpio_set },
     { "clr", lua_gpio_clr },
     { "toggle", lua_gpio_toggle },
-    { "read", lua_gpio_read },
+    { "get", lua_gpio_get },
     { NULL, NULL}
 };
 
