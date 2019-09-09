@@ -15,6 +15,7 @@ extern const char shell_str_address[];
 extern const char shell_str_append[];
 extern const char shell_str_argument[];
 extern const char shell_str_ascii[];
+extern const char shell_str_attach[];
 extern const char shell_str_backup[];
 extern const char shell_str_base_address[];
 extern const char shell_str_check[];

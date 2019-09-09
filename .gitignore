@@ -18,6 +18,7 @@
 .sconsign.dblite
 tags
 a.out
+.build_signature
 
 .~*#
 

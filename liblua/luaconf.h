@@ -43,7 +43,7 @@
 ** Define it if you want Lua to avoid the use of a few C99 features
 ** or Windows-specific features on Windows.
 */
-/* #define LUA_USE_C89 */
+#define LUA_USE_C89
 
 
 /*
@@ -738,20 +738,40 @@
 
 
 /* =================================================================== */
-
-/*
-** Local configuration. You can use this space to add your redefinitions
-** without modifying the main part of the file.
-*/
+/* global lua configuration */
 
 #include "shell.h"
 #include "mcush_lib.h"
 
-#define lua_writestring(s,l)      do{shell_write_str(s);}while(0)
-#define lua_writeline()           do{shell_write_char('\n');}while(0)
-#define lua_writestringerror(s,p) do{shell_printf((s),(p));}while(0)
+#define LUA_MAXINPUT    512
+#define LUA_PROMPT      "> "
+#define LUA_PROMPT2     ">> "
 
-#define lua_assert(x)             ((x)?(0):halt("lua_assert"))
+
+int lua_wrapper_readline( char *buf, const char *prompt );
+void lua_wrapper_writestring( const char *buf, int len );
+void lua_wrapper_writeline( void ); 
+void lua_wrapper_writestringerror( const char *fmt, const char *parm );
+
+#ifndef lua_readline
+    #define lua_readline  lua_wrapper_readline
+#endif
+
+#ifndef lua_writestring
+    #define lua_writestring  lua_wrapper_writestring
+#endif
+
+#ifndef lua_writeline
+    #define lua_writeline  lua_wrapper_writeline
+#endif
+
+#ifndef lua_writestringerror
+    #define lua_writestringerror  lua_wrapper_writestringerror
+#endif
+
+#ifndef lua_assert
+    #define lua_assert(x)               ((x)?(0):halt("lua_assert"))
+#endif
 
 #define LUA_TMPNAMTEMPLATE  "/s/lua_XXXXXX"
 

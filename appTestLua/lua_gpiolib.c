@@ -18,7 +18,8 @@ static int _gpio_process( lua_State *L, gpio_f f )
         (*f)( port, 1<<pin );
         break;
     default:
-        shell_write_line( "need parms: (port, pin)" );
+        lua_writestring( "parms: (port, pin)", 18 );
+        lua_writeline();
         break;
     }
     return 0;
@@ -67,7 +68,8 @@ static int lua_gpio_get(lua_State *L)
         return 1;
         break;
     default:
-        shell_write_line( "parms: (port[, pin])" );
+        lua_writestring( "parms: (port[, pin])", 20 );
+        lua_writeline();
         break;
     }
     return 0;

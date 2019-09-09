@@ -1,20 +1,49 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 
-#define LUA_MAXINPUT    512
-#define LUA_PROMPT      "> "
-#define LUA_PROMPT2     ">> "
 
-/*
- * lua_readline defines how to show a prompt and then read a line from the standard input.
- * lua_saveline defines how to "save" a read line in a "history".
- * lua_freeline defines how to free a line read by lua_readline.
- */
-#define lua_readline(L,b,p)  ((void)L, shell_read_line(b, p)!=-1)
-#define lua_saveline(L,line) { (void)L; (void)line; }
-#define lua_freeline(L,b)    { (void)L; (void)b; }
+static lua_State *globalL = NULL;
+
+
+int lua_wrapper_readline( char *buf, const char *prompt )
+{
+    return shell_read_line( buf, prompt ) != -1;
+}
+
+
+void lua_wrapper_writestring( const char *buf, int len )
+{
+    shell_write_str( buf );
+}
+
+
+void lua_wrapper_writeline( void )
+{
+    shell_write_char('\n');
+}
+
+
+void lua_wrapper_writestringerror( const char *fmt, const char *parm )
+{
+    shell_printf( (char*)fmt, (char*)parm );
+}
+
+
+
+//static void lua_interrupt_hook( lua_State *L, lua_Debug *d )
+//{
+//    lua_sethook( L, NULL, 0, 0 );
+//    luaL_error( L, "interrupted" );
+//}
+//
+//static void lua_interrupt( void )
+//{
+//    lua_sethook( globalL, lua_interrupt_hook, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1 );
+//}
+//
 
 
 /* print message */
@@ -72,14 +101,8 @@ static int docall (lua_State *L, int narg, int nres) {
   int base = lua_gettop(L) - narg;  /* function index */
   lua_pushcfunction(L, msghandler);  /* push message handler */
   lua_insert(L, base);  /* put it under function and args */
-#if 0
-  globalL = L;  /* to be available to 'laction' */
-  signal(SIGINT, laction);  /* set C-signal handler */
-#endif
+  globalL = L;
   status = lua_pcall(L, narg, nres, base);
-#if 0
-  signal(SIGINT, SIG_DFL); /* reset C-signal handler */
-#endif
   lua_remove(L, base);  /* remove message handler from the stack */
   return status;
 }
@@ -91,7 +114,7 @@ static int dochunk (lua_State *L, int status)
     return lua_print_error(L, status);
 }
 
-static int dofile (lua_State *L, const char *name)
+int dofile (lua_State *L, const char *name)
 {
     return dochunk(L, luaL_loadfile(L, name));
 }
@@ -146,7 +169,7 @@ static int pushline (lua_State *L, int firstline) {
   char *b = buffer;
   size_t l;
   const char *prmt = get_prompt(L, firstline);
-  int readstatus = lua_readline(L, b, prmt);
+  int readstatus = lua_readline(b, prmt);
   //shell_printf("len(%d) %s\n", strlen(b), b);
   if (readstatus == 0)
     return 0;  /* no input (prompt will be popped by caller) */
@@ -158,7 +181,6 @@ static int pushline (lua_State *L, int firstline) {
     lua_pushfstring(L, "return %s", b + 1);  /* change '=' to 'return' */
   else
     lua_pushlstring(L, b, l);
-  lua_freeline(L, b);
   return 1;
 }
 
@@ -177,8 +199,6 @@ static int addreturn (lua_State *L) {
   if ((status = luaL_loadbuffer(L, line, len, "=stdin")) == LUA_OK) {
     lua_remove(L, -3);  /* remove original line */
     line += sizeof("return")/sizeof(char);  /* remove 'return' for history */
-    if (line[0] != '\0')  /* non empty? */
-      lua_saveline(L, line);  /* keep history */
   }
   else
     lua_pop(L, 2);  /* remove result from 'luaL_loadbuffer' and new line */
@@ -195,7 +215,6 @@ static int multiline (lua_State *L) {
     const char *line = lua_tolstring(L, 1, &len);  /* get what it has */
     int status = luaL_loadbuffer(L, line, len, "=stdin");  /* try it */
     if (!incomplete(L, status) || !pushline(L, 0)) {
-      lua_saveline(L, line);  /* keep history */
       return status;  /* cannot or should not try to add continuation line */
     }
     lua_pushliteral(L, "\n");  /* add newline... */
@@ -267,9 +286,31 @@ extern int luaopen_gpiolib(lua_State *L);
 extern int luaopen_loglib(lua_State *L);
 extern int luaopen_systemlib(lua_State *L);
 
+int lua_init_libs(lua_State *L)
+{
+    luaL_openlibs(L);  /* open standard libs */
+
+    luaopen_package(L);
+   
+    /* append mcush libs */ 
+    luaL_requiref(L, "led", luaopen_ledlib, 1 );
+    lua_pop(L, 1);
+    luaL_requiref(L, "gpio", luaopen_gpiolib, 1 );
+    lua_pop(L, 1);
+    luaL_requiref(L, "log", luaopen_loglib, 1 );
+    lua_pop(L, 1);
+    luaL_requiref(L, "sys", luaopen_systemlib, 1 );
+    lua_pop(L, 1);
+
+    return 1;
+}
+
+
 int cmd_lua( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'a', shell_str_attach, shell_str_attach, shell_str_attach },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'v', shell_str_version, shell_str_version, shell_str_version },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
@@ -279,6 +320,7 @@ int cmd_lua( int argc, char *argv[] )
     mcush_opt opt;
     lua_State *L;
     char *script=0;
+    uint8_t attach_set=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -290,7 +332,11 @@ int cmd_lua( int argc, char *argv[] )
                 shell_write_line( LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE );
                 return 0;
             }
-            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_attach ) == 0 )
+            {
+                attach_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 script = (char*)opt.value;   
         }
         else
@@ -304,20 +350,7 @@ int cmd_lua( int argc, char *argv[] )
         return -1;
     }
 
-    luaL_openlibs(L);  /* open standard libs */
-
-    luaopen_package(L);
-   
-    /* append led lib */ 
-    luaL_requiref(L, "led", luaopen_ledlib, 1 );
-    lua_pop(L, 1);
-    luaL_requiref(L, "gpio", luaopen_gpiolib, 1 );
-    lua_pop(L, 1);
-    luaL_requiref(L, "log", luaopen_loglib, 1 );
-    lua_pop(L, 1);
-    luaL_requiref(L, "sys", luaopen_systemlib, 1 );
-    lua_pop(L, 1);
-
+    lua_init_libs( L );
 
     if( script )
     {

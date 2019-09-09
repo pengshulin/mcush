@@ -48,6 +48,7 @@ static int lua_system_errno( lua_State *L )
 }
 
 
+#if USE_CMD_BEEP
 static int lua_system_beep( lua_State *L )
 {
     int freq=-1, ms=-1;
@@ -68,6 +69,7 @@ static int lua_system_beep( lua_State *L )
 
     return 0;
 }
+#endif
 
 
 static int lua_system_cmd( lua_State *L )
@@ -94,7 +96,9 @@ static int lua_system_cmd( lua_State *L )
 
 static const struct luaL_Reg systemlib[] =
 {
+#if USE_CMD_BEEP
     { "beep", lua_system_beep },
+#endif
     { "delay", lua_system_delay },
     { "errno", lua_system_errno },
     { "cmd", lua_system_cmd },
