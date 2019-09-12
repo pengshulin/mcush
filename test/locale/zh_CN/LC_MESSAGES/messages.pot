@@ -144,6 +144,21 @@ msgstr "至"
 msgid "Scripts"
 msgstr "脚本"
 
+msgid "script"
+msgstr "脚本"
+
+msgid "Python scripts"
+msgstr "Python脚本"
+
+msgid "Python script"
+msgstr "Python脚本"
+
+msgid "Lua scripts"
+msgstr "Lua脚本"
+
+msgid "Lua script"
+msgstr "Lua脚本"
+
 msgid "File"
 msgstr "文件"
 
@@ -239,9 +254,6 @@ msgstr "正在读取"
 
 msgid "Open port..."
 msgstr "打开端口..."
-
-msgid "script"
-msgstr "脚本"
 
 msgid "plot"
 msgstr "绘图"
