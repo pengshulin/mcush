@@ -97,3 +97,9 @@ void HAL_Delay(uint32_t Delay)
     hal_delay_ms( Delay );
 }
 
+
+/* replace the original implementation of ST/HAL driver */
+uint32_t HAL_GetTick( void )
+{
+    return xTaskGetTickCount()*1000/configTICK_RATE_HZ;
+}

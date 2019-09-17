@@ -130,13 +130,22 @@ int _getpid(void)
 
 int _gettimeofday(struct timeval *tv, struct timezone *tz)
 {
-    unsigned int s, tick=xTaskGetTickCount();
+    unsigned int s, tick;
 
-    s = tick / configTICK_RATE_HZ;
-    tick = tick - s * configTICK_RATE_HZ;
-    tick = tick * 1000000 / configTICK_RATE_HZ; 
-    tv->tv_sec = s;
-    tv->tv_usec = tick;
+    if( get_rtc_tick( (uint32_t*)&tick ) )
+    {
+        tv->tv_sec = tick + 8*60*60;
+        tv->tv_usec = 0;
+    }
+    else
+    {
+        tick = xTaskGetTickCount();
+        s = tick / configTICK_RATE_HZ;
+        tick = tick - s * configTICK_RATE_HZ;
+        tick = tick * 1000000 / configTICK_RATE_HZ; 
+        tv->tv_sec = s;
+        tv->tv_usec = tick;
+    }
 
     tz->tz_minuteswest = 0;
     tz->tz_dsttime = 0;

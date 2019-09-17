@@ -284,7 +284,7 @@ static void lua_repl( lua_State *L )
 extern int luaopen_ledlib(lua_State *L);
 extern int luaopen_gpiolib(lua_State *L);
 extern int luaopen_loglib(lua_State *L);
-extern int luaopen_systemlib(lua_State *L);
+extern int luaopen_syslib(lua_State *L);
 
 int lua_init_libs(lua_State *L)
 {
@@ -299,7 +299,7 @@ int lua_init_libs(lua_State *L)
     lua_pop(L, 1);
     luaL_requiref(L, "log", luaopen_loglib, 1 );
     lua_pop(L, 1);
-    luaL_requiref(L, "sys", luaopen_systemlib, 1 );
+    luaL_requiref(L, "sys", luaopen_syslib, 1 );
     lua_pop(L, 1);
 
     return 1;

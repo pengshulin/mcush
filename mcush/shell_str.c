@@ -92,6 +92,7 @@ __attribute__((aligned(1))) const char shell_str_read[] = "read";
 __attribute__((aligned(1))) const char shell_str_readme[] = "readme";
 __attribute__((aligned(1))) const char shell_str_realloc[] = "realloc";
 __attribute__((aligned(1))) const char shell_str_reboot[] = "reboot";
+__attribute__((aligned(1))) const char shell_str_remount[] = "remount";
 __attribute__((aligned(1))) const char shell_str_reset[] = "reset";
 __attribute__((aligned(1))) const char shell_str_restart[] = "restart";
 __attribute__((aligned(1))) const char shell_str_run[] = "run";

@@ -101,6 +101,7 @@ extern const char shell_str_read[];
 extern const char shell_str_readme[];
 extern const char shell_str_realloc[];
 extern const char shell_str_reboot[];
+extern const char shell_str_remount[];
 extern const char shell_str_reset[];
 extern const char shell_str_restart[];
 extern const char shell_str_run[];

@@ -100,6 +100,173 @@ extern "C" {
 
 
 
+#ifndef USE_CMD_HELP
+    #define USE_CMD_HELP  1
+#endif
+#ifndef USE_CMD_SCPI_IDN
+    #define USE_CMD_SCPI_IDN  1
+#endif
+#ifndef USE_CMD_SCPI_RST
+    #define USE_CMD_SCPI_RST  1
+#endif
+#ifndef USE_CMD_REBOOT
+    #define USE_CMD_REBOOT  1
+#endif
+#ifndef USE_CMD_UPGRADE
+    #define USE_CMD_UPGRADE  0
+#endif
+#ifndef USE_CMD_GPIO
+    #define USE_CMD_GPIO  1
+#endif
+#ifndef USE_CMD_LED
+    #define USE_CMD_LED  1
+#endif
+#ifndef USE_CMD_DUMP
+    #define USE_CMD_DUMP  1
+#endif
+#ifndef USE_CMD_WRITE
+    #define USE_CMD_WRITE  1
+#endif
+#ifndef USE_CMD_MFILL
+    #define USE_CMD_MFILL  1
+#endif
+#ifndef USE_CMD_WAIT
+    #define USE_CMD_WAIT  1
+#endif
+#ifndef USE_CMD_ECHO
+    #define USE_CMD_ECHO  1
+#endif
+#ifndef USE_CMD_MKBUF
+    #define USE_CMD_MKBUF  1
+#endif
+#ifndef USE_CMD_WDG
+    #define USE_CMD_WDG  1
+#endif
+#ifndef USE_CMD_UPTIME
+    #define USE_CMD_UPTIME  1
+#endif
+
+#ifndef USE_CMD_SYSTEM
+    #define USE_CMD_SYSTEM  1
+    #ifndef USE_CMD_SYSTEM_HEAP
+        #define USE_CMD_SYSTEM_HEAP  1
+    #endif
+    #ifndef USE_CMD_SYSTEM_STACK
+        #define USE_CMD_SYSTEM_STACK  1
+    #endif
+#endif
+
+#ifndef USE_CMD_MAPI
+    #define USE_CMD_MAPI  1
+#endif
+#ifndef USE_CMD_BEEP
+    #define USE_CMD_BEEP  0
+#endif
+#ifndef USE_CMD_SGPIO
+    #define USE_CMD_SGPIO  0
+#endif
+#ifndef USE_CMD_POWER
+    #define USE_CMD_POWER  0
+#endif
+#ifndef USE_CMD_I2C
+    #define USE_CMD_I2C  1
+#endif
+#ifndef USE_CMD_SPI
+    #define USE_CMD_SPI  1
+#endif
+#ifndef USE_CMD_PWM
+    #define USE_CMD_PWM  0
+#endif
+#ifndef USE_CMD_COUNTER
+    #define USE_CMD_COUNTER  0
+#endif
+#ifndef USE_CMD_RTC
+    #define USE_CMD_RTC  0
+#endif
+#ifndef USE_CMD_LOOP
+    #define USE_CMD_LOOP  1
+#endif
+
+
+#if MCUSH_SPIFFS
+    #ifndef USE_CMD_SPIFFS
+        #define USE_CMD_SPIFFS  1
+    #endif
+#else
+    #ifdef USE_CMD_SPIFFS
+        #undef USE_CMD_SPIFFS
+    #endif
+    #define USE_CMD_SPIFFS  0
+#endif
+
+#if MCUSH_FATFS
+    #ifndef USE_CMD_FATFS
+        #define USE_CMD_FATFS  1
+    #endif
+#else
+    #ifdef USE_CMD_FATFS
+        #undef USE_CMD_FATFS
+    #endif
+    #define USE_CMD_FATFS  0
+#endif
+
+
+#if MCUSH_VFS
+    #ifndef USE_CMD_CAT
+        #define USE_CMD_CAT  1
+    #endif
+    #ifndef USE_CMD_RM
+        #define USE_CMD_RM  1
+    #endif
+    #ifndef USE_CMD_RENAME
+        #define USE_CMD_RENAME  1
+    #endif
+    #ifndef USE_CMD_CP
+        #define USE_CMD_CP  1
+    #endif
+    #ifndef USE_CMD_LS
+        #define USE_CMD_LS  1
+    #endif
+    #ifndef USE_CMD_LOAD
+        #define USE_CMD_LOAD  1
+    #endif
+    #ifndef USE_CMD_CRC
+        #define USE_CMD_CRC  0
+    #endif
+#else
+    #ifdef USE_CMD_CAT
+        #undef USE_CMD_CAT
+    #endif
+    #define USE_CMD_CAT  0
+    #ifdef USE_CMD_RM
+        #undef USE_CMD_RM
+    #endif
+    #define USE_CMD_RM  0
+    #ifdef USE_CMD_RENAME
+        #undef USE_CMD_RENAME
+    #endif
+    #define USE_CMD_RENAME  0
+    #ifdef USE_CMD_CP
+        #undef USE_CMD_CP
+    #endif
+    #define USE_CMD_CP  0
+    #ifdef USE_CMD_LS
+        #undef USE_CMD_LS
+    #endif
+    #define USE_CMD_LS  0
+    #ifdef USE_CMD_LOAD
+        #undef USE_CMD_LOAD
+    #endif
+    #define USE_CMD_LOAD  0
+    #ifdef USE_CMD_CRC
+        #undef USE_CMD_CRC
+    #endif
+    #define USE_CMD_CRC  0
+
+    #undef USE_CMD_UPGRADE
+    #define USE_CMD_UPGRADE  0
+#endif
+
 
 extern void mcush_init(void);
 extern void mcush_start(void);

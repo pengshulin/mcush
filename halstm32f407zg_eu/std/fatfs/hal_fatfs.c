@@ -10,7 +10,7 @@
 /* Hardware connection:
    ----------------------------- 
    (MCU)          (CARD)
-   PC10 D2 -----> PIN 1
+   PC10 D2 <----> PIN 1
    PC11 D3 <----> PIN 2
    PD2 CMD <----> PIN 3
    VDD <--------> PIN 4

@@ -147,7 +147,7 @@ int mcush_spiffs_rename( const char *old, const char *newPath )
 }
 
 
-spiffs_flags parse_mode_flags( const char *mode )
+static spiffs_flags parse_spiffs_mode_flags( const char *mode )
 {
     spiffs_flags flags = 0;
     uint8_t r=0, w=0, c=0, a=0;
@@ -181,7 +181,7 @@ spiffs_flags parse_mode_flags( const char *mode )
 
 int mcush_spiffs_open( const char *path, const char *mode )
 {
-    int ret = SPIFFS_open( &_fs, path, parse_mode_flags(mode), 0 );
+    int ret = SPIFFS_open( &_fs, path, parse_spiffs_mode_flags(mode), 0 );
     return ret < 0 ? 0 : ret;
 }
 

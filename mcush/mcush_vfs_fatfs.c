@@ -6,31 +6,47 @@
 
 #define static
 
+#ifndef FATFS_FD_NUM
+#define FATFS_FD_NUM  MCUSH_VFS_FILE_DESCRIPTOR_NUM
+#endif
+
 FATFS fs;
 
-
-uint8_t _inited;
+static int mcush_fatfs_driver_errno;
+static uint8_t _mounted;
+static FIL *_fds[FATFS_FD_NUM];
 
 int mcush_fatfs_mounted( void )
 {
-    return _inited;
+    return _mounted;
 }
 
 
 int mcush_fatfs_mount( void )
 {
-    if( ! _inited )
+    FRESULT r;
+
+    if( _mounted )
+        return 1;
+          
+    /* option: 0 - delayed mount until scheduler runs */
+    r = f_mount( &fs, "", 0 );
+    if( r != FR_OK )
     {
-        hal_fatfs_init();
-        _inited = 1;
-        f_mount( &fs, "", 1 );
+        return 0;
     }
+    _mounted = 1;
     return 1;
 }
 
 
 int mcush_fatfs_umount( void )
 {
+    if( ! _mounted )
+        return 1;
+    
+    f_mount( 0, "", 0 );
+    _mounted = 0;
     return 1;
 }
 
@@ -53,47 +69,82 @@ int mcush_fatfs_rename( const char *old, const char *newPath )
 }
 
 
-//fatfs_flags parse_mode_flags( const char *mode )
-//{
-//    fatfs_flags flags = 0;
-//    uint8_t r=0, w=0, c=0, a=0;
-//    while( mode && *mode )
-//    {
-//        if( *mode == 'r' )
-//            r = 1;
-//        else if( *mode == 'w' )
-//            w = 1;
-//        else if( *mode == '+' )
-//            c = 1;
-//        else if( *mode == 'a' )
-//            a = w = 1;
-//        mode++;
-//    }
-//    if( r && w )
-//        flags = SPIFFS_RDWR;
-//    else if( r && !w )
-//        flags = SPIFFS_RDONLY;
-//    else if( w && !r )
-//        flags = SPIFFS_WRONLY;
-//    if( a )
-//        flags |= SPIFFS_APPEND;
-//    else if( w )
-//        flags |= SPIFFS_TRUNC;
-//    if( c )
-//        flags |= SPIFFS_CREAT;
-//    return flags;
-//}
+static uint8_t parse_fatfs_mode_flags( const char *mode )
+{
+    uint8_t flags = 0;
+    uint8_t r=0, w=0, c=0, a=0;
+    while( mode && *mode )
+    {
+        if( *mode == 'r' )
+            r = 1;
+        else if( *mode == 'w' )
+            w = 1;
+        else if( *mode == '+' )
+            c = 1;
+        else if( *mode == 'a' )
+            a = w = 1;
+        mode++;
+    }
+    if( r && w )
+        flags = FA_READ | FA_WRITE;
+    else if( r && !w )
+        flags = FA_READ;
+    else if( w && !r )
+        flags = FA_WRITE;
+    if( a )
+        flags |= FA_OPEN_APPEND;
+    else if( w )
+        flags |= FA_CREATE_ALWAYS;
+    else
+        flags |= FA_OPEN_EXISTING;
+    if( c )
+        flags |= FA_CREATE_NEW;
+    return flags;
+}
+
+
+int get_fil_free_slot(void)
+{
+    int i;
+    for( i=0; i<FATFS_FD_NUM; i++ )
+    {
+        if( _fds[i] == NULL )
+            return i;
+    }
+    return -1;
+}
 
 
 int mcush_fatfs_open( const char *path, const char *mode )
 {
-    return 0;
+    FRESULT ret;
+    FIL *pfil;
+    int fil_idx = get_fil_free_slot();
+
+    if( fil_idx < 0 )
+        return 0;
+
+    pfil = pvPortMalloc( sizeof(FIL) );
+    if( pfil == NULL )
+        return 0;
+
+    ret = f_open( pfil, path, parse_fatfs_mode_flags(mode) );
+    if( ret != FR_OK )
+    {
+        mcush_fatfs_driver_errno = ret;
+        vPortFree(pfil);
+        return 0;
+    }
+
+    _fds[fil_idx] = pfil;
+    return fil_idx+1;
 }
 
 
 int mcush_fatfs_read( int fh, void *buf, int len )
 {
-    return 0;
+    memset( buf, 0x55, len );
+    return len;
 }
 
 
@@ -111,18 +162,42 @@ int mcush_fatfs_seek( int fh, int offs, int where )
 
 int mcush_fatfs_flush( int fh )
 {
-    return 0;
+    FRESULT ret;
+    FIL *pfil;
+
+    if( (fh <= 0) || (fh > FATFS_FD_NUM) )
+        return 0;
+    pfil = _fds[--fh];
+    ret = f_sync( pfil );
+    return (ret==FR_OK) ? 1 : 0;
 }
 
 
 int mcush_fatfs_close( int fh )
 {
-    return 0;
+    FRESULT ret;
+    FIL *pfil;
+
+    if( (fh <= 0) || (fh > FATFS_FD_NUM) )
+        return 0;
+    pfil = _fds[--fh];
+    ret = f_close( pfil );
+    vPortFree( pfil );
+    _fds[fh] = 0;
+    return 1;
 }
 
 
 int mcush_fatfs_format( void )
 {
+    FRESULT r;
+    
+    r = f_mkfs( "", FM_FAT32, 0, 0, 0 );
+    if( r != FR_OK )
+    {
+        shell_printf( "%d\n", r );
+        return 1;
+    }
     return 0;
 }
 
@@ -145,7 +220,6 @@ int mcush_fatfs_list( const char *pathname, void (*cb)(const char *name, int siz
 }
 
 
-static int mcush_fatfs_driver_errno;
 
 const mcush_vfs_driver_t mcush_fatfs_driver = {
     &mcush_fatfs_driver_errno,

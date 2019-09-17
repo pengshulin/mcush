@@ -677,8 +677,6 @@ int shell_read_line( char *buf, const char *prompt )
 
     scb.cmdline_len = 0;
     scb.cmdline_cursor = 0;
-    if( buf )
-        *buf = 0;
     if( prompt )
         shell_write_str( prompt );
     else
@@ -700,6 +698,8 @@ int shell_read_line( char *buf, const char *prompt )
         case -1:  /* Ctrl-C */
         case -2:  /* Ctrl-Z, end of input */
             shell_write_str("\r\n");
+            if( buf )
+                *buf = 0;
             return r;
         }
     }
