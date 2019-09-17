@@ -12,7 +12,7 @@ int do_test_file( const char *mount_point )
     
     strcpy( fname, mount_point );
     strcat( fname, "/test.dat" );
-    fd = mcush_open( fname, "rwa+" );
+    fd = mcush_open( fname, "w+" );
     if( fd <= 0 )
         return 0;
     strcpy( buf, "abcdefghijklmnopqrstuvwxyz\n" );
@@ -682,6 +682,9 @@ not_mounted:
 
 #if USE_CMD_FATFS
 #include "mcush_vfs_fatfs.h"
+#include "diskio.h"
+extern SD_HandleTypeDef hsd;
+
 int cmd_fatfs( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
@@ -699,7 +702,8 @@ int cmd_fatfs( int argc, char *argv[] )
     char *cmd=0;
     void *addr=(void*)-1;
     uint8_t compact_mode=0, ascii_mode=0;
-    int i;
+    int i, j;
+    unsigned char buf[512];
  
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -723,20 +727,66 @@ int cmd_fatfs( int argc, char *argv[] )
     {
         if( ! mcush_fatfs_mounted() )
             goto not_mounted;
+        /* Card Identification Number */
+        /*                  MID  OID  PNM      PRV  PSN      MDT  CRC    */  
+        shell_printf( "CID: %02X-%04X-%02X%08X-%02X-%06X%02X-%04X-%02X\n", 
+                        (hsd.CID[0]>>24)&0xFF, (hsd.CID[0]>>8)&0xFFFF, hsd.CID[0]&0xFF, hsd.CID[1],
+                        (hsd.CID[2]>>24)&0xFF, hsd.CID[2]&0xFFFFFF, (hsd.CID[3]>>24)&0xFF,
+                        (hsd.CID[3]>>8)&0xFFFF, (hsd.CID[3])&0xFF );
+        /* Card Specific Data */
+        shell_printf( "CSD: %08X%08X%08X%08X\n", hsd.CSD[0], hsd.CSD[1], hsd.CSD[2], hsd.CSD[3] );
+        /* CardInfo */
+        shell_printf( "Type: %d\n", hsd.SdCard.CardType );
+        shell_printf( "Version: %d\n", hsd.SdCard.CardVersion );
+        shell_printf( "Class: %d\n", hsd.SdCard.Class );
+        shell_printf( "RelCardAdd: 0x%08X\n", hsd.SdCard.RelCardAdd );
+        shell_printf( "BlockNbr: %d\n", hsd.SdCard.BlockNbr );
+        shell_printf( "BlockSize: %d\n", hsd.SdCard.BlockSize );
+        shell_printf( "LogBlockNbr: %d\n", hsd.SdCard.LogBlockNbr );
+        shell_printf( "LogBlockSize: %d\n", hsd.SdCard.LogBlockSize );
 
-        shell_printf( "TODO: FATFS INFO\n" );
         return 0;
     }
-    if( strcmp( cmd, shell_str_id ) == 0 )
-    {
-        shell_printf( "%X\n", (unsigned int)hal_spiffs_flash_read_id() );
-    }
-    else if( strcmp( cmd, shell_str_erase ) == 0 )
+    if( strcmp( cmd, shell_str_read ) == 0 )
     {
         if( addr == (void*)-1 )
-            sFLASH_EraseBulk();
-        else
-            sFLASH_EraseSector( (uint32_t)addr );
+            addr = 0;
+        if( disk_read( 0, buf, ((uint32_t)addr)/512, 1 ) != RES_OK )
+            return 1;
+        
+        if( compact_mode )
+            ascii_mode = 0;
+        for( i=0; i<32; i++ )
+        {
+            if( !compact_mode )
+                shell_printf( "%08X: ", (unsigned int)((int)addr+i*16) );
+            for( j=0; j<16; j++ )
+                shell_printf( compact_mode ? "%02X" : "%02X ", *(unsigned char*)&buf[i*16+j] );
+            if( ascii_mode )
+            {
+                shell_write_str( " |" );
+                for( j=0; j<16; j++ )
+                {
+                    if( isprint((int)(*(unsigned char*)&buf[i*16+j])) )
+                        shell_write_char(*(unsigned char*)&buf[i*16+j]);
+                    else
+                        shell_write_char('.');
+                }
+                shell_write_char( '|' );
+            }
+            shell_write_str( "\r\n" );
+        }
+    }
+    else if( strcmp( cmd, shell_str_write ) == 0 )
+    {
+ 
+    } 
+    else if( strcmp( cmd, shell_str_erase ) == 0 )
+    {
+        //if( addr == (void*)-1 )
+        //    sFLASH_EraseBulk();
+        //else
+        //    sFLASH_EraseSector( (uint32_t)addr );
     }
     else if( strcmp( cmd, shell_str_mount ) == 0 )
     {

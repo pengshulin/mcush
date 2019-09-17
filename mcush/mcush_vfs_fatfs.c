@@ -35,6 +35,7 @@ int mcush_fatfs_mount( void )
     {
         return 0;
     }
+    memset( &_fds, 0, sizeof(FIL)*FATFS_FD_NUM );
     _mounted = 1;
     return 1;
 }
@@ -44,6 +45,8 @@ int mcush_fatfs_umount( void )
 {
     if( ! _mounted )
         return 1;
+
+    /* TODO: close all unclosed files */
     
     f_mount( 0, "", 0 );
     _mounted = 0;
@@ -59,13 +62,19 @@ int mcush_fatfs_check( void )
 
 int mcush_fatfs_remove( const char *path )
 {
+    if( ! _mounted )
+        return 0;
+ 
     return 0;
 }
 
 
 int mcush_fatfs_rename( const char *old, const char *newPath )
 {
-    return 0;
+    if( ! _mounted )
+        return 0;
+
+     return 0;
 }
 
 

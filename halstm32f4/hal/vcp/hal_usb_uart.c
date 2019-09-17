@@ -14,7 +14,7 @@
 #define TASK_VCP_TX_READ_TIMEOUT_TICK  (TASK_VCP_TX_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
 
 #define VCP_RX_BUF_LEN   128  /* memory consumption: RX_LEN x 2 */
-#define VCP_TX_BUF_LEN   128  /* memory consumption: TX_LEN x 3 */
+#define VCP_TX_BUF_LEN   63  /* memory consumption: TX_LEN x 3 */
 
 
 USBD_HandleTypeDef hUsbDeviceFS;
@@ -35,6 +35,7 @@ SemaphoreHandle_t hal_sem_vcp_tx;
 void hal_vcp_tx_done_isr_hook(void)
 {
     xSemaphoreGiveFromISR( hal_sem_vcp_tx, 0 );
+    //hal_led_toggle(1);
 }
 
 

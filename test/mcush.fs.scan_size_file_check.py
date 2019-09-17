@@ -17,6 +17,7 @@ def main(argv=None):
     while True:
         name = '/s/test.%d'% random.randint( Env.TEST_MINID, Env.TEST_MAXID) 
         err = ''
+        #size = 43
         try:
             if not Utils.testSingleRandomFile( s, name, size ):
                 err = 'verify err'
