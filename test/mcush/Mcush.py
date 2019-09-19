@@ -84,6 +84,8 @@ class Mcush( Instrument.SerialInstrument ):
         else:
             self.led( idx, toggle=True )
 
+    ledNumber = getLedNumber
+    ledNum = getLedNumber
     ledSet = ledOn
     ledClr = ledOff
     ledReset = ledOff
@@ -501,6 +503,9 @@ class Mcush( Instrument.SerialInstrument ):
     def spiffsUmount( self ):
         self.spiffs('umount')
 
+    def spiffsRemount( self ):
+        self.spiffs('remount')
+
     def spiffsFormat( self ):
         oldtimeout = self.setTimeout( 60 )
         self.spiffs( 'format' )
@@ -807,4 +812,14 @@ class Mcush( Instrument.SerialInstrument ):
         ret = self.writeCommand( command )
         return int(ret[0], 16)
         
+ 
+    def luaReset( self ):
+        self.writeCommand( 'lua -r' )
 
+    def luaStop( self ):
+        self.writeCommand( 'lua -s' )
+ 
+    def luaCommand( self, cmd ):
+        ret = self.writeCommand( 'lua -c "%s"'% cmd )
+        return ret[:-1]
+ 

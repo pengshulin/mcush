@@ -1,4 +1,12 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
+/* This is a lua demo running on shell task through 'lua' command.
+   It's not the product version as it completely discards the facts:
+   shell task will be blocked and not response to Ctrl-C instruction
+   when dofile('...') is started until it's completed or errors occurred.
+   === THIS IS ONLY A DEMO ===
+   === THIS IS ONLY A DEMO ===
+   === THIS IS ONLY A DEMO ===
+ */
 #include "mcush.h"
 #include "lua.h"
 #include "lualib.h"
@@ -31,19 +39,6 @@ void lua_wrapper_writestringerror( const char *fmt, const char *parm )
     shell_printf( (char*)fmt, (char*)parm );
 }
 
-
-
-//static void lua_interrupt_hook( lua_State *L, lua_Debug *d )
-//{
-//    lua_sethook( L, NULL, 0, 0 );
-//    luaL_error( L, "interrupted" );
-//}
-//
-//static void lua_interrupt( void )
-//{
-//    lua_sethook( globalL, lua_interrupt_hook, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1 );
-//}
-//
 
 
 /* print message */
@@ -310,8 +305,6 @@ int cmd_lua( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'a', shell_str_attach, shell_str_attach, shell_str_attach },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'v', shell_str_version, shell_str_version, shell_str_version },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
@@ -320,7 +313,6 @@ int cmd_lua( int argc, char *argv[] )
     mcush_opt opt;
     lua_State *L;
     char *script=0;
-    uint8_t attach_set=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -331,10 +323,6 @@ int cmd_lua( int argc, char *argv[] )
             {
                 shell_write_line( LUA_VERSION_MAJOR "." LUA_VERSION_MINOR "." LUA_VERSION_RELEASE );
                 return 0;
-            }
-            else if( STRCMP( opt.spec->name, shell_str_attach ) == 0 )
-            {
-                attach_set = 1;
             }
             else if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 script = (char*)opt.value;   

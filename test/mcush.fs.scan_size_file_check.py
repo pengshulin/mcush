@@ -3,9 +3,12 @@ import sys
 import random
 from mcush import *
 
+Env.TEST_MAXID = 10
+
 def main(argv=None):
     random.seed()
     s = Mcush.Mcush()
+    s.spiffsRemount()
     #print( "formating..." )
     #s.spiffsFormat()
     try:
@@ -31,6 +34,7 @@ def main(argv=None):
         if err:
             log.write("%s  %s\n"% (size, err))
             log.flush()
+            break  # stop
         size += 1
         counter += 1
         

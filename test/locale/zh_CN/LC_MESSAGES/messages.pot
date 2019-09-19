@@ -120,6 +120,9 @@ msgstr "写数据"
 msgid "Save..."
 msgstr "保存..."
 
+msgid "Saving..."
+msgstr "正在保存..."
+
 msgid "Address"
 msgstr "地址"
 
@@ -158,6 +161,9 @@ msgstr "Lua脚本"
 
 msgid "Lua script"
 msgstr "Lua脚本"
+
+msgid "Lua script not supported"
+msgstr "不支持Lua脚本"
 
 msgid "File"
 msgstr "文件"

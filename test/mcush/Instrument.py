@@ -172,7 +172,7 @@ class Instrument:
             if not self.port.connect:
                 raise Exception("Fail to open port")
   
-    def readUntilPrompts( self ):
+    def readUntilPrompts( self, line_callback=None ):
         '''read until prompts'''
         contents, newline_lst, newline_str = [], [], ''
         while True:
@@ -181,8 +181,12 @@ class Instrument:
                 if Env.PYTHON_V3:
                     byte = chr(ord(byte))
                 if byte == self.DEFAULT_TERMINATOR_READ:
-                    contents.append( newline_str.rstrip() )
+                    newline_str = newline_str.rstrip()
+                    contents.append( newline_str )
                     self.logger.debug( newline_str )
+                    if line_callback is not None:
+                        # use this carefully
+                        line_callback( newline_str )
                     newline_lst, newline_str = [], ''
                 else:
                     newline_lst.append( byte )

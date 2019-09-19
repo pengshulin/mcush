@@ -16,6 +16,9 @@
 #define VCP_RX_BUF_LEN   128  /* memory consumption: RX_LEN x 2 */
 #define VCP_TX_BUF_LEN   63  /* memory consumption: TX_LEN x 3 */
 
+#define VCP_WRITE_BLOCK_AUTO_ADAPTED  1
+#define VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK  (1000*configTICK_RATE_HZ/1000)
+
 
 USBD_HandleTypeDef hUsbDeviceFS;
 extern USBD_DescriptorsTypeDef FS_Desc;
@@ -95,7 +98,6 @@ void task_vcp_tx_entry(void *p)
         hal_vcp_tx_use_buf2 = hal_vcp_tx_use_buf2 ? 0 : 1;
     }
 }
-
 
 
 int hal_uart_init(uint32_t baudrate)
@@ -181,7 +183,26 @@ int  shell_driver_read_is_empty( void )
 int  shell_driver_write( const char *buffer, int len )
 {
     int written=0;
-
+#if VCP_WRITE_BLOCK_AUTO_ADAPTED
+    /* auto adapt, ignore short-time continuous data if connection broken and queue full */
+    static uint8_t broken=0;
+    while( written < len )
+    {
+        if( broken )
+        {
+            if( xQueueSend( hal_queue_vcp_tx, (void*)(buffer), 0 ) == pdPASS )
+                broken = 0; 
+        } 
+        else
+        {
+            if( xQueueSend( hal_queue_vcp_tx, (void*)(buffer), VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK ) != pdPASS )
+                broken = 1; 
+        }
+        written ++;
+        buffer ++;
+    }
+#else
+    /* always blocked, this will make the running task blocked (if connection is broken) */
     while( written < len )
     {
         if( xQueueSend( hal_queue_vcp_tx, (void*)(buffer), portMAX_DELAY ) == pdPASS )
@@ -190,6 +211,7 @@ int  shell_driver_write( const char *buffer, int len )
             buffer ++;
         }
     }
+#endif
     return written;
 }
 
