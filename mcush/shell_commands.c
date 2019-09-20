@@ -146,7 +146,22 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_SPI
 {   0, 0,  "spi",  cmd_spi, 
     "spi emulated",
-    "spi [-i|r] <data>" },
+    "spi [-I|r] <data>" },
+#if USE_CMD_SPI2
+{   0, 0,  "spi2",  cmd_spi, 
+    "spi emulated",
+    "same as spi" },
+#if USE_CMD_SPI3
+{   0, 0,  "spi3",  cmd_spi, 
+    "spi emulated",
+    "same as spi" },
+#if USE_CMD_SPI4
+{   0, 0,  "spi4",  cmd_spi, 
+    "spi emulated",
+    "same as spi" },
+#endif
+#endif
+#endif
 #endif
 #if USE_CMD_PWM
 {   0, 0,  "pwm",  cmd_pwm, 

@@ -267,6 +267,24 @@ extern "C" {
     #define USE_CMD_UPGRADE  0
 #endif
 
+    
+#if USE_CMD_SPI
+typedef struct {
+    uint8_t port_sdi, port_sdo, port_sck, port_cs;
+    uint8_t pin_sdi, pin_sdo, pin_sck, pin_cs;
+    uint16_t pin_sdi_bit, pin_sdo_bit, pin_sck_bit, pin_cs_bit;
+    uint32_t delay_us;
+    uint32_t width;
+    uint8_t cpol, cpha, lsb;
+} spi_cb_t;
+
+void emu_spi_init_structure( spi_cb_t *spi_init );
+int emu_spi_init( int spi_index, spi_cb_t *spi_init );
+void emu_spi_deinit( int spi_index );
+int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes);
+
+#endif
+
 
 extern void mcush_init(void);
 extern void mcush_start(void);

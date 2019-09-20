@@ -303,48 +303,155 @@ err_port:
 #ifndef CMD_SPI_CS_PIN
 #define CMD_SPI_CS_PIN  3
 #endif
-static uint8_t spi_port_sdi=CMD_SPI_SDI_PORT, spi_port_sdo=CMD_SPI_SDO_PORT, spi_port_sck=CMD_SPI_SCK_PORT, spi_port_cs=CMD_SPI_CS_PORT;
-static uint16_t spi_pin_sdi=1<<(CMD_SPI_SDI_PIN), spi_pin_sdo=1<<(CMD_SPI_SDO_PIN), spi_pin_sck=1<<(CMD_SPI_SCK_PIN), spi_pin_cs=1<<(CMD_SPI_CS_PIN);
-static uint32_t spi_delay_us=5;
-static uint32_t spi_width=8;
-static uint8_t spi_cpol=0, spi_cpha=0, spi_lsb=0;
 
-static uint32_t spi_rw(uint32_t dat)
+#if USE_CMD_SPI4
+static spi_cb_t *spi_cb[4];
+#elif USE_CMD_SPI3
+static spi_cb_t *spi_cb[3];
+#elif USE_CMD_SPI2
+static spi_cb_t *spi_cb[2];
+#else
+static spi_cb_t *spi_cb[1];
+#endif
+
+
+void emu_spi_deinit( int spi_index )
+{
+    spi_cb_t *spi=spi_cb[spi_index];
+
+    if( spi )
+    {
+        hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
+        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
+        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
+        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
+        vPortFree( (void*)spi );
+        spi_cb[spi_index] = 0;
+    }
+}
+
+
+void emu_spi_init_structure( spi_cb_t *spi_init )
+{
+    spi_init->port_sdi = CMD_SPI_SDI_PORT;
+    spi_init->port_sdo = CMD_SPI_SDO_PORT;
+    spi_init->port_sck = CMD_SPI_SCK_PORT;
+    spi_init->port_cs = CMD_SPI_CS_PORT;
+    spi_init->pin_sdi = CMD_SPI_SDI_PIN;
+    spi_init->pin_sdo = CMD_SPI_SDO_PIN;
+    spi_init->pin_sck = CMD_SPI_SCK_PIN;
+    spi_init->pin_cs = CMD_SPI_CS_PIN;
+    spi_init->delay_us = 5;
+    spi_init->width = 8;
+    spi_init->cpol = 0;
+    spi_init->cpha = 0;
+    spi_init->lsb = 0;
+}
+
+
+int emu_spi_init( int spi_index, spi_cb_t *spi_init )
+{
+    spi_cb_t *spi=spi_cb[spi_index];
+
+    if( spi )
+    {
+        /* free previous spi pins (maybe different from the new pins),
+           but do not free the memory */
+        hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
+        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
+        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
+        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
+    }
+    else
+    {
+        spi = pvPortMalloc( sizeof(spi_cb_t) );
+        if( spi == 0 )
+            return 0;  /* fail */
+        spi_cb[spi_index] = spi;
+    }
+
+    memcpy( spi, spi_init, sizeof(spi_cb_t) );
+    spi->pin_sdi_bit = 1<<spi->pin_sdi;
+    spi->pin_sdo_bit = 1<<spi->pin_sdo;
+    spi->pin_sck_bit = 1<<spi->pin_sck;
+    spi->pin_cs_bit = 1<<spi->pin_cs;
+
+    hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
+    hal_gpio_set_output( spi->port_sdo, spi->pin_sdo_bit );
+    hal_gpio_set_output( spi->port_sck, spi->pin_sck_bit );
+    hal_gpio_set_output( spi->port_cs, spi->pin_cs_bit );
+    hal_gpio_set( spi->port_cs, spi->pin_cs_bit );
+
+    return 1;
+}
+
+
+static uint32_t emu_spi_write_single(spi_cb_t *spi, uint32_t dat)
 {
     uint32_t ret=0;
     int i;
+    int polar=spi->cpha^spi->cpol;
 
-    for( i=0; i<spi_width; i++ )
+    for( i=0; i<spi->width; i++ )
     {
         /* sdo output */
-        if( dat & 1<<(spi_lsb ? i : (spi_width-1-i)) )
-            hal_gpio_set( spi_port_sdo, spi_pin_sdo );
+        if( dat & 1<<(spi->lsb ? i : (spi->width-1-i)) )
+            hal_gpio_set( spi->port_sdo, spi->pin_sdo_bit );
         else
-            hal_gpio_clr( spi_port_sdo, spi_pin_sdo );
+            hal_gpio_clr( spi->port_sdo, spi->pin_sdo_bit );
         /* sck */
-        if( spi_cpha ^ spi_cpol )
-            hal_gpio_set( spi_port_sck, spi_pin_sck );
+        if( polar )
+            hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
         else
-            hal_gpio_clr( spi_port_sck, spi_pin_sck );
+            hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
         /* delay 1 */
-        hal_delay_us( spi_delay_us );
+        hal_delay_us( spi->delay_us );
         /* sck */
-        if( spi_cpha ^ spi_cpol )
-            hal_gpio_clr( spi_port_sck, spi_pin_sck );
+        if( polar )
+            hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
         else
-            hal_gpio_set( spi_port_sck, spi_pin_sck );
+            hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
         /* sdo */
-        if( dat & 1<<(spi_lsb ? i : (spi_width-1-i)) )
-            hal_gpio_set( spi_port_sdo, spi_pin_sdo );
+        if( dat & 1<<(spi->lsb ? i : (spi->width-1-i)))
+            hal_gpio_set( spi->port_sdo, spi->pin_sdo_bit );
         else
-            hal_gpio_clr( spi_port_sdo, spi_pin_sdo );
+            hal_gpio_clr( spi->port_sdo, spi->pin_sdo_bit );
         /* sdi */
-        if( hal_gpio_get( spi_port_sdi, spi_pin_sdi ) )
-            ret |= 1<<(spi_lsb ? i : (spi_width-1-i));
+        if( hal_gpio_get( spi->port_sdi, spi->pin_sdi_bit ) )
+            ret |= 1<<(spi->lsb ? i : (spi->width-1-i));
         /* delay 2 */
-        hal_delay_us( spi_delay_us );
+        hal_delay_us( spi->delay_us );
     }
-    return ret;    
+    return ret;
+}
+
+
+int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
+{
+    spi_cb_t *spi=spi_cb[spi_index];
+
+    if( spi==0 )
+        return 0;
+
+    /* prepare and start CS */
+    if( spi->cpol )
+        hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
+    else
+        hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
+    hal_gpio_clr( spi->port_cs, spi->pin_cs_bit );
+
+    /* write and read */
+    while( bytes-- )
+    {
+        *buf_in = emu_spi_write_single( spi, *buf_out );
+        buf_in++;
+        buf_out++;
+    }
+
+    /* end CS */
+    hal_gpio_set( spi->port_cs, spi->pin_cs_bit );
+        
+    return 1;
 }
 
 
@@ -380,79 +487,97 @@ int cmd_spi( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t init=0, deinit=0, read_mode=0, cpol=0, cpha=0, lsb=0;
+    uint8_t init=0, deinit=0, read_mode=0;
     char *p;
-    int dat_out, dat_in;
-    int line_count;
- 
+    int spi_idx;
+    spi_cb_t spi_init;
+    //uint8_t spi_port_sdi=CMD_SPI_SDI_PORT, spi_port_sdo=CMD_SPI_SDO_PORT, spi_port_sck=CMD_SPI_SCK_PORT, spi_port_cs=CMD_SPI_CS_PORT;
+    //uint16_t spi_pin_sdi=CMD_SPI_SDI_PIN, spi_pin_sdo=CMD_SPI_SDO_PIN, spi_pin_sck=CMD_SPI_SCK_PIN, spi_pin_cs=CMD_SPI_CS_PIN;
+    //uint32_t spi_delay_us=5;
+    //uint32_t spi_width=8;
+    //uint8_t spi_cpol=0, spi_cpha=0, spi_lsb=0;
+    uint32_t buf_out[256], buf_in[256];
+    int bytes, i, line_count;
+
+    /* check which command spi/spi2/spi3/spi4 is used */
+    if( parse_int(argv[0]+3, (int*)&spi_idx) )
+        spi_idx -= 1;
+    else
+        spi_idx = 0;
+    emu_spi_init_structure( &spi_init );
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
-                parse_int(opt.value, (int*)&spi_delay_us);
+                parse_int(opt.value, (int*)&spi_init.delay_us);
             else if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
                 read_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
-                parse_int(opt.value, (int*)&spi_width);
+            {
+                if( parse_int(opt.value, (int*)&spi_init.width) )
+                {
+                    if( (spi_init.width < 2) || (spi_init.width > 32) )
+                    {
+                        shell_write_err( shell_str_width );
+                        return 1;
+                    }
+                }
+            }
             else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
             else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
                 deinit = 1;
             else if( strcmp( opt.spec->name, "cpol" ) == 0 )
-                cpol = 1;
+                spi_init.cpol = 1;
             else if( strcmp( opt.spec->name, "cpha" ) == 0 )
-                cpha = 1;
+                spi_init.cpha = 1;
             else if( strcmp( opt.spec->name, "lsb" ) == 0 )
-                lsb = 1;
+                spi_init.lsb = 1;
             else if( strcmp( opt.spec->name, "sdi" ) == 0 )
             {
-                spi_port_sdi = strtol( opt.value, &p, 10 );
+                spi_init.port_sdi = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_pin_sdi = strtol( p, &p, 10 );
+                spi_init.pin_sdi = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
-                spi_pin_sdi = 1 << spi_pin_sdi;
             }
             else if( strcmp( opt.spec->name, "sdo" ) == 0 )
             {
-                spi_port_sdo = strtol( opt.value, &p, 10 );
+                spi_init.port_sdo = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_pin_sdo = strtol( p, &p, 10 );
+                spi_init.pin_sdo = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
-                spi_pin_sdo = 1 << spi_pin_sdo;
             }
             else if( strcmp( opt.spec->name, "sck" ) == 0 )
             {
-                spi_port_sck = strtol( opt.value, &p, 10 );
+                spi_init.port_sck = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_pin_sck = strtol( p, &p, 10 );
+                spi_init.pin_sck = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
-                spi_pin_sck = 1 << spi_pin_sck;
             }
             else if( strcmp( opt.spec->name, "cs" ) == 0 )
             {
-                spi_port_cs = strtol( opt.value, &p, 10 );
+                spi_init.port_cs = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_pin_cs = strtol( p, &p, 10 );
+                spi_init.pin_cs = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
-                spi_pin_cs = 1 << spi_pin_cs;
             }
             else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
@@ -464,64 +589,54 @@ int cmd_spi( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT  
     }
 
-    if( (spi_width < 2) || (spi_width > 32) )
-    {
-        shell_write_err( shell_str_width );
-        return 1;
-    }
-
     if( init )
     {
-        spi_cpol = cpol;
-        spi_cpha = cpha;
-        spi_lsb = lsb;
-        hal_gpio_set_input( spi_port_sdi, spi_pin_sdi );
-        hal_gpio_set_output( spi_port_sdo, spi_pin_sdo );
-        hal_gpio_set_output( spi_port_sck, spi_pin_sck );
-        hal_gpio_set_output( spi_port_cs, spi_pin_cs );
-        hal_gpio_set( spi_port_cs, spi_pin_cs );
-        return 0;
+        return emu_spi_init( spi_idx, &spi_init ) ? 0 : 1;
     }
     else if( deinit )
     {
-        hal_gpio_set_input( spi_port_sdi, spi_pin_sdi );
-        hal_gpio_set_input( spi_port_sdo, spi_pin_sdo );
-        hal_gpio_set_input( spi_port_sck, spi_pin_sck );
-        hal_gpio_set_input( spi_port_cs, spi_pin_cs );
+        emu_spi_deinit( spi_idx );
         return 0;
     }
 
-    if( spi_cpol )
-        hal_gpio_set( spi_port_sck, spi_pin_sck );
-    else
-        hal_gpio_clr( spi_port_sck, spi_pin_sck );
-    hal_gpio_clr( spi_port_cs, spi_pin_cs );
+    /* parse data params */
     parser.idx++;
-    line_count = 0;
+    bytes = 0;
     while( parser.idx < argc )
     {
-        if( ! parse_int(argv[parser.idx], &dat_out) )
+        if( ! parse_int(argv[parser.idx], (int*)&buf_out[bytes]) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
-            hal_gpio_set( spi_port_cs, spi_pin_cs );
             return 1;
         }
-        dat_in = spi_rw( dat_out );
-        if( read_mode )
+        parser.idx++;
+        bytes += 1;
+    }
+    if( bytes == 0 )
+        return -1;  /* no parms, nothing to do */
+
+    /* write and read */
+    if( !emu_spi_write( spi_idx, buf_out, buf_in, bytes ) )
+        return 1;  /* execute failed, maybe not inited */
+
+    /* output read */
+    if( read_mode )
+    {
+        line_count = 0;
+        for( i=0; i<bytes; i++ )
         {
-            line_count += shell_printf( "0x%X ", dat_in );
+            line_count += shell_printf( "0x%X ", buf_in[i] );
             if( line_count > 78 )
             {
                 shell_write_char( '\n' );
                 line_count = 0;
             }
         }
-        parser.idx++;
+        if( line_count )
+            shell_write_char( '\n' );
     }
-    if( read_mode && line_count )
-        shell_write_char( '\n' );
-    hal_gpio_set( spi_port_cs, spi_pin_cs );
+
     return 0;
  
 err_port:

@@ -66,6 +66,27 @@ static int lua_sys_errno( lua_State *L )
 }
 
 
+static int lua_sys_cmd( lua_State *L )
+{
+    size_t l;
+    const char *p;
+
+    if( lua_gettop(L) < 1 )
+    {
+        shell_write_err( "cmd" );
+        return 0;
+    }
+ 
+    p = luaL_checklstring(L, 1, &l);
+    if( p == 0 || *p == 0 )
+        return 0;
+ 
+    shell_call_line( (char*)p );
+
+    return 0;
+}
+
+
 #if USE_CMD_BEEP
 static int lua_sys_beep( lua_State *L )
 {
@@ -90,38 +111,17 @@ static int lua_sys_beep( lua_State *L )
 #endif
 
 
-static int lua_sys_cmd( lua_State *L )
-{
-    size_t l;
-    const char *p;
-
-    if( lua_gettop(L) < 1 )
-    {
-        shell_write_err( "cmd" );
-        return 0;
-    }
- 
-    p = luaL_checklstring(L, 1, &l);
-    if( p == 0 || *p == 0 )
-        return 0;
- 
-    shell_call_line( (char*)p );
-
-    return 0;
-}
-
-
 
 static const struct luaL_Reg syslib[] =
 {
-#if USE_CMD_BEEP
-    { "beep", lua_sys_beep },
-#endif
     { "tick", lua_sys_tick },
     { "uptime", lua_sys_uptime },
     { "delay", lua_sys_delay },
     { "errno", lua_sys_errno },
     { "cmd", lua_sys_cmd },
+#if USE_CMD_BEEP
+    { "beep", lua_sys_beep },
+#endif
     { NULL, NULL}
 };
 

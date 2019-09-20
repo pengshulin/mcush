@@ -227,7 +227,7 @@ int parse_int( const char *str, int *i )
 {
     long long int r;
     char *p;
-    if( !str )
+    if( !str || (*str==0) )
         return 0;
     r = strtoll( str, &p, 0 );
     if( !p )
