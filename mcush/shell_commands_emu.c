@@ -2,6 +2,9 @@
 #include "mcush.h"
 #include "hal.h"
 
+/***************************************************************************/
+/* Multiple emulated I2C controller                                        */
+/***************************************************************************/
 
 #if USE_CMD_I2C
 #ifndef CMD_I2C_SDA_PORT
@@ -16,100 +19,223 @@
 #ifndef CMD_I2C_SCL_PIN
 #define CMD_I2C_SCL_PIN  1
 #endif
-static uint8_t i2c_port_sda=CMD_I2C_SDA_PORT, i2c_port_scl=CMD_I2C_SCL_PORT;
-static uint16_t i2c_pin_sda=1<<(CMD_I2C_SDA_PIN), i2c_pin_scl=1<<(CMD_I2C_SCL_PIN);
-static uint32_t i2c_addr=0, i2c_addr_def=0;
-static uint32_t i2c_delay_us=5;
-static uint8_t i2c_lsb_mode=0;
 
-static void i2c_start(void)
+#if USE_CMD_I2C4
+static i2c_cb_t *i2c_cb[4];
+#elif USE_CMD_I2C3
+static i2c_cb_t *i2c_cb[3];
+#elif USE_CMD_I2C2
+static i2c_cb_t *i2c_cb[2];
+#else
+static i2c_cb_t *i2c_cb[1];
+#endif
+
+
+void emu_i2c_init_structure(i2c_cb_t *i2c_init)
 {
-    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
-    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+    i2c_init->port_scl = CMD_I2C_SCL_PORT;
+    i2c_init->port_sda = CMD_I2C_SDA_PORT;
+    i2c_init->pin_scl = CMD_I2C_SCL_PIN;
+    i2c_init->pin_sda = CMD_I2C_SDA_PIN;
+    i2c_init->delay_us = 5;
+    i2c_init->addr = 0;
+    i2c_init->lsb = 0;
 }
 
-static void i2c_stop(void)
+
+static void i2c_start(i2c_cb_t *i2c)
 {
-    hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
-    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+    hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
+    hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_clr( i2c->port_sda, i2c->pin_sda_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
 }
 
-static int i2c_read_ack(void)
+
+static void i2c_stop(i2c_cb_t *i2c)
+{
+    hal_gpio_clr( i2c->port_sda, i2c->pin_sda_bit );
+    hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
+}
+
+
+static int i2c_read_ack(i2c_cb_t *i2c)
 {
     int ret;
-    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
-    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-    ret = hal_gpio_get( i2c_port_sda, i2c_pin_sda );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+
+    hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
+    hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
+    ret = hal_gpio_get( i2c->port_sda, i2c->pin_sda_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
     return ret ? 0 : 1;
 }
 
-static void i2c_write_ack(int ack)
+
+static void i2c_write_ack(i2c_cb_t *i2c, int ack)
 {
     if( ack )
-        hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
+        hal_gpio_clr( i2c->port_sda, i2c->pin_sda_bit );
     else
-        hal_gpio_set( i2c_port_sda, i2c_pin_sda );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-    hal_delay_us( i2c_delay_us );
-    hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
+        hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
+    hal_delay_us( i2c->delay_us );
+    hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
 }
 
-static uint8_t i2c_read_byte(int ack)
+
+static uint8_t i2c_read_byte(i2c_cb_t *i2c, int ack)
 {
-    uint8_t mask=i2c_lsb_mode ? 0x01 : 0x80;
+    uint8_t mask=i2c->lsb ? 0x01 : 0x80;
     uint8_t ret=0;
     int i;
-    hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+
+    hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
     for( i=0; i<8; i++ )
     {     
-        hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-        hal_delay_us( i2c_delay_us );
-        if( hal_gpio_get( i2c_port_sda, i2c_pin_sda ) )
+        hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
+        hal_delay_us( i2c->delay_us );
+        if( hal_gpio_get( i2c->port_sda, i2c->pin_sda_bit ) )
             ret |= mask;
-        hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
-        hal_delay_us( i2c_delay_us );
-        if( i2c_lsb_mode )
+        hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
+        hal_delay_us( i2c->delay_us );
+        if( i2c->lsb )
             mask <<= 1;
         else
             mask >>= 1;
     } 
-    i2c_write_ack( ack );
+    i2c_write_ack( i2c, ack );
     return ret;
 }
 
-static int i2c_write_byte(uint8_t chr)
+
+static int i2c_write_byte(i2c_cb_t *i2c, uint8_t chr)
 {
-    uint8_t mask=i2c_lsb_mode ? 0x01 : 0x80;
+    uint8_t mask=i2c->lsb ? 0x01 : 0x80;
     int i;
+
     for( i=0; i<8; i++ )
     {
         if( chr & mask )
-            hal_gpio_set( i2c_port_sda, i2c_pin_sda );
+            hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
         else
-            hal_gpio_clr( i2c_port_sda, i2c_pin_sda );
-        hal_delay_us( i2c_delay_us );
-        hal_gpio_set( i2c_port_scl, i2c_pin_scl );
-        hal_delay_us( i2c_delay_us );
-        hal_gpio_clr( i2c_port_scl, i2c_pin_scl );
-        if( i2c_lsb_mode )
+            hal_gpio_clr( i2c->port_sda, i2c->pin_sda_bit );
+        hal_delay_us( i2c->delay_us );
+        hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
+        hal_delay_us( i2c->delay_us );
+        hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
+        if( i2c->lsb )
             mask <<= 1;
         else
             mask >>= 1;
     }
-    return i2c_read_ack(); 
+    return i2c_read_ack(i2c); 
+}
+
+
+void emu_i2c_deinit(int i2c_index)
+{
+    i2c_cb_t *i2c=i2c_cb[i2c_index];
+
+    if( i2c==0 )
+        return;
+    hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit );
+    hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit );
+    vPortFree( (void*)i2c );
+    i2c_cb[i2c_index] = 0;
+}
+
+
+int emu_i2c_init(int i2c_index, i2c_cb_t *i2c_init)
+{
+    i2c_cb_t *i2c=i2c_cb[i2c_index];
+    
+    if( i2c )
+    {
+        /* free previous i2c pins (maybe different from the new pins),
+           but do not free the memory */
+        hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit );
+        hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit );
+    }
+    else
+    {
+        i2c = pvPortMalloc( sizeof(i2c_cb_t) );
+        if( i2c == 0 )
+            return 0;  /* fail */
+        i2c_cb[i2c_index] = i2c;
+    }
+  
+    memcpy( i2c, i2c_init, sizeof(i2c_cb_t) );
+    i2c->pin_scl_bit = 1<<i2c->pin_scl;
+    i2c->pin_sda_bit = 1<<i2c->pin_sda;
+ 
+    hal_gpio_set_output( i2c->port_scl, i2c->pin_scl_bit );
+    hal_gpio_set_output_open_drain( i2c->port_sda, i2c->pin_sda_bit );
+    i2c_stop(i2c);
+    
+    return 1;
+}
+
+
+int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_bytes, int read_bytes, int address, int no_stop )
+{
+    i2c_cb_t *i2c=i2c_cb[i2c_index];
+    int i; 
+
+    if( i2c==0 )
+        return 0;
+
+    /* no write/read request, test address response only */
+    if( (write_bytes==0) && (write_bytes==0) )
+    {
+        i2c_start(i2c);
+        if( ! i2c_write_byte( i2c, address ? address : (i2c->addr<<1) ) )
+            goto err_ack;
+        i2c_stop(i2c);
+        return 1;
+    }
+
+    /* write first */ 
+    if( write_bytes )
+    {
+        i2c_start(i2c);
+        if( ! i2c_write_byte( i2c, address ? address : (i2c->addr<<1) ) )
+            goto err_ack;
+        /* write data */ 
+        for( i=0; i<write_bytes; i++ )
+        {
+            i2c_write_byte(i2c, buf_out[i]);
+        }
+    }
+
+    /* read back */
+    if( read_bytes )
+    {
+        i2c_start(i2c);
+        if( ! i2c_write_byte(i2c, address ? address : ((i2c->addr<<1)|1) ) )
+            goto err_ack;
+        /* read bytes */
+        for( i=0; i<read_bytes; i++ )
+        {
+            buf_in[i] = i2c_read_byte( i2c, i<read_bytes-1 ? 1 : 0 ); 
+        }
+    }
+    if( ! no_stop )
+        i2c_stop(i2c);
+    return 1;
+
+err_ack:
+    i2c_stop(i2c);
+    return -1;
 }
 
 
@@ -139,11 +265,20 @@ int cmd_i2c( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t init=0, deinit=0, addr_set=0, nostop_set=0, lsb_set=0;
-    int read_cycle=0;
+    uint8_t init=0, deinit=0, no_stop=0, addr_set=0;
     char *p;
-    int i, dat, line_count;
+    int i2c_index;
+    i2c_cb_t i2c_init;
+    int i, line_count;
+    uint8_t buf_out[256], buf_in[256];
+    int read_bytes=0, write_bytes;
 
+    /* check which command i2c/i2c2/i2c3/i2c4 is used */
+    if( parse_int(argv[0]+3, (int*)&i2c_index) )
+        i2c_index -= 1;
+    else
+        i2c_index = 0;
+    emu_i2c_init_structure( &i2c_init );
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -151,46 +286,44 @@ int cmd_i2c( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
             {
-                if( parse_int(opt.value, (int*)&i2c_addr) )
+                if( parse_int(opt.value, (int*)&i2c_init.addr) )
                     addr_set = 1;
                 else
                     goto err_addr;
             }
             else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
-                parse_int(opt.value, (int*)&i2c_delay_us);
+                parse_int(opt.value, (int*)&i2c_init.delay_us);
             else if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
-                parse_int(opt.value, (int*)&read_cycle);
+                parse_int(opt.value, (int*)&read_bytes);
             else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init = 1;
             else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
                 deinit = 1;
             else if( strcmp( opt.spec->name, "nostop" ) == 0 )
-                nostop_set = 1;
+                no_stop = 1;
             else if( strcmp( opt.spec->name, "lsb" ) == 0 )
-                lsb_set = 1;
+                i2c_init.lsb = 1;
             else if( strcmp( opt.spec->name, "scl" ) == 0 )
             {
-                i2c_port_scl = strtol( opt.value, &p, 10 );
+                i2c_init.port_scl = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                i2c_pin_scl = strtol( p, &p, 10 );
+                i2c_init.pin_scl = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
-                i2c_pin_scl = 1 << i2c_pin_scl;
             }
             else if( strcmp( opt.spec->name, "sda" ) == 0 )
             {
-                i2c_port_sda = strtol( opt.value, &p, 10 );
+                i2c_init.port_sda = strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                i2c_pin_sda = strtol( p, &p, 10 );
+                i2c_init.pin_sda = strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
-                i2c_pin_sda = 1 << i2c_pin_sda;
             }
             else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
             {
@@ -204,68 +337,55 @@ int cmd_i2c( int argc, char *argv[] )
 
     if( init )
     {
-        if( ! addr_set )
-            goto err_addr;
-        i2c_lsb_mode = lsb_set;
-        i2c_addr_def = i2c_addr;
-        hal_gpio_set_output( i2c_port_scl, i2c_pin_scl );
-        hal_gpio_set_output_open_drain( i2c_port_sda, i2c_pin_sda );
-        i2c_stop();
-        return 0;
+        return emu_i2c_init( i2c_index, &i2c_init ) ? 0 : 1;
     }
     else if( deinit )
     {
-        hal_gpio_set_input( i2c_port_scl, i2c_pin_scl );
-        hal_gpio_set_input( i2c_port_sda, i2c_pin_sda );
+        emu_i2c_deinit( i2c_index );
         return 0;
     }
   
-    /* send address */ 
-    if( !addr_set )
-        i2c_addr = i2c_addr_def; 
-    i2c_start();
-    if( ! i2c_write_byte( addr_set ? i2c_addr : (i2c_addr<<1) ) )
-    {
-        i2c_stop();
-        shell_write_err("ACK");
-        return 1;
-    }
-    /* write data */ 
+    /* parse data params */
     parser.idx++;
+    write_bytes = 0;
     while( parser.idx < argc )
     {
-        if( ! parse_int(argv[parser.idx], &dat) )
+        if( ! parse_int(argv[parser.idx], (int*)&i) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
-            i2c_stop();
             return 1;
         }
-        i2c_write_byte( dat );
+        buf_out[write_bytes] = i;
         parser.idx++;
+        write_bytes += 1;
     }
-    /* then read back */
-    if( read_cycle )
+    
+    i = emu_i2c_write( i2c_index, buf_out, buf_in, write_bytes, read_bytes, addr_set ? i2c_init.addr : 0, no_stop );
+    if( i == 0 )
+        return 1;
+    if( i == -1 )
     {
-        i2c_start();
-        i2c_write_byte( addr_set ? i2c_addr : ((i2c_addr<<1)|1) );
-        /* read bytes */
+        shell_write_err("ACK");
+        return 2;
+    }
+
+    /* print read data */ 
+    if( read_bytes )
+    {
         line_count = 0;
-        for( i=read_cycle; i; i-- )
+        for( i=0; i<read_bytes; i++ )
         {
-            dat = i2c_read_byte( i>1 ? 1 : 0 ); 
-            line_count += shell_printf( "0x%02X ", dat );
+            line_count += shell_printf( "0x%02X ", buf_in[i] );
             if( line_count > 78 )
             {
                 shell_write_char( '\n' );
-                line_count =0;
+                line_count = 0;
             }
         }
         if( line_count )
             shell_write_char( '\n' );
     }
-    if( ! nostop_set )
-        i2c_stop();
     return 0;
  
 err_addr:
@@ -277,6 +397,10 @@ err_port:
 }
 #endif
 
+
+/***************************************************************************/
+/* Multiple emulated SPI controller                                        */
+/***************************************************************************/
 
 #if USE_CMD_SPI
 #ifndef CMD_SPI_SDI_PORT
@@ -315,22 +439,6 @@ static spi_cb_t *spi_cb[1];
 #endif
 
 
-void emu_spi_deinit( int spi_index )
-{
-    spi_cb_t *spi=spi_cb[spi_index];
-
-    if( spi )
-    {
-        hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
-        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
-        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
-        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
-        vPortFree( (void*)spi );
-        spi_cb[spi_index] = 0;
-    }
-}
-
-
 void emu_spi_init_structure( spi_cb_t *spi_init )
 {
     spi_init->port_sdi = CMD_SPI_SDI_PORT;
@@ -346,6 +454,21 @@ void emu_spi_init_structure( spi_cb_t *spi_init )
     spi_init->cpol = 0;
     spi_init->cpha = 0;
     spi_init->lsb = 0;
+}
+
+
+void emu_spi_deinit( int spi_index )
+{
+    spi_cb_t *spi=spi_cb[spi_index];
+
+    if( spi==0 )
+        return;
+    hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
+    hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
+    hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
+    hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
+    vPortFree( (void*)spi );
+    spi_cb[spi_index] = 0;
 }
 
 
@@ -489,21 +612,16 @@ int cmd_spi( int argc, char *argv[] )
     mcush_opt opt;
     uint8_t init=0, deinit=0, read_mode=0;
     char *p;
-    int spi_idx;
+    int spi_index;
     spi_cb_t spi_init;
-    //uint8_t spi_port_sdi=CMD_SPI_SDI_PORT, spi_port_sdo=CMD_SPI_SDO_PORT, spi_port_sck=CMD_SPI_SCK_PORT, spi_port_cs=CMD_SPI_CS_PORT;
-    //uint16_t spi_pin_sdi=CMD_SPI_SDI_PIN, spi_pin_sdo=CMD_SPI_SDO_PIN, spi_pin_sck=CMD_SPI_SCK_PIN, spi_pin_cs=CMD_SPI_CS_PIN;
-    //uint32_t spi_delay_us=5;
-    //uint32_t spi_width=8;
-    //uint8_t spi_cpol=0, spi_cpha=0, spi_lsb=0;
     uint32_t buf_out[256], buf_in[256];
     int bytes, i, line_count;
 
     /* check which command spi/spi2/spi3/spi4 is used */
-    if( parse_int(argv[0]+3, (int*)&spi_idx) )
-        spi_idx -= 1;
+    if( parse_int(argv[0]+3, (int*)&spi_index) )
+        spi_index -= 1;
     else
-        spi_idx = 0;
+        spi_index = 0;
     emu_spi_init_structure( &spi_init );
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -591,11 +709,11 @@ int cmd_spi( int argc, char *argv[] )
 
     if( init )
     {
-        return emu_spi_init( spi_idx, &spi_init ) ? 0 : 1;
+        return emu_spi_init( spi_index, &spi_init ) ? 0 : 1;
     }
     else if( deinit )
     {
-        emu_spi_deinit( spi_idx );
+        emu_spi_deinit( spi_index );
         return 0;
     }
 
@@ -617,7 +735,7 @@ int cmd_spi( int argc, char *argv[] )
         return -1;  /* no parms, nothing to do */
 
     /* write and read */
-    if( !emu_spi_write( spi_idx, buf_out, buf_in, bytes ) )
+    if( !emu_spi_write( spi_index, buf_out, buf_in, bytes ) )
         return 1;  /* execute failed, maybe not inited */
 
     /* output read */
@@ -644,5 +762,4 @@ err_port:
     return 1;
 }
 #endif
-
 

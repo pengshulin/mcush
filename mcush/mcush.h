@@ -267,7 +267,24 @@ extern "C" {
     #define USE_CMD_UPGRADE  0
 #endif
 
-    
+   
+#if USE_CMD_I2C
+typedef struct {
+    uint8_t port_scl, port_sda;
+    uint8_t pin_scl, pin_sda;
+    uint16_t pin_scl_bit, pin_sda_bit;
+    uint32_t delay_us;
+    uint32_t addr;
+    uint8_t lsb;
+} i2c_cb_t;
+
+void emu_i2c_init_structure( i2c_cb_t *i2c_init );
+int emu_i2c_init( int i2c_index, i2c_cb_t *i2c_init );
+void emu_i2c_deinit( int i2c_index );
+int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_bytes, int read_bytes, int address, int no_stop );
+#endif
+
+ 
 #if USE_CMD_SPI
 typedef struct {
     uint8_t port_sdi, port_sdo, port_sck, port_cs;
@@ -282,7 +299,6 @@ void emu_spi_init_structure( spi_cb_t *spi_init );
 int emu_spi_init( int spi_index, spi_cb_t *spi_init );
 void emu_spi_deinit( int spi_index );
 int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes);
-
 #endif
 
 

@@ -26,7 +26,7 @@ static int lua_sys_uptime( lua_State *L )
 
 static int lua_sys_delay( lua_State *L )
 {
-    uint32_t delay_ms;
+    uint32_t delay_ms, tick;
 
     if( lua_gettop(L) < 1 )
     {
@@ -38,7 +38,16 @@ static int lua_sys_delay( lua_State *L )
     }
 
     if( delay_ms )
-        vTaskDelay( delay_ms * configTICK_RATE_HZ / 1000 );
+    {
+        tick = delay_ms * configTICK_RATE_HZ / 1000;
+        vTaskDelay( tick ? tick : 1 );
+    }
+    else
+    {
+        /* sys.delay(0) --> abort current time slice, 
+           yield to other tasks with the same priority */
+        taskYIELD();
+    } 
 
     return 0;
 }
@@ -117,6 +126,7 @@ static const struct luaL_Reg syslib[] =
     { "tick", lua_sys_tick },
     { "uptime", lua_sys_uptime },
     { "delay", lua_sys_delay },
+    { "sleep", lua_sys_delay },
     { "errno", lua_sys_errno },
     { "cmd", lua_sys_cmd },
 #if USE_CMD_BEEP

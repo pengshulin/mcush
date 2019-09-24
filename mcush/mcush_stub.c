@@ -68,7 +68,8 @@ void _halt_with_message(const char *message)
 int _open( const char *name, int flag, int m )
 {
     char buf[8];
-    return mcush_open( name, (const char *)parse_file_flag(flag, buf) );
+    int fd=mcush_open( name, (const char *)parse_file_flag(flag, buf) );
+    return fd>0 ? fd : -1;
 }
 
 

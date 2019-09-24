@@ -190,13 +190,13 @@ class Adxl345():
 
     def getAccelX( self ):
         a,b = self.controller.i2c( [0x32], 2 )
-        return Utils.s2h( chr(b) + chr(a) ) / 8192.0
+        return Utils.s2h( chr(a) + chr(b) ) / 25.0
  
     def getAccelY( self ):
         a,b = self.controller.i2c( [0x34], 2 )
-        return Utils.s2h( chr(b) + chr(a) ) / 8192.0
+        return Utils.s2h( chr(a) + chr(b) ) / 25.0
  
     def getAccelZ( self ):
         a,b = self.controller.i2c( [0x36], 2 )
-        return Utils.s2h( chr(b) + chr(a) ) / 8192.0
+        return Utils.s2h( chr(a) + chr(b) ) / 25.0
  

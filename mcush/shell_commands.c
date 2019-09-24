@@ -142,6 +142,21 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "i2c",  cmd_i2c, 
     "i2c emulated",
     "i2c [-i|r] <data>" },
+#if USE_CMD_I2C2
+{   0, 0,  "i2c2",  cmd_i2c, 
+    "i2c emulated",
+    "same as i2c" },
+#if USE_CMD_I2C3
+{   0, 0,  "i2c3",  cmd_i2c, 
+    "i2c emulated",
+    "same as i2c" },
+#if USE_CMD_I2C4
+{   0, 0,  "i2c4",  cmd_i2c, 
+    "i2c emulated",
+    "same as i2c" },
+#endif
+#endif
+#endif
 #endif
 #if USE_CMD_SPI
 {   0, 0,  "spi",  cmd_spi, 
