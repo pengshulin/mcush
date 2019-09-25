@@ -21,7 +21,7 @@ chip = CHIP
 if chip is None:
     raise Exception('CHIP not assigned')
 else:
-    print 'set chip as %s'% chip
+    print('set chip as %s'% chip)
 
 # search for elf file
 dbg_file = os.path.basename(os.getcwd())
@@ -29,10 +29,10 @@ if dbg_file.startswith('app'):
     dbg_file = dbg_file[3:]
 dbg_file += '_dbg.elf' if DEBUG else '.elf'
 if os.path.isfile( dbg_file ):
-    print 'found debug file %s'% dbg_file
+    print('found debug file %s'% dbg_file)
 else:
     dbg_file=None
-    print "not debug file found."
+    print("not debug file found.")
     
 class dump_array(gdb.Command):
     fname = '/dev/shm/float_array'
@@ -44,26 +44,26 @@ class dump_array(gdb.Command):
         try:
             var = args[0]
         except:
-            print 'error varname parms'
+            print('error varname parms')
             return
         try:
             size = int(args[1])
         except IndexError:
             size = None  # not assigned
         except:
-            print 'error size parms'
+            print('error size parms')
             return
         f = open(self.fname, 'w+')
-        print 'dump %s...'% var
+        print('dump %s...'% var)
         v = gdb.parse_and_eval(var)
-        #print v 
+        #print(v) 
         if size is None:
             # now check the actual size
             _t, _s = str(v.type).split()
             assert _t == 'float'
             size = int(_s[1:-1])
             assert size > 0
-            #print 'size=%d'% size
+            #print('size=%d'% size)
         for i in range(size):
             f.write( '%s\n'% v[i] )
         f.close()
@@ -77,11 +77,11 @@ class sptk_watch(gdb.Command):
     def invoke (self, arg, from_tty):
         args = arg.split()
         if len(args) < 2:
-            print 'error parms'
+            print('error parms')
             return 
         var = args[0]
         location = ' '.join(args[1:])
-        print var, '@', location
+        print(var, '@', location)
         existing=False
         bps = gdb.breakpoints()
         if bps:
@@ -183,7 +183,7 @@ if chip in chip_mem_configs.keys():
         #print cmd
         gdb.execute(cmd)
 else:
-    print 'warning: no chip memory config found'
+    print('warning: no chip memory config found')
 end
 end
 
@@ -209,7 +209,7 @@ end
 define load_file
 python
 if dbg_file:
-    print "load file %s..."% dbg_file
+    print("load file %s..."% dbg_file)
     gdb.execute('file %s'% dbg_file)
 end
 end
@@ -219,9 +219,9 @@ define program
 python 
 if dbg_file:
     f = os.path.abspath(dbg_file)
-    print "program %s..."% f
+    print("program %s..."% f)
     gdb.execute('program %s'% f)
-    print "program done"
+    print("program done")
 end
 end
 
