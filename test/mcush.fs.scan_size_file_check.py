@@ -7,7 +7,7 @@ Env.TEST_MAXID = 10
 
 def main(argv=None):
     random.seed()
-    s = Mcush.Mcush()
+    s = Mcush.Mcush( check_idn=False )
     s.spiffsRemount()
     #print( "formating..." )
     #s.spiffsFormat()

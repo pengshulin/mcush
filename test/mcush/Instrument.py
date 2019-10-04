@@ -108,7 +108,10 @@ class Instrument:
         self.idn = None
         self.port = self.PORT_TYPE(self, *args, **kwargs)
         if self._connect:
-            self.connect()
+            if kwargs.has_key('check_idn'):
+                self.connect(check_idn=self.check_idn)
+            else:
+                self.connect()
 
     @property        
     def connected( self ):

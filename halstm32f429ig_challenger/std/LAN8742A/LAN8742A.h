@@ -21,7 +21,7 @@ extern "C" {
  * 关于这个地址确定方法可以参考LAN8742A手册“3.7.1 PHYAD[0]: PHY Address
  * Configuration”说明。
  */
-#define ETHERNET_PHY_ADDRESS       0x00 /* Relative to STM324xG-EVAL Board */
+#define ETHERNET_PHY_ADDRESS       0x00
 
 /*
 	ETH_MDIO -------------------------> PA2
@@ -33,7 +33,7 @@ extern "C" {
 	ETH_MII_TX_EN/ETH_RMII_TX_EN -----> PB11
 	ETH_MII_TXD0/ETH_RMII_TXD0 -------> PG13
 	ETH_MII_TXD1/ETH_RMII_TXD1 -------> PG14
-	ETH_NRST -------------------------> PI1
+	ETH_NRST -------------------------> SYS_NRST
 */
 /* ETH_MDIO */
 #define ETH_MDIO_GPIO_CLK               RCC_AHB1Periph_GPIOA

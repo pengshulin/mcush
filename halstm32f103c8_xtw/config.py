@@ -11,6 +11,8 @@ hal_dir = 'hal' if hal_config.use_hal_driver else 'std'
 hal_config.paths += [hal_dir]
 hal_config.sources += [hal_dir+'/*.c']
 
+if env.getBoolEnv('USE_UART'):
+    hal_config.use_vcp = False  # use PA9/10 UART1
 if hal_config.use_vcp is None:
     hal_config.use_vcp = True  # use vcp as default
 
@@ -29,8 +31,10 @@ else:
 
 
 
-env.appendDefineFlags( ['BLACK_BOARD'] )
-#env.appendDefineFlags( ['BLUE_BOARD'] )
+if env.getBoolEnv('BLUE_BOARD'):
+    env.appendDefineFlags( ['BLUE_BOARD'] )
+else:
+    env.appendDefineFlags( ['BLACK_BOARD'] )
 
 env.appendDefineFlags( [
     #'USE_CMD_HELP=0',

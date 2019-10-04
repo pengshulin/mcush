@@ -102,7 +102,7 @@ int cmd_lan8720( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', shell_str_command, shell_str_command, "info|reset|read|write|down" },
+          'c', shell_str_command, shell_str_command, "info|reset|read|write|down|loop" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'n', shell_str_name, shell_str_name, "name param" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -112,7 +112,7 @@ int cmd_lan8720( int argc, char *argv[] )
     mcush_opt opt;
     const char *cmd=0;
     const char *name=0;
-    int value;
+    int value, reg, reg2;
     uint8_t name_set=0, value_set=0;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -156,6 +156,33 @@ int cmd_lan8720( int argc, char *argv[] )
     else if( strcmp( cmd, "down" ) == 0 )
     {
         ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, PHY_BCR, PHY_Powerdown);
+    }
+    else if( strcmp( cmd, "loop" ) == 0 )
+    {
+        /* lan8720 -c loop        --> near loop
+           lan8720 -c loop -v 1   --> near loop
+           lan8720 -c loop -v 2   --> far loop
+           lan8720 -c loop -v 0   --> back normal
+         */
+        reg = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, 0);
+        reg2 = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, 17);
+        if( value_set && (value==2) )  /* far loopback mode */
+        {
+            reg &= ~0x4000;
+            reg2 |= 0x0200;
+        }
+        else if( value_set && (value==0) )  /* back to normal */
+        {
+            reg &= ~0x4000;
+            reg2 &= ~0x0200;
+        }
+        else  /* near loopback mode */
+        {
+            reg |= 0x4000;
+            reg2 &= ~0x0200;
+        }
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, 0, reg);
+        ETH_WritePHYRegister(ETHERNET_PHY_ADDRESS, 17, reg2);
     }
     else if( strcmp( cmd, shell_str_read ) == 0 )
     {
@@ -336,22 +363,6 @@ void ETH_GPIO_Config(void)
 #elif defined RMII_MODE  /* Mode RMII with STM324xG-EVAL */
     SYSCFG_ETH_MediaInterfaceConfig(SYSCFG_ETH_MediaInterface_RMII);
 #endif
-
-
-
-    /* Ethernet pins configuration ************************************************/
-    /*
-        ETH_MDIO -------------------------> PA2
-        ETH_MDC --------------------------> PC1
-        ETH_MII_RX_CLK/ETH_RMII_REF_CLK --> PA1
-        ETH_MII_RX_DV/ETH_RMII_CRS_DV ----> PA7
-        ETH_MII_RXD0/ETH_RMII_RXD0 -------> PC4
-        ETH_MII_RXD1/ETH_RMII_RXD1 -------> PC5
-        ETH_MII_TX_EN/ETH_RMII_TX_EN -----> PB11
-        ETH_MII_TXD0/ETH_RMII_TXD0 -------> PG13
-        ETH_MII_TXD1/ETH_RMII_TXD1 -------> PG14
-        ETH_NRST -------------------------> PI1
-    	*/
 
     //GPIO_InitStructure.GPIO_Pin = ETH_NRST_PIN;
     //GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;

@@ -33,7 +33,7 @@ extern "C" {
 	ETH_MII_TX_EN/ETH_RMII_TX_EN -----> PG11
 	ETH_MII_TXD0/ETH_RMII_TXD0 -------> PG13
 	ETH_MII_TXD1/ETH_RMII_TXD1 -------> PG14
-	ETH_NRST -------------------------> PI1
+	ETH_NRST -------------------------> SYS_NRST
 																						*/
 /* ETH_MDIO */
 #define ETH_MDIO_GPIO_CLK               RCC_AHB1Periph_GPIOA

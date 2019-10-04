@@ -42,12 +42,14 @@
 
 /* M25P SPI Flash supported commands */  
 #define sFLASH_CMD_WRITE          0x02  /* Write to Memory instruction */
+#define sFLASH_CMD_WRITE_EADDR    0xC5  /* Write external address register */
 #define sFLASH_CMD_WRSR           0x01  /* Write Status Register1 instruction */
 #define sFLASH_CMD_WRSR2          0x31  /* Write Status Register2 instruction */
 #define sFLASH_CMD_WRSR3          0x11  /* Write Status Register3 instruction */
 #define sFLASH_CMD_WREN           0x06  /* Write enable instruction */
 #define sFLASH_CMD_SWREN          0x50  /* Status Write enable instruction */
 #define sFLASH_CMD_READ           0x03  /* Read from Memory instruction */
+#define sFLASH_CMD_READ2          0x13  /* Read from Memory instruction (4 bytes address) */
 #define sFLASH_CMD_RDSR           0x05  /* Read Status1 Register instruction  */
 #define sFLASH_CMD_RDSR2          0x35  /* Read Status2 Register instruction  */
 #define sFLASH_CMD_RDSR3          0x15  /* Read Status3 Register instruction  */

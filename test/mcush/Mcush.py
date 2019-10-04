@@ -661,6 +661,18 @@ class Mcush( Instrument.SerialInstrument ):
             return r
         else:
             return None
+    
+    def spiWrite( self, write=[] ):
+        if isinstance(write, list):
+            return self.spi( write )
+        else:
+            return self.spi( [write] )
+
+    def spiRead( self, write=[] ):
+        if isinstance(write, list):
+            return self.spi( write, read=True )
+        else:
+            return self.spi( [write], read=True )
 
     def pwm_init( self, freq=None, range_value=None, init_value=None ):
         cmd = 'pwm -I'

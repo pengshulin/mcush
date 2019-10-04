@@ -160,7 +160,8 @@ chip_mem_configs = {
 [ 0x20000000, 0x2002FFFC, 'rw', 32, False, 'SRAM 192k', ],
 [ 0x10000000, 0x1000FFFC, 'rw', 32, False, 'CCM SRAM 64k', ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
-[ 0xD0000000, 0xD07FFFFE, 'rw', 16, False, 'FMS/Bank6 SDRAM 8M', ],
+[ 0xC0000000, 0xCFFFFFFE, 'rw', 16, False, 'FMS/Bank5 SDRAM 256M', ],
+[ 0xD0000000, 0xDFFFFFFE, 'rw', 16, False, 'FMS/Bank6 SDRAM 256M', ],
 [ 0xA0000000, 0xA0000FFE, 'rw', 16, False, 'FMC control register', ],
 ],
 

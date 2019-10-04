@@ -139,4 +139,9 @@ class MorseCodeBeeper():
                 self.BeepString( string )
 
 
+    beepString = BeepString
+    beepStr = BeepString
+    beepChar = BeepChar
+    beepWord = BeepWord
+    beepFile = BeepFile
 

@@ -1,7 +1,8 @@
 from Arm.Stm32 import *
 env = Stm32f429xx( use_hal_driver=hal_config.use_hal_driver )
-env.setLinkfile( '/ld/stm32f429xg_ccmsram.ld' )
+env.setLinkfile( '/ld/stm32f429xg_sdram_b2.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=25000000', 'NEED_FMC' ] )
+env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']
@@ -44,7 +45,6 @@ if hal_config.use_hal_driver:
     env.appendDefineFlags( [
         'USE_CMD_SCPI_RST=0',
         'USE_CMD_REBOOT=0',
-        'USE_CMD_REBOOT_COUNTER=0',
         'USE_CMD_RESET=0',
         'USE_CMD_WDG=0',
         'USE_CMD_PWM=0',
@@ -53,6 +53,7 @@ if hal_config.use_hal_driver:
         'USE_CMD_UPGRADE=0',
         'HAL_RTC=0',
         'HAL_RNG=0',
+        'HAL_REBOOT_COUNTER=0',
         ] )
 
 

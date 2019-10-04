@@ -581,10 +581,15 @@ int cmd_spiffs( int argc, char *argv[] )
     }
     else if( strcmp( cmd, shell_str_erase ) == 0 )
     {
+        /* umount and erase bulk/sector and remount */
+        if( ! mcush_spiffs_umount() )
+            return 1;
         if( addr == (void*)-1 )
             sFLASH_EraseBulk();
         else
             sFLASH_EraseSector( (uint32_t)addr );
+        if( ! mcush_spiffs_mount() )
+            return 1;
     }
     else if( strcmp( cmd, shell_str_read ) == 0 )
     {

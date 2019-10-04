@@ -60,7 +60,8 @@
 #include "spi_flash.h"
 #include "hal.h"
 
-static uint8_t _chip_large_scale;
+static uint8_t _3bytes_status;
+static uint8_t _4bytes_address;
 
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
@@ -120,7 +121,7 @@ void sFLASH_Init(void)
     /*!< Enable the sFLASH_SPI  */
     SPI_Cmd(sFLASH_SPI, ENABLE);
 
-    _chip_large_scale = 0;
+    _3bytes_status = 0;
 }
 
 
@@ -131,7 +132,7 @@ void sFLASH_Unlock(void)
     sFLASH_CS_HIGH();
 
     sFLASH_CS_LOW();
-    if( _chip_large_scale )
+    if( _3bytes_status )
     {
         sFLASH_SendByte(sFLASH_CMD_WRSR);
         sFLASH_SendByte(0x00);
@@ -157,7 +158,7 @@ void sFLASH_Lock(void)
     sFLASH_CS_HIGH();
   
     sFLASH_CS_LOW();
-    if( _chip_large_scale )
+    if( _3bytes_status )
     {
         sFLASH_SendByte(sFLASH_CMD_WRSR);
         sFLASH_SendByte(0x3C);
@@ -185,7 +186,7 @@ uint32_t sFLASH_ReadStatus(void)
     status = sFLASH_SendByte(sFLASH_DUMMY_BYTE); 
     sFLASH_SendByte(sFLASH_CMD_RDSR2);
     status += ((uint32_t)sFLASH_SendByte(sFLASH_DUMMY_BYTE))<<8; 
-    if( _chip_large_scale )
+    if( _3bytes_status )
     {
         sFLASH_SendByte(sFLASH_CMD_RDSR3);
         status += ((uint32_t)sFLASH_SendByte(sFLASH_DUMMY_BYTE))<<16; 
@@ -204,10 +205,19 @@ void sFLASH_EraseSector(uint32_t SectorAddr)
 {
     sFLASH_Unlock();
 
+    /* chips memory larger than 32MBytes needs 4 bytes address */
+    if( _4bytes_address )
+    {
+        sFLASH_WriteEnable();
+    
+        sFLASH_CS_LOW();
+        sFLASH_SendByte(sFLASH_CMD_WRITE_EADDR);
+        sFLASH_SendByte((SectorAddr & 0xFF000000) >> 24);
+        sFLASH_CS_HIGH();
+    }
+
     /*!< Send write enable instruction */
     sFLASH_WriteEnable();
-
-    /*!< Sector Erase */
     /*!< Select the FLASH: Chip Select low */
     sFLASH_CS_LOW();
     /*!< Send Sector Erase instruction */
@@ -262,11 +272,23 @@ void sFLASH_EraseBulk(void)
   */
 void sFLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)
 {
+    /* chips memory larger than 32MBytes needs 4 bytes address */
+    if( _4bytes_address )
+    {
+        sFLASH_WriteEnable();
+    
+        sFLASH_CS_LOW();
+        sFLASH_SendByte(sFLASH_CMD_WRITE_EADDR);
+        sFLASH_SendByte((WriteAddr & 0xFF000000) >> 24);
+        sFLASH_CS_HIGH();
+    }
+
     /*!< Enable the write access to the FLASH */
     sFLASH_WriteEnable();
 
     /*!< Select the FLASH: Chip Select low */
     sFLASH_CS_LOW();
+  
     /*!< Send "Write to Memory " instruction */
     sFLASH_SendByte(sFLASH_CMD_WRITE);
     /*!< Send WriteAddr high nibble address byte to write to */
@@ -385,7 +407,10 @@ void sFLASH_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRe
     sFLASH_CS_LOW();
 
     /*!< Send "Read from Memory " instruction */
-    sFLASH_SendByte(sFLASH_CMD_READ);
+    sFLASH_SendByte( _4bytes_address ? sFLASH_CMD_READ2 : sFLASH_CMD_READ );
+
+    if( _4bytes_address )
+        sFLASH_SendByte((ReadAddr & 0xFF000000) >> 24);
 
     /*!< Send ReadAddr high nibble address byte to read from */
     sFLASH_SendByte((ReadAddr & 0xFF0000) >> 16);
@@ -437,8 +462,11 @@ uint32_t sFLASH_ReadID(void)
 
     if( Temp )
     {
-        if( Temp0 == 0xEF )
-            _chip_large_scale = Temp2 >= 0x18 ? 1 : 0;
+        if( Temp0 == 0xEF )  /* not sure if compatiable with other oem */
+        {
+            _3bytes_status = Temp2 >= 0x18 ? 1 : 0; /* >= 16MBytes */
+            _4bytes_address = Temp2 >= 0x19 ? 1 : 0;  /* >= 32MBytes */
+        }
     }
     return Temp;
 }
@@ -452,22 +480,22 @@ uint32_t sFLASH_ReadID(void)
   * @param  ReadAddr: FLASH's internal address to read from.
   * @retval None
   */
-void sFLASH_StartReadSequence(uint32_t ReadAddr)
-{
-    /*!< Select the FLASH: Chip Select low */
-    sFLASH_CS_LOW();
-
-    /*!< Send "Read from Memory " instruction */
-    sFLASH_SendByte(sFLASH_CMD_READ);
-
-    /*!< Send the 24-bit address of the address to read from -------------------*/
-    /*!< Send ReadAddr high nibble address byte */
-    sFLASH_SendByte((ReadAddr & 0xFF0000) >> 16);
-    /*!< Send ReadAddr medium nibble address byte */
-    sFLASH_SendByte((ReadAddr& 0xFF00) >> 8);
-    /*!< Send ReadAddr low nibble address byte */
-    sFLASH_SendByte(ReadAddr & 0xFF);
-}
+//void sFLASH_StartReadSequence(uint32_t ReadAddr)
+//{
+//    /*!< Select the FLASH: Chip Select low */
+//    sFLASH_CS_LOW();
+//
+//    /*!< Send "Read from Memory " instruction */
+//    sFLASH_SendByte(sFLASH_CMD_READ);
+//
+//    /*!< Send the 24-bit address of the address to read from -------------------*/
+//    /*!< Send ReadAddr high nibble address byte */
+//    sFLASH_SendByte((ReadAddr & 0xFF0000) >> 16);
+//    /*!< Send ReadAddr medium nibble address byte */
+//    sFLASH_SendByte((ReadAddr& 0xFF00) >> 8);
+//    /*!< Send ReadAddr low nibble address byte */
+//    sFLASH_SendByte(ReadAddr & 0xFF);
+//}
 
 /**
   * @brief  Reads a byte from the SPI Flash.
@@ -476,10 +504,10 @@ void sFLASH_StartReadSequence(uint32_t ReadAddr)
   * @param  None
   * @retval Byte Read from the SPI Flash.
   */
-uint8_t sFLASH_ReadByte(void)
-{
-    return (sFLASH_SendByte(sFLASH_DUMMY_BYTE));
-}
+//uint8_t sFLASH_ReadByte(void)
+//{
+//    return (sFLASH_SendByte(sFLASH_DUMMY_BYTE));
+//}
 
 /**
   * @brief  Sends a byte through the SPI interface and return the byte received

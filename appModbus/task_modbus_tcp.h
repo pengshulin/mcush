@@ -48,9 +48,9 @@ typedef struct {
 
 struct modbus_tcp_state
 {
-    u8_t state;
-    u8_t retries;
-    u16_t client_id;
+    uint8_t state;
+    uint8_t retries;
+    uint16_t client_id;
     struct tcp_pcb *pcb;
     struct pbuf *p;  /* chain buffer */
     int buf_len;
