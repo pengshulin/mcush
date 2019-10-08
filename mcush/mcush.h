@@ -174,11 +174,11 @@ extern "C" {
 #ifndef USE_CMD_SPI
     #define USE_CMD_SPI  1
 #endif
+#ifndef USE_CMD_PULSE
+    #define USE_CMD_PULSE  1
+#endif
 #ifndef USE_CMD_PWM
     #define USE_CMD_PWM  0
-#endif
-#ifndef USE_CMD_COUNTER
-    #define USE_CMD_COUNTER  0
 #endif
 #ifndef USE_CMD_RTC
     #define USE_CMD_RTC  0
@@ -299,6 +299,23 @@ void emu_spi_init_structure( spi_cb_t *spi_init );
 int emu_spi_init( int spi_index, spi_cb_t *spi_init );
 void emu_spi_deinit( int spi_index );
 int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes);
+#endif
+
+
+
+#if USE_CMD_PULSE
+typedef struct {
+    uint8_t port;
+    uint8_t pin;
+    uint8_t invert;
+    uint16_t pin_bit;
+    uint32_t delay_us;
+} pulse_cb_t;
+
+void emu_pulse_init_structure( pulse_cb_t *pulse_init );
+int emu_pulse_init( int pulse_index, pulse_cb_t *pulse_init );
+void emu_pulse_deinit( int pulse_index );
+int emu_pulse_generate(int pulse_index, int number );
 #endif
 
 

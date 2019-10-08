@@ -230,7 +230,7 @@ int parse_int( const char *str, int *i )
     if( !str || (*str==0) )
         return 0;
     r = strtoll( str, &p, 0 );
-    if( !p )
+    if( (p==0) || (str==(const char*)p) )
         return 0;
     while( (*p==' ') || (*p=='\t') )
         p++;
@@ -239,6 +239,46 @@ int parse_int( const char *str, int *i )
     //if( (r == LONG_MAX) || (r == LONG_MIN) )
     //    return 0;
     *i = r;
+    return 1;
+}
+
+
+/* parse signed integer (may with repeat number) in dec/hex mode */
+int parse_int_repeat( const char *str, int *i, int *repeat )
+{
+    long long int r, r2;
+    char *p;
+    if( !str || (*str==0) )
+        return 0;
+    r = strtoll( str, &p, 0 );
+    if( (p==0) || (str==(const char*)p) )
+        return 0;
+    while( (*p==' ') || (*p=='\t') )
+        p++;
+    if( *p=='*' )
+    {
+        p++;
+        str = (const char*)p;
+        r2 = strtoll( str, &p, 0 );
+        if( (p==0) || (str==(const char*)p) )
+            return 0;
+        while( (*p==' ') || (*p=='\t') )
+            p++;
+        if( *p )
+            return 0;
+        if( r2 >= 1 )
+            r2 -= 1;
+    }
+    else if( *p )
+    {
+        return 0;  /* missing repeat num */
+    }
+    else
+        r2 = 0;  /* no repeat */
+    //if( (r == LONG_MAX) || (r == LONG_MIN) )
+    //    return 0;
+    *i = r;
+    *repeat = r2;
     return 1;
 }
 

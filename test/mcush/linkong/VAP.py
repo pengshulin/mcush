@@ -35,7 +35,7 @@ class VAP( Mcush.Mcush ):
     def env( self ):
         return self.parseEnv( self.writeCommand('env') )
  
-    def ad7768( self, command, index=None, value=None ):
+    def ad( self, command, index=None, value=None ):
         cmd = 'ad7768 -c %s'% command
         if index is not None:
             cmd += ' -i %d'% index
@@ -47,7 +47,12 @@ class VAP( Mcush.Mcush ):
         ret = self.writeCommand( cmd )
         return ret
 
-    ad = ad7768
+    def ad_mem( self ):
+        a, b = self.ad('mem')[0].split(' ')
+        return (int(a,16), int(b,16))
+    
+    def ad_stop( self ):
+        self.ad( 'stop' )
 
 
     def daq( self, command, index=None, value=None ):
@@ -61,6 +66,21 @@ class VAP( Mcush.Mcush ):
                 cmd += ' -v %d'% value
         ret = self.writeCommand( cmd )
         return ret
+
+    def daq_lock( self ):
+        self.daq('lock')
+
+    def daq_unlock( self ):
+        self.daq('unlock')
+
+    def daq_enable( self ):
+        self.daq('enable')
+
+    def daq_disable( self ):
+        self.daq('disable')
+
+    def daq_busy( self ):
+        return bool(int(self.daq('busy')[0]))
 
     def daq_tacho( self, info=None ):
         val = None

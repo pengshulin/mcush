@@ -673,6 +673,23 @@ class Mcush( Instrument.SerialInstrument ):
             return self.spi( write, read=True )
         else:
             return self.spi( [write], read=True )
+ 
+    def pulse_init( self, pin='0.0', delay_us=None, invert=None ):
+        cmd = 'pulse -p%s -I'% pin
+        if delay_us is not None:
+            cmd += ' -delay=%d'% delay_us
+        if invert:
+            cmd += ' -invert'
+        self.writeCommand( cmd )
+
+    def pulse_deinit( self ):
+        self.writeCommand( 'pulse -D' )
+        
+    def pulse( self, number ):
+        self.writeCommand( 'pulse %d'% number )
+
+    pulseInit = pulse_init
+    pulseDeinit = pulse_deinit
 
     def pwm_init( self, freq=None, range_value=None, init_value=None ):
         cmd = 'pwm -I'

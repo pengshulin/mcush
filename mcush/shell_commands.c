@@ -27,7 +27,7 @@ extern int cmd_i2c( int argc, char *argv[] );
 extern int cmd_spi( int argc, char *argv[] );
 extern int cmd_pwm( int argc, char *argv[] );
 extern int cmd_adc( int argc, char *argv[] );
-extern int cmd_counter( int argc, char *argv[] );
+extern int cmd_pulse( int argc, char *argv[] );
 extern int cmd_rtc( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
 extern int cmd_fatfs( int argc, char *argv[] );
@@ -66,7 +66,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_UPGRADE
 {   CMD_HIDDEN, 0,  "upgrade",  cmd_upgrade, 
     "upgrade firmware and restart",
-    "upgrade -f filename" },
+    "upgrade -f <filename>" },
 #endif
 #if USE_CMD_DUMP
 {   CMD_HIDDEN,  'x',  "dump",  cmd_dump, 
@@ -76,7 +76,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_WRITE
 {   CMD_HIDDEN,  'w',  "write",  cmd_write, 
     "write memory",
-    "write -b <address> [-w 1|2|4] dat1 dat2 ..." },
+    "write -b <address> [-w 1|2|4] <dat1> [dat2 ...]" },
 #endif
 #if USE_CMD_MFILL
 {   CMD_HIDDEN,  0,  "mfill",  cmd_mfill, 
@@ -161,7 +161,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_SPI
 {   0, 0,  "spi",  cmd_spi, 
     "spi emulated",
-    "spi [-I|r] <data>" },
+    "spi [-r] <data>" },
 #if USE_CMD_SPI2
 {   0, 0,  "spi2",  cmd_spi, 
     "spi emulated",
@@ -178,6 +178,26 @@ const shell_cmd_t CMD_TAB[] = {
 #endif
 #endif
 #endif
+#if USE_CMD_PULSE
+{   0, 0,  "pulse",  cmd_pulse, 
+    "pulse generator",
+    "pulse <number>" },
+#if USE_CMD_PULSE2
+{   0, 0,  "pulse2",  cmd_pulse, 
+    "pulse generator",
+    "sample as pulse" },
+#if USE_CMD_PULSE3
+{   0, 0,  "pulse3",  cmd_pulse, 
+    "pulse generator",
+    "sample as pulse" },
+#if USE_CMD_PULSE4
+{   0, 0,  "pulse4",  cmd_pulse, 
+    "pulse generator",
+    "sample as pulse" },
+#endif
+#endif
+#endif
+#endif
 #if USE_CMD_PWM
 {   0, 0,  "pwm",  cmd_pwm, 
     "control pwm",
@@ -188,15 +208,10 @@ const shell_cmd_t CMD_TAB[] = {
     "adc measure",
     "adc -i <idx>" },
 #endif
-#if USE_CMD_COUNTER
-{   0, 'c',  "counter",  cmd_counter, 
-    "input trigger counter",
-    "counter [-i|r]" },
-#endif
 #if USE_CMD_RTC
 {   0, 0,  "rtc",  cmd_rtc, 
     "rtc",
-    "rtc -s [val]" },
+    "rtc [-s <val>]" },
 #endif
 #if USE_CMD_BEEP
 {   0,  'b',  "beep",  cmd_beep, 

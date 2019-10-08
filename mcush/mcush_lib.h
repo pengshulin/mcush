@@ -35,6 +35,7 @@ char *get_rtc_str(char *buf);
 char *get_rtc_tick_str(char *buf, uint32_t tick);
 
 int parse_int( const char *str, int *i );
+int parse_int_repeat( const char *str, int *i, int *repeat );
 int parse_float( const char *str, float *f );
 int parse_date( const char *str, int *year, int *mon, int *mday );
 int parse_time( const char *str, int *hour, int *min, int *sec );

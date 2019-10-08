@@ -578,6 +578,7 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
 }
 
 
+#define SPI_WRITE_BUFFER_LEN  256
 int cmd_spi( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
@@ -614,8 +615,8 @@ int cmd_spi( int argc, char *argv[] )
     char *p;
     int spi_index;
     spi_cb_t spi_init;
-    uint32_t buf_out[256], buf_in[256];
-    int bytes, i, line_count;
+    uint32_t buf_out[SPI_WRITE_BUFFER_LEN], buf_in[SPI_WRITE_BUFFER_LEN];
+    int bytes, i, line_count, repeat;
 
     /* check which command spi/spi2/spi3/spi4 is used */
     if( parse_int(argv[0]+3, (int*)&spi_index) )
@@ -722,7 +723,8 @@ int cmd_spi( int argc, char *argv[] )
     bytes = 0;
     while( parser.idx < argc )
     {
-        if( ! parse_int(argv[parser.idx], (int*)&buf_out[bytes]) )
+        //if( ! parse_int(argv[parser.idx], (int*)&buf_out[bytes]) )
+        if( ! parse_int_repeat(argv[parser.idx], (int*)&buf_out[bytes], &repeat ) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
@@ -730,6 +732,17 @@ int cmd_spi( int argc, char *argv[] )
         }
         parser.idx++;
         bytes += 1;
+        while( repeat )
+        {
+            buf_out[bytes] = buf_out[bytes-1];
+            bytes += 1;
+            repeat -= 1;
+            if( bytes > SPI_WRITE_BUFFER_LEN )
+            {
+                shell_write_err( "buffer" );
+                return 1;
+            }
+        }
     }
     if( bytes == 0 )
         return -1;  /* no parms, nothing to do */
@@ -762,4 +775,193 @@ err_port:
     return 1;
 }
 #endif
+
+
+/***************************************************************************/
+/* Pulses generator                                                        */
+/***************************************************************************/
+
+#if USE_CMD_PULSE
+#ifndef CMD_PULSE_PORT
+#define CMD_PULSE_PORT  0
+#endif
+#ifndef CMD_PULSE_PIN
+#define CMD_PULSE_PIN  0
+#endif
+
+#if USE_CMD_PULSE4
+static pulse_cb_t *pulse_cb[4];
+#elif USE_CMD_PULSE3
+static pulse_cb_t *pulse_cb[3];
+#elif USE_CMD_PULSE2
+static pulse_cb_t *pulse_cb[2];
+#else
+static pulse_cb_t *pulse_cb[1];
+#endif
+
+void emu_pulse_init_structure(pulse_cb_t *pulse_init)
+{
+    pulse_init->port = CMD_PULSE_PORT;
+    pulse_init->pin = CMD_PULSE_PIN;
+    pulse_init->pin_bit = 1<<CMD_PULSE_PIN;
+    pulse_init->invert = 0;
+    pulse_init->delay_us = 5;
+}
+
+
+void emu_pulse_deinit(int pulse_index)
+{
+    pulse_cb_t *pulse=pulse_cb[pulse_index];
+
+    if( pulse==0 )
+        return;
+    hal_gpio_set_input( pulse->port, pulse->pin_bit );
+    vPortFree( (void*)pulse );
+    pulse_cb[pulse_index] = 0;
+}
+
+
+int emu_pulse_init(int pulse_index, pulse_cb_t *pulse_init)
+{
+    pulse_cb_t *pulse=pulse_cb[pulse_index];
+    
+    if( pulse )
+    {
+        /* free previous pulse pins (maybe different from the new pins),
+           but do not free the memory */
+        hal_gpio_set_input( pulse->port, pulse->pin_bit );
+    }
+    else
+    {
+        pulse = pvPortMalloc( sizeof(pulse_cb_t) );
+        if( pulse == 0 )
+            return 0;  /* fail */
+        pulse_cb[pulse_index] = pulse;
+    }
+  
+    memcpy( pulse, pulse_init, sizeof(pulse_cb_t) );
+    pulse->pin_bit = 1<<pulse->pin;
+ 
+    hal_gpio_set_output( pulse->port, pulse->pin_bit );
+    if( pulse->invert )
+        hal_gpio_set( pulse->port, pulse->pin_bit );
+    else
+        hal_gpio_clr( pulse->port, pulse->pin_bit );
+    return 1;
+}
+
+
+int emu_pulse_generate(int pulse_index, int number)
+{
+    pulse_cb_t *pulse=pulse_cb[pulse_index];
+
+    if( pulse==0 )
+        return 0;
+    while( number-- )
+    {
+        portENTER_CRITICAL();
+        if( pulse->invert )
+            hal_gpio_clr( pulse->port, pulse->pin_bit );
+        else
+            hal_gpio_set( pulse->port, pulse->pin_bit );
+        hal_delay_us( pulse->delay_us );
+        if( pulse->invert )
+            hal_gpio_set( pulse->port, pulse->pin_bit );
+        else
+            hal_gpio_clr( pulse->port, pulse->pin_bit );
+        hal_delay_us( pulse->delay_us );
+        portEXIT_CRITICAL();
+    } 
+    return 1;
+}
+
+
+int cmd_pulse( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          0, shell_str_delay, "delay_us", "default 5" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'p', shell_str_pin, "input_pin", "default 0.0" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'I', shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'D', shell_str_deinit, 0, shell_str_deinit },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          0, shell_str_invert, 0, shell_str_invert },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_number, 0, shell_str_number },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t init=0, deinit=0;
+    char *p;
+    pulse_cb_t pulse_init;
+    int pulse_index;
+    int counter;
+ 
+    /* check which command pulse/pulse2/pulse3/pulse4 is used */
+    if( parse_int(argv[0]+3, (int*)&pulse_index) )
+        pulse_index -= 1;
+    else
+        pulse_index = 0;
+    emu_pulse_init_structure( &pulse_init );
+    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
+                init = 1;
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
+                deinit = 1;
+            else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
+                parse_int(opt.value, (int*)&pulse_init.delay_us);
+            else if( STRCMP( opt.spec->name, shell_str_invert ) == 0 )
+                pulse_init.invert = 1; 
+            else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
+            {
+                pulse_init.port = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                pulse_init.pin = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_setting ) == 0 )
+                break;
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( init )
+    {
+        return emu_pulse_init( pulse_index, &pulse_init ) ? 0 : 1;
+    }
+    else if( deinit )
+    {
+        emu_pulse_deinit( pulse_index );
+        return 0;
+    }
+    else if( parser.idx >= argc )
+    {
+        return -1;
+    }
+    else if( ! parse_int(argv[parser.idx], &counter) )
+    {
+        shell_write_err( shell_str_number );
+        return 1;
+    }
+
+    return emu_pulse_generate( pulse_index, counter ) ? 0 : 1;
+ 
+err_port:
+    shell_write_err( shell_str_port_bit );
+    return 1;
+}
+#endif
+
 

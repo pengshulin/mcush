@@ -6,7 +6,7 @@ from mcush import *
 
 
 def main(argv=None):
-    s = Mcush.Mcush()
+    s = Mcush.Mcush(check_idn=False)
     fs = s.list('/s')
     #print fs
     for dirname, filename, size in fs:
