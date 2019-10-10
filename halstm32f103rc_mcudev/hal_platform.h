@@ -7,7 +7,7 @@
 #define HAL_LED_NUM   1
 #define HAL_LED_PORTS  { 0 }
 #define HAL_LED_PINS  { 8 }
-
+#define HAL_LED_REV
 
 
 #ifndef USE_CMD_BEEP
