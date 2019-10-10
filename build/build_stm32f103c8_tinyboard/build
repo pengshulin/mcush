@@ -1,8 +1,6 @@
 #!/bin/bash
 # auto build from appBlinkErrorNumber project
 # Peng Shulin <trees_peng@163.com> 2019
-
-rm *.hex *.bin *.lst *.map *.elf
 set -e
 CWD=`pwd`
 export HALDIR=stm32f103c8_xtw
@@ -10,28 +8,28 @@ export DEBUG=0
 pushd /mcush/appBlinkErrorNumber
 
 # black board - use vcp
-rm *.hex *.bin *.lst *.map *.elf
+rm -f *.hex *.bin *.lst *.map *.elf
 scons -c
 scons
 mkdir -p $CWD/black_vcp
 cp BlinkErrorNumber* $CWD/black_vcp
 
 # black board - use uart
-rm *.hex *.bin *.lst *.map *.elf
+rm -f *.hex *.bin *.lst *.map *.elf
 scons -c
 USE_UART=1 scons
 mkdir -p $CWD/black_uart
 cp BlinkErrorNumber* $CWD/black_uart
 
 # blue board - use vcp
-rm *.hex *.bin *.lst *.map *.elf
+rm -f *.hex *.bin *.lst *.map *.elf
 scons -c
 BLUE_BOARD=1 scons
 mkdir -p $CWD/blue_vcp
 cp BlinkErrorNumber* $CWD/blue_vcp
 
 # blue board - use uart
-rm *.hex *.bin *.lst *.map *.elf
+rm -f *.hex *.bin *.lst *.map *.elf
 scons -c
 BLUE_BOARD=1 USE_UART=1 scons
 mkdir -p $CWD/blue_uart

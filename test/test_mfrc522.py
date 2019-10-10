@@ -113,14 +113,17 @@ RFU3F                = 0x3F
 def main(argv=None):
     s = Mcush.Mcush()
     s.spi_init()
-
     RST = '0.4'
-    s.gpio( RST, o=True, s=True )
+    #s = ShellLab.ShellLab()
+    #s.spi_init(sdi='4.0',sdo='4.1',sck='4.2',cs='4.3')
+    #RST = '4.4'
+
+    s.pinOutputHigh( RST )
     
     def rst():
-        s.gpio( RST, c=True )
+        s.pinClr( RST )
         time.sleep(0.1)
-        s.gpio( RST, s=True )
+        s.pinSet( RST )
       
     def read(addr, len=1):
         byte0 = 0x80 + ((addr&0x3F)<<1)
@@ -144,7 +147,7 @@ def main(argv=None):
         info = []
         for page in range(4):
             info.append( 'P%d %s'% (page, ['%02X'% read(addr+page*16) for addr in range(16)]) )
-        print '\n'.join(info)
+        print( '\n'.join(info) )
 
 
     def trans(buf):
@@ -177,7 +180,7 @@ def main(argv=None):
         clrbits( BitFramingReg, 0x80 )
         if not timeout and not read(ErrorReg) & 0x1B:
             if n & irqEn & 0x01:
-                print 'No card'
+                print( 'No card' )
             else:
                 n = read( FIFOLevelReg )
                 lastBits = read(ControlReg) & 0x07
@@ -190,7 +193,7 @@ def main(argv=None):
                 if n>MAXRLEN:
                     n = MAXRLEN
                 outdata = [read(FIFODataReg) for i in range(n)]
-                #print 'OUTDATA', outdata
+                #print( 'OUTDATA', outdata )
                 ret = outdata
         setbits( ControlReg, 0x80 )
         write( CommandReg, PCD_IDLE )
@@ -223,17 +226,17 @@ def main(argv=None):
         _type = trans( [0x52] )
         if isinstance(_type, list) and len(_type) == 2:
             if _type == [4, 0]:
-                print 'Card type: MFOne-S50'
+                print( 'Card type: MFOne-S50' )
             elif _type == [2, 0]:
-                print 'Card type: MFOne-S70'
+                print( 'Card type: MFOne-S70' )
             elif _type == [44, 0]:
-                print 'Card type: MF-UltraLight'
+                print( 'Card type: MF-UltraLight' )
             elif _type == [8, 0]:
-                print 'Card type: MF-Pro'
+                print( 'Card type: MF-Pro' )
             elif _type == [44, 3]:
-                print 'Card type: MF Desire'
+                print( 'Card type: MF Desire' )
             else:
-                print 'Unknown card'
+                print( 'Unknown card' )
                 _type = None
 
             if _type: 
@@ -243,7 +246,7 @@ def main(argv=None):
  
                 _sn = trans( [PICC_ANTICOLL1, 0x20] )
                 if isinstance(_sn, list):
-                    print 'Card SN: %02X%02X%02X%02X'% (_sn[0], _sn[1], _sn[2], _sn[3])
+                    print( 'Card SN: %02X%02X%02X%02X'% (_sn[0], _sn[1], _sn[2], _sn[3]) )
                     s.beep()
 
                 

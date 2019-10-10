@@ -1,0 +1,1 @@
+../../halstm32f1/std/stm32f10x_conf.h
