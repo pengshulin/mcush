@@ -677,9 +677,9 @@ class Mcush( Instrument.SerialInstrument ):
     def pulse_init( self, pin='0.0', delay_us=None, invert=None ):
         cmd = 'pulse -p%s -I'% pin
         if delay_us is not None:
-            cmd += ' -delay=%d'% delay_us
+            cmd += ' --delay=%d'% delay_us
         if invert:
-            cmd += ' -invert'
+            cmd += ' --invert'
         self.writeCommand( cmd )
 
     def pulse_deinit( self ):

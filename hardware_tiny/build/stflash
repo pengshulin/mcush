@@ -1,6 +1,0 @@
-#!/bin/bash
-# chip flash with stlink
-# Peng Shulin <trees_peng@163.com> 2018
-
-st-flash write BlinkErrorNumber.bin 0x08000000
-

@@ -1,0 +1,29 @@
+#!/bin/bash
+# auto build from appBlinkErrorNumber project
+# Peng Shulin <trees_peng@163.com> 2019
+set -e
+CWD=`pwd`
+export HALDIR=stm32f103cb_tiny_controller
+export DEBUG=0
+pushd /mcush/appBlinkErrorNumber
+
+# use vcp
+rm -f *.hex *.bin *.lst *.map *.elf
+scons -c
+scons
+mkdir -p $CWD/vcp
+cp BlinkErrorNumber* $CWD/vcp
+
+# use uart
+rm -f *.hex *.bin *.lst *.map *.elf
+scons -c
+USE_UART=1 scons
+mkdir -p $CWD/uart
+cp BlinkErrorNumber* $CWD/uart
+
+popd
+
+# remove all .lst .elf files
+find . -name '*.lst' -delete
+find . -name '*.elf' -delete
+
