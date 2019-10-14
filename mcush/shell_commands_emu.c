@@ -46,6 +46,7 @@ void emu_i2c_init_structure(i2c_cb_t *i2c_init)
 static void i2c_start(i2c_cb_t *i2c)
 {
     hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
+    hal_delay_us( i2c->delay_us );
     hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
     hal_delay_us( i2c->delay_us );
     hal_gpio_clr( i2c->port_sda, i2c->pin_sda_bit );
@@ -57,6 +58,7 @@ static void i2c_start(i2c_cb_t *i2c)
 static void i2c_stop(i2c_cb_t *i2c)
 {
     hal_gpio_clr( i2c->port_sda, i2c->pin_sda_bit );
+    hal_delay_us( i2c->delay_us );
     hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
     hal_delay_us( i2c->delay_us );
     hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
@@ -69,7 +71,6 @@ static int i2c_read_ack(i2c_cb_t *i2c)
 {
     int ret;
 
-    hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
     hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
     hal_delay_us( i2c->delay_us );
     hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
@@ -102,12 +103,12 @@ static uint8_t i2c_read_byte(i2c_cb_t *i2c, int ack)
     hal_gpio_set( i2c->port_sda, i2c->pin_sda_bit );
     for( i=0; i<8; i++ )
     {     
-        hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
         hal_delay_us( i2c->delay_us );
+        hal_gpio_set( i2c->port_scl, i2c->pin_scl_bit );
         if( hal_gpio_get( i2c->port_sda, i2c->pin_sda_bit ) )
             ret |= mask;
-        hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
         hal_delay_us( i2c->delay_us );
+        hal_gpio_clr( i2c->port_scl, i2c->pin_scl_bit );
         if( i2c->lsb )
             mask <<= 1;
         else
