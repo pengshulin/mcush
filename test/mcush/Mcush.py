@@ -611,7 +611,7 @@ class Mcush( Instrument.SerialInstrument ):
         if no_stop_bit:
             cmd += ' -n'
         if write:
-            cmd += ' %s'% (' '.join(['0x%X'%i for i in write])) 
+            cmd += ' %s'% (' '.join([str(i) for i in write])) 
         ret = self.writeCommand( cmd )
         if read_count:
             r = []

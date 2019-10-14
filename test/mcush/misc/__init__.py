@@ -6,12 +6,14 @@ __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from . import BeepPlayer
 from . import MorseCodeBeeper
 from . import Tjc
+from . import Canvas
 from . import Gratten
 from . import SegmentTable
 from . import Tm1637
 from . import Bitmap
 from . import Font
 from . import Max7219
+from . import Ssd1306
 from . import Ws2812
 from . import Motion 
 from . import Dallas1W
