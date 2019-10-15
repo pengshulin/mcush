@@ -95,6 +95,7 @@ class Canvas():
             self.flush()
  
     def drawBitmap( self, x, y, bitmap, mode='normal', flush=True ):
+        # draw bitmap
         for i in range(bitmap.height):
             for j in range(bitmap.width):
                 c = bitmap.getPixel(j, i)
@@ -107,6 +108,7 @@ class Canvas():
             self.flush() 
 
     def drawString( self, x, y, string, mode='normal', font=None, flush=True ):
+        # draw text
         if font is None:
             font = Font.DEFAULT_FONT
         for s in string:
@@ -123,6 +125,7 @@ class Canvas():
             self.flush() 
 
     def getStringRenderSize( self, string, font=None ):
+        # calculate string render size
         width = 0
         height = 0
         if font is None:

@@ -10,14 +10,17 @@ import time
 
 
 class Ssd1306_Common():
+    current_page = None
+    current_x = None
 
-    def cmd( self, d ):
+    def cmd( self, b ):
         raise NotImplementedError
 
-    def dat( self, d ):
+    def dat( self, b ):
         raise NotImplementedError
     
     def fill( self, pattern ):
+        # fill full screen with fixed pattern (initialize)
         for p in range((self.height-1)/8+1):
             self.cmd(0xb0+p)
             self.cmd(0x01)
@@ -26,6 +29,8 @@ class Ssd1306_Common():
                 self.dat(pattern)
     
     def write_mem( self, page, x, mem ):
+        # write display buffer at specified page/x
+        # optimize: do not re-send position if it's continuous
         if page != self.current_page:
             self.cmd(0xb0+page)
             self.current_page = page 
@@ -39,6 +44,7 @@ class Ssd1306_Common():
         self.current_x += 1
 
     def init(self):
+        # registers initialize, refer to datasheet
         self.cmd(0xae)   # turn off oled panel
         self.cmd(0x00)   # set low column address
         self.cmd(0x10)   # set high column address
@@ -76,14 +82,12 @@ class Ssd1306_I2C(Ssd1306_Common):
         self.controller = controller
         self.controller.i2c_init( 0x3C, scl, sda, delay=5 )
         self.init()
-        self.current_page = None
-        self.current_x = None
 
-    def cmd( self, d ):
-        self.controller.i2c( [0x00, d] )
+    def cmd( self, b ):
+        self.controller.i2c( [0x00, b] )
  
-    def dat( self, d ):
-        self.controller.i2c( [0x40, d] )
+    def dat( self, b ):
+        self.controller.i2c( [0x40, b] )
     
     def fill( self, pattern ):
         # optimized code for i2c command: multi data write
@@ -109,8 +113,6 @@ class Ssd1306_SPI(Ssd1306_Common):
         self.controller.pinOutputHigh( [rst, dc] )
         self.reset()
         self.init()
-        self.current_page = None
-        self.current_x = None
 
     def reset( self ):
         self.controller.pinClr( self.rst_pin )
