@@ -2,9 +2,9 @@
 #include "mcush.h"
 #include "hal.h"
 
-/***************************************************************************/
-/* Multiple emulated I2C controller                                        */
-/***************************************************************************/
+/*************************************************************************/
+/* Multiple emulated I2C controller                                      */
+/*************************************************************************/
 
 #if USE_CMD_I2C
 #ifndef CMD_I2C_SDA_PORT
@@ -268,17 +268,17 @@ int cmd_i2c( int argc, char *argv[] )
     mcush_opt opt;
     uint8_t init=0, deinit=0, no_stop=0, addr_set=0;
     char *p;
-    int i2c_index;
+    int i2c_index=0;
     i2c_cb_t i2c_init;
     int i, line_count;
     uint8_t buf_out[256], buf_in[256];
     int read_bytes=0, write_bytes;
 
     /* check which command i2c/i2c2/i2c3/i2c4 is used */
+#if USE_CMD_I2C2
     if( parse_int(argv[0]+3, (int*)&i2c_index) )
         i2c_index -= 1;
-    else
-        i2c_index = 0;
+#endif
     emu_i2c_init_structure( &i2c_init );
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -399,9 +399,9 @@ err_port:
 #endif
 
 
-/***************************************************************************/
-/* Multiple emulated SPI controller                                        */
-/***************************************************************************/
+/*************************************************************************/
+/* Multiple emulated SPI controller                                      */
+/*************************************************************************/
 
 #if USE_CMD_SPI
 #ifndef CMD_SPI_SDI_PORT
@@ -614,16 +614,16 @@ int cmd_spi( int argc, char *argv[] )
     mcush_opt opt;
     uint8_t init=0, deinit=0, read_mode=0;
     char *p;
-    int spi_index;
+    int spi_index=0;
     spi_cb_t spi_init;
     uint32_t buf_out[SPI_WRITE_BUFFER_LEN], buf_in[SPI_WRITE_BUFFER_LEN];
     int bytes, i, line_count, repeat;
 
     /* check which command spi/spi2/spi3/spi4 is used */
+#if USE_CMD_SPI2
     if( parse_int(argv[0]+3, (int*)&spi_index) )
         spi_index -= 1;
-    else
-        spi_index = 0;
+#endif
     emu_spi_init_structure( &spi_init );
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -778,9 +778,9 @@ err_port:
 #endif
 
 
-/***************************************************************************/
-/* Pulses generator                                                        */
-/***************************************************************************/
+/*************************************************************************/
+/* Pulses generator                                                      */
+/*************************************************************************/
 
 #if USE_CMD_PULSE
 #ifndef CMD_PULSE_PORT
@@ -898,14 +898,14 @@ int cmd_pulse( int argc, char *argv[] )
     uint8_t init=0, deinit=0;
     char *p;
     pulse_cb_t pulse_init;
-    int pulse_index;
+    int pulse_index=0;
     int counter;
  
     /* check which command pulse/pulse2/pulse3/pulse4 is used */
-    if( parse_int(argv[0]+3, (int*)&pulse_index) )
+#if USE_CMD_PULSE2
+    if( parse_int(argv[0]+5, (int*)&pulse_index) )
         pulse_index -= 1;
-    else
-        pulse_index = 0;
+#endif
     emu_pulse_init_structure( &pulse_init );
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -966,9 +966,9 @@ err_port:
 #endif
 
 
-/***************************************************************************/
-/* Dallas 1-wire                                                           */
-/***************************************************************************/
+/*************************************************************************/
+/* Dallas 1-wire                                                         */
+/*************************************************************************/
 
 #if USE_CMD_DS1W
 
@@ -1036,7 +1036,6 @@ int emu_ds1w_reset( int ds1w_index )
 }
 
 
-
 void emu_ds1w_write_bit( int ds1w_index, int val )
 {
     ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
@@ -1102,7 +1101,7 @@ int cmd_ds1w( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'z', "r0", 0, "read bit 0" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'w', shell_str_write, 0, shell_str_write },
+          'w', shell_str_write, "byte", shell_str_write },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           '0', "w0", 0, "write bit 0" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -1113,22 +1112,24 @@ int cmd_ds1w( int argc, char *argv[] )
           'p', shell_str_pin, shell_str_pin, "default 0.0" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'I', shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t reset_set=0, init_set=0;
+    uint8_t reset_set=0, init_set=0, deinit_set=0;
     uint8_t write_set=0, write0_set=0, write1_set=0, read_set=0, read0_set=0;
     char write_byte=0;
     int i;
     char *p;
-    int ds1w_index;
+    int ds1w_index=0;
     ds1w_cb_t ds1w_init;
     
     /* check which command ds1w/ds1w2/ds1w3/ds1w4 is used */
-    if( parse_int(argv[0]+3, (int*)&ds1w_index) )
+#if USE_CMD_DS1W2
+    if( parse_int(argv[0]+4, (int*)&ds1w_index) )
         ds1w_index -= 1;
-    else
-        ds1w_index = 0;
+#endif
     emu_ds1w_init_structure( &ds1w_init );
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -1171,6 +1172,8 @@ int cmd_ds1w( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
                 init_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
+                deinit_set = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -1179,6 +1182,11 @@ int cmd_ds1w( int argc, char *argv[] )
     if( init_set )
     {
         emu_ds1w_init( ds1w_index, &ds1w_init );
+        return 0;
+    }
+    else if( deinit_set )
+    {
+        emu_ds1w_deinit( ds1w_index );
         return 0;
     }
   
@@ -1194,7 +1202,7 @@ int cmd_ds1w( int argc, char *argv[] )
             return 0;
     }
 
-    /* read bit/byte */
+    /* read/write bit/byte */
     if( read0_set )
     {
         shell_printf( "%d\n", emu_ds1w_read_bit(ds1w_index) );
@@ -1205,9 +1213,7 @@ int cmd_ds1w( int argc, char *argv[] )
         shell_printf( "%d\n", emu_ds1w_read_byte(ds1w_index) );
         return 0;
     } 
-
-    /* write byte/bit */
-    if( write0_set )
+    else if( write0_set )
     {
         emu_ds1w_write_bit( ds1w_index, 0 );
         return 0;

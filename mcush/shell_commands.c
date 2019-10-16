@@ -200,7 +200,7 @@ const shell_cmd_t CMD_TAB[] = {
 #endif
 #endif
 #if USE_CMD_DS1W
-{   0, 'D',  "ds1w",  cmd_ds1w, 
+{   0, 0,  "ds1w",  cmd_ds1w, 
     "ds1w control",
     "ds1w [-w|w0|w1|r|z]" },
 #if USE_CMD_DS1W2

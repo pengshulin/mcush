@@ -1,0 +1,16 @@
+#!/bin/bash
+# auto build all sub directories
+# Peng Shulin <trees_peng@163.com> 2019
+set -e
+
+#pushd 
+
+DIRS=`find -type d -name 'build*'`
+
+for dir in $DIRS ; do
+    pushd $dir
+        ./build
+    popd
+done
+
+

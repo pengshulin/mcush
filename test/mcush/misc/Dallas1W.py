@@ -13,28 +13,28 @@ class Dallas1W():
         self.controller = controller
         self.crc = crcmod.predefined.mkPredefinedCrcFun('crc-8-maxim')
         if pin:
-            self.controller.writeCommand('D -I -p%s'% pin)
+            self.controller.writeCommand('ds1w -I -p%s'% pin)
         else:
-            self.controller.writeCommand('D -I')
+            self.controller.writeCommand('ds1w -I')
 
     def readBit( self ):
-        r = self.controller.writeCommand('D -z')
+        r = self.controller.writeCommand('ds1w -z')
         return int(r[0])
 
     def read( self, num=1 ):
         if num == 1:
-            return int(self.controller.writeCommand('D -r')[0])
+            return int(self.controller.writeCommand('ds1w -r')[0])
         else:
             r = []
             for i in range(num):
-                r.append( int(self.controller.writeCommand('D -r')[0]) )
+                r.append( int(self.controller.writeCommand('ds1w -r')[0]) )
             return r
 
     def write0( self ):
-        self.controller.writeCommand('D -0') 
+        self.controller.writeCommand('ds1w -0') 
 
     def write1( self ):
-        self.controller.writeCommand('D -1') 
+        self.controller.writeCommand('ds1w -1') 
 
     def writeBit( self, bit ):
         if bit:
@@ -43,10 +43,10 @@ class Dallas1W():
             self.write0()
 
     def write( self, byte ):
-        self.controller.writeCommand('D -w%d'% byte) 
+        self.controller.writeCommand('ds1w -w%d'% byte) 
 
     def reset( self ):
-        self.controller.writeCommand('D -R') 
+        self.controller.writeCommand('ds1w -R') 
 
     def scan(self):
         result = []
