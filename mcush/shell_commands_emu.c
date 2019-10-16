@@ -966,3 +966,270 @@ err_port:
 #endif
 
 
+/***************************************************************************/
+/* Dallas 1-wire                                                           */
+/***************************************************************************/
+
+#if USE_CMD_DS1W
+
+#ifndef CMD_DS1W_PORT
+#define CMD_DS1W_PORT  0
+#endif
+#ifndef CMD_DS1W_PIN
+#define CMD_DS1W_PIN  0
+#endif
+
+
+#if USE_CMD_DS1W4
+static ds1w_cb_t ds1w_cb[4];
+#elif USE_CMD_DS1W3
+static ds1w_cb_t ds1w_cb[3];
+#elif USE_CMD_DS1W2
+static ds1w_cb_t ds1w_cb[2];
+#else
+static ds1w_cb_t ds1w_cb[1];
+#endif
+
+
+void emu_ds1w_init_structure( ds1w_cb_t *ds1w_init )
+{
+    ds1w_init->port = CMD_DS1W_PORT;
+    ds1w_init->pin = CMD_DS1W_PIN;
+}
+
+
+int emu_ds1w_init( int ds1w_index, ds1w_cb_t *ds1w_init )
+{
+    ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
+
+    ds1w->port = ds1w_init->port;
+    ds1w->pin = ds1w_init->pin;
+    ds1w->pin_bit = 1<<(ds1w_init->pin);
+    hal_gpio_set_output_open_drain( ds1w->port, ds1w->pin_bit ); 
+    hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
+    return 1;
+}
+
+
+void emu_ds1w_deinit( int ds1w_index )
+{
+    ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
+
+    hal_gpio_set_input( ds1w->port, ds1w->pin_bit ); 
+}
+
+
+int emu_ds1w_reset( int ds1w_index )
+{
+    ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
+    int present;
+
+    hal_gpio_clr( ds1w->port, ds1w->pin_bit ); 
+    hal_delay_us( 500 );
+    portENTER_CRITICAL(); 
+    hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
+    hal_delay_us( 60 );
+    present = hal_gpio_get( ds1w->port, ds1w->pin_bit );
+    portEXIT_CRITICAL();
+    hal_delay_us( 300 );
+    return present ? 0 : 1;
+}
+
+
+
+void emu_ds1w_write_bit( int ds1w_index, int val )
+{
+    ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
+
+    portENTER_CRITICAL(); 
+    hal_gpio_clr( ds1w->port, ds1w->pin_bit ); 
+    hal_delay_us( val ? 15 : 60 );
+    hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
+    portEXIT_CRITICAL();
+    hal_delay_us( val ? 45 : 0 );
+}
+
+
+void emu_ds1w_write_byte( int ds1w_index, char byte )
+{
+    int i;
+
+    for( i=0; i<8; i++ )
+    {
+        emu_ds1w_write_bit( ds1w_index, byte & 0x01 );
+        byte >>= 1;
+    }
+}
+
+
+int emu_ds1w_read_bit( int ds1w_index )
+{
+    ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
+    int val;
+
+    portENTER_CRITICAL(); 
+    hal_gpio_clr( ds1w->port, ds1w->pin_bit ); 
+    hal_delay_us( 1 );
+    hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
+    hal_delay_us( 9 );
+    val = hal_gpio_get( ds1w->port, ds1w->pin_bit );
+    portEXIT_CRITICAL();
+    hal_delay_us( 50 );
+    return val ? 1 : 0;
+}
+
+
+char emu_ds1w_read_byte( int ds1w_index )
+{
+    int i;
+    char byte=0;
+    
+    for( i=0; i<8; i++ )
+    {
+        byte >>= 1;
+        if( emu_ds1w_read_bit( ds1w_index ) )
+            byte |= 0x80;
+    }
+    return byte;
+}
+
+
+int cmd_ds1w( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'r', shell_str_read, 0, shell_str_read },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'z', "r0", 0, "read bit 0" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'w', shell_str_write, 0, shell_str_write },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          '0', "w0", 0, "write bit 0" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          '1', "w1", 0, "write bit 1" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'R', shell_str_reset, 0, shell_str_reset },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'p', shell_str_pin, shell_str_pin, "default 0.0" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'I', shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t reset_set=0, init_set=0;
+    uint8_t write_set=0, write0_set=0, write1_set=0, read_set=0, read0_set=0;
+    char write_byte=0;
+    int i;
+    char *p;
+    int ds1w_index;
+    ds1w_cb_t ds1w_init;
+    
+    /* check which command ds1w/ds1w2/ds1w3/ds1w4 is used */
+    if( parse_int(argv[0]+3, (int*)&ds1w_index) )
+        ds1w_index -= 1;
+    else
+        ds1w_index = 0;
+    emu_ds1w_init_structure( &ds1w_init );
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_read ) == 0 )
+                read_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_write ) == 0 )
+            {
+                if( parse_int(opt.value, &i) )
+                {
+                    write_byte = i;
+                    write_set = 1;
+                }
+            }
+            else if( strcmp( opt.spec->name, "w0" ) == 0 )
+                write0_set = 1;
+            else if( strcmp( opt.spec->name, "w1" ) == 0 )
+                write1_set = 1;
+            else if( strcmp( opt.spec->name, "r0" ) == 0 )
+                read0_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_data ) == 0 )
+            {
+                parser.idx--;
+                break;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_reset ) == 0 )
+                reset_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
+            {
+                ds1w_init.port = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
+                    goto err_port;
+                if( *(++p) == 0 )
+                    goto err_port;
+                ds1w_init.pin = strtol( p, &p, 10 );
+                if( p && *p )
+                    goto err_port;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
+                init_set = 1;
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( init_set )
+    {
+        emu_ds1w_init( ds1w_index, &ds1w_init );
+        return 0;
+    }
+  
+    /* bus reset */ 
+    if( reset_set )
+    {
+        if( ! emu_ds1w_reset(ds1w_index) )
+        {
+            shell_write_line("not present");
+            return 1;
+        }
+        else
+            return 0;
+    }
+
+    /* read bit/byte */
+    if( read0_set )
+    {
+        shell_printf( "%d\n", emu_ds1w_read_bit(ds1w_index) );
+        return 0;
+    }
+    else if( read_set )
+    {
+        shell_printf( "%d\n", emu_ds1w_read_byte(ds1w_index) );
+        return 0;
+    } 
+
+    /* write byte/bit */
+    if( write0_set )
+    {
+        emu_ds1w_write_bit( ds1w_index, 0 );
+        return 0;
+    } 
+    else if( write1_set )
+    {
+        emu_ds1w_write_bit( ds1w_index, 1 );
+        return 0;
+    } 
+    else if( write_set )
+    {
+        emu_ds1w_write_byte( ds1w_index, write_byte );
+        return 0;
+    }
+
+    return 1;  /* never run to here, nothing to do? */
+
+err_port:
+    shell_write_err( shell_str_port_bit );
+    return -1;
+}
+
+#endif
+
+

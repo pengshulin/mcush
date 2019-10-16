@@ -25,9 +25,10 @@ extern int cmd_mkbuf( int argc, char *argv[] );
 extern int cmd_power( int argc, char *argv[] );
 extern int cmd_i2c( int argc, char *argv[] );
 extern int cmd_spi( int argc, char *argv[] );
+extern int cmd_pulse( int argc, char *argv[] );
+extern int cmd_ds1w( int argc, char *argv[] );
 extern int cmd_pwm( int argc, char *argv[] );
 extern int cmd_adc( int argc, char *argv[] );
-extern int cmd_pulse( int argc, char *argv[] );
 extern int cmd_rtc( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
 extern int cmd_fatfs( int argc, char *argv[] );
@@ -185,15 +186,35 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_PULSE2
 {   0, 0,  "pulse2",  cmd_pulse, 
     "pulse generator",
-    "sample as pulse" },
+    "same as pulse" },
 #if USE_CMD_PULSE3
 {   0, 0,  "pulse3",  cmd_pulse, 
     "pulse generator",
-    "sample as pulse" },
+    "same as pulse" },
 #if USE_CMD_PULSE4
 {   0, 0,  "pulse4",  cmd_pulse, 
     "pulse generator",
-    "sample as pulse" },
+    "same as pulse" },
+#endif
+#endif
+#endif
+#endif
+#if USE_CMD_DS1W
+{   0, 'D',  "ds1w",  cmd_ds1w, 
+    "ds1w control",
+    "ds1w [-w|w0|w1|r|z]" },
+#if USE_CMD_DS1W2
+{   0, 0,  "ds1w2",  cmd_ds1w, 
+    "ds1w control",
+    "same as ds1w" },
+#if USE_CMD_DS1W3
+{   0, 0,  "ds1w3",  cmd_ds1w, 
+    "ds1w control",
+    "same as ds1w" },
+#if USE_CMD_DS1W4
+{   0, 0,  "ds1w4",  cmd_ds1w, 
+    "ds1w control",
+    "same as ds1w" },
 #endif
 #endif
 #endif

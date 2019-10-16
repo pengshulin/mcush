@@ -177,6 +177,9 @@ extern "C" {
 #ifndef USE_CMD_PULSE
     #define USE_CMD_PULSE  1
 #endif
+#ifndef USE_CMD_DS1W
+    #define USE_CMD_DS1W  1
+#endif
 #ifndef USE_CMD_PWM
     #define USE_CMD_PWM  0
 #endif
@@ -302,7 +305,6 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
 #endif
 
 
-
 #if USE_CMD_PULSE
 typedef struct {
     uint8_t port;
@@ -316,6 +318,24 @@ void emu_pulse_init_structure( pulse_cb_t *pulse_init );
 int emu_pulse_init( int pulse_index, pulse_cb_t *pulse_init );
 void emu_pulse_deinit( int pulse_index );
 int emu_pulse_generate(int pulse_index, int number );
+#endif
+
+
+#if USE_CMD_DS1W
+typedef struct {
+    uint8_t port;
+    uint8_t pin;
+    uint16_t pin_bit;
+} ds1w_cb_t;
+
+void emu_ds1w_init_structure( ds1w_cb_t *ds1w_init );
+int emu_ds1w_init( int ds1w_index, ds1w_cb_t *ds1w_init );
+void emu_ds1w_deinit( int ds1w_index );
+int emu_ds1w_reset( int ds1w_index );
+void emu_ds1w_write_bit( int ds1w_index, int val );
+void emu_ds1w_write_byte( int ds1w_index, char byte );
+int emu_ds1w_read_bit( int ds1w_index );
+char emu_ds1w_read_byte( int ds1w_index );
 #endif
 
 

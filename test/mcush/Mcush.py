@@ -63,6 +63,13 @@ class Mcush( Instrument.SerialInstrument ):
                 cmd += ' -s' if on else ' -c'
             self.writeCommand( cmd )
 
+    def ledSetValue( self, idx, val ):
+        if isinstance(idx, list):
+            for led in dx:
+                self.led( led, on=val )
+        else:
+            self.led( idx, on=val )
+
     def ledOn( self, idx ):
         if isinstance(idx, list):
             for led in dx:
@@ -86,6 +93,7 @@ class Mcush( Instrument.SerialInstrument ):
 
     ledNumber = getLedNumber
     ledNum = getLedNumber
+    ledSetVal = ledSetValue
     ledSet = ledOn
     ledClr = ledOff
     ledReset = ledOff
@@ -588,6 +596,7 @@ class Mcush( Instrument.SerialInstrument ):
                 return addr
             time.sleep(0.1)
  
+    # emulated i2c bus control
     def i2c_init( self, addr, scl=None, sda=None, lsb=None, delay=None ):
         cmd = 'i2c -a0x%X -I' % (addr)
         if scl:
@@ -622,6 +631,7 @@ class Mcush( Instrument.SerialInstrument ):
         else:
             return None
 
+    # emulated spi bus control
     def spi_init( self, sdi=None, sdo=None, sck=None, cs=None, cpol=None, cpha=None, width=None, lsb=None, delay=None ):
         cmd = 'spi -I'
         if sdi:
@@ -673,7 +683,8 @@ class Mcush( Instrument.SerialInstrument ):
             return self.spi( write, read=True )
         else:
             return self.spi( [write], read=True )
- 
+
+    # emulated pulse generator
     def pulse_init( self, pin='0.0', delay_us=None, invert=None ):
         cmd = 'pulse -p%s -I'% pin
         if delay_us is not None:
@@ -703,6 +714,7 @@ class Mcush( Instrument.SerialInstrument ):
 
     pwmInit = pwm_init
 
+    # hal layer pwm control
     def pwm( self, index=None, value=50 ):
         cmd = 'pwm'
         if index is not None:
