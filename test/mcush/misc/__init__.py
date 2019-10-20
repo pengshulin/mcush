@@ -18,4 +18,6 @@ from . import Ws2812
 from . import Motion 
 from . import Dallas1W
 from . import Aosong
+from . import Max6675
+from . import Tm7707
 

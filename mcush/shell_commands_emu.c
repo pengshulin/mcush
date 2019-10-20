@@ -535,11 +535,6 @@ static uint32_t emu_spi_write_single(spi_cb_t *spi, uint32_t dat)
             hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
         else
             hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
-        /* sdo */
-        if( dat & 1<<(spi->lsb ? i : (spi->width-1-i)))
-            hal_gpio_set( spi->port_sdo, spi->pin_sdo_bit );
-        else
-            hal_gpio_clr( spi->port_sdo, spi->pin_sdo_bit );
         /* sdi */
         if( hal_gpio_get( spi->port_sdi, spi->pin_sdi_bit ) )
             ret |= 1<<(spi->lsb ? i : (spi->width-1-i));
@@ -557,12 +552,13 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
     if( spi==0 )
         return 0;
 
-    /* prepare and start CS */
+    /* prepare clock and start CS */
     if( spi->cpol )
         hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
     else
         hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
     hal_gpio_clr( spi->port_cs, spi->pin_cs_bit );
+    hal_delay_us( spi->delay_us );
 
     /* write and read */
     while( bytes-- )
@@ -572,7 +568,11 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
         buf_out++;
     }
 
-    /* end CS */
+    /* end clock and CS */
+    if( spi->cpol )
+        hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
+    else
+        hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
     hal_gpio_set( spi->port_cs, spi->pin_cs_bit );
         
     return 1;

@@ -3182,7 +3182,7 @@ LOAD /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/crt0.o
                                           0x8 (size before relaxing)
                 0x0000000008000130                __exidx_end = .
 
-.text           0x0000000008000130    0x13108
+.text           0x0000000008000130    0x130e8
                 0x0000000008000130                . = ALIGN (0x4)
                 0x0000000008000130                _stext = .
  *(.text*)
@@ -3923,1041 +3923,1040 @@ LOAD /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/crt0.o
                 0x0000000008005788       0xb8 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
                 0x0000000008005788                emu_spi_init
  .text.emu_spi_write
-                0x0000000008005840      0x19c /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008005840      0x178 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
                 0x0000000008005840                emu_spi_write
- .text.cmd_spi  0x00000000080059dc      0x3b4 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
-                0x00000000080059dc                cmd_spi
+ .text.cmd_spi  0x00000000080059b8      0x3b4 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x00000000080059b8                cmd_spi
  .text.cmd_pulse
-                0x0000000008005d90      0x208 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
-                0x0000000008005d90                cmd_pulse
+                0x0000000008005d6c      0x208 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008005d6c                cmd_pulse
  .text.cmd_ds1w
-                0x0000000008005f98      0x38c /home/trees/src/github.mcush/mcush/shell_commands_emu.o
-                0x0000000008005f98                cmd_ds1w
+                0x0000000008005f74      0x38c /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008005f74                cmd_ds1w
  .text.cb_print_file
-                0x0000000008006324       0x2c /home/trees/src/github.mcush/mcush/shell_commands_fs.o
-                0x0000000008006324                cb_print_file
- .text.cmd_cat  0x0000000008006350      0x2a8 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
-                0x0000000008006350                cmd_cat
+                0x0000000008006300       0x2c /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+                0x0000000008006300                cb_print_file
+ .text.cmd_cat  0x000000000800632c      0x2a8 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+                0x000000000800632c                cmd_cat
  .text.cmd_list
-                0x00000000080065f8      0x140 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
-                0x00000000080065f8                cmd_list
+                0x00000000080065d4      0x140 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+                0x00000000080065d4                cmd_list
  .text.cmd_reboot
-                0x0000000008006738        0x8 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x0000000008006738                cmd_reboot
+                0x0000000008006714        0x8 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008006714                cmd_reboot
  .text.cmd_gpio
-                0x0000000008006740      0x434 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x0000000008006740                cmd_gpio
- .text.cmd_led  0x0000000008006b74      0x1b8 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x0000000008006b74                cmd_led
+                0x000000000800671c      0x434 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x000000000800671c                cmd_gpio
+ .text.cmd_led  0x0000000008006b50      0x1b8 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008006b50                cmd_led
  .text.cmd_beep
-                0x0000000008006d2c       0xe0 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x0000000008006d2c                cmd_beep
+                0x0000000008006d08       0xe0 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008006d08                cmd_beep
  .text.cmd_sgpio
-                0x0000000008006e0c      0x2fc /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x0000000008006e0c                cmd_sgpio
- .text.cmd_pwm  0x0000000008007108      0x1c4 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x0000000008007108                cmd_pwm
- *fill*         0x00000000080072cc        0x4 
- .text.cmd_adc  0x00000000080072d0      0x240 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
-                0x00000000080072d0                cmd_adc
+                0x0000000008006de8      0x2fc /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008006de8                cmd_sgpio
+ .text.cmd_pwm  0x00000000080070e4      0x1c4 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x00000000080070e4                cmd_pwm
+ .text.cmd_adc  0x00000000080072a8      0x240 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x00000000080072a8                cmd_adc
  .text.cmd_mapi
-                0x0000000008007510      0x228 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
-                0x0000000008007510                cmd_mapi
+                0x00000000080074e8      0x228 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x00000000080074e8                cmd_mapi
  .text.cmd_mkbuf
-                0x0000000008007738       0x8c /home/trees/src/github.mcush/mcush/shell_commands_mem.o
-                0x0000000008007738                cmd_mkbuf
+                0x0000000008007710       0x8c /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008007710                cmd_mkbuf
  .text.cmd_dump
-                0x00000000080077c4      0x560 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
-                0x00000000080077c4                cmd_dump
+                0x000000000800779c      0x560 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x000000000800779c                cmd_dump
  .text.cmd_write
-                0x0000000008007d24      0x124 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
-                0x0000000008007d24                cmd_write
+                0x0000000008007cfc      0x124 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008007cfc                cmd_write
  .text.cmd_mfill
-                0x0000000008007e48      0x194 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
-                0x0000000008007e48                cmd_mfill
+                0x0000000008007e20      0x194 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008007e20                cmd_mfill
  .text.cmd_scpi_idn
-                0x0000000008007fdc       0x48 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
-                0x0000000008007fdc                cmd_scpi_idn
+                0x0000000008007fb4       0x48 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
+                0x0000000008007fb4                cmd_scpi_idn
  .text.cmd_scpi_rst
-                0x0000000008008024        0xc /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
-                0x0000000008008024                cmd_scpi_rst
+                0x0000000008007ffc        0xc /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
+                0x0000000008007ffc                cmd_scpi_rst
  .text.task_idle_counter_entry
-                0x0000000008008030        0x8 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
-                0x0000000008008030                task_idle_counter_entry
+                0x0000000008008008        0x8 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+                0x0000000008008008                task_idle_counter_entry
  .text.cmd_uptime
-                0x0000000008008038       0x50 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
-                0x0000000008008038                cmd_uptime
+                0x0000000008008010       0x50 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+                0x0000000008008010                cmd_uptime
  .text.cmd_system
-                0x0000000008008088      0x550 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
-                0x0000000008008088                cmd_system
+                0x0000000008008060      0x550 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+                0x0000000008008060                cmd_system
  .text.shell_split_cmdline_into_argvs
-                0x00000000080085d8      0x114 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x00000000080085b0      0x114 /home/trees/src/github.mcush/mcush/shell_core.o
  .text.shell_read
-                0x00000000080086ec       0x60 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x00000000080086ec                shell_read
+                0x00000000080086c4       0x60 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x00000000080086c4                shell_read
  .text.shell_write_char
-                0x000000000800874c       0x2c /home/trees/src/github.mcush/mcush/shell_core.o
-                0x000000000800874c                shell_write_char
+                0x0000000008008724       0x2c /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008724                shell_write_char
  .text.shell_process_char
-                0x0000000008008778      0x610 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008750      0x610 /home/trees/src/github.mcush/mcush/shell_core.o
  .text.shell_write
-                0x0000000008008d88       0x20 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008d88                shell_write
+                0x0000000008008d60       0x20 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008d60                shell_write
  .text.shell_write_str
-                0x0000000008008da8       0x2c /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008da8                shell_write_str
+                0x0000000008008d80       0x2c /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008d80                shell_write_str
  .text.shell_write_line
-                0x0000000008008dd4       0x44 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008dd4                shell_write_line
+                0x0000000008008dac       0x44 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008dac                shell_write_line
  .text.shell_write_err
-                0x0000000008008e18       0x5c /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008e18                shell_write_err
+                0x0000000008008df0       0x5c /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008df0                shell_write_err
  .text.shell_printf
-                0x0000000008008e74       0x44 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008e74                shell_printf
+                0x0000000008008e4c       0x44 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008e4c                shell_printf
  .text.shell_write_hex
-                0x0000000008008eb8        0xc /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008eb8                shell_write_hex
+                0x0000000008008e90        0xc /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008e90                shell_write_hex
  .text.shell_add_cmd_table
-                0x0000000008008ec4       0x3c /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008ec4                shell_add_cmd_table
+                0x0000000008008e9c       0x3c /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008e9c                shell_add_cmd_table
  .text.shell_get_prompt
-                0x0000000008008f00       0x30 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008f00                shell_get_prompt
+                0x0000000008008ed8       0x30 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008ed8                shell_get_prompt
  .text.shell_get_cmd_by_name
-                0x0000000008008f30       0x80 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008f30                shell_get_cmd_by_name
+                0x0000000008008f08       0x80 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008f08                shell_get_cmd_by_name
  .text.shell_print_help
-                0x0000000008008fb0      0x1a4 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008008fb0                shell_print_help
+                0x0000000008008f88      0x1a4 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008008f88                shell_print_help
  .text.shell_init
-                0x0000000008009154       0x28 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008009154                shell_init
+                0x000000000800912c       0x28 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x000000000800912c                shell_init
  .text.shell_read_multi_lines
-                0x000000000800917c      0x21c /home/trees/src/github.mcush/mcush/shell_core.o
-                0x000000000800917c                shell_read_multi_lines
+                0x0000000008009154      0x21c /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008009154                shell_read_multi_lines
  .text.shell_make_16bits_data_buffer
-                0x0000000008009398       0xa8 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008009398                shell_make_16bits_data_buffer
+                0x0000000008009370       0xa8 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008009370                shell_make_16bits_data_buffer
  .text.shell_make_float_data_buffer
-                0x0000000008009440       0xfc /home/trees/src/github.mcush/mcush/shell_core.o
-                0x0000000008009440                shell_make_float_data_buffer
+                0x0000000008009418       0xfc /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008009418                shell_make_float_data_buffer
  .text.shell_run
-                0x000000000800953c      0x278 /home/trees/src/github.mcush/mcush/shell_core.o
-                0x000000000800953c                shell_run
+                0x0000000008009514      0x278 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008009514                shell_run
  .text.vListInitialise
-                0x00000000080097b4       0x18 /home/trees/src/github.mcush/libFreeRTOS/list.o
-                0x00000000080097b4                vListInitialise
+                0x000000000800978c       0x18 /home/trees/src/github.mcush/libFreeRTOS/list.o
+                0x000000000800978c                vListInitialise
  .text.vListInitialiseItem
-                0x00000000080097cc        0x8 /home/trees/src/github.mcush/libFreeRTOS/list.o
-                0x00000000080097cc                vListInitialiseItem
+                0x00000000080097a4        0x8 /home/trees/src/github.mcush/libFreeRTOS/list.o
+                0x00000000080097a4                vListInitialiseItem
  .text.vListInsertEnd
-                0x00000000080097d4       0x18 /home/trees/src/github.mcush/libFreeRTOS/list.o
-                0x00000000080097d4                vListInsertEnd
+                0x00000000080097ac       0x18 /home/trees/src/github.mcush/libFreeRTOS/list.o
+                0x00000000080097ac                vListInsertEnd
  .text.vListInsert
-                0x00000000080097ec       0x34 /home/trees/src/github.mcush/libFreeRTOS/list.o
-                0x00000000080097ec                vListInsert
+                0x00000000080097c4       0x34 /home/trees/src/github.mcush/libFreeRTOS/list.o
+                0x00000000080097c4                vListInsert
  .text.uxListRemove
-                0x0000000008009820       0x28 /home/trees/src/github.mcush/libFreeRTOS/list.o
-                0x0000000008009820                uxListRemove
+                0x00000000080097f8       0x28 /home/trees/src/github.mcush/libFreeRTOS/list.o
+                0x00000000080097f8                uxListRemove
  .text.unlikely.prvCopyDataToQueue
-                0x0000000008009848       0x74 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x0000000008009820       0x74 /home/trees/src/github.mcush/libFreeRTOS/queue.o
  .text.unlikely.prvCopyDataFromQueue
-                0x00000000080098bc       0x28 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x0000000008009894       0x28 /home/trees/src/github.mcush/libFreeRTOS/queue.o
  .text.prvUnlockQueue
-                0x00000000080098e4       0x98 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x00000000080098bc       0x98 /home/trees/src/github.mcush/libFreeRTOS/queue.o
  .text.xQueueGenericReset
-                0x000000000800997c       0x90 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x000000000800997c                xQueueGenericReset
+                0x0000000008009954       0x90 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x0000000008009954                xQueueGenericReset
  .text.xQueueGenericCreate
-                0x0000000008009a0c       0x8c /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x0000000008009a0c                xQueueGenericCreate
+                0x00000000080099e4       0x8c /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x00000000080099e4                xQueueGenericCreate
  .text.xQueueGenericSend
-                0x0000000008009a98      0x2b0 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x0000000008009a98                xQueueGenericSend
+                0x0000000008009a70      0x2b0 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x0000000008009a70                xQueueGenericSend
  .text.xQueueGenericSendFromISR
-                0x0000000008009d48       0xc8 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x0000000008009d48                xQueueGenericSendFromISR
+                0x0000000008009d20       0xc8 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x0000000008009d20                xQueueGenericSendFromISR
  .text.xQueueReceive
-                0x0000000008009e10      0x310 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x0000000008009e10                xQueueReceive
+                0x0000000008009de8      0x310 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x0000000008009de8                xQueueReceive
  .text.xQueueReceiveFromISR
-                0x000000000800a120       0xa0 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x000000000800a120                xQueueReceiveFromISR
+                0x000000000800a0f8       0xa0 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x000000000800a0f8                xQueueReceiveFromISR
  .text.vQueueAddToRegistry
-                0x000000000800a1c0       0x58 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x000000000800a1c0                vQueueAddToRegistry
+                0x000000000800a198       0x58 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x000000000800a198                vQueueAddToRegistry
  .text.vQueueWaitForMessageRestricted
-                0x000000000800a218       0xd0 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x000000000800a218                vQueueWaitForMessageRestricted
+                0x000000000800a1f0       0xd0 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x000000000800a1f0                vQueueWaitForMessageRestricted
  .text.mcushGetQueueRegistered
-                0x000000000800a2e8       0x34 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x000000000800a2e8                mcushGetQueueRegistered
+                0x000000000800a2c0       0x34 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x000000000800a2c0                mcushGetQueueRegistered
  .text.mcushGetQueueInfo
-                0x000000000800a31c       0x24 /home/trees/src/github.mcush/libFreeRTOS/queue.o
-                0x000000000800a31c                mcushGetQueueInfo
+                0x000000000800a2f4       0x24 /home/trees/src/github.mcush/libFreeRTOS/queue.o
+                0x000000000800a2f4                mcushGetQueueInfo
  .text.prvIdleTask
-                0x000000000800a340       0x74 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800a318       0x74 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
  .text.prvAddCurrentTaskToDelayedList
-                0x000000000800a3b4       0x90 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800a38c       0x90 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
  .text.xTaskCreate
-                0x000000000800a444      0x21c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800a444                xTaskCreate
+                0x000000000800a41c      0x21c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800a41c                xTaskCreate
  .text.vTaskDelete
-                0x000000000800a660      0x108 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800a660                vTaskDelete
+                0x000000000800a638      0x108 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800a638                vTaskDelete
  .text.vTaskPrioritySet
-                0x000000000800a768       0xdc /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800a768                vTaskPrioritySet
+                0x000000000800a740       0xdc /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800a740                vTaskPrioritySet
  .text.vTaskStartScheduler
-                0x000000000800a844      0x210 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800a844                vTaskStartScheduler
+                0x000000000800a81c      0x210 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800a81c                vTaskStartScheduler
  .text.vTaskSuspendAll
-                0x000000000800aa54       0x10 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800aa54                vTaskSuspendAll
+                0x000000000800aa2c       0x10 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800aa2c                vTaskSuspendAll
  .text.xTaskGetTickCount
-                0x000000000800aa64        0xc /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800aa64                xTaskGetTickCount
+                0x000000000800aa3c        0xc /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800aa3c                xTaskGetTickCount
  .text.xTaskIncrementTick
-                0x000000000800aa70      0x164 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800aa70                xTaskIncrementTick
+                0x000000000800aa48      0x164 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800aa48                xTaskIncrementTick
  .text.xTaskResumeAll
-                0x000000000800abd4      0x11c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800abd4                xTaskResumeAll
+                0x000000000800abac      0x11c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800abac                xTaskResumeAll
  .text.vTaskDelay
-                0x000000000800acf0       0x4c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800acf0                vTaskDelay
+                0x000000000800acc8       0x4c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800acc8                vTaskDelay
  .text.uxTaskGetSystemState
-                0x000000000800ad3c      0x460 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800ad3c                uxTaskGetSystemState
+                0x000000000800ad14      0x460 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800ad14                uxTaskGetSystemState
  .text.vTaskSwitchContext
-                0x000000000800b19c       0xa4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b19c                vTaskSwitchContext
+                0x000000000800b174       0xa4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b174                vTaskSwitchContext
  .text.vTaskPlaceOnEventList
-                0x000000000800b240       0xa4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b240                vTaskPlaceOnEventList
+                0x000000000800b218       0xa4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b218                vTaskPlaceOnEventList
  .text.vTaskPlaceOnEventListRestricted
-                0x000000000800b2e4       0xc0 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b2e4                vTaskPlaceOnEventListRestricted
+                0x000000000800b2bc       0xc0 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b2bc                vTaskPlaceOnEventListRestricted
  .text.xTaskRemoveFromEventList
-                0x000000000800b3a4       0x88 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b3a4                xTaskRemoveFromEventList
+                0x000000000800b37c       0x88 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b37c                xTaskRemoveFromEventList
  .text.vTaskInternalSetTimeOutState
-                0x000000000800b42c       0x18 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b42c                vTaskInternalSetTimeOutState
+                0x000000000800b404       0x18 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b404                vTaskInternalSetTimeOutState
  .text.xTaskCheckForTimeOut
-                0x000000000800b444       0x98 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b444                xTaskCheckForTimeOut
+                0x000000000800b41c       0x98 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b41c                xTaskCheckForTimeOut
  .text.vTaskMissedYield
-                0x000000000800b4dc        0xc /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b4dc                vTaskMissedYield
+                0x000000000800b4b4        0xc /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b4b4                vTaskMissedYield
  .text.xTaskGetSchedulerState
-                0x000000000800b4e8       0x20 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b4e8                xTaskGetSchedulerState
+                0x000000000800b4c0       0x20 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b4c0                xTaskGetSchedulerState
  .text.xTaskPriorityDisinherit
-                0x000000000800b508       0xb4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b508                xTaskPriorityDisinherit
+                0x000000000800b4e0       0xb4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b4e0                xTaskPriorityDisinherit
  .text.mcushGetTaskStackTop
-                0x000000000800b5bc        0x4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b5bc                mcushGetTaskStackTop
+                0x000000000800b594        0x4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b594                mcushGetTaskStackTop
  .text.mcushGetKernInfo
-                0x000000000800b5c0       0xd8 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b5c0                mcushGetKernInfo
+                0x000000000800b598       0xd8 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b598                mcushGetKernInfo
  .text.mcushGetTaskNameFromTCB
-                0x000000000800b698        0x4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b698                mcushGetTaskNameFromTCB
+                0x000000000800b670        0x4 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b670                mcushGetTaskNameFromTCB
  .text.mcushGetTaskNamesFromTaskList
-                0x000000000800b69c       0x7c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
-                0x000000000800b69c                mcushGetTaskNamesFromTaskList
+                0x000000000800b674       0x7c /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x000000000800b674                mcushGetTaskNamesFromTaskList
  .text.prvSwitchTimerLists
-                0x000000000800b718       0xa0 /home/trees/src/github.mcush/libFreeRTOS/timers.o
+                0x000000000800b6f0       0xa0 /home/trees/src/github.mcush/libFreeRTOS/timers.o
  .text.prvTimerTask
-                0x000000000800b7b8      0x2a4 /home/trees/src/github.mcush/libFreeRTOS/timers.o
+                0x000000000800b790      0x2a4 /home/trees/src/github.mcush/libFreeRTOS/timers.o
  .text.xTimerCreateTimerTask
-                0x000000000800ba5c       0x9c /home/trees/src/github.mcush/libFreeRTOS/timers.o
-                0x000000000800ba5c                xTimerCreateTimerTask
+                0x000000000800ba34       0x9c /home/trees/src/github.mcush/libFreeRTOS/timers.o
+                0x000000000800ba34                xTimerCreateTimerTask
  .text.pvPortMalloc
-                0x000000000800baf8       0x18 /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
-                0x000000000800baf8                pvPortMalloc
+                0x000000000800bad0       0x18 /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
+                0x000000000800bad0                pvPortMalloc
  .text.vPortFree
-                0x000000000800bb10       0x1c /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
-                0x000000000800bb10                vPortFree
+                0x000000000800bae8       0x1c /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
+                0x000000000800bae8                vPortFree
  .text.pvPortRealloc
-                0x000000000800bb2c       0x1c /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
-                0x000000000800bb2c                pvPortRealloc
+                0x000000000800bb04       0x1c /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
+                0x000000000800bb04                pvPortRealloc
  .text.prvTaskExitError
-                0x000000000800bb48       0x40 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bb20       0x40 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
  .text.unlikely.prvPortStartFirstTask
-                0x000000000800bb88       0x20 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bb60       0x20 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
  .text.pxPortInitialiseStack
-                0x000000000800bba8       0x24 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bba8                pxPortInitialiseStack
- *fill*         0x000000000800bbcc        0x4 
+                0x000000000800bb80       0x24 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bb80                pxPortInitialiseStack
+ *fill*         0x000000000800bba4        0xc 
  .text.SVC_Handler
-                0x000000000800bbd0       0x24 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bbd0                SVC_Handler
+                0x000000000800bbb0       0x24 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bbb0                SVC_Handler
  .text.vPortEnterCritical
-                0x000000000800bbf4       0x44 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bbf4                vPortEnterCritical
+                0x000000000800bbd4       0x44 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bbd4                vPortEnterCritical
  .text.vPortExitCritical
-                0x000000000800bc38       0x28 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bc38                vPortExitCritical
+                0x000000000800bc18       0x28 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bc18                vPortExitCritical
  .text.PendSV_Handler
-                0x000000000800bc60       0x44 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bc60                PendSV_Handler
+                0x000000000800bc40       0x44 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bc40                PendSV_Handler
  .text.SysTick_Handler
-                0x000000000800bca4       0x2c /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bca4                SysTick_Handler
+                0x000000000800bc84       0x2c /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bc84                SysTick_Handler
  .text.vPortSetupTimerInterrupt
-                0x000000000800bcd0       0x34 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bcd0                vPortSetupTimerInterrupt
+                0x000000000800bcb0       0x34 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bcb0                vPortSetupTimerInterrupt
  .text.xPortStartScheduler
-                0x000000000800bd04       0xbc /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bd04                xPortStartScheduler
+                0x000000000800bce4       0xbc /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bce4                xPortStartScheduler
  .text.vPortValidateInterruptPriority
-                0x000000000800bdc0       0x5c /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
-                0x000000000800bdc0                vPortValidateInterruptPriority
+                0x000000000800bda0       0x5c /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+                0x000000000800bda0                vPortValidateInterruptPriority
  .text.startup.main
-                0x000000000800be1c       0x10 main.o
-                0x000000000800be1c                main
+                0x000000000800bdfc       0x10 main.o
+                0x000000000800bdfc                main
  .text.cmd_error
-                0x000000000800be2c       0xd4 task_blink.o
-                0x000000000800be2c                cmd_error
+                0x000000000800be0c       0xd4 task_blink.o
+                0x000000000800be0c                cmd_error
  .text.task_blink_entry
-                0x000000000800bf00       0xe4 task_blink.o
-                0x000000000800bf00                task_blink_entry
+                0x000000000800bee0       0xe4 task_blink.o
+                0x000000000800bee0                task_blink_entry
  .text.task_blink_init
-                0x000000000800bfe4       0x40 task_blink.o
-                0x000000000800bfe4                task_blink_init
+                0x000000000800bfc4       0x40 task_blink.o
+                0x000000000800bfc4                task_blink_init
  .text.__signbitf
-                0x000000000800c024        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_signbit.o)
-                0x000000000800c024                __signbitf
+                0x000000000800c004        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_signbit.o)
+                0x000000000800c004                __signbitf
  .text.__fpclassifyf
-                0x000000000800c028       0x34 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-sf_fpclassify.o)
-                0x000000000800c028                __fpclassifyf
- .text.sqrt     0x000000000800c05c       0xac /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
-                0x000000000800c05c                sqrt
+                0x000000000800c008       0x34 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-sf_fpclassify.o)
+                0x000000000800c008                __fpclassifyf
+ .text.sqrt     0x000000000800c03c       0xac /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
+                0x000000000800c03c                sqrt
  .text.__ieee754_sqrt
-                0x000000000800c108      0x18c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-e_sqrt.o)
-                0x000000000800c108                __ieee754_sqrt
+                0x000000000800c0e8      0x18c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-e_sqrt.o)
+                0x000000000800c0e8                __ieee754_sqrt
  .text.__fpclassifyd
-                0x000000000800c294       0x58 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_fpclassify.o)
-                0x000000000800c294                __fpclassifyd
- .text.matherr  0x000000000800c2ec        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_matherr.o)
-                0x000000000800c2ec                matherr
- .text          0x000000000800c2f0      0x370 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubdf3.o)
-                0x000000000800c2f0                __aeabi_drsub
-                0x000000000800c2f8                __aeabi_dsub
-                0x000000000800c2f8                __subdf3
-                0x000000000800c2fc                __adddf3
-                0x000000000800c2fc                __aeabi_dadd
-                0x000000000800c574                __aeabi_ui2d
-                0x000000000800c574                __floatunsidf
-                0x000000000800c594                __floatsidf
-                0x000000000800c594                __aeabi_i2d
-                0x000000000800c5b8                __extendsfdf2
-                0x000000000800c5b8                __aeabi_f2d
-                0x000000000800c5f4                __aeabi_ul2d
-                0x000000000800c5f4                __floatundidf
-                0x000000000800c604                __floatdidf
-                0x000000000800c604                __aeabi_l2d
- .text          0x000000000800c660      0x424 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivdf3.o)
-                0x000000000800c660                __aeabi_dmul
-                0x000000000800c660                __muldf3
-                0x000000000800c8b4                __aeabi_ddiv
-                0x000000000800c8b4                __divdf3
- .text          0x000000000800ca84      0x110 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpdf2.o)
-                0x000000000800ca84                __gtdf2
-                0x000000000800ca84                __gedf2
-                0x000000000800ca8c                __ltdf2
-                0x000000000800ca8c                __ledf2
-                0x000000000800ca94                __cmpdf2
-                0x000000000800ca94                __eqdf2
-                0x000000000800ca94                __nedf2
-                0x000000000800cb10                __aeabi_cdrcmple
-                0x000000000800cb20                __aeabi_cdcmple
-                0x000000000800cb20                __aeabi_cdcmpeq
-                0x000000000800cb30                __aeabi_dcmpeq
-                0x000000000800cb44                __aeabi_dcmplt
-                0x000000000800cb58                __aeabi_dcmple
-                0x000000000800cb6c                __aeabi_dcmpge
-                0x000000000800cb80                __aeabi_dcmpgt
- .text          0x000000000800cb94       0x50 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixdfsi.o)
-                0x000000000800cb94                __fixdfsi
-                0x000000000800cb94                __aeabi_d2iz
- .text          0x000000000800cbe4       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunsdfsi.o)
-                0x000000000800cbe4                __fixunsdfsi
-                0x000000000800cbe4                __aeabi_d2uiz
- .text          0x000000000800cc24       0xa0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_truncdfsf2.o)
-                0x000000000800cc24                __aeabi_d2f
-                0x000000000800cc24                __truncdfsf2
- .text          0x000000000800ccc4      0x21c /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubsf3.o)
-                0x000000000800ccc4                __aeabi_frsub
-                0x000000000800cccc                __subsf3
-                0x000000000800cccc                __aeabi_fsub
-                0x000000000800ccd0                __aeabi_fadd
-                0x000000000800ccd0                __addsf3
-                0x000000000800ce30                __aeabi_ui2f
-                0x000000000800ce30                __floatunsisf
-                0x000000000800ce38                __aeabi_i2f
-                0x000000000800ce38                __floatsisf
-                0x000000000800ce54                __floatundisf
-                0x000000000800ce54                __aeabi_ul2f
-                0x000000000800ce64                __floatdisf
-                0x000000000800ce64                __aeabi_l2f
- .text          0x000000000800cee0      0x2a0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivsf3.o)
-                0x000000000800cee0                __mulsf3
-                0x000000000800cee0                __aeabi_fmul
-                0x000000000800d048                __divsf3
-                0x000000000800d048                __aeabi_fdiv
- .text          0x000000000800d180       0xec /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpsf2.o)
-                0x000000000800d180                __gtsf2
-                0x000000000800d180                __gesf2
-                0x000000000800d188                __lesf2
-                0x000000000800d188                __ltsf2
-                0x000000000800d190                __nesf2
-                0x000000000800d190                __eqsf2
-                0x000000000800d190                __cmpsf2
-                0x000000000800d1f0                __aeabi_cfrcmple
-                0x000000000800d1f8                __aeabi_cfcmple
-                0x000000000800d1f8                __aeabi_cfcmpeq
-                0x000000000800d208                __aeabi_fcmpeq
-                0x000000000800d21c                __aeabi_fcmplt
-                0x000000000800d230                __aeabi_fcmple
-                0x000000000800d244                __aeabi_fcmpge
-                0x000000000800d258                __aeabi_fcmpgt
- .text          0x000000000800d26c       0x4c /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixsfsi.o)
-                0x000000000800d26c                __fixsfsi
-                0x000000000800d26c                __aeabi_f2iz
- .text          0x000000000800d2b8       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunssfsi.o)
-                0x000000000800d2b8                __aeabi_f2uiz
-                0x000000000800d2b8                __fixunssfsi
+                0x000000000800c274       0x58 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_fpclassify.o)
+                0x000000000800c274                __fpclassifyd
+ .text.matherr  0x000000000800c2cc        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_matherr.o)
+                0x000000000800c2cc                matherr
+ .text          0x000000000800c2d0      0x370 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubdf3.o)
+                0x000000000800c2d0                __aeabi_drsub
+                0x000000000800c2d8                __aeabi_dsub
+                0x000000000800c2d8                __subdf3
+                0x000000000800c2dc                __adddf3
+                0x000000000800c2dc                __aeabi_dadd
+                0x000000000800c554                __aeabi_ui2d
+                0x000000000800c554                __floatunsidf
+                0x000000000800c574                __floatsidf
+                0x000000000800c574                __aeabi_i2d
+                0x000000000800c598                __extendsfdf2
+                0x000000000800c598                __aeabi_f2d
+                0x000000000800c5d4                __aeabi_ul2d
+                0x000000000800c5d4                __floatundidf
+                0x000000000800c5e4                __floatdidf
+                0x000000000800c5e4                __aeabi_l2d
+ .text          0x000000000800c640      0x424 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivdf3.o)
+                0x000000000800c640                __aeabi_dmul
+                0x000000000800c640                __muldf3
+                0x000000000800c894                __aeabi_ddiv
+                0x000000000800c894                __divdf3
+ .text          0x000000000800ca64      0x110 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpdf2.o)
+                0x000000000800ca64                __gtdf2
+                0x000000000800ca64                __gedf2
+                0x000000000800ca6c                __ltdf2
+                0x000000000800ca6c                __ledf2
+                0x000000000800ca74                __cmpdf2
+                0x000000000800ca74                __eqdf2
+                0x000000000800ca74                __nedf2
+                0x000000000800caf0                __aeabi_cdrcmple
+                0x000000000800cb00                __aeabi_cdcmple
+                0x000000000800cb00                __aeabi_cdcmpeq
+                0x000000000800cb10                __aeabi_dcmpeq
+                0x000000000800cb24                __aeabi_dcmplt
+                0x000000000800cb38                __aeabi_dcmple
+                0x000000000800cb4c                __aeabi_dcmpge
+                0x000000000800cb60                __aeabi_dcmpgt
+ .text          0x000000000800cb74       0x50 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixdfsi.o)
+                0x000000000800cb74                __fixdfsi
+                0x000000000800cb74                __aeabi_d2iz
+ .text          0x000000000800cbc4       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunsdfsi.o)
+                0x000000000800cbc4                __fixunsdfsi
+                0x000000000800cbc4                __aeabi_d2uiz
+ .text          0x000000000800cc04       0xa0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_truncdfsf2.o)
+                0x000000000800cc04                __aeabi_d2f
+                0x000000000800cc04                __truncdfsf2
+ .text          0x000000000800cca4      0x21c /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubsf3.o)
+                0x000000000800cca4                __aeabi_frsub
+                0x000000000800ccac                __subsf3
+                0x000000000800ccac                __aeabi_fsub
+                0x000000000800ccb0                __aeabi_fadd
+                0x000000000800ccb0                __addsf3
+                0x000000000800ce10                __aeabi_ui2f
+                0x000000000800ce10                __floatunsisf
+                0x000000000800ce18                __aeabi_i2f
+                0x000000000800ce18                __floatsisf
+                0x000000000800ce34                __floatundisf
+                0x000000000800ce34                __aeabi_ul2f
+                0x000000000800ce44                __floatdisf
+                0x000000000800ce44                __aeabi_l2f
+ .text          0x000000000800cec0      0x2a0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivsf3.o)
+                0x000000000800cec0                __mulsf3
+                0x000000000800cec0                __aeabi_fmul
+                0x000000000800d028                __divsf3
+                0x000000000800d028                __aeabi_fdiv
+ .text          0x000000000800d160       0xec /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpsf2.o)
+                0x000000000800d160                __gtsf2
+                0x000000000800d160                __gesf2
+                0x000000000800d168                __lesf2
+                0x000000000800d168                __ltsf2
+                0x000000000800d170                __nesf2
+                0x000000000800d170                __eqsf2
+                0x000000000800d170                __cmpsf2
+                0x000000000800d1d0                __aeabi_cfrcmple
+                0x000000000800d1d8                __aeabi_cfcmple
+                0x000000000800d1d8                __aeabi_cfcmpeq
+                0x000000000800d1e8                __aeabi_fcmpeq
+                0x000000000800d1fc                __aeabi_fcmplt
+                0x000000000800d210                __aeabi_fcmple
+                0x000000000800d224                __aeabi_fcmpge
+                0x000000000800d238                __aeabi_fcmpgt
+ .text          0x000000000800d24c       0x4c /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixsfsi.o)
+                0x000000000800d24c                __fixsfsi
+                0x000000000800d24c                __aeabi_f2iz
+ .text          0x000000000800d298       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunssfsi.o)
+                0x000000000800d298                __aeabi_f2uiz
+                0x000000000800d298                __fixunssfsi
  .text._calloc_r
-                0x000000000800d2f8       0x60 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-callocr.o)
-                0x000000000800d2f8                _calloc_r
- .text.__errno  0x000000000800d358        0xc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-errno.o)
-                0x000000000800d358                __errno
- .text.malloc   0x000000000800d364       0x10 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
-                0x000000000800d364                malloc
- .text.free     0x000000000800d374       0x10 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
-                0x000000000800d374                free
+                0x000000000800d2d8       0x60 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-callocr.o)
+                0x000000000800d2d8                _calloc_r
+ .text.__errno  0x000000000800d338        0xc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-errno.o)
+                0x000000000800d338                __errno
+ .text.malloc   0x000000000800d344       0x10 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
+                0x000000000800d344                malloc
+ .text.free     0x000000000800d354       0x10 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
+                0x000000000800d354                free
  .text._malloc_r
-                0x000000000800d384      0x50c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallocr.o)
-                0x000000000800d384                _malloc_r
- .text          0x000000000800d890       0xec /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memcpy.o)
-                0x000000000800d890                memcpy
- .text.memmove  0x000000000800d97c       0xc8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memmove.o)
-                0x000000000800d97c                memmove
+                0x000000000800d364      0x50c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallocr.o)
+                0x000000000800d364                _malloc_r
+ .text          0x000000000800d870       0xec /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memcpy.o)
+                0x000000000800d870                memcpy
+ .text.memmove  0x000000000800d95c       0xc8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memmove.o)
+                0x000000000800d95c                memmove
  .text.__malloc_lock
-                0x000000000800da44        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
-                0x000000000800da44                __malloc_lock
+                0x000000000800da24        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
+                0x000000000800da24                __malloc_lock
  .text.__malloc_unlock
-                0x000000000800da48        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
-                0x000000000800da48                __malloc_unlock
+                0x000000000800da28        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
+                0x000000000800da28                __malloc_unlock
  .text.mallinfo
-                0x000000000800da4c       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mstats.o)
-                0x000000000800da4c                mallinfo
- .text.realloc  0x000000000800da60       0x10 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-realloc.o)
-                0x000000000800da60                realloc
+                0x000000000800da2c       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mstats.o)
+                0x000000000800da2c                mallinfo
+ .text.realloc  0x000000000800da40       0x10 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-realloc.o)
+                0x000000000800da40                realloc
  .text._realloc_r
-                0x000000000800da70      0x3e0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reallocr.o)
-                0x000000000800da70                _realloc_r
- .text._sbrk_r  0x000000000800de50       0x24 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sbrkr.o)
-                0x000000000800de50                _sbrk_r
- .text.stpcpy   0x000000000800de74       0x4c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-stpcpy.o)
-                0x000000000800de74                stpcpy
- .text.strcat   0x000000000800dec0       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcat.o)
-                0x000000000800dec0                strcat
- .text          0x000000000800df00      0x1bc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcmp.o)
-                0x000000000800df00                strcmp
- .text.strcpy   0x000000000800e0bc       0xbc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcpy.o)
-                0x000000000800e0bc                strcpy
- .text.strlen   0x000000000800e178       0x5c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strlen.o)
-                0x000000000800e178                strlen
- .text.strncmp  0x000000000800e1d4       0x94 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strncmp.o)
-                0x000000000800e1d4                strncmp
- .text.strrchr  0x000000000800e268       0x24 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strrchr.o)
-                0x000000000800e268                strrchr
- .text.sulp     0x000000000800e28c       0x44 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x000000000800da50      0x3e0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reallocr.o)
+                0x000000000800da50                _realloc_r
+ .text._sbrk_r  0x000000000800de30       0x24 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sbrkr.o)
+                0x000000000800de30                _sbrk_r
+ .text.stpcpy   0x000000000800de54       0x4c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-stpcpy.o)
+                0x000000000800de54                stpcpy
+ .text.strcat   0x000000000800dea0       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcat.o)
+                0x000000000800dea0                strcat
+ .text          0x000000000800dee0      0x1bc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcmp.o)
+                0x000000000800dee0                strcmp
+ .text.strcpy   0x000000000800e09c       0xbc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcpy.o)
+                0x000000000800e09c                strcpy
+ .text.strlen   0x000000000800e158       0x5c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strlen.o)
+                0x000000000800e158                strlen
+ .text.strncmp  0x000000000800e1b4       0x94 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strncmp.o)
+                0x000000000800e1b4                strncmp
+ .text.strrchr  0x000000000800e248       0x24 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strrchr.o)
+                0x000000000800e248                strrchr
+ .text.sulp     0x000000000800e26c       0x44 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
  .text._strtod_r
-                0x000000000800e2d0      0xf30 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
-                0x000000000800e2d0                _strtod_r
- .text.strtof   0x000000000800f200       0x30 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
-                0x000000000800f200                strtof
+                0x000000000800e2b0      0xf30 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x000000000800e2b0                _strtod_r
+ .text.strtof   0x000000000800f1e0       0x30 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x000000000800f1e0                strtof
  .text._strtol_r
-                0x000000000800f230      0x11c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
-                0x000000000800f230                _strtol_r
- .text.strtol   0x000000000800f34c       0x18 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
-                0x000000000800f34c                strtol
- .text.strtoll  0x000000000800f364       0x18 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll.o)
-                0x000000000800f364                strtoll
+                0x000000000800f210      0x11c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
+                0x000000000800f210                _strtol_r
+ .text.strtol   0x000000000800f32c       0x18 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
+                0x000000000800f32c                strtol
+ .text.strtoll  0x000000000800f344       0x18 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll.o)
+                0x000000000800f344                strtoll
  .text._strtoll_r
-                0x000000000800f37c      0x1cc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll_r.o)
-                0x000000000800f37c                _strtoll_r
+                0x000000000800f35c      0x1cc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll_r.o)
+                0x000000000800f35c                _strtoll_r
  .text._malloc_trim_r
-                0x000000000800f548       0x9c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
-                0x000000000800f548                _malloc_trim_r
- .text._free_r  0x000000000800f5e4      0x1b0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
-                0x000000000800f5e4                _free_r
- .text.rshift   0x000000000800f794       0xa0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
+                0x000000000800f528       0x9c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
+                0x000000000800f528                _malloc_trim_r
+ .text._free_r  0x000000000800f5c4      0x1b0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
+                0x000000000800f5c4                _free_r
+ .text.rshift   0x000000000800f774       0xa0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
  .text.__gethex
-                0x000000000800f834      0x514 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
-                0x000000000800f834                __gethex
+                0x000000000800f814      0x514 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
+                0x000000000800f814                __gethex
  .text.__hexnan
-                0x000000000800fd48      0x184 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-hexnan.o)
-                0x000000000800fd48                __hexnan
+                0x000000000800fd28      0x184 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-hexnan.o)
+                0x000000000800fd28                __hexnan
  .text._localeconv_r
-                0x000000000800fecc        0x8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
-                0x000000000800fecc                _localeconv_r
+                0x000000000800feac        0x8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
+                0x000000000800feac                _localeconv_r
  .text.__malloc_update_mallinfo
-                0x000000000800fed4       0x58 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
-                0x000000000800fed4                __malloc_update_mallinfo
+                0x000000000800feb4       0x58 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
+                0x000000000800feb4                __malloc_update_mallinfo
  .text._mallinfo_r
-                0x000000000800ff2c       0x34 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
-                0x000000000800ff2c                _mallinfo_r
- .text._Balloc  0x000000000800ff60       0x50 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x000000000800ff60                _Balloc
- .text._Bfree   0x000000000800ffb0       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x000000000800ffb0                _Bfree
+                0x000000000800ff0c       0x34 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
+                0x000000000800ff0c                _mallinfo_r
+ .text._Balloc  0x000000000800ff40       0x50 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x000000000800ff40                _Balloc
+ .text._Bfree   0x000000000800ff90       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x000000000800ff90                _Bfree
  .text.__multadd
-                0x000000000800ffc4       0x84 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x000000000800ffc4                __multadd
- .text.__s2b    0x0000000008010048       0x98 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010048                __s2b
+                0x000000000800ffa4       0x84 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x000000000800ffa4                __multadd
+ .text.__s2b    0x0000000008010028       0x98 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010028                __s2b
  .text.__hi0bits
-                0x00000000080100e0       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x00000000080100e0                __hi0bits
+                0x00000000080100c0       0x40 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x00000000080100c0                __hi0bits
  .text.__lo0bits
-                0x0000000008010120       0x5c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010120                __lo0bits
- .text.__i2b    0x000000000801017c       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x000000000801017c                __i2b
+                0x0000000008010100       0x5c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010100                __lo0bits
+ .text.__i2b    0x000000000801015c       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x000000000801015c                __i2b
  .text.__multiply
-                0x0000000008010190      0x140 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010190                __multiply
+                0x0000000008010170      0x140 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010170                __multiply
  .text.__pow5mult
-                0x00000000080102d0       0xa0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x00000000080102d0                __pow5mult
+                0x00000000080102b0       0xa0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x00000000080102b0                __pow5mult
  .text.__lshift
-                0x0000000008010370       0xb0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010370                __lshift
- .text.__mcmp   0x0000000008010420       0x48 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010420                __mcmp
- .text.__mdiff  0x0000000008010468       0xe4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010468                __mdiff
- .text.__ulp    0x000000000801054c       0x44 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x000000000801054c                __ulp
- .text.__b2d    0x0000000008010590       0xd0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010590                __b2d
- .text.__d2b    0x0000000008010660       0xa8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010660                __d2b
- .text.__ratio  0x0000000008010708       0x58 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010708                __ratio
+                0x0000000008010350       0xb0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010350                __lshift
+ .text.__mcmp   0x0000000008010400       0x48 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010400                __mcmp
+ .text.__mdiff  0x0000000008010448       0xe4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010448                __mdiff
+ .text.__ulp    0x000000000801052c       0x44 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x000000000801052c                __ulp
+ .text.__b2d    0x0000000008010570       0xd0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010570                __b2d
+ .text.__d2b    0x0000000008010640       0xa8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010640                __d2b
+ .text.__ratio  0x00000000080106e8       0x58 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x00000000080106e8                __ratio
  .text.__copybits
-                0x0000000008010760       0x48 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008010760                __copybits
+                0x0000000008010740       0x48 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010740                __copybits
  .text.__any_on
-                0x00000000080107a8       0x5c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x00000000080107a8                __any_on
- .text.nanf     0x0000000008010804        0x8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sf_nan.o)
-                0x0000000008010804                nanf
- .text.strchr   0x000000000801080c       0xcc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strchr.o)
-                0x000000000801080c                strchr
- .text          0x00000000080108d8       0x30 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_aeabi_uldivmod.o)
-                0x00000000080108d8                __aeabi_uldivmod
- .text          0x0000000008010908       0x60 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(bpabi.o)
-                0x0000000008010908                __gnu_ldivmod_helper
-                0x0000000008010938                __gnu_uldivmod_helper
- .text          0x0000000008010968        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_dvmd_tls.o)
-                0x0000000008010968                __aeabi_ldiv0
-                0x0000000008010968                __aeabi_idiv0
- .text          0x000000000801096c      0x2ac /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
-                0x000000000801096c                __divdi3
- .text          0x0000000008010c18      0x270 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
-                0x0000000008010c18                __udivdi3
+                0x0000000008010788       0x5c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008010788                __any_on
+ .text.nanf     0x00000000080107e4        0x8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sf_nan.o)
+                0x00000000080107e4                nanf
+ .text.strchr   0x00000000080107ec       0xcc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strchr.o)
+                0x00000000080107ec                strchr
+ .text          0x00000000080108b8       0x30 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_aeabi_uldivmod.o)
+                0x00000000080108b8                __aeabi_uldivmod
+ .text          0x00000000080108e8       0x60 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(bpabi.o)
+                0x00000000080108e8                __gnu_ldivmod_helper
+                0x0000000008010918                __gnu_uldivmod_helper
+ .text          0x0000000008010948        0x4 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_dvmd_tls.o)
+                0x0000000008010948                __aeabi_ldiv0
+                0x0000000008010948                __aeabi_idiv0
+ .text          0x000000000801094c      0x2ac /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
+                0x000000000801094c                __divdi3
+ .text          0x0000000008010bf8      0x270 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
+                0x0000000008010bf8                __udivdi3
  *(.rodata*)
  .rodata.str1.4
-                0x0000000008010e88        0x2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-impure.o)
+                0x0000000008010e68        0x2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-impure.o)
                                           0x4 (size before relaxing)
- *fill*         0x0000000008010e8a        0x2 
+ *fill*         0x0000000008010e6a        0x2 
  .rodata.led_pins
-                0x0000000008010e8c        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/common/hal_led.o
-                0x0000000008010e8c                led_pins
+                0x0000000008010e6c        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/common/hal_led.o
+                0x0000000008010e6c                led_pins
  .rodata.led_ports
-                0x0000000008010e90        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/common/hal_led.o
-                0x0000000008010e90                led_ports
+                0x0000000008010e70        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/common/hal_led.o
+                0x0000000008010e70                led_ports
  .rodata._adc_pins
-                0x0000000008010e94        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_adc.o
+                0x0000000008010e74        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_adc.o
  .rodata._adc_ports
-                0x0000000008010e98        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_adc.o
- .rodata.ports  0x0000000008010e9c       0x1c /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_gpio.o
-                0x0000000008010e9c                ports
+                0x0000000008010e78        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_adc.o
+ .rodata.ports  0x0000000008010e7c       0x1c /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_gpio.o
+                0x0000000008010e7c                ports
  .rodata._pwm_pins
-                0x0000000008010eb8        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
+                0x0000000008010e98        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
  .rodata._pwm_oc_setcmp
-                0x0000000008010ebc       0x10 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
+                0x0000000008010e9c       0x10 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
  .rodata._pwm_oc_init
-                0x0000000008010ecc       0x10 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
+                0x0000000008010eac       0x10 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
  .rodata._pwm_ports
-                0x0000000008010edc        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
+                0x0000000008010ebc        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/hal_pwm.o
  .rodata.Virtual_Com_Port_StringVendor
-                0x0000000008010ee0       0x3a /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
-                0x0000000008010ee0                Virtual_Com_Port_StringVendor
- *fill*         0x0000000008010f1a        0x2 
+                0x0000000008010ec0       0x3a /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
+                0x0000000008010ec0                Virtual_Com_Port_StringVendor
+ *fill*         0x0000000008010efa        0x2 
  .rodata.Virtual_Com_Port_DeviceDescriptor
-                0x0000000008010f1c       0x12 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
-                0x0000000008010f1c                Virtual_Com_Port_DeviceDescriptor
- *fill*         0x0000000008010f2e        0x2 
+                0x0000000008010efc       0x12 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
+                0x0000000008010efc                Virtual_Com_Port_DeviceDescriptor
+ *fill*         0x0000000008010f0e        0x2 
  .rodata.Virtual_Com_Port_StringLangID
-                0x0000000008010f30        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
-                0x0000000008010f30                Virtual_Com_Port_StringLangID
+                0x0000000008010f10        0x4 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
+                0x0000000008010f10                Virtual_Com_Port_StringLangID
  .rodata.Virtual_Com_Port_StringProduct
-                0x0000000008010f34       0x14 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
-                0x0000000008010f34                Virtual_Com_Port_StringProduct
+                0x0000000008010f14       0x14 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
+                0x0000000008010f14                Virtual_Com_Port_StringProduct
  .rodata.Virtual_Com_Port_ConfigDescriptor
-                0x0000000008010f48       0x43 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
-                0x0000000008010f48                Virtual_Com_Port_ConfigDescriptor
- *fill*         0x0000000008010f8b        0x1 
+                0x0000000008010f28       0x43 /home/trees/src/github.mcush/halstm32f103cb_tiny_controller/std/vcp/usb_desc.o
+                0x0000000008010f28                Virtual_Com_Port_ConfigDescriptor
+ *fill*         0x0000000008010f6b        0x1 
  .rodata.encoding.4123
-                0x0000000008010f8c       0x41 /home/trees/src/github.mcush/mcush/mcush_base64.o
- *fill*         0x0000000008010fcd        0x3 
+                0x0000000008010f6c       0x41 /home/trees/src/github.mcush/mcush/mcush_base64.o
+ *fill*         0x0000000008010fad        0x3 
  .rodata.decoding.4151
-                0x0000000008010fd0       0x50 /home/trees/src/github.mcush/mcush/mcush_base64.o
+                0x0000000008010fb0       0x50 /home/trees/src/github.mcush/mcush/mcush_base64.o
  .rodata.str1.4
-                0x0000000008011020       0x28 /home/trees/src/github.mcush/mcush/mcush_lib.o
+                0x0000000008011000       0x28 /home/trees/src/github.mcush/mcush/mcush_lib.o
  .rodata.str1.4
-                0x0000000008011048       0xb8 /home/trees/src/github.mcush/mcush/mcush_opt.o
+                0x0000000008011028       0xb8 /home/trees/src/github.mcush/mcush/mcush_opt.o
                                          0xc0 (size before relaxing)
  .rodata.str1.4
-                0x0000000008011100        0x7 /home/trees/src/github.mcush/mcush/mcush_printf2.o
- *fill*         0x0000000008011107        0x1 
+                0x00000000080110e0        0x7 /home/trees/src/github.mcush/mcush/mcush_printf2.o
+ *fill*         0x00000000080110e7        0x1 
  .rodata.round_nums
-                0x0000000008011108       0x78 /home/trees/src/github.mcush/mcush/mcush_printf2.o
+                0x00000000080110e8       0x78 /home/trees/src/github.mcush/mcush/mcush_printf2.o
  .rodata.str1.4
-                0x0000000008011180        0x7 /home/trees/src/github.mcush/mcush/mcush_task.o
+                0x0000000008011160        0x7 /home/trees/src/github.mcush/mcush/mcush_task.o
                                           0xb (size before relaxing)
- *fill*         0x0000000008011187        0x1 
+ *fill*         0x0000000008011167        0x1 
  .rodata.mcush_romfs_driver
-                0x0000000008011188       0x40 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
-                0x0000000008011188                mcush_romfs_driver
+                0x0000000008011168       0x40 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
+                0x0000000008011168                mcush_romfs_driver
  .rodata.str1.4
-                0x00000000080111c8       0x12 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
- *fill*         0x00000000080111da        0x2 
+                0x00000000080111a8       0x12 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
+ *fill*         0x00000000080111ba        0x2 
  .rodata.file_readme
-                0x00000000080111dc       0x58 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
-                0x00000000080111dc                file_readme
+                0x00000000080111bc       0x58 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
+                0x00000000080111bc                file_readme
  .rodata.romfs_tab
-                0x0000000008011234       0x24 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
-                0x0000000008011234                romfs_tab
+                0x0000000008011214       0x24 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
+                0x0000000008011214                romfs_tab
  .rodata.opt_spec.9896
-                0x0000000008011258       0x20 /home/trees/src/github.mcush/mcush/shell_commands.o
+                0x0000000008011238       0x20 /home/trees/src/github.mcush/mcush/shell_commands.o
  .rodata.str1.4
-                0x0000000008011278      0x4d8 /home/trees/src/github.mcush/mcush/shell_commands.o
+                0x0000000008011258      0x4d8 /home/trees/src/github.mcush/mcush/shell_commands.o
                                         0x4f8 (size before relaxing)
  .rodata.opt_spec.9859
-                0x0000000008011750       0x30 /home/trees/src/github.mcush/mcush/shell_commands.o
+                0x0000000008011730       0x30 /home/trees/src/github.mcush/mcush/shell_commands.o
  .rodata.CMD_TAB
-                0x0000000008011780      0x21c /home/trees/src/github.mcush/mcush/shell_commands.o
-                0x0000000008011780                CMD_TAB
+                0x0000000008011760      0x21c /home/trees/src/github.mcush/mcush/shell_commands.o
+                0x0000000008011760                CMD_TAB
  .rodata.opt_spec.9872
-                0x000000000801199c       0x40 /home/trees/src/github.mcush/mcush/shell_commands.o
+                0x000000000801197c       0x40 /home/trees/src/github.mcush/mcush/shell_commands.o
  .rodata.opt_spec.9989
-                0x00000000080119dc       0xa0 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x00000000080119bc       0xa0 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
  .rodata.str1.4
-                0x0000000008011a7c      0x1a3 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008011a5c      0x1a3 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
                                         0x1af (size before relaxing)
- *fill*         0x0000000008011c1f        0x1 
+ *fill*         0x0000000008011bff        0x1 
  .rodata.opt_spec.9811
-                0x0000000008011c20       0xb0 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008011c00       0xb0 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
  .rodata.opt_spec.9875
-                0x0000000008011cd0       0xe0 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008011cb0       0xe0 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
  .rodata.opt_spec.9928
-                0x0000000008011db0       0x70 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+                0x0000000008011d90       0x70 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
  .rodata.opt_spec.9799
-                0x0000000008011e20       0x20 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+                0x0000000008011e00       0x20 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
  .rodata.str1.4
-                0x0000000008011e40       0x8f /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+                0x0000000008011e20       0x8f /home/trees/src/github.mcush/mcush/shell_commands_fs.o
                                          0x97 (size before relaxing)
- *fill*         0x0000000008011ecf        0x1 
+ *fill*         0x0000000008011eaf        0x1 
  .rodata.opt_spec.9755
-                0x0000000008011ed0       0x60 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+                0x0000000008011eb0       0x60 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
  .rodata.opt_spec.9827
-                0x0000000008011f30       0x30 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008011f10       0x30 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
  .rodata.opt_spec.9839
-                0x0000000008011f60       0xa0 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008011f40       0xa0 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
  .rodata.opt_spec.9795
-                0x0000000008012000       0x70 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008011fe0       0x70 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
  .rodata.opt_spec.9863
-                0x0000000008012070       0x80 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008012050       0x80 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
  .rodata.str1.4
-                0x00000000080120f0      0x297 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x00000000080120d0      0x297 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
                                         0x2c3 (size before relaxing)
- *fill*         0x0000000008012387        0x1 
+ *fill*         0x0000000008012367        0x1 
  .rodata.opt_spec.9752
-                0x0000000008012388       0xb0 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+                0x0000000008012368       0xb0 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
  .rodata.opt_spec.9831
-                0x0000000008012438       0x80 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008012418       0x80 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
  .rodata.opt_spec.9938
-                0x00000000080124b8       0x40 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008012498       0x40 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
  .rodata.opt_spec.9958
-                0x00000000080124f8       0x60 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x00000000080124d8       0x60 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
  .rodata.str1.4
-                0x0000000008012558      0x1fc /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008012538      0x1fc /home/trees/src/github.mcush/mcush/shell_commands_mem.o
                                         0x214 (size before relaxing)
  .rodata.opt_spec.9864
-                0x0000000008012754       0x20 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008012734       0x20 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
  .rodata.opt_spec.9877
-                0x0000000008012774       0x90 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+                0x0000000008012754       0x90 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
  .rodata.str1.4
-                0x0000000008012804        0x4 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
+                0x00000000080127e4        0x4 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
  .rodata.str1.4
-                0x0000000008012808      0x322 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+                0x00000000080127e8      0x322 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
                                         0x32e (size before relaxing)
- *fill*         0x0000000008012b2a        0x2 
+ *fill*         0x0000000008012b0a        0x2 
  .rodata.opt_spec.9747
-                0x0000000008012b2c       0x10 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+                0x0000000008012b0c       0x10 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
  .rodata.opt_spec.9763
-                0x0000000008012b3c       0x20 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+                0x0000000008012b1c       0x20 /home/trees/src/github.mcush/mcush/shell_commands_sys.o
  .rodata.str1.4
-                0x0000000008012b5c       0x46 /home/trees/src/github.mcush/mcush/shell_core.o
+                0x0000000008012b3c       0x46 /home/trees/src/github.mcush/mcush/shell_core.o
                                          0x6a (size before relaxing)
- *fill*         0x0000000008012ba2        0x2 
+ *fill*         0x0000000008012b82        0x2 
  .rodata.shell_str_read
-                0x0000000008012ba4        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012ba4                shell_str_read
- *fill*         0x0000000008012ba9        0x3 
+                0x0000000008012b84        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012b84                shell_str_read
+ *fill*         0x0000000008012b89        0x3 
  .rodata.shell_str_info
-                0x0000000008012bac        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bac                shell_str_info
- *fill*         0x0000000008012bb1        0x3 
+                0x0000000008012b8c        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012b8c                shell_str_info
+ *fill*         0x0000000008012b91        0x3 
  .rodata.shell_str_invert
-                0x0000000008012bb4        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bb4                shell_str_invert
- *fill*         0x0000000008012bbb        0x1 
+                0x0000000008012b94        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012b94                shell_str_invert
+ *fill*         0x0000000008012b9b        0x1 
  .rodata.shell_str_address
-                0x0000000008012bbc        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bbc                shell_str_address
+                0x0000000008012b9c        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012b9c                shell_str_address
  .rodata.shell_str_length
-                0x0000000008012bc4        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bc4                shell_str_length
- *fill*         0x0000000008012bcb        0x1 
+                0x0000000008012ba4        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012ba4                shell_str_length
+ *fill*         0x0000000008012bab        0x1 
  .rodata.shell_str_path
-                0x0000000008012bcc        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bcc                shell_str_path
- *fill*         0x0000000008012bd1        0x3 
+                0x0000000008012bac        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bac                shell_str_path
+ *fill*         0x0000000008012bb1        0x3 
  .rodata.shell_str_setting
-                0x0000000008012bd4        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bd4                shell_str_setting
+                0x0000000008012bb4        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bb4                shell_str_setting
  .rodata.shell_str_width
-                0x0000000008012bdc        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bdc                shell_str_width
- *fill*         0x0000000008012be2        0x2 
+                0x0000000008012bbc        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bbc                shell_str_width
+ *fill*         0x0000000008012bc2        0x2 
  .rodata.shell_str_loop
-                0x0000000008012be4        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012be4                shell_str_loop
- *fill*         0x0000000008012be9        0x3 
+                0x0000000008012bc4        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bc4                shell_str_loop
+ *fill*         0x0000000008012bc9        0x3 
  .rodata.shell_str_malloc
-                0x0000000008012bec        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bec                shell_str_malloc
- *fill*         0x0000000008012bf3        0x1 
+                0x0000000008012bcc        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bcc                shell_str_malloc
+ *fill*         0x0000000008012bd3        0x1 
  .rodata.shell_str_ascii
-                0x0000000008012bf4        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bf4                shell_str_ascii
- *fill*         0x0000000008012bfa        0x2 
+                0x0000000008012bd4        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bd4                shell_str_ascii
+ *fill*         0x0000000008012bda        0x2 
  .rodata.shell_str_1
-                0x0000000008012bfc        0x2 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012bfc                shell_str_1
- *fill*         0x0000000008012bfe        0x2 
+                0x0000000008012bdc        0x2 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bdc                shell_str_1
+ *fill*         0x0000000008012bde        0x2 
  .rodata.shell_str_reboot
-                0x0000000008012c00        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c00                shell_str_reboot
- *fill*         0x0000000008012c07        0x1 
+                0x0000000008012be0        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012be0                shell_str_reboot
+ *fill*         0x0000000008012be7        0x1 
  .rodata.shell_str_run
-                0x0000000008012c08        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c08                shell_str_run
+                0x0000000008012be8        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012be8                shell_str_run
  .rodata.shell_str_path_name
-                0x0000000008012c0c        0xa /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c0c                shell_str_path_name
- *fill*         0x0000000008012c16        0x2 
+                0x0000000008012bec        0xa /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bec                shell_str_path_name
+ *fill*         0x0000000008012bf6        0x2 
  .rodata.shell_str_float
-                0x0000000008012c18        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c18                shell_str_float
- *fill*         0x0000000008012c1e        0x2 
+                0x0000000008012bf8        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012bf8                shell_str_float
+ *fill*         0x0000000008012bfe        0x2 
  .rodata.shell_str_pin
-                0x0000000008012c20        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c20                shell_str_pin
+                0x0000000008012c00        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c00                shell_str_pin
  .rodata.shell_str_type
-                0x0000000008012c24        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c24                shell_str_type
- *fill*         0x0000000008012c29        0x3 
+                0x0000000008012c04        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c04                shell_str_type
+ *fill*         0x0000000008012c09        0x3 
  .rodata.shell_str_on
-                0x0000000008012c2c        0x3 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c2c                shell_str_on
- *fill*         0x0000000008012c2f        0x1 
+                0x0000000008012c0c        0x3 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c0c                shell_str_on
+ *fill*         0x0000000008012c0f        0x1 
  .rodata.shell_str_time
-                0x0000000008012c30        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c30                shell_str_time
- *fill*         0x0000000008012c35        0x3 
+                0x0000000008012c10        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c10                shell_str_time
+ *fill*         0x0000000008012c15        0x3 
  .rodata.shell_str_frequency
-                0x0000000008012c38        0xa /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c38                shell_str_frequency
- *fill*         0x0000000008012c42        0x2 
+                0x0000000008012c18        0xa /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c18                shell_str_frequency
+ *fill*         0x0000000008012c22        0x2 
  .rodata.shell_str_pulldown
-                0x0000000008012c44        0x9 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c44                shell_str_pulldown
- *fill*         0x0000000008012c4d        0x3 
+                0x0000000008012c24        0x9 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c24                shell_str_pulldown
+ *fill*         0x0000000008012c2d        0x3 
  .rodata.shell_str_pullup
-                0x0000000008012c50        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c50                shell_str_pullup
- *fill*         0x0000000008012c57        0x1 
+                0x0000000008012c30        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c30                shell_str_pullup
+ *fill*         0x0000000008012c37        0x1 
  .rodata.shell_str_off
-                0x0000000008012c58        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c58                shell_str_off
+                0x0000000008012c38        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c38                shell_str_off
  .rodata.shell_str_int
-                0x0000000008012c5c        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c5c                shell_str_int
+                0x0000000008012c3c        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c3c                shell_str_int
  .rodata.shell_str_toggle
-                0x0000000008012c60        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c60                shell_str_toggle
- *fill*         0x0000000008012c67        0x1 
+                0x0000000008012c40        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c40                shell_str_toggle
+ *fill*         0x0000000008012c47        0x1 
  .rodata.shell_str_file
-                0x0000000008012c68        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c68                shell_str_file
- *fill*         0x0000000008012c6d        0x3 
+                0x0000000008012c48        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c48                shell_str_file
+ *fill*         0x0000000008012c4d        0x3 
  .rodata.shell_str_input
-                0x0000000008012c70        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c70                shell_str_input
- *fill*         0x0000000008012c76        0x2 
+                0x0000000008012c50        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c50                shell_str_input
+ *fill*         0x0000000008012c56        0x2 
  .rodata.shell_str_append
-                0x0000000008012c78        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c78                shell_str_append
- *fill*         0x0000000008012c7f        0x1 
+                0x0000000008012c58        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c58                shell_str_append
+ *fill*         0x0000000008012c5f        0x1 
  .rodata.shell_str_test
-                0x0000000008012c80        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c80                shell_str_test
- *fill*         0x0000000008012c85        0x3 
+                0x0000000008012c60        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c60                shell_str_test
+ *fill*         0x0000000008012c65        0x3 
  .rodata.shell_str_help
-                0x0000000008012c88        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c88                shell_str_help
- *fill*         0x0000000008012c8d        0x3 
+                0x0000000008012c68        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c68                shell_str_help
+ *fill*         0x0000000008012c6d        0x3 
  .rodata.shell_str_argument
-                0x0000000008012c90        0x9 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c90                shell_str_argument
- *fill*         0x0000000008012c99        0x3 
+                0x0000000008012c70        0x9 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c70                shell_str_argument
+ *fill*         0x0000000008012c79        0x3 
  .rodata.shell_str_nil
-                0x0000000008012c9c        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012c9c                shell_str_nil
+                0x0000000008012c7c        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c7c                shell_str_nil
  .rodata.shell_str_delay
-                0x0000000008012ca0        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012ca0                shell_str_delay
- *fill*         0x0000000008012ca6        0x2 
+                0x0000000008012c80        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c80                shell_str_delay
+ *fill*         0x0000000008012c86        0x2 
  .rodata.shell_str_output
-                0x0000000008012ca8        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012ca8                shell_str_output
- *fill*         0x0000000008012caf        0x1 
+                0x0000000008012c88        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c88                shell_str_output
+ *fill*         0x0000000008012c8f        0x1 
  .rodata.shell_str_free
-                0x0000000008012cb0        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cb0                shell_str_free
- *fill*         0x0000000008012cb5        0x3 
+                0x0000000008012c90        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c90                shell_str_free
+ *fill*         0x0000000008012c95        0x3 
  .rodata.shell_str_query
-                0x0000000008012cb8        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cb8                shell_str_query
- *fill*         0x0000000008012cbe        0x2 
+                0x0000000008012c98        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012c98                shell_str_query
+ *fill*         0x0000000008012c9e        0x2 
  .rodata.shell_str_base_address
-                0x0000000008012cc0        0xd /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cc0                shell_str_base_address
- *fill*         0x0000000008012ccd        0x3 
+                0x0000000008012ca0        0xd /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012ca0                shell_str_base_address
+ *fill*         0x0000000008012cad        0x3 
  .rodata.shell_str_index
-                0x0000000008012cd0        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cd0                shell_str_index
- *fill*         0x0000000008012cd6        0x2 
+                0x0000000008012cb0        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cb0                shell_str_index
+ *fill*         0x0000000008012cb6        0x2 
  .rodata.shell_str_pattern
-                0x0000000008012cd8        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cd8                shell_str_pattern
+                0x0000000008012cb8        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cb8                shell_str_pattern
  .rodata.shell_str_clr
-                0x0000000008012ce0        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012ce0                shell_str_clr
+                0x0000000008012cc0        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cc0                shell_str_clr
  .rodata.shell_str_current
-                0x0000000008012ce4        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012ce4                shell_str_current
+                0x0000000008012cc4        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cc4                shell_str_current
  .rodata.shell_str_deinit
-                0x0000000008012cec        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cec                shell_str_deinit
- *fill*         0x0000000008012cf3        0x1 
+                0x0000000008012ccc        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012ccc                shell_str_deinit
+ *fill*         0x0000000008012cd3        0x1 
  .rodata.shell_str_reset
-                0x0000000008012cf4        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cf4                shell_str_reset
- *fill*         0x0000000008012cfa        0x2 
+                0x0000000008012cd4        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cd4                shell_str_reset
+ *fill*         0x0000000008012cda        0x2 
  .rodata.shell_str_range
-                0x0000000008012cfc        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012cfc                shell_str_range
- *fill*         0x0000000008012d02        0x2 
+                0x0000000008012cdc        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cdc                shell_str_range
+ *fill*         0x0000000008012ce2        0x2 
  .rodata.shell_str_file_name
-                0x0000000008012d04        0xa /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d04                shell_str_file_name
- *fill*         0x0000000008012d0e        0x2 
+                0x0000000008012ce4        0xa /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012ce4                shell_str_file_name
+ *fill*         0x0000000008012cee        0x2 
  .rodata.shell_str_io
-                0x0000000008012d10        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d10                shell_str_io
+                0x0000000008012cf0        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cf0                shell_str_io
  .rodata.shell_str_invalid
-                0x0000000008012d14        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d14                shell_str_invalid
+                0x0000000008012cf4        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cf4                shell_str_invalid
  .rodata.shell_str_realloc
-                0x0000000008012d1c        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d1c                shell_str_realloc
+                0x0000000008012cfc        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012cfc                shell_str_realloc
  .rodata.shell_str_stop
-                0x0000000008012d24        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d24                shell_str_stop
- *fill*         0x0000000008012d29        0x3 
+                0x0000000008012d04        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d04                shell_str_stop
+ *fill*         0x0000000008012d09        0x3 
  .rodata.shell_str_ms
-                0x0000000008012d2c        0x3 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d2c                shell_str_ms
- *fill*         0x0000000008012d2f        0x1 
+                0x0000000008012d0c        0x3 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d0c                shell_str_ms
+ *fill*         0x0000000008012d0f        0x1 
  .rodata.shell_str_end
-                0x0000000008012d30        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d30                shell_str_end
+                0x0000000008012d10        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d10                shell_str_end
  .rodata.shell_str_mcush
-                0x0000000008012d34        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d34                shell_str_mcush
- *fill*         0x0000000008012d3a        0x2 
+                0x0000000008012d14        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d14                shell_str_mcush
+ *fill*         0x0000000008012d1a        0x2 
  .rodata.shell_str_start
-                0x0000000008012d3c        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d3c                shell_str_start
- *fill*         0x0000000008012d42        0x2 
+                0x0000000008012d1c        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d1c                shell_str_start
+ *fill*         0x0000000008012d22        0x2 
  .rodata.shell_str_port_bit
-                0x0000000008012d44        0x9 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d44                shell_str_port_bit
- *fill*         0x0000000008012d4d        0x3 
+                0x0000000008012d24        0x9 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d24                shell_str_port_bit
+ *fill*         0x0000000008012d2d        0x3 
  .rodata.shell_str_write
-                0x0000000008012d50        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d50                shell_str_write
- *fill*         0x0000000008012d56        0x2 
+                0x0000000008012d30        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d30                shell_str_write
+ *fill*         0x0000000008012d36        0x2 
  .rodata.shell_str_test_mode
-                0x0000000008012d58        0xa /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d58                shell_str_test_mode
- *fill*         0x0000000008012d62        0x2 
+                0x0000000008012d38        0xa /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d38                shell_str_test_mode
+ *fill*         0x0000000008012d42        0x2 
  .rodata.shell_str_set
-                0x0000000008012d64        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d64                shell_str_set
+                0x0000000008012d44        0x4 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d44                shell_str_set
  .rodata.shell_str_usage
-                0x0000000008012d68        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d68                shell_str_usage
- *fill*         0x0000000008012d6e        0x2 
+                0x0000000008012d48        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d48                shell_str_usage
+ *fill*         0x0000000008012d4e        0x2 
  .rodata.shell_str_init
-                0x0000000008012d70        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d70                shell_str_init
- *fill*         0x0000000008012d75        0x3 
+                0x0000000008012d50        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d50                shell_str_init
+ *fill*         0x0000000008012d55        0x3 
  .rodata.shell_str_uint
-                0x0000000008012d78        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d78                shell_str_uint
- *fill*         0x0000000008012d7d        0x3 
+                0x0000000008012d58        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d58                shell_str_uint
+ *fill*         0x0000000008012d5d        0x3 
  .rodata.shell_str_compact
-                0x0000000008012d80        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d80                shell_str_compact
+                0x0000000008012d60        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d60                shell_str_compact
  .rodata.shell_str_option
-                0x0000000008012d88        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d88                shell_str_option
- *fill*         0x0000000008012d8f        0x1 
+                0x0000000008012d68        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d68                shell_str_option
+ *fill*         0x0000000008012d6f        0x1 
  .rodata.shell_str_index_from_0
-                0x0000000008012d90        0xd /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012d90                shell_str_index_from_0
- *fill*         0x0000000008012d9d        0x3 
+                0x0000000008012d70        0xd /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d70                shell_str_index_from_0
+ *fill*         0x0000000008012d7d        0x3 
  .rodata.shell_str_data
-                0x0000000008012da0        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012da0                shell_str_data
- *fill*         0x0000000008012da5        0x3 
+                0x0000000008012d80        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d80                shell_str_data
+ *fill*         0x0000000008012d85        0x3 
  .rodata.shell_str_total
-                0x0000000008012da8        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012da8                shell_str_total
- *fill*         0x0000000008012dae        0x2 
+                0x0000000008012d88        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d88                shell_str_total
+ *fill*         0x0000000008012d8e        0x2 
  .rodata.shell_str_port
-                0x0000000008012db0        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012db0                shell_str_port
- *fill*         0x0000000008012db5        0x3 
+                0x0000000008012d90        0x5 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d90                shell_str_port
+ *fill*         0x0000000008012d95        0x3 
  .rodata.shell_str_0
-                0x0000000008012db8        0x2 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012db8                shell_str_0
- *fill*         0x0000000008012dba        0x2 
+                0x0000000008012d98        0x2 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d98                shell_str_0
+ *fill*         0x0000000008012d9a        0x2 
  .rodata.shell_str_command
-                0x0000000008012dbc        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012dbc                shell_str_command
+                0x0000000008012d9c        0x8 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012d9c                shell_str_command
  .rodata.shell_str_parameter
-                0x0000000008012dc4        0xa /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012dc4                shell_str_parameter
- *fill*         0x0000000008012dce        0x2 
+                0x0000000008012da4        0xa /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012da4                shell_str_parameter
+ *fill*         0x0000000008012dae        0x2 
  .rodata.shell_str_number
-                0x0000000008012dd0        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012dd0                shell_str_number
- *fill*         0x0000000008012dd7        0x1 
+                0x0000000008012db0        0x7 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012db0                shell_str_number
+ *fill*         0x0000000008012db7        0x1 
  .rodata.shell_str_value
-                0x0000000008012dd8        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
-                0x0000000008012dd8                shell_str_value
- *fill*         0x0000000008012dde        0x2 
+                0x0000000008012db8        0x6 /home/trees/src/github.mcush/mcush/shell_str.o
+                0x0000000008012db8                shell_str_value
+ *fill*         0x0000000008012dbe        0x2 
  .rodata.str1.4
-                0x0000000008012de0       0x12 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+                0x0000000008012dc0       0x12 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
                                          0x16 (size before relaxing)
- *fill*         0x0000000008012df2        0x2 
+ *fill*         0x0000000008012dd2        0x2 
  .rodata.str1.4
-                0x0000000008012df4       0x10 /home/trees/src/github.mcush/libFreeRTOS/timers.o
+                0x0000000008012dd4       0x10 /home/trees/src/github.mcush/libFreeRTOS/timers.o
  .rodata.str1.4
-                0x0000000008012e04       0x5f task_blink.o
+                0x0000000008012de4       0x5f task_blink.o
                                          0x63 (size before relaxing)
- *fill*         0x0000000008012e63        0x1 
+ *fill*         0x0000000008012e43        0x1 
  .rodata.cmd_tab_blink
-                0x0000000008012e64       0x28 task_blink.o
-                0x0000000008012e64                cmd_tab_blink
+                0x0000000008012e44       0x28 task_blink.o
+                0x0000000008012e44                cmd_tab_blink
  .rodata.opt_spec.9763
-                0x0000000008012e8c       0x30 task_blink.o
+                0x0000000008012e6c       0x30 task_blink.o
  .rodata.str1.4
-                0x0000000008012ebc        0x5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
+                0x0000000008012e9c        0x5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
                                           0x8 (size before relaxing)
- *fill*         0x0000000008012ec1        0x3 
+ *fill*         0x0000000008012ea1        0x3 
  .rodata._ctype_
-                0x0000000008012ec4      0x104 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-ctype_.o)
-                0x0000000008012ec4                _ctype_
+                0x0000000008012ea4      0x104 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-ctype_.o)
+                0x0000000008012ea4                _ctype_
  .rodata.tinytens
-                0x0000000008012fc8       0x28 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x0000000008012fa8       0x28 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
  .rodata.fpinan.5307
-                0x0000000008012ff0       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x0000000008012fd0       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
  .rodata.str1.4
-                0x0000000008013004        0xf /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x0000000008012fe4        0xf /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
                                          0x10 (size before relaxing)
- *fill*         0x0000000008013013        0x1 
+ *fill*         0x0000000008012ff3        0x1 
  .rodata.fpi.5271
-                0x0000000008013014       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+                0x0000000008012ff4       0x14 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
  .rodata.__hexdig
-                0x0000000008013028      0x100 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
-                0x0000000008013028                __hexdig
+                0x0000000008013008      0x100 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
+                0x0000000008013008                __hexdig
  .rodata.str1.4
-                0x0000000008013128        0xc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
+                0x0000000008013108        0xc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
                                          0x14 (size before relaxing)
- *fill*         0x0000000008013134        0x4 
+ *fill*         0x0000000008013114        0x4 
  .rodata.__mprec_tens
-                0x0000000008013138       0xc8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008013138                __mprec_tens
+                0x0000000008013118       0xc8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x0000000008013118                __mprec_tens
  .rodata.p05.5302
-                0x0000000008013200        0xc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
- *fill*         0x000000000801320c        0x4 
+                0x00000000080131e0        0xc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+ *fill*         0x00000000080131ec        0x4 
  .rodata.__mprec_bigtens
-                0x0000000008013210       0x28 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
-                0x0000000008013210                __mprec_bigtens
-                0x0000000008013238                . = ALIGN (0x4)
-                0x0000000008013238                _etext = .
-                0x0000000008013238                _sidata = .
+                0x00000000080131f0       0x28 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+                0x00000000080131f0                __mprec_bigtens
+                0x0000000008013218                . = ALIGN (0x4)
+                0x0000000008013218                _etext = .
+                0x0000000008013218                _sidata = .
 
-.vfp11_veneer   0x0000000008013238        0x0
- .vfp11_veneer  0x0000000008013238        0x0 linker stubs
+.vfp11_veneer   0x0000000008013218        0x0
+ .vfp11_veneer  0x0000000008013218        0x0 linker stubs
 
-.v4_bx          0x0000000008013238        0x0
- .v4_bx         0x0000000008013238        0x0 linker stubs
+.v4_bx          0x0000000008013218        0x0
+ .v4_bx         0x0000000008013218        0x0 linker stubs
 
-.iplt           0x0000000008013238        0x0
- .iplt          0x0000000008013238        0x0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/crtbegin.o
+.iplt           0x0000000008013218        0x0
+ .iplt          0x0000000008013218        0x0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/crtbegin.o
 
-.rel.dyn        0x0000000008013238        0x0
- .rel.iplt      0x0000000008013238        0x0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/crtbegin.o
+.rel.dyn        0x0000000008013218        0x0
+ .rel.iplt      0x0000000008013218        0x0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/crtbegin.o
 
-.data           0x0000000020000000      0x984 load address 0x0000000008013238
+.data           0x0000000020000000      0x984 load address 0x0000000008013218
                 0x0000000020000000                . = ALIGN (0x4)
                 0x0000000020000000                _sdata = .
  *(.data*)
@@ -5026,10 +5025,10 @@ LOAD /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/crt0.o
                 0x0000000020000984                . = ALIGN (0x4)
                 0x0000000020000984                _edata = .
 
-.igot.plt       0x0000000020000984        0x0 load address 0x0000000008013bbc
+.igot.plt       0x0000000020000984        0x0 load address 0x0000000008013b9c
  .igot.plt      0x0000000020000984        0x0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/crtbegin.o
 
-.bss            0x0000000020000984      0xd5c load address 0x0000000008013bbc
+.bss            0x0000000020000984      0xd5c load address 0x0000000008013b9c
                 0x0000000020000984                . = ALIGN (0x4)
                 0x0000000020000984                _sbss = .
  *(.bss*)
@@ -5224,7 +5223,7 @@ LOAD /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/crt0.o
  *(.dma)
                 0x00000000200016e0                . = ALIGN (0x4)
 
-.userheap       0x00000000200016e0     0x2000 load address 0x0000000008014918
+.userheap       0x00000000200016e0     0x2000 load address 0x00000000080148f8
                 0x00000000200016e0                . = ALIGN (0x4)
                 0x00000000200016e0                _sheap = .
                 0x00000000200036e0                . = (. + USER_HEAP_SIZE)
@@ -5232,7 +5231,7 @@ LOAD /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/crt0.o
                 0x00000000200036e0                . = ALIGN (0x4)
                 0x00000000200036e0                _eheap = .
 
-.userstack      0x0000000020004c00      0x400 load address 0x0000000008017e38
+.userstack      0x0000000020004c00      0x400 load address 0x0000000008017e18
                 0x0000000020004c00                . = ALIGN (0x4)
                 0x0000000020004c00                _sstack = .
                 0x0000000020005000                . = (. + USER_STACK_SIZE)
@@ -5697,7 +5696,7 @@ OUTPUT(BlinkErrorNumber.elf elf32-littlearm)
  .comment       0x0000000000000070       0x39 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
  .comment       0x0000000000000070       0x39 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
 
-.debug_info     0x0000000000000000    0x3c70e
+.debug_info     0x0000000000000000    0x3c717
  .debug_info    0x0000000000000000      0x49c /home/trees/src/github.mcush/CMSIS/Device/ST/STM32F10x/Source/Templates/system_stm32f10x.o
  .debug_info    0x000000000000049c      0x543 /home/trees/src/github.mcush/ST/STM32F10x_StdPeriph_Driver/src/misc.o
  .debug_info    0x00000000000009df      0xc28 /home/trees/src/github.mcush/ST/STM32F10x_StdPeriph_Driver/src/stm32f10x_adc.o
@@ -5745,77 +5744,77 @@ OUTPUT(BlinkErrorNumber.elf elf32-littlearm)
  .debug_info    0x000000000001386c     0x1e5c /home/trees/src/github.mcush/mcush/mcush_vfs.o
  .debug_info    0x00000000000156c8      0x789 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
  .debug_info    0x0000000000015e51      0x9bb /home/trees/src/github.mcush/mcush/shell_commands.o
- .debug_info    0x000000000001680c     0x2d15 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
- .debug_info    0x0000000000019521     0x11cb /home/trees/src/github.mcush/mcush/shell_commands_fs.o
- .debug_info    0x000000000001a6ec     0x1a70 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
- .debug_info    0x000000000001c15c     0x1384 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
- .debug_info    0x000000000001d4e0      0x219 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
- .debug_info    0x000000000001d6f9     0x129c /home/trees/src/github.mcush/mcush/shell_commands_sys.o
- .debug_info    0x000000000001e995     0x2d60 /home/trees/src/github.mcush/mcush/shell_core.o
- .debug_info    0x00000000000216f5      0xb7a /home/trees/src/github.mcush/mcush/shell_str.o
- .debug_info    0x000000000002226f      0x2a1 /home/trees/src/github.mcush/libFreeRTOS/list.o
- .debug_info    0x0000000000022510     0x2ecd /home/trees/src/github.mcush/libFreeRTOS/queue.o
- .debug_info    0x00000000000253dd     0x3a79 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
- .debug_info    0x0000000000028e56     0x1622 /home/trees/src/github.mcush/libFreeRTOS/timers.o
- .debug_info    0x000000000002a478      0x285 /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
- .debug_info    0x000000000002a6fd      0x4f3 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
- .debug_info    0x000000000002abf0      0x11a main.o
- .debug_info    0x000000000002ad0a      0xb2c task_blink.o
- .debug_info    0x000000000002b836       0xfc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_signbit.o)
- .debug_info    0x000000000002b932       0xca /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-sf_fpclassify.o)
- .debug_info    0x000000000002b9fc      0x208 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
- .debug_info    0x000000000002bc04      0x22d /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-e_sqrt.o)
- .debug_info    0x000000000002be31       0xd3 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_fpclassify.o)
- .debug_info    0x000000000002bf04       0xbe /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_lib_ver.o)
- .debug_info    0x000000000002bfc2      0x129 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_matherr.o)
- .debug_info    0x000000000002c0eb       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubdf3.o)
- .debug_info    0x000000000002c1a5       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivdf3.o)
- .debug_info    0x000000000002c25f       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpdf2.o)
- .debug_info    0x000000000002c319       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixdfsi.o)
- .debug_info    0x000000000002c3d3       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunsdfsi.o)
- .debug_info    0x000000000002c48d       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_truncdfsf2.o)
- .debug_info    0x000000000002c547       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubsf3.o)
- .debug_info    0x000000000002c601       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivsf3.o)
- .debug_info    0x000000000002c6bb       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpsf2.o)
- .debug_info    0x000000000002c775       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixsfsi.o)
- .debug_info    0x000000000002c82f       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunssfsi.o)
- .debug_info    0x000000000002c8e9      0x9e0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-callocr.o)
- .debug_info    0x000000000002d2c9       0x6f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-ctype_.o)
- .debug_info    0x000000000002d338      0x889 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-errno.o)
- .debug_info    0x000000000002dbc1      0x915 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
- .debug_info    0x000000000002e4d6      0xd77 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallocr.o)
- .debug_info    0x000000000002f24d       0xcd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memcpy.o)
- .debug_info    0x000000000002f31a      0x131 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memmove.o)
- .debug_info    0x000000000002f44b      0x8b4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
- .debug_info    0x000000000002fcff      0xa9a /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mstats.o)
- .debug_info    0x0000000000030799      0x8e3 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-realloc.o)
- .debug_info    0x000000000003107c      0xcb3 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reallocr.o)
- .debug_info    0x0000000000031d2f      0x8f4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sbrkr.o)
- .debug_info    0x0000000000032623       0xf2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-stpcpy.o)
- .debug_info    0x0000000000032715      0x110 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcat.o)
- .debug_info    0x0000000000032825       0xcd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcmp.o)
- .debug_info    0x00000000000328f2       0xbd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcpy.o)
- .debug_info    0x00000000000329af       0xb5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strlen.o)
- .debug_info    0x0000000000032a64       0xf5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strncmp.o)
- .debug_info    0x0000000000032b59      0x101 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strrchr.o)
- .debug_info    0x0000000000032c5a     0x1800 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
- .debug_info    0x000000000003445a      0x9a7 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
- .debug_info    0x0000000000034e01      0x8f8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll.o)
- .debug_info    0x00000000000356f9      0x939 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll_r.o)
- .debug_info    0x0000000000036032      0xc1c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
- .debug_info    0x0000000000036c4e     0x10c9 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
- .debug_info    0x0000000000037d17      0x306 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-hexnan.o)
- .debug_info    0x000000000003801d      0xc24 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
- .debug_info    0x0000000000038c41      0xa67 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
- .debug_info    0x00000000000396a8     0x167d /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
- .debug_info    0x000000000003ad25      0x9fb /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reent.o)
- .debug_info    0x000000000003b720       0xce /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sf_nan.o)
- .debug_info    0x000000000003b7ee      0x116 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strchr.o)
- .debug_info    0x000000000003b904       0xb5 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_aeabi_uldivmod.o)
- .debug_info    0x000000000003b9b9      0x164 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(bpabi.o)
- .debug_info    0x000000000003bb1d       0xb9 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_dvmd_tls.o)
- .debug_info    0x000000000003bbd6      0x5bc /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
- .debug_info    0x000000000003c192      0x57c /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
+ .debug_info    0x000000000001680c     0x2d1e /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+ .debug_info    0x000000000001952a     0x11cb /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+ .debug_info    0x000000000001a6f5     0x1a70 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+ .debug_info    0x000000000001c165     0x1384 /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+ .debug_info    0x000000000001d4e9      0x219 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
+ .debug_info    0x000000000001d702     0x129c /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+ .debug_info    0x000000000001e99e     0x2d60 /home/trees/src/github.mcush/mcush/shell_core.o
+ .debug_info    0x00000000000216fe      0xb7a /home/trees/src/github.mcush/mcush/shell_str.o
+ .debug_info    0x0000000000022278      0x2a1 /home/trees/src/github.mcush/libFreeRTOS/list.o
+ .debug_info    0x0000000000022519     0x2ecd /home/trees/src/github.mcush/libFreeRTOS/queue.o
+ .debug_info    0x00000000000253e6     0x3a79 /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+ .debug_info    0x0000000000028e5f     0x1622 /home/trees/src/github.mcush/libFreeRTOS/timers.o
+ .debug_info    0x000000000002a481      0x285 /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
+ .debug_info    0x000000000002a706      0x4f3 /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+ .debug_info    0x000000000002abf9      0x11a main.o
+ .debug_info    0x000000000002ad13      0xb2c task_blink.o
+ .debug_info    0x000000000002b83f       0xfc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_signbit.o)
+ .debug_info    0x000000000002b93b       0xca /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-sf_fpclassify.o)
+ .debug_info    0x000000000002ba05      0x208 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
+ .debug_info    0x000000000002bc0d      0x22d /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-e_sqrt.o)
+ .debug_info    0x000000000002be3a       0xd3 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_fpclassify.o)
+ .debug_info    0x000000000002bf0d       0xbe /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_lib_ver.o)
+ .debug_info    0x000000000002bfcb      0x129 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_matherr.o)
+ .debug_info    0x000000000002c0f4       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubdf3.o)
+ .debug_info    0x000000000002c1ae       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivdf3.o)
+ .debug_info    0x000000000002c268       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpdf2.o)
+ .debug_info    0x000000000002c322       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixdfsi.o)
+ .debug_info    0x000000000002c3dc       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_info    0x000000000002c496       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_truncdfsf2.o)
+ .debug_info    0x000000000002c550       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubsf3.o)
+ .debug_info    0x000000000002c60a       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivsf3.o)
+ .debug_info    0x000000000002c6c4       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpsf2.o)
+ .debug_info    0x000000000002c77e       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixsfsi.o)
+ .debug_info    0x000000000002c838       0xba /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunssfsi.o)
+ .debug_info    0x000000000002c8f2      0x9e0 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-callocr.o)
+ .debug_info    0x000000000002d2d2       0x6f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-ctype_.o)
+ .debug_info    0x000000000002d341      0x889 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-errno.o)
+ .debug_info    0x000000000002dbca      0x915 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
+ .debug_info    0x000000000002e4df      0xd77 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallocr.o)
+ .debug_info    0x000000000002f256       0xcd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memcpy.o)
+ .debug_info    0x000000000002f323      0x131 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memmove.o)
+ .debug_info    0x000000000002f454      0x8b4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
+ .debug_info    0x000000000002fd08      0xa9a /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mstats.o)
+ .debug_info    0x00000000000307a2      0x8e3 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-realloc.o)
+ .debug_info    0x0000000000031085      0xcb3 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reallocr.o)
+ .debug_info    0x0000000000031d38      0x8f4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sbrkr.o)
+ .debug_info    0x000000000003262c       0xf2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-stpcpy.o)
+ .debug_info    0x000000000003271e      0x110 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcat.o)
+ .debug_info    0x000000000003282e       0xcd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcmp.o)
+ .debug_info    0x00000000000328fb       0xbd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcpy.o)
+ .debug_info    0x00000000000329b8       0xb5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strlen.o)
+ .debug_info    0x0000000000032a6d       0xf5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strncmp.o)
+ .debug_info    0x0000000000032b62      0x101 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strrchr.o)
+ .debug_info    0x0000000000032c63     0x1800 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+ .debug_info    0x0000000000034463      0x9a7 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
+ .debug_info    0x0000000000034e0a      0x8f8 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll.o)
+ .debug_info    0x0000000000035702      0x939 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll_r.o)
+ .debug_info    0x000000000003603b      0xc1c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
+ .debug_info    0x0000000000036c57     0x10c9 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
+ .debug_info    0x0000000000037d20      0x306 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-hexnan.o)
+ .debug_info    0x0000000000038026      0xc24 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
+ .debug_info    0x0000000000038c4a      0xa67 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
+ .debug_info    0x00000000000396b1     0x167d /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+ .debug_info    0x000000000003ad2e      0x9fb /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reent.o)
+ .debug_info    0x000000000003b729       0xce /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sf_nan.o)
+ .debug_info    0x000000000003b7f7      0x116 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strchr.o)
+ .debug_info    0x000000000003b90d       0xb5 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_aeabi_uldivmod.o)
+ .debug_info    0x000000000003b9c2      0x164 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(bpabi.o)
+ .debug_info    0x000000000003bb26       0xb9 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x000000000003bbdf      0x5bc /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
+ .debug_info    0x000000000003c19b      0x57c /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
 
 .debug_abbrev   0x0000000000000000     0xbb4e
  .debug_abbrev  0x0000000000000000      0x16c /home/trees/src/github.mcush/CMSIS/Device/ST/STM32F10x/Source/Templates/system_stm32f10x.o
@@ -6364,7 +6363,7 @@ OUTPUT(BlinkErrorNumber.elf elf32-littlearm)
  .debug_ranges  0x00000000000041c8       0xf0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
  .debug_ranges  0x00000000000042b8       0xf0 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
 
-.debug_line     0x0000000000000000    0x137b0
+.debug_line     0x0000000000000000    0x137aa
  .debug_line    0x0000000000000000      0x1e7 /home/trees/src/github.mcush/CMSIS/Device/ST/STM32F10x/Source/Templates/system_stm32f10x.o
  .debug_line    0x00000000000001e7      0x20c /home/trees/src/github.mcush/ST/STM32F10x_StdPeriph_Driver/src/misc.o
  .debug_line    0x00000000000003f3      0x518 /home/trees/src/github.mcush/ST/STM32F10x_StdPeriph_Driver/src/stm32f10x_adc.o
@@ -6412,77 +6411,77 @@ OUTPUT(BlinkErrorNumber.elf elf32-littlearm)
  .debug_line    0x0000000000008153      0x7a8 /home/trees/src/github.mcush/mcush/mcush_vfs.o
  .debug_line    0x00000000000088fb      0x272 /home/trees/src/github.mcush/mcush/mcush_vfs_romfs.o
  .debug_line    0x0000000000008b6d      0x2e0 /home/trees/src/github.mcush/mcush/shell_commands.o
- .debug_line    0x0000000000008e4d      0xab3 /home/trees/src/github.mcush/mcush/shell_commands_emu.o
- .debug_line    0x0000000000009900      0x3b0 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
- .debug_line    0x0000000000009cb0      0x740 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
- .debug_line    0x000000000000a3f0      0x55c /home/trees/src/github.mcush/mcush/shell_commands_mem.o
- .debug_line    0x000000000000a94c      0x180 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
- .debug_line    0x000000000000aacc      0x3fb /home/trees/src/github.mcush/mcush/shell_commands_sys.o
- .debug_line    0x000000000000aec7      0xb7c /home/trees/src/github.mcush/mcush/shell_core.o
- .debug_line    0x000000000000ba43       0x4f /home/trees/src/github.mcush/mcush/shell_str.o
- .debug_line    0x000000000000ba92      0x1b5 /home/trees/src/github.mcush/libFreeRTOS/list.o
- .debug_line    0x000000000000bc47      0xd3c /home/trees/src/github.mcush/libFreeRTOS/queue.o
- .debug_line    0x000000000000c983     0x135d /home/trees/src/github.mcush/libFreeRTOS/tasks.o
- .debug_line    0x000000000000dce0      0x52f /home/trees/src/github.mcush/libFreeRTOS/timers.o
- .debug_line    0x000000000000e20f      0x196 /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
- .debug_line    0x000000000000e3a5      0x32d /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
- .debug_line    0x000000000000e6d2      0x10a main.o
- .debug_line    0x000000000000e7dc      0x372 task_blink.o
- .debug_line    0x000000000000eb4e      0x12b /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_signbit.o)
- .debug_line    0x000000000000ec79      0x126 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-sf_fpclassify.o)
- .debug_line    0x000000000000ed9f      0x16c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
- .debug_line    0x000000000000ef0b      0x1a5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-e_sqrt.o)
- .debug_line    0x000000000000f0b0      0x149 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_fpclassify.o)
- .debug_line    0x000000000000f1f9       0xa5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_lib_ver.o)
- .debug_line    0x000000000000f29e       0xb6 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_matherr.o)
- .debug_line    0x000000000000f354      0x176 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubdf3.o)
- .debug_line    0x000000000000f4ca      0x19a /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivdf3.o)
- .debug_line    0x000000000000f664       0xb7 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpdf2.o)
- .debug_line    0x000000000000f71b       0x77 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixdfsi.o)
- .debug_line    0x000000000000f792       0x73 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunsdfsi.o)
- .debug_line    0x000000000000f805       0x8b /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_truncdfsf2.o)
- .debug_line    0x000000000000f890      0x117 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubsf3.o)
- .debug_line    0x000000000000f9a7      0x13a /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivsf3.o)
- .debug_line    0x000000000000fae1       0xab /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpsf2.o)
- .debug_line    0x000000000000fb8c       0x77 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixsfsi.o)
- .debug_line    0x000000000000fc03       0x73 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunssfsi.o)
- .debug_line    0x000000000000fc76      0x131 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-callocr.o)
- .debug_line    0x000000000000fda7       0x72 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-ctype_.o)
- .debug_line    0x000000000000fe19      0x10c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-errno.o)
- .debug_line    0x000000000000ff25      0x16e /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
- .debug_line    0x0000000000010093      0x385 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallocr.o)
- .debug_line    0x0000000000010418       0xbb /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memcpy.o)
- .debug_line    0x00000000000104d3      0x128 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memmove.o)
- .debug_line    0x00000000000105fb      0x10f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
- .debug_line    0x000000000001070a      0x1b2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mstats.o)
- .debug_line    0x00000000000108bc      0x15b /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-realloc.o)
- .debug_line    0x0000000000010a17      0x2af /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reallocr.o)
- .debug_line    0x0000000000010cc6      0x161 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sbrkr.o)
- .debug_line    0x0000000000010e27       0xc4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-stpcpy.o)
- .debug_line    0x0000000000010eeb       0xc5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcat.o)
- .debug_line    0x0000000000010fb0      0x100 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcmp.o)
- .debug_line    0x00000000000110b0       0xbc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcpy.o)
- .debug_line    0x000000000001116c       0xf2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strlen.o)
- .debug_line    0x000000000001125e      0x14c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strncmp.o)
- .debug_line    0x00000000000113aa       0xbd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strrchr.o)
- .debug_line    0x0000000000011467      0x657 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
- .debug_line    0x0000000000011abe      0x1e5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
- .debug_line    0x0000000000011ca3      0x15f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll.o)
- .debug_line    0x0000000000011e02      0x1f7 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll_r.o)
- .debug_line    0x0000000000011ff9      0x271 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
- .debug_line    0x000000000001226a      0x38f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
- .debug_line    0x00000000000125f9      0x160 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-hexnan.o)
- .debug_line    0x0000000000012759      0x203 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
- .debug_line    0x000000000001295c      0x15f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
- .debug_line    0x0000000000012abb      0x6ea /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
- .debug_line    0x00000000000131a5      0x19a /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reent.o)
- .debug_line    0x000000000001333f       0xb2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sf_nan.o)
- .debug_line    0x00000000000133f1       0xe7 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strchr.o)
- .debug_line    0x00000000000134d8       0x62 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_aeabi_uldivmod.o)
- .debug_line    0x000000000001353a       0x64 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(bpabi.o)
- .debug_line    0x000000000001359e       0x5e /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_dvmd_tls.o)
- .debug_line    0x00000000000135fc       0xe1 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
- .debug_line    0x00000000000136dd       0xd3 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
+ .debug_line    0x0000000000008e4d      0xaad /home/trees/src/github.mcush/mcush/shell_commands_emu.o
+ .debug_line    0x00000000000098fa      0x3b0 /home/trees/src/github.mcush/mcush/shell_commands_fs.o
+ .debug_line    0x0000000000009caa      0x740 /home/trees/src/github.mcush/mcush/shell_commands_hal.o
+ .debug_line    0x000000000000a3ea      0x55c /home/trees/src/github.mcush/mcush/shell_commands_mem.o
+ .debug_line    0x000000000000a946      0x180 /home/trees/src/github.mcush/mcush/shell_commands_scpi.o
+ .debug_line    0x000000000000aac6      0x3fb /home/trees/src/github.mcush/mcush/shell_commands_sys.o
+ .debug_line    0x000000000000aec1      0xb7c /home/trees/src/github.mcush/mcush/shell_core.o
+ .debug_line    0x000000000000ba3d       0x4f /home/trees/src/github.mcush/mcush/shell_str.o
+ .debug_line    0x000000000000ba8c      0x1b5 /home/trees/src/github.mcush/libFreeRTOS/list.o
+ .debug_line    0x000000000000bc41      0xd3c /home/trees/src/github.mcush/libFreeRTOS/queue.o
+ .debug_line    0x000000000000c97d     0x135d /home/trees/src/github.mcush/libFreeRTOS/tasks.o
+ .debug_line    0x000000000000dcda      0x52f /home/trees/src/github.mcush/libFreeRTOS/timers.o
+ .debug_line    0x000000000000e209      0x196 /home/trees/src/github.mcush/libFreeRTOS/portable/MemMang/heap_3.o
+ .debug_line    0x000000000000e39f      0x32d /home/trees/src/github.mcush/libFreeRTOS/portable/GCC/ARM_CM3/port.o
+ .debug_line    0x000000000000e6cc      0x10a main.o
+ .debug_line    0x000000000000e7d6      0x372 task_blink.o
+ .debug_line    0x000000000000eb48      0x12b /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_signbit.o)
+ .debug_line    0x000000000000ec73      0x126 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-sf_fpclassify.o)
+ .debug_line    0x000000000000ed99      0x16c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-w_sqrt.o)
+ .debug_line    0x000000000000ef05      0x1a5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-e_sqrt.o)
+ .debug_line    0x000000000000f0aa      0x149 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_fpclassify.o)
+ .debug_line    0x000000000000f1f3       0xa5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_lib_ver.o)
+ .debug_line    0x000000000000f298       0xb6 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libm.a(lib_a-s_matherr.o)
+ .debug_line    0x000000000000f34e      0x176 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubdf3.o)
+ .debug_line    0x000000000000f4c4      0x19a /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivdf3.o)
+ .debug_line    0x000000000000f65e       0xb7 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpdf2.o)
+ .debug_line    0x000000000000f715       0x77 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixdfsi.o)
+ .debug_line    0x000000000000f78c       0x73 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_line    0x000000000000f7ff       0x8b /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_truncdfsf2.o)
+ .debug_line    0x000000000000f88a      0x117 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_addsubsf3.o)
+ .debug_line    0x000000000000f9a1      0x13a /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_muldivsf3.o)
+ .debug_line    0x000000000000fadb       0xab /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_cmpsf2.o)
+ .debug_line    0x000000000000fb86       0x77 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixsfsi.o)
+ .debug_line    0x000000000000fbfd       0x73 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_arm_fixunssfsi.o)
+ .debug_line    0x000000000000fc70      0x131 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-callocr.o)
+ .debug_line    0x000000000000fda1       0x72 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-ctype_.o)
+ .debug_line    0x000000000000fe13      0x10c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-errno.o)
+ .debug_line    0x000000000000ff1f      0x16e /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-malloc.o)
+ .debug_line    0x000000000001008d      0x385 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallocr.o)
+ .debug_line    0x0000000000010412       0xbb /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memcpy.o)
+ .debug_line    0x00000000000104cd      0x128 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-memmove.o)
+ .debug_line    0x00000000000105f5      0x10f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mlock.o)
+ .debug_line    0x0000000000010704      0x1b2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mstats.o)
+ .debug_line    0x00000000000108b6      0x15b /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-realloc.o)
+ .debug_line    0x0000000000010a11      0x2af /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reallocr.o)
+ .debug_line    0x0000000000010cc0      0x161 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sbrkr.o)
+ .debug_line    0x0000000000010e21       0xc4 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-stpcpy.o)
+ .debug_line    0x0000000000010ee5       0xc5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcat.o)
+ .debug_line    0x0000000000010faa      0x100 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcmp.o)
+ .debug_line    0x00000000000110aa       0xbc /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strcpy.o)
+ .debug_line    0x0000000000011166       0xf2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strlen.o)
+ .debug_line    0x0000000000011258      0x14c /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strncmp.o)
+ .debug_line    0x00000000000113a4       0xbd /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strrchr.o)
+ .debug_line    0x0000000000011461      0x657 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtod.o)
+ .debug_line    0x0000000000011ab8      0x1e5 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtol.o)
+ .debug_line    0x0000000000011c9d      0x15f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll.o)
+ .debug_line    0x0000000000011dfc      0x1f7 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strtoll_r.o)
+ .debug_line    0x0000000000011ff3      0x271 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-freer.o)
+ .debug_line    0x0000000000012264      0x38f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-gethex.o)
+ .debug_line    0x00000000000125f3      0x160 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-gdtoa-hexnan.o)
+ .debug_line    0x0000000000012753      0x203 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-locale.o)
+ .debug_line    0x0000000000012956      0x15f /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mallinfor.o)
+ .debug_line    0x0000000000012ab5      0x6ea /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-mprec.o)
+ .debug_line    0x000000000001319f      0x19a /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-reent.o)
+ .debug_line    0x0000000000013339       0xb2 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-sf_nan.o)
+ .debug_line    0x00000000000133eb       0xe7 /usr/lib/gcc/arm-none-eabi/4.9.3/../../../arm-none-eabi/lib/armv7-m/libc.a(lib_a-strchr.o)
+ .debug_line    0x00000000000134d2       0x62 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_aeabi_uldivmod.o)
+ .debug_line    0x0000000000013534       0x64 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(bpabi.o)
+ .debug_line    0x0000000000013598       0x5e /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x00000000000135f6       0xe1 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_divdi3.o)
+ .debug_line    0x00000000000136d7       0xd3 /usr/lib/gcc/arm-none-eabi/4.9.3/armv7-m/libgcc.a(_udivdi3.o)
 
 .debug_str      0x0000000000000000     0xa556
  .debug_str     0x0000000000000000      0x2af /home/trees/src/github.mcush/CMSIS/Device/ST/STM32F10x/Source/Templates/system_stm32f10x.o
