@@ -653,9 +653,32 @@ class Mcush( Instrument.SerialInstrument ):
         if delay:
             cmd += ' --delay=%s'% delay
         self.writeCommand( cmd )
-
-    spiInit = spi_init
-
+    
+    def spi_update( self, sdi=None, sdo=None, sck=None, cs=None, cpol=None, cpha=None, width=None, lsb=None, delay=None ):
+        cmd = 'spi -U'
+        if sdi:
+            cmd += ' --sdi=%s'% sdi
+        if sdo:
+            cmd += ' --sdo=%s'% sdo
+        if sck:
+            cmd += ' --sck=%s'% sck
+        if cs:
+            cmd += ' --cs=%s'% cs
+        if cpol:
+            cmd += ' --cpol'
+        if cpha:
+            cmd += ' --cpha'
+        if lsb:
+            cmd += ' --lsb'
+        if width:
+            cmd += ' --width=%d'% width
+        if delay:
+            cmd += ' --delay=%s'% delay
+        self.writeCommand( cmd )
+ 
+    def spi_deinit( self ):
+        self.writeCommand( 'spi -D' )
+ 
     def spi( self, write=[], read=None ):
         cmd = 'spi'
         if read:
@@ -672,17 +695,23 @@ class Mcush( Instrument.SerialInstrument ):
         else:
             return None
     
-    def spiWrite( self, write=[] ):
+    def spi_write( self, write=[] ):
         if isinstance(write, list):
             return self.spi( write )
         else:
             return self.spi( [write] )
 
-    def spiRead( self, write=[] ):
+    def spi_read( self, write=[] ):
         if isinstance(write, list):
             return self.spi( write, read=True )
         else:
             return self.spi( [write], read=True )
+
+    spiInit = spi_init
+    spiUpdate = spi_update
+    spiDeinit = spi_deinit
+    spiWrite = spi_write
+    spiRead = spi_read
 
     # emulated pulse generator
     def pulse_init( self, pin='0.0', delay_us=None, invert=None ):

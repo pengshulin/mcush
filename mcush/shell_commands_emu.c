@@ -505,9 +505,59 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init )
     hal_gpio_set_output( spi->port_sck, spi->pin_sck_bit );
     hal_gpio_set_output( spi->port_cs, spi->pin_cs_bit );
     hal_gpio_set( spi->port_cs, spi->pin_cs_bit );
-
+    if( spi->cpol )
+        hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
+    else
+        hal_gpio_clr( spi->port_sck, spi->pin_sck_bit );
+ 
     return 1;
 }
+
+
+int emu_spi_update( int spi_index, spi_cb_t *update )
+{
+    spi_cb_t *spi=spi_cb[spi_index];
+
+    if( !spi )
+        return 0;
+
+    update->pin_sdi_bit = 1<<update->pin_sdi;
+    update->pin_sdo_bit = 1<<update->pin_sdo;
+    update->pin_sck_bit = 1<<update->pin_sck;
+    update->pin_cs_bit  = 1<<update->pin_cs;
+
+    if( (update->port_sdi != spi->port_sdi) || (update->pin_sdi != spi->pin_sdi) )
+    {
+        hal_gpio_set_input( update->port_sdi, update->pin_sdi_bit );
+    }
+     
+    if( (update->port_sdo != spi->port_sdo) || (update->pin_sdo != spi->pin_sdo) )
+    {
+        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
+        hal_gpio_set_output( update->port_sdo, update->pin_sdo_bit );
+    }
+
+    if( (update->port_sck != spi->port_sck) || (update->pin_sck != spi->pin_sck) )
+    { 
+        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
+        hal_gpio_set_output( update->port_sck, update->pin_sck_bit );
+        if( update->cpol )
+            hal_gpio_set( update->port_sck, update->pin_sck_bit );
+        else
+            hal_gpio_clr( update->port_sck, update->pin_sck_bit );
+    }
+
+    if( (update->port_cs != spi->port_cs) || (update->pin_cs != spi->pin_cs) )
+    { 
+        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
+        hal_gpio_set_output( update->port_cs, update->pin_cs_bit );
+        hal_gpio_set( update->port_cs, update->pin_cs_bit );
+    }
+    
+    memcpy( spi, update, sizeof(spi_cb_t) );
+    return 1;
+}
+
 
 
 static uint32_t emu_spi_write_single(spi_cb_t *spi, uint32_t dat)
@@ -545,7 +595,7 @@ static uint32_t emu_spi_write_single(spi_cb_t *spi, uint32_t dat)
 }
 
 
-int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
+int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int length)
 {
     spi_cb_t *spi=spi_cb[spi_index];
 
@@ -561,7 +611,7 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int bytes)
     hal_delay_us( spi->delay_us );
 
     /* write and read */
-    while( bytes-- )
+    while( length-- )
     {
         *buf_in = emu_spi_write_single( spi, *buf_out );
         buf_in++;
@@ -600,6 +650,8 @@ int cmd_spi( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'D', shell_str_deinit, 0, "deinit pins" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'U', shell_str_update, 0, "update" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'r', shell_str_read, 0, "print readout" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           0, "cpol", 0, "clk polarity" },
@@ -612,12 +664,12 @@ int cmd_spi( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t init=0, deinit=0, read_mode=0;
+    uint8_t init=0, deinit=0, read_mode=0, update=0;
     char *p;
     int spi_index=0;
     spi_cb_t spi_init;
     uint32_t buf_out[SPI_WRITE_BUFFER_LEN], buf_in[SPI_WRITE_BUFFER_LEN];
-    int bytes, i, line_count, repeat;
+    int length, i, line_count, repeat;
 
     /* check which command spi/spi2/spi3/spi4 is used */
 #if USE_CMD_SPI2
@@ -638,7 +690,7 @@ int cmd_spi( int argc, char *argv[] )
             {
                 if( parse_int(opt.value, (int*)&spi_init.width) )
                 {
-                    if( (spi_init.width < 2) || (spi_init.width > 32) )
+                    if( (spi_init.width < 1) || (spi_init.width > 32) )
                     {
                         shell_write_err( shell_str_width );
                         return 1;
@@ -649,6 +701,8 @@ int cmd_spi( int argc, char *argv[] )
                 init = 1;
             else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
                 deinit = 1;
+            else if( STRCMP( opt.spec->name, shell_str_update ) == 0 )
+                update = 1;
             else if( strcmp( opt.spec->name, "cpol" ) == 0 )
                 spi_init.cpol = 1;
             else if( strcmp( opt.spec->name, "cpha" ) == 0 )
@@ -713,6 +767,10 @@ int cmd_spi( int argc, char *argv[] )
     {
         return emu_spi_init( spi_index, &spi_init ) ? 0 : 1;
     }
+    else if( update )
+    {
+        return emu_spi_update( spi_index, &spi_init ) ? 0 : 1;
+    }
     else if( deinit )
     {
         emu_spi_deinit( spi_index );
@@ -721,42 +779,42 @@ int cmd_spi( int argc, char *argv[] )
 
     /* parse data params */
     parser.idx++;
-    bytes = 0;
+    length = 0;
     while( parser.idx < argc )
     {
-        //if( ! parse_int(argv[parser.idx], (int*)&buf_out[bytes]) )
-        if( ! parse_int_repeat(argv[parser.idx], (int*)&buf_out[bytes], &repeat ) )
+        //if( ! parse_int(argv[parser.idx], (int*)&buf_out[length]) )
+        if( ! parse_int_repeat(argv[parser.idx], (int*)&buf_out[length], &repeat ) )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
             return 1;
         }
         parser.idx++;
-        bytes += 1;
+        length += 1;
         while( repeat )
         {
-            buf_out[bytes] = buf_out[bytes-1];
-            bytes += 1;
+            buf_out[length] = buf_out[length-1];
+            length += 1;
             repeat -= 1;
-            if( bytes > SPI_WRITE_BUFFER_LEN )
+            if( length > SPI_WRITE_BUFFER_LEN )
             {
                 shell_write_err( "buffer" );
                 return 1;
             }
         }
     }
-    if( bytes == 0 )
+    if( length == 0 )
         return -1;  /* no parms, nothing to do */
 
     /* write and read */
-    if( !emu_spi_write( spi_index, buf_out, buf_in, bytes ) )
+    if( !emu_spi_write( spi_index, buf_out, buf_in, length ) )
         return 1;  /* execute failed, maybe not inited */
 
     /* output read */
     if( read_mode )
     {
         line_count = 0;
-        for( i=0; i<bytes; i++ )
+        for( i=0; i<length; i++ )
         {
             line_count += shell_printf( "0x%X ", buf_in[i] );
             if( line_count > 78 )

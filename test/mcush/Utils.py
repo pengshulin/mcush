@@ -120,6 +120,12 @@ def espeak( contents ):
         system( 'espeak %s'% contents )
 
 
+def i2I( val ):
+    return unpack('I', pack('i', val)) [0]
+
+def I2i( val ):
+    return unpack('i', pack('I', val)) [0]
+
 def i2f( val ):
     return unpack('f', pack('i', val)) [0]
 

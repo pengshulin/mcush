@@ -115,6 +115,7 @@ __attribute__((aligned(1))) const char shell_str_type[] = "type";
 __attribute__((aligned(1))) const char shell_str_uint[] = "uint";
 __attribute__((aligned(1))) const char shell_str_umount[] = "umount";
 __attribute__((aligned(1))) const char shell_str_unlock[] = "unlock";
+__attribute__((aligned(1))) const char shell_str_update[] = "update";
 __attribute__((aligned(1))) const char shell_str_usage[] = "usage";
 __attribute__((aligned(1))) const char shell_str_used[] = "used";
 __attribute__((aligned(1))) const char shell_str_value[] = "value";
