@@ -6,6 +6,7 @@ from .. import Mcush
 from . import Bitmap
 from . import Font
 from . import Canvas as _Canvas
+from . import SegmentTable
 
 ADDR_NOP = 0
 ADDR_D0 = 1
@@ -183,4 +184,79 @@ class Canvas(_Canvas.Canvas):
         self.dirty = 0xFF
         if flush:
             self.flush()
+ 
+
+#  
+#      a
+#    -----
+#  f|     | b
+#   |  g  |
+#    ----- 
+#  e|     | c
+#   |     |
+#    ----- .h
+#      d
+# D7 D6 D5 D4 D3 D2 D1 D0
+# DP A  B  C  D  E  F  G 
+SA = 0x40
+SB = 0x20
+SC = 0x10
+SD = 0x08
+SE = 0x04
+SF = 0x02
+SG = 0x01
+SH = 0x80
+SegmentTable.SEGMENT_TABLE_HEX = SegmentTable.generateSegmentTableHEX(SA,SB,SC,SD,SE,SF,SG,SH)
+SegmentTable.SEGMENT_TABLE_ASCII = SegmentTable.generateSegmentTableASCII(SA,SB,SC,SD,SE,SF,SG,SH)
+
+class LED8(LED):
+    DIGITS = 8
+       
+    def __init__( self, controller, sdi=None, sdo=None, sck=None, cs=None, intensity=None ):
+        self.controller = controller
+        self.controller.spi_init( sdi, sdo, sck, cs, width=16, delay=10 )
+        self.controller_num = int((self.DIGITS-1)/8)+1
+        if intensity is None:
+            intensity = 0x08
+        self.intensity = intensity & 0x0F  # range: 0 ~ 0x0F
+        self.reset()
+
+    def clear( self ):
+        self.display_segs( 0, "    ", ascii_mode=True )
+
+    def display_string( self, string, index=0 ):
+        self.display_segs( index, string[:self.DIGITS-index], ascii_mode=True )
+ 
+    def display_integer( self, val, hex_mode=False ):
+        if hex_mode:
+            string = (('%%%dX'% self.DIGITS)% val)[-self.DIGITS:]
+        else:
+            string = (('%%%dd'% self.DIGITS)% val)[-self.DIGITS:]
+        self.display_segs( 0, string[:self.DIGITS], ascii_mode=True )
+    
+    def display_segment( self, index, segment, ascii_mode=None, hex_mode=None ):
+        if hex_mode:
+            segment = SegmentTable.SEGMENT_TABLE_HEX[segment]
+        elif ascii_mode:
+            segment = SegmentTable.SEGMENT_TABLE_ASCII[ord(segment)]
+        self.segments[index] = segment
+        self.write_line( index, segment )
+
+    def display_segments( self, index, segments, ascii_mode=None, hex_mode=None ):
+        segments = segments[:self.DIGITS]
+        if hex_mode:
+            segments = [ SegmentTable.SEGMENT_TABLE_HEX[c] for c in segments ]
+        elif ascii_mode:
+            segments = [ SegmentTable.SEGMENT_TABLE_ASCII[ord(c)] for c in segments ]
+        self.segments = segments
+        for i,s in enumerate(segments,index):
+            self.write_line( i, s )
+
+    clrscr = clear
+    display_str = display_string
+    display_int = display_integer
+    display_seg = display_segment
+    display_segs = display_segments
+
+
  

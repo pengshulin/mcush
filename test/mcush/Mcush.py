@@ -611,18 +611,18 @@ class Mcush( Instrument.SerialInstrument ):
 
     i2cInit = i2c_init
 
-    def i2c( self, write=[], read_count=None, addr=None, no_stop_bit=None ):
+    def i2c( self, write=[], read=None, addr=None, no_stop_bit=None ):
         cmd = 'i2c'
         if addr is not None:
             cmd += ' -a0x%X'% addr
-        if read_count:
-            cmd += ' -r%d'% read_count
+        if read:
+            cmd += ' -r%d'% read
         if no_stop_bit:
             cmd += ' -n'
         if write:
             cmd += ' %s'% (' '.join([str(i) for i in write])) 
         ret = self.writeCommand( cmd )
-        if read_count:
+        if read:
             r = []
             for l in ret:
                 for v in l.strip().split():

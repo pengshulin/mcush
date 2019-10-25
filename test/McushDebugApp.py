@@ -428,7 +428,7 @@ class I2cReadTask(MyTask):
         s.i2c_init( addr, scl=pin_scl, sda=pin_sda, delay=delay_us )
         result = []
         self.info( _("Reading...") )
-        r = s.i2c( [reg_from], read_count=length )
+        r = s.i2c( [reg_from], read=length )
         self.queue.put( ('i2c_data', r) )
         self.info( '%d bytes read'% length )
         

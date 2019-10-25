@@ -19,6 +19,8 @@ from . import Motion
 from . import Dallas1W
 from . import Aosong
 from . import Max6675
+from . import Max31865
 from . import Tm7707
 from . import Cs1238
+from . import Hx711
 

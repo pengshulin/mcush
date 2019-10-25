@@ -326,14 +326,14 @@ class Mcush( Instrument.SerialInstrument ):
         self.writeCommand( cmd )
 
 
-    def i2c( self, write=[], read_count=None ):
+    def i2c( self, write=[], read=None ):
         cmd = 'i2c'
-        if read_count:
-            cmd += ' -r%d'% read_count
+        if read:
+            cmd += ' -r%d'% read
         if write:
             cmd += ' %s'% (' '.join(['0x%X'%i for i in write])) 
         ret = self.writeCommand( cmd )
-        if read_count:
+        if read:
             r = []
             for l in ret:
                 for v in l.strip().split():
