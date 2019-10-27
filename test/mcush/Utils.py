@@ -120,12 +120,20 @@ def espeak( contents ):
         system( 'espeak %s'% contents )
 
 
+# sign convert
 def i2I( val ):
     return unpack('I', pack('i', val)) [0]
 
 def I2i( val ):
     return unpack('i', pack('I', val)) [0]
 
+def h2H( val ):
+    return unpack('H', pack('h', val)) [0]
+
+def H2h( val ):
+    return unpack('h', pack('H', val)) [0]
+
+# float convert
 def i2f( val ):
     return unpack('f', pack('i', val)) [0]
 
@@ -137,7 +145,8 @@ def f2i( val ):
  
 def f2I( val ):
     return unpack('I', pack('f', val)) [0]
- 
+
+# memory convert 
 def s2f( val ):
     return unpack('f', val) [0]
 

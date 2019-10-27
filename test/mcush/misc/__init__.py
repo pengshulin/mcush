@@ -23,4 +23,5 @@ from . import Max31865
 from . import Tm7707
 from . import Cs1238
 from . import Hx711
+from . import Ina219
 
