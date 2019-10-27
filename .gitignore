@@ -14,6 +14,7 @@
 *.old
 *.del
 *.lst
+*.spec
 
 .sconsign.dblite
 tags
@@ -33,4 +34,5 @@ dist/
 
 test/fcfs/
 test/build/
+test/dist/
 test/dist-mcush-debug/

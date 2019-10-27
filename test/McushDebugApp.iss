@@ -15,9 +15,7 @@ OutputBaseFilename=mcush_debug_setup_v1.0
 [Files]
 Source: "img\*.ico"; DestDir: "{app}\img"
 Source: "img\*.png"; DestDir: "{app}\img"
-;Source: "fonts\*.ttf"; DestDir: "{app}\fonts"
-Source: "dist-mcush-debug\*"; DestDir: "{app}"; Excludes: "dist-mcush-debug\McushDebugApp.exe.log"
-;Source: "C:\Python27\Lib\site-packages\matplotlib\mpl-data\*"; DestDir: "{app}\mpl-data"; Flags: recursesubdirs
+Source: "dist\McushDebugApp\*"; DestDir: "{app}"; Excludes: "dist\McushDebugApp\McushDebugApp.exe.log"; Flags: recursesubdirs
 
 [Icons]
 Name: "{group}\McushDebug"; Filename: "{app}\McushDebugApp.exe"
