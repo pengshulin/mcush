@@ -97,6 +97,9 @@ class LED24x8(LED):
 class LED32x8(LED):
     width, height = 32, 8
  
+class LED64x8(LED):
+    width, height = 64, 8
+ 
 class LED8x16(LED):
     width, height = 8, 16
 

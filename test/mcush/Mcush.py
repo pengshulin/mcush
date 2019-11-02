@@ -65,28 +65,28 @@ class Mcush( Instrument.SerialInstrument ):
 
     def ledSetValue( self, idx, val ):
         if isinstance(idx, list):
-            for led in dx:
+            for led in idx:
                 self.led( led, on=val )
         else:
             self.led( idx, on=val )
 
     def ledOn( self, idx ):
         if isinstance(idx, list):
-            for led in dx:
+            for led in idx:
                 self.led( led, on=True )
         else:
             self.led( idx, on=True )
 
     def ledOff( self, idx ):
         if isinstance(idx, list):
-            for led in dx:
+            for led in idx:
                 self.led( led, on=False )
         else:
             self.led( idx, on=False )
 
     def ledToggle( self, idx ):
         if isinstance(idx, list):
-            for led in dx:
+            for led in idx:
                 self.led( led, toggle=True )
         else:
             self.led( idx, toggle=True )
@@ -754,7 +754,11 @@ class Mcush( Instrument.SerialInstrument ):
     def adc_init( self ):
         self.writeCommand( "adc -I" )
     
+    def adc_deinit( self ):
+        self.writeCommand( "adc -D" )
+     
     adcInit = adc_init
+    adcDeinit = adc_deinit
 
     def adc( self, channel=None ):
         if channel is None:
