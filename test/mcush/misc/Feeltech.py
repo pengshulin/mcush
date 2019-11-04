@@ -1,0 +1,203 @@
+# coding: utf8
+__doc__ = 'products from Zhenzhou Feeltech'
+__author__ = 'Peng Shulin <trees_peng@163.com>'
+import re
+import time
+from .. import Env, Instrument
+
+MODES_A = [
+'sine',
+'square',
+'rectangle',
+'trapezoid',
+'cmos',
+'adj-pulse',
+'dc',
+'triangle',
+'ramp',
+'neg ramp',
+'stair triangle',
+'stair step',
+'neg stair step',
+'pos exponent',
+'neg exponent',
+'pos fall exponent',
+'neg fall exponent',
+'pos logarithm',
+'neg logarithm',
+'pos fall logarithm',
+'neg fall logarithm',
+'pos full sine',
+'neg full sine',
+'pos half sine',
+'neg half sine',
+'lorentz pulse',
+'multitone',
+'random noise',
+'ecg',
+'trapezoid',
+'sinc pulse',
+'impulse',
+'awgn',
+'am',
+'pm',
+'chirp',
+]
+
+MODES_B = [
+'sine',
+'square',
+'rectangle',
+'trapezoid',
+'cmos',
+'dc',
+'triangle',
+'ramp',
+'neg ramp',
+'stair triangle',
+'stair step',
+'neg stair step',
+'pos exponent',
+'neg exponent',
+'pos fall exponent',
+'neg fall exponent',
+'pos logarithm',
+'neg logarithm',
+'pos fall logarithm',
+'neg fall logarithm',
+'pos full sine',
+'neg full sine',
+'pos half sine',
+'neg half sine',
+'lorentz pulse',
+'multitone',
+'random noise',
+'ecg',
+'trapezoid',
+'sinc pulse',
+'impulse',
+'awgn',
+'am',
+'pm',
+'chirp',
+]
+
+
+KEYS = ['wave', 'meas', 'sweep', 'mod', 'sync', 'sys', 'more', 
+'ch1', 'ch2', 'f1', 'f2', 'f3', 'f4', 'f5',
+'left', 'right', 'ok', 'up', 'down']
+
+
+class FY6900( Instrument.SerialInstrument ):
+    DEFAULT_NAME = 'FY6900'
+    DEFAULT_TERMINATOR_READ = '\x0A'
+    DEFAULT_TERMINATOR_WRITE = '\x0A'
+    DEFAULT_TERMINATOR_RESET = 'UMO\x0A'
+    DEFAULT_CHECK_RETURN_COMMAND = False
+
+    def __init__( self, *args, **kwargs ):
+        kwargs['baudrate'] = 115200  # this is fixed
+        kwargs['check_idn'] = False  # not support scpi commands
+        Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
+
+    def connect( self, check_idn=False ):
+        Instrument.SerialInstrument.connect( self, check_idn=False )
+        self.readUntilPrompts()
+        self.readUntilPrompts()
+        self.readUntilPrompts()
+        # read model/id
+        model = self.getModel()
+        sn = self.getSerialNumber()
+        self.idn = ','.join([model,sn])
+
+    def readUntilPrompts( self, line_callback=None ):
+        # this device response at most one line, but followed with multiple 0x0A 
+        newline_str = ''
+        while True:
+            byte = self.port.read(1)
+            if byte:
+                if Env.PYTHON_V3:
+                    byte = chr(ord(byte))
+                if byte == self.DEFAULT_TERMINATOR_READ:
+                    newline_str = newline_str.rstrip()
+                    self.logger.debug( newline_str )
+                    return [newline_str]
+                else:
+                    newline_str += byte
+            else:
+                if newline_str:
+                    raise Instrument.CommandTimeoutError( newline_str )
+                else:
+                    raise Instrument.CommandTimeoutError( 'No response' )
+
+    def writeCommand( self, cmd ):
+        # write command and wait for response
+        cmd = cmd.strip()
+        self.writeLine( cmd )
+        self.logger.debug( cmd )
+        ret = self.readUntilPrompts()
+        for line in [i.strip() for i in ret]:
+            if line:
+                self.logger.debug( line )
+        return ret
+ 
+    def getModel( self ):
+        ret = self.writeCommand("UMO")
+        self.readUntilPrompts()
+        self.readUntilPrompts()
+        self.readUntilPrompts()
+        return ret[0]
+
+    def getSerialNumber( self ):
+        ret = self.writeCommand("UID")
+        self.readUntilPrompts()
+        return ret[0]
+       
+    def outputEnableA( self, enable=True ):
+        self.writeCommand( 'WMN1' if enable else 'WMN0' )
+    
+    def outputEnableB( self, enable=True ):
+        self.writeCommand( 'WFN1' if enable else 'WFN0' )
+
+    def outputDisableA( self ):
+        self.outputEnableA( False )
+    
+    def outputDisableB( self, enable=True ):
+        self.outputEnableB( False )
+
+    def beepEnable( self, enable=True ):
+        self.writeCommand( 'UBZ1' if enable else 'UBZ0' )
+    
+    def beepDisable( self ):
+        self.beepEnable( False )
+
+    def beepIsEnabled( self ):
+        r = self.writeCommand( 'RBZ' )
+        return bool(r > 0)
+
+    def key( self, name ):
+        key_id = KEYS.index(name)
+        self.writeCommand( 'KEY%d'% key_id )     
+    
+    def outputA( self, mode, amp, freq, offset=0, enable=True ):
+        if isinstance(mode, int):
+            self.writeCommand( 'WMW%02d'% mode )
+        else:
+            self.writeCommand( 'WMW%02d'% MODES_A.index(mode) )
+        self.writeCommand( 'WMA%f'% float(amp) )  # in V
+        self.writeCommand( 'WMF%d'% int(freq*1E6) )  # in uHz
+        self.writeCommand( 'WMO%f'% float(offset) )  # in V
+        if enable:
+            self.outputEnableA( True )
+
+    def outputB( self, mode, amp, freq, offset=0, enable=True ):
+        if isinstance(mode, int):
+            self.writeCommand( 'WFW%02d'% mode )
+        else:
+            self.writeCommand( 'WFW%02d'% MODES_B.index(mode) )
+        self.writeCommand( 'WFA%f'% float(amp) )  # in V
+        self.writeCommand( 'WFF%d'% int(freq*1E6) )  # in uHz
+        self.writeCommand( 'WFO%f'% float(offset) )  # in V
+        if enable:
+            self.outputEnableB( True )
+

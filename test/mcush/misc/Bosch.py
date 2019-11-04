@@ -44,6 +44,7 @@ class Bmp180():
         return r
 
     def init( self ):
+        # read calibration parameters
         self.ac1 = self.readReg( REG_AC1, True )
         self.ac2 = self.readReg( REG_AC2, True )
         self.ac3 = self.readReg( REG_AC3, True )
@@ -73,12 +74,6 @@ class Bmp180():
     def reset( self ):
         self.controller.i2c( [REG_SOFT_RESET, 0xB6] )
         time.sleep(0.1)
-
-    def convert( self ):
-        self.controller.i2c( [CMD_CONVERT, 0x33, 0x00] )
-        time.sleep(0.1)
-        while self.readStatus() & 0x80:
-            time.sleep(0.1)
 
     def read( self, oss=3 ):
         # read temperature

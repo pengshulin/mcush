@@ -25,4 +25,5 @@ from . import Cs1238
 from . import Hx711
 from . import Ina219
 from . import Bosch
+from . import Feeltech
 

@@ -207,13 +207,13 @@ class Instrument:
                 self.logger.debug( newline_str )
                 return contents
 
-    def readLine( self, timeout=None ):
+    def readLine( self, eol='\n', timeout=None ):
         chars = []
         t0 = time.time()
         while True:
             char = self.port.read(1) 
             if char:
-                if char == '\n':
+                if char == eol:
                     break
                 chars.append( char )
             elif timeout:
