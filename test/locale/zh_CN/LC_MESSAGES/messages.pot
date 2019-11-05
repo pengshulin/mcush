@@ -96,6 +96,9 @@ msgstr "系统配置"
 msgid "Device config"
 msgstr "设备配置"
 
+msgid "Additional config"
+msgstr "附加配置"
+
 
 msgid "Test"
 msgstr "测试"
@@ -356,6 +359,9 @@ msgstr "正在提取..."
 msgid "Waveform"
 msgstr "波形"
 
+msgid "Outputing..."
+msgstr "正在输出..."
+
 msgid "Config"
 msgstr "配置"
 
@@ -382,6 +388,9 @@ msgstr "初始化"
 
 msgid "Prepare"
 msgstr "准备"
+
+msgid "Check"
+msgstr "检查"
 
 msgid "Check all ports"
 msgstr "检查所有端口"
@@ -565,6 +574,9 @@ msgstr "采样率"
 
 msgid "Temperature"
 msgstr "温度"
+
+msgid "Humidity"
+msgstr "湿度"
 
 msgid "Pressure"
 msgstr "压力"

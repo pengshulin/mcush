@@ -87,6 +87,10 @@ KEYS = ['wave', 'meas', 'sweep', 'mod', 'sync', 'sys', 'more',
 'ch1', 'ch2', 'f1', 'f2', 'f3', 'f4', 'f5',
 'left', 'right', 'ok', 'up', 'down']
 
+MEASURE_GATE = [1, 10, 100]
+
+SWEEP_MODE = ['freq', 'amp', 'offset', 'duty']
+
 
 class FY6900( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'FY6900'
@@ -200,4 +204,43 @@ class FY6900( Instrument.SerialInstrument ):
         self.writeCommand( 'WFO%f'% float(offset) )  # in V
         if enable:
             self.outputEnableB( True )
+
+    def measureConfig( self, dc=True, gate=1 ):
+        self.meas_gate = MEASURE_GATE.index(gate)
+        self.meas_dc = dc
+        self.writeCommand( 'WCG%d'% self.meas_gate )
+        self.writeCommand( 'WCC%d'% (1 if dc else 0) )
+        self.writeCommand( 'WCZ' )
+
+    def measureReadFreq( self ):
+        freq = float(self.writeCommand( 'RCF' )[0])
+        freq /= 10**self.meas_gate
+        self.readUntilPrompts()
+        return freq
+    
+    def measureReadCounter( self ):
+        counter = float(self.writeCommand( 'RCC' )[0])
+        self.readUntilPrompts()
+        return counter
+        
+    def sweepConfig( self, mode, start, end, time, linear=True, auto_start=True ):
+        self.sweep_mode = SWEEP_MODE.index(mode)
+        self.sweep_start = start
+        self.sweep_end = end
+        self.sweep_time = time
+        self.sweep_linear = linear
+        self.writeCommand( 'SBE0' )
+        self.writeCommand( 'SOB%d'% self.sweep_mode )
+        self.writeCommand( 'SST%s'% self.sweep_start )
+        self.writeCommand( 'SEN%s'% self.sweep_end )
+        self.writeCommand( 'STI%s'% self.sweep_time )
+        self.writeCommand( 'SMO%d'% (0 if linear else 1) )
+        if auto_start:
+            self.writeCommand( 'SBE1' )
+
+    def sweepStart( self ):
+        self.writeCommand( 'SBE1' )
+
+    def sweepStop( self ):
+        self.writeCommand( 'SBE0' )
 
