@@ -27,4 +27,6 @@ from . import Ina219
 from . import Bosch
 from . import Feeltech
 from . import Tcs3472
+from . import Max30102
+
 
