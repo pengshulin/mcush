@@ -82,6 +82,9 @@ MODES_B = [
 'chirp',
 ]
 
+for i in range(64):
+    MODES_A.append('arb%d'%(i+1))
+    MODES_B.append('arb%d'%(i+1))
 
 KEYS = ['wave', 'meas', 'sweep', 'mod', 'sync', 'sys', 'more', 
 'ch1', 'ch2', 'f1', 'f2', 'f3', 'f4', 'f5',
