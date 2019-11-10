@@ -8,7 +8,7 @@ from .. import Mcush
 
 class ShellKit(Mcush.Mcush):
     DEFAULT_NAME = 'ShellKit'
-    DEFAULT_IDN = re_compile( 'ShellKit[0-9]*,([0-9]+\.[0-9]+.*)' )
+    DEFAULT_IDN = re_compile( 'ShellKit,([0-9]+\.[0-9]+.*)' )
 
     def scpiRst( self ):
         if self.checkCommand("*rst"):

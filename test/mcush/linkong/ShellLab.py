@@ -8,7 +8,7 @@ from .. import Mcush
 
 class ShellLab(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLab'
-    DEFAULT_IDN = re_compile( 'ShellLab[0-9]*,([0-9]+\.[0-9]+.*)' )
+    DEFAULT_IDN = re_compile( 'ShellLab(-[A-Z][0-9a-zA-Z]*)?,([0-9]+\.[0-9]+.*)' )
 
     def scpiRst( self ):
         if self.checkCommand("*rst"):
@@ -27,13 +27,24 @@ class ShellLab(Mcush.Mcush):
             cmd += ' -v %d'% value
         return self.writeCommand( cmd )
 
-    def daq_init( self, freq=None, length=None, channel_mask=None ):
+    def daq_init( self, freq=None, length=None, channels=[], channel_mask=None ):
         if freq is not None:
             self.daq( 'freq', value=freq )
         if length is not None:
             self.daq( 'length', value=length )
         if channel_mask is not None:
             self.daq( 'channel_mask', value=channel_mask )
+            channels = []
+            for i in range(8):
+                if channel_mask & (1<<i):
+                    channels.append(i)
+            self.channels = channels
+        else:
+            mask = 0
+            for c in channels:
+                mask |= 1<<c
+            self.daq( 'channel_mask', value=mask )
+            self.channels = channels
         self.daq( 'init' )
 
     def daq_deinit( self ):
@@ -58,4 +69,12 @@ class ShellLab(Mcush.Mcush):
             for v in l.strip().split(','):
                 dat.append( int(v, 16) * 3.0 / 4096 )
         return dat
+
+    daqInit = daq_init
+    daqDeinit = daq_deinit
+    daqStart = daq_start
+    daqStop = daq_stop
+    daqReset = daq_reset
+    daqDone = daq_done
+    daqRead = daq_read
 
