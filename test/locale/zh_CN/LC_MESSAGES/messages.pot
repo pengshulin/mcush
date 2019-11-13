@@ -329,6 +329,12 @@ msgstr "打开端口..."
 msgid "plot"
 msgstr "绘图"
 
+msgid "output"
+msgstr "输出"
+
+msgid "info"
+msgstr "信息"
+
 msgid "log"
 msgstr "日志"
 
