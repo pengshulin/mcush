@@ -741,7 +741,12 @@ class Mcush( Instrument.SerialInstrument ):
             cmd += ' -v%s'% int(init_value)
         self.writeCommand( cmd )
 
+    def pwm_deinit( self ):
+        cmd = 'pwm -D'
+        self.writeCommand( cmd )
+        
     pwmInit = pwm_init
+    pwmDeinit = pwm_deinit
 
     # hal layer pwm control
     def pwm( self, index=None, value=50 ):

@@ -21,8 +21,14 @@ msgstr "Mcush调试工具"
 msgid "Shell Kit Workbench"
 msgstr "Shell Kit 工作台"
 
+msgid "Shell Kit Testbench"
+msgstr "Shell Kit 测试台"
+
 msgid "Shell Lab Workbench"
 msgstr "Shell Lab 工作台"
+
+msgid "Shell Lab Testbench"
+msgstr "Shell Lab 测试台"
 
 msgid "VAP Debug Utility"
 msgstr "VAP调试工具"

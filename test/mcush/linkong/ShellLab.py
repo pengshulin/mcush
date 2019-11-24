@@ -8,7 +8,7 @@ from .. import Mcush
 
 class ShellLab(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLab'
-    DEFAULT_IDN = re_compile( 'ShellLab(-[A-Z][0-9a-zA-Z]*)?,([0-9]+\.[0-9]+.*)' )
+    DEFAULT_IDN = re_compile( 'ShellLab(-[A-Z][0-9a-zA-Z\-]*)?,([0-9]+\.[0-9]+.*)' )
 
     def scpiRst( self ):
         if self.checkCommand("*rst"):
@@ -46,6 +46,7 @@ class ShellLab(Mcush.Mcush):
             self.daq( 'channel_mask', value=mask )
             self.channels = channels
         self.daq( 'init' )
+        self.vref = float(self.daq('vref')[0])
 
     def daq_deinit( self ):
         self.daq( 'deinit' )
@@ -67,7 +68,7 @@ class ShellLab(Mcush.Mcush):
         dat = []
         for l in ret:
             for v in l.strip().split(','):
-                dat.append( int(v, 16) * 3.0 / 4096 )
+                dat.append( int(v, 16) * self.vref / 4096 )
         return dat
 
     daqInit = daq_init

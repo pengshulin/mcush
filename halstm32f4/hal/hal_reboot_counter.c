@@ -1,6 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 
+#if HAL_REBOOT_COUNTER
 
 #define MAGIC_CODE  0x544F4F42  /* in ascii 'BOOT' */
 typedef struct _reboot_counter_cb_t
@@ -15,7 +16,9 @@ reboot_counter_cb_t reboot_counter_cb  __attribute__((section(".bkpsram")));
 
 void hal_reboot_counter_init(void)
 {
+#if defined(LL_AHB1_GRP1_PERIPH_BKPSRAM)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_BKPSRAM);
+#endif
     LL_PWR_EnableBkUpAccess();
     hal_delay_ms(1);
     
@@ -45,4 +48,5 @@ unsigned int hal_reboot_counter_get(void)
     return reboot_counter_cb.counter;
 }
 
+#endif
 

@@ -106,6 +106,7 @@ int hal_pwm_get_num( void );
 void hal_adc_init( void );
 void hal_adc_deinit( void );
 int hal_adc_get_num( void );
+int hal_adc_in_use( void );
 float hal_adc_get( int index );
 
 

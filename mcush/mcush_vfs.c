@@ -443,7 +443,7 @@ const char *mcush_basename( const char *fname )
 
 #endif
 
- 
+
 int fprintf(FILE *stream, const char *format, ...)
 {
     va_list vargs;

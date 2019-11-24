@@ -2,7 +2,19 @@
 #include "hal.h"
 
 
-const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI
+const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE
+#if defined(GPIOF)
+    ,GPIOF
+#endif
+#if defined(GPIOG)
+    ,GPIOG
+#endif
+#if defined(GPIOH)
+    ,GPIOH
+#endif
+#if defined(GPIOI)
+    ,GPIOI
+#endif
 #if defined(GPIOJ)
     ,GPIOJ
 #if defined(GPIOK)
@@ -50,10 +62,18 @@ void hal_gpio_init(void)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOE);
+#if defined(GPIOF)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF);
+#endif
+#if defined(GPIOG)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOG);
+#endif
+#if defined(GPIOH)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOH);
+#endif
+#if defined(GPIOI)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOI);
+#endif
 #if defined(GPIOJ)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOJ);
 #endif
