@@ -3,7 +3,7 @@
 # Peng Shulin <trees_peng@163.com> 2019
 set -e
 CWD=`pwd`
-export HALDIR=stm32f103rc_mcudev
+export HALDIR=stm32f401cc_weact
 export DEBUG=0
 pushd /mcush/appBlinkErrorNumber
 

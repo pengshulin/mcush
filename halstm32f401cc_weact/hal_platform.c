@@ -4,7 +4,6 @@
 void hal_platform_reset(void)
 {
     hal_adc_deinit();
-    hal_daq_deinit();
     hal_pwm_deinit();
 }
 

@@ -23,7 +23,8 @@ cp BlinkErrorNumber* $CWD/uart
 
 popd
 
-# remove all .lst .elf files
+# remove all .lst .elf .map files
 find . -name '*.lst' -delete
 find . -name '*.elf' -delete
+find . -name '*.map' -delete
 
