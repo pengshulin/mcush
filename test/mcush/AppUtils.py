@@ -29,6 +29,7 @@ class Task():
     STOP_CHECK_PERIOD = 0.2
 
     def __init__( self, args, queue ):
+        self.started = False
         self.args = args
         self.queue = queue
         self.control_queue = Queue()
@@ -38,6 +39,7 @@ class Task():
         self.listener.setDaemon( 1 )
         self.listener.start()
         self.manual_stop = False
+        self.started = True
 
     def target( self, args ):
         raise NotImplementedError
@@ -108,7 +110,10 @@ class Task():
        
     def isStopped( self ):
         return not self.p.is_alive()
- 
+
+    def isRunning( self ):
+        return self.p.is_alive()
+  
     def terminate( self, safely=False ): 
         if safely:
             if self.stop():
