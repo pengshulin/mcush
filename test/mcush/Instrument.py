@@ -357,6 +357,14 @@ class Instrument:
         except IndexError:
             return ''
 
+    def getVersion( self ):
+        if self.idn is None:
+            self.scpiIdn()
+        try:
+            return self.idn.split(',')[1]
+        except IndexError:
+            return ''
+
     def getSerialNumber( self ):
         ret = self.writeCommand( '*idn?' )
         try:
@@ -365,14 +373,6 @@ class Instrument:
             return self.serial_number
         except IndexError:
             self.serial_number = None
-            return ''
-
-    def getVersion( self ):
-        if self.idn is None:
-            self.scpiIdn()
-        try:
-            return self.idn.split(',')[1]
-        except IndexError:
             return ''
 
     def printInfo( self ):

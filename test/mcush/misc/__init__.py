@@ -30,4 +30,5 @@ from . import Tcs3472
 from . import Max30102
 from . import Ads1115
 from . import Hmc5883
+from . import Korad
 
