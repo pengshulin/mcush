@@ -60,11 +60,11 @@ class KA3000( Instrument.SerialInstrument ):
         if enable is not None:
             self.writeCommand('OUT1' if enable else 'OUT0')
         
-    def outputEnable( self, channel=1 ):
-        self.output( channel, enable=True )
+    def outputEnable( self ):
+        self.output( enable=True )
 
-    def outputDisable( self, channel=1 ):
-        self.output( channel, enable=False )
+    def outputDisable( self ):
+        self.output( enable=False )
 
     def getSetting( self, channel=1 ):
         volt = self.writeCommand('VSET%d?'% channel, need_response=True)
