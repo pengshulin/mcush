@@ -186,7 +186,7 @@ class FY6900( Instrument.SerialInstrument ):
         key_id = KEYS.index(name)
         self.writeCommand( 'KEY%d'% key_id )     
     
-    def outputA( self, mode, amp, freq, offset=0, enable=True ):
+    def outputA( self, mode, amp, freq, offset=0, duty=None, phase=0, enable=True ):
         if isinstance(mode, int):
             self.writeCommand( 'WMW%02d'% mode )
         else:
@@ -194,10 +194,13 @@ class FY6900( Instrument.SerialInstrument ):
         self.writeCommand( 'WMA%f'% float(amp) )  # in V
         self.writeCommand( 'WMF%d'% int(freq*1E6) )  # in uHz
         self.writeCommand( 'WMO%f'% float(offset) )  # in V
+        if duty is not None:
+            self.writeCommand( 'WMD%.1f'% float(duty) )  # in %
+        self.writeCommand( 'WMP%f'% float(phase) )  # in degree
         if enable:
             self.outputEnableA( True )
 
-    def outputB( self, mode, amp, freq, offset=0, enable=True ):
+    def outputB( self, mode, amp, freq, offset=0, duty=None, phase=0, enable=True ):
         if isinstance(mode, int):
             self.writeCommand( 'WFW%02d'% mode )
         else:
@@ -205,6 +208,9 @@ class FY6900( Instrument.SerialInstrument ):
         self.writeCommand( 'WFA%f'% float(amp) )  # in V
         self.writeCommand( 'WFF%d'% int(freq*1E6) )  # in uHz
         self.writeCommand( 'WFO%f'% float(offset) )  # in V
+        if duty is not None:
+            self.writeCommand( 'WFD%.1f'% float(duty) )  # in %
+        self.writeCommand( 'WFP%f'% float(phase) )  # in degree
         if enable:
             self.outputEnableB( True )
 
