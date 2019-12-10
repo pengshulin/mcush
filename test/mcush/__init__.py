@@ -17,3 +17,4 @@ from .misc import *
 from .linkong import *
 from .fluke import *
 from .uni_trend import *
+from .rigol import *

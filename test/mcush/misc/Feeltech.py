@@ -7,8 +7,8 @@ from .. import Env, Instrument
 
 MODES_A = [
 'sine',
-'square',
-'rectangle',
+'square',  # fixed 50% duty
+'rectangle',  # adjustable duty
 'trapezoid',
 'cmos',
 'adj-pulse',
