@@ -120,11 +120,6 @@ ONE_DESCRIPTOR String_Descriptor[4] =
 *******************************************************************************/
 void Virtual_Com_Port_init(void)
 {
-
-  /* Update the serial number string descriptor with the data from the unique
-  ID*/
-  Get_SerialNum();
-
   pInformation->Current_Configuration = 0;
 
   /* Connect the device */

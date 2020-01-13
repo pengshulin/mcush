@@ -914,8 +914,11 @@ int shell_call_line( char *cmd_line )
     int (*cmd)(int argc, char *argv[]);
     char *argv[SHELL_ARGV_LEN];   
     uint8_t argc;
+    char cmdline[SHELL_CMDLINE_LEN+1];
 
-    if( shell_split_cmdline_into_argvs( cmd_line, &argc, &argv[0] ) )
+    strcpy( cmdline, cmd_line );  /* input line maybe in FLASH area */
+
+    if( shell_split_cmdline_into_argvs( cmdline, &argc, &argv[0] ) )
     {
         if( argc > 0 )
         {

@@ -53,6 +53,7 @@ int hal_uart_init(uint32_t baudrate)
     if( !hal_queue_vcp_rx || !hal_queue_vcp_tx )
         return 0;
 
+    Get_SerialNum();  /* Serial Number from Chip UID */
     Set_System();
     Set_USBClock();
     USB_Interrupts_Config();

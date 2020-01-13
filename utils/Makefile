@@ -1,10 +1,13 @@
 # MCUSH designed by Peng Shulin, all rights reserved.
-.PHONY: clean flash flash2 reset reset2 stflash streset
+.PHONY: clean flash flash2 reset reset2 stflash streset localclean
 
 all:
 	scons
 clean:
 	scons -c
+localclean:
+	rm -f *.elf *.lst *.bin *.hex *.map *.o
+
 
 # openocd commands
 erase:

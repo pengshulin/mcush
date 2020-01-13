@@ -80,7 +80,7 @@ void Set_System(void)
     hal_delay_ms( 5 );
 #endif
 
-    /* reset back */
+    /* set to USB DM/DP */
     gpio_init.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
     gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
     gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
@@ -142,7 +142,7 @@ void Leave_LowPowerMode(void)
       bDeviceState = ATTACHED;
     }
     /*Enable SystemCoreClock*/
-    SystemInit();
+    //SystemInit();
 }
 
 /*******************************************************************************

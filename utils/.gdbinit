@@ -155,6 +155,12 @@ chip_mem_configs = {
 [ 0x6C000000, 0x6FFFFFFE, 'rw', 16, False, 'FSMC/bank4', ],
 ],
 
+'stm32f412': [
+[ 0x08000000, 0x080FFFFC, 'ro', 32, True,  'Flash 1M', ],
+[ 0x20000000, 0x2003FFFC, 'rw', 32, False, 'SRAM 256k', ],
+[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
+],
+
 'stm32f429': [
 [ 0x08000000, 0x081FFFFC, 'ro', 32, True,  'Flash 2M', ],
 [ 0x20000000, 0x2002FFFC, 'rw', 32, False, 'SRAM 192k', ],

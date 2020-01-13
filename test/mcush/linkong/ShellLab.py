@@ -79,3 +79,74 @@ class ShellLab(Mcush.Mcush):
     daqDone = daq_done
     daqRead = daq_read
 
+    def monitor( self, cmd, index=None, value=None ):
+        cmd = 'monitor -c %s'% cmd
+        if index is not None:
+            cmd += ' -i %d'% index
+        if value is not None:
+            cmd += ' -v %d'% value
+        return self.writeCommand( cmd )
+
+    def monitor_start( self ):
+        self.monitor( 'start' )
+
+    def monitor_stop( self ):
+        self.monitor( 'stop' )
+
+    def monitor_read( self, channel ):
+        ret = self.monitor( 'read', index=channel )
+        dat = []
+        for l in ret:
+            for v in l.strip().split(','):
+                dat.append( float(v) )
+        return dat
+
+    monitorStart = monitor_start
+    monitorStop = monitor_stop
+    monitorRead = monitor_read
+
+
+COLOR_TAB = {
+'black'  : 0x000000,
+'red'    : 0x0000FF,
+'green'  : 0x00FF00,
+'yellow' : 0x00FFFF,
+'blue'   : 0xFF0000,
+'purple' : 0xFF00FF,
+'cyan'   : 0xFFFF00,
+'white'  : 0xFFFFFF,
+}
+
+
+class ShellLabLamp(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLabLamp'
+    DEFAULT_IDN = re_compile( 'ShellLab(-L[0-9a-zA-Z\-]*)?,([0-9]+\.[0-9]+.*)' )
+
+    def lamp( self, color=None, red=None, green=None, blue=None, freq=None ):
+        cmd = 'lamp'
+        if color is not None:
+            cmd += ' -c 0x%X'% color
+        if red is not None:
+            cmd += ' -r %d'% red
+        if green is not None:
+            cmd += ' -g %d'% green
+        if blue is not None:
+            cmd += ' -b %d'% blue
+        if freq is not None:
+            cmd += ' -f %d'% freq
+        self.writeCommand(cmd)
+
+    def reset( self ):
+        self.lamp( 0, freq=0 )
+
+    def blink( self, freq=1.0 ):
+        self.lamp( freq=freq )
+
+    def color( self, c ):
+        if isinstance(c, str):
+            if not COLOR_TAB.has_key(c):
+                raise Exception('Unknown color name %s'% c)
+            c = COLOR_TAB[c]
+        self.lamp( c ) 
+
+

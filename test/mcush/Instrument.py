@@ -157,9 +157,10 @@ class Instrument:
         self.port.connect()
         if not self.port.connected:
             return
-        self.port.write( self.DEFAULT_TERMINATOR_RESET )
-        self.port.flush()
-        self.readUntilPrompts()
+        if self.DEFAULT_TERMINATOR_RESET:
+            self.port.write( self.DEFAULT_TERMINATOR_RESET )
+            self.port.flush()
+            self.readUntilPrompts()
         if check_idn and self.DEFAULT_IDN is not None:
             self.scpiIdn()
 

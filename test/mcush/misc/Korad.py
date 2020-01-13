@@ -7,9 +7,6 @@ from .. import Env, Instrument
 
 
 class KA3000( Instrument.SerialInstrument ):
-    #DEFAULT_TERMINATOR_READ = '\x0A'
-    #DEFAULT_TERMINATOR_WRITE = '\x0A'
-    #DEFAULT_TERMINATOR_RESET = 'UMO\x0A'
     DEFAULT_CHECK_RETURN_COMMAND = False
     DEFAULT_IDN = re.compile( 'KORAD KA3[0-9]+P V[0-9]+.[0-9]+ SN:[0-9]+' )
 
