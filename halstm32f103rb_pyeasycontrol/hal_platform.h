@@ -60,4 +60,6 @@ int hal_is_power_set(void);
 
 #define HAL_RESET_VCP_PIN  1
 
+
+
 #endif

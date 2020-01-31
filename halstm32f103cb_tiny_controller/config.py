@@ -54,6 +54,7 @@ env.appendDefineFlags( [
     #'MCUSH_STACK_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'SUSPEND_ENABLED=0',
+    'USE_CMD_SGPIO=0',
     ] )
 
 if hal_dir == 'std':
@@ -64,7 +65,6 @@ if hal_dir == 'std':
 else:
     env.appendDefineFlags( [
         'USE_CMD_BEEP=0',
-        'USE_CMD_SGPIO=0',
         'USE_CMD_PWM=0',
         'USE_CMD_ADC=0',
         ] )

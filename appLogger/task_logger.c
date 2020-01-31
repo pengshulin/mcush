@@ -477,6 +477,7 @@ int backup_all_log_files( void )
 }
 
 
+#if MCUSH_SPIFFS
 static int rotate_log_files( const char *src_fname, int level )
 {
     int size;
@@ -504,6 +505,7 @@ static int rotate_log_files( const char *src_fname, int level )
 #endif
     return mcush_rename( src_fname, &fname[3] ); /* remove leading mount point */
 }
+#endif
 
 
 static void post_process_event( logger_event_t *evt )

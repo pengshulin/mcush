@@ -134,19 +134,25 @@ class ShellLabLamp(Mcush.Mcush):
             cmd += ' -b %d'% blue
         if freq is not None:
             cmd += ' -f %d'% freq
-        self.writeCommand(cmd)
+        return self.writeCommand(cmd)
 
-    def reset( self ):
-        self.lamp( 0, freq=0 )
+    def alarm( self, count=None, freq=None ):
+        cmd = 'alarm'
+        if count is not None:
+            cmd += ' -c %d'% count
+        if freq is not None:
+            cmd += ' -f %d'% freq
+        return self.writeCommand(cmd)
+ 
+    def reset( self, lamp_freq=1, alarm_freq=1 ):
+        self.lamp( 0, freq=lamp_freq )
+        self.alarm( 0, freq=alarm_freq )
 
-    def blink( self, freq=1.0 ):
-        self.lamp( freq=freq )
-
-    def color( self, c ):
+    def color( self, c, freq=None ):
         if isinstance(c, str):
             if not COLOR_TAB.has_key(c):
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
-        self.lamp( c ) 
+        self.lamp( c, freq=freq ) 
 
 

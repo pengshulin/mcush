@@ -7,8 +7,8 @@
 #define HAL_LED_PINS  { 6, 7, 8, 9, 10 }
 #define HAL_LED_REV
 
-#define HAL_SPIFFS_CHIPID  0xEF4017  // AT45DB161B 
-#define SPIFLASH_CFG_PHYS_SZ        (2*1024*1024)
+//#define HAL_SPIFFS_CHIPID  0xEF4017  // AT45DB161B 
+//#define SPIFLASH_CFG_PHYS_SZ        (2*1024*1024)
 #define sFLASH_SPI                           SPI1
 #define sFLASH_SPI_CLK                       RCC_APB2Periph_SPI1
 #define sFLASH_SPI_CLK_INIT                  RCC_APB2PeriphClockCmd
@@ -35,6 +35,12 @@
 #define sFLASH_CS_GPIO_PORT                  GPIOA
 #define sFLASH_CS_GPIO_CLK                   RCC_APB2Periph_GPIOA
 
+
+void hal_can_init( void );
+void hal_can_deinit( void );
+int hal_can_transmit( const char *buf, int len );
+void hal_can_cancel( int id );
+int hal_can_receive( int *id, char *buf, int *len );
 
 
 #endif

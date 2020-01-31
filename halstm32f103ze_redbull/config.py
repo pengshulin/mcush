@@ -25,11 +25,16 @@ else:
     hal_config.sources += [hal_dir+'/uart/*.c']
 
 
+if hal_config.use_spiffs:
+    env.appendDefineFlags( [ 'SPIFLASH_AUTO_DETECT=1' ] )
+    hal_config.paths += [hal_dir+'/spiffs']
+    hal_config.sources += [hal_dir+'/spiffs/*.c']
+
 
 env.appendDefineFlags( [
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
-    'USE_CMD_SCPI_RST=0',
+    #'USE_CMD_SCPI_RST=0',
     #'USE_CMD_REBOOT=0',
     'USE_CMD_RESET=0',
     #'USE_CMD_GPIO=0',

@@ -103,6 +103,7 @@ __attribute__((aligned(1))) const char shell_str_set[] = "set";
 __attribute__((aligned(1))) const char shell_str_setting[] = "setting";
 __attribute__((aligned(1))) const char shell_str_signature[] = "signature";
 __attribute__((aligned(1))) const char shell_str_start[] = "start";
+__attribute__((aligned(1))) const char shell_str_status[] = "status";
 __attribute__((aligned(1))) const char shell_str_stop[] = "stop";
 __attribute__((aligned(1))) const char shell_str_tail[] = "tail";
 __attribute__((aligned(1))) const char shell_str_test[] = "test";

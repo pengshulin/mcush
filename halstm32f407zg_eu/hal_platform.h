@@ -55,5 +55,10 @@ uint16_t hal_lcd_get_pixel(uint16_t x0, uint16_t y0);
 int hal_upgrade_prepare_swap( const char *filename, int debug_mode );
 void hal_upgrade_run_stage2(void);
 
+void hal_can_init( void );
+void hal_can_deinit( void );
+int hal_can_transmit( const char *buf );
+
+
 
 #endif

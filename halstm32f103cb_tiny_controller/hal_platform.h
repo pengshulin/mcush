@@ -1,13 +1,19 @@
 #ifndef __HAL_PLATFORM_H__
 #define __HAL_PLATFORM_H__
 
-#define LED_NORMAL  0
-#define LED_ERROR   2
-
-#define HAL_LED_NUM   4
-#define HAL_LED_PORTS  { 1, 1, 1, 1 }
-#define HAL_LED_PINS  { 8, 10, 9, 11 }
-
+#if HAL_CAN
+    #define LED_NORMAL  0
+    #define LED_ERROR   1
+    #define HAL_LED_NUM   2
+    #define HAL_LED_PORTS  { 1, 1 }
+    #define HAL_LED_PINS  { 10, 11 }
+#else
+    #define LED_NORMAL  0
+    #define LED_ERROR   2
+    #define HAL_LED_NUM   4
+    #define HAL_LED_PORTS  { 1, 1, 1, 1 }
+    #define HAL_LED_PINS  { 8, 10, 9, 11 }
+#endif
 
 
 #ifndef USE_CMD_BEEP
@@ -67,6 +73,16 @@ int hal_is_power_set(void);
 
 
 //#define HAL_RESET_VCP_PIN  1
+
+void hal_can_init( void );
+void hal_can_deinit( void );
+int hal_can_transmit( const char *buf, int len );
+void hal_can_cancel( int id );
+int hal_can_receive( int *id, char *buf, int *len );
+
+
+
+
 
 
 #endif
