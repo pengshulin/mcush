@@ -932,3 +932,149 @@ int cmd_rtc( int argc, char *argv[] )
 #endif
 
 
+#if USE_CMD_CAN
+static void print_can_message( can_message_t *msg )
+{
+    shell_printf( msg->ext ? "%08X %c" : "%03X %c", msg->id, msg->remote ? 'R' : 'D' );
+    if( msg->len )
+    {
+        shell_write_char( ' ' );
+        shell_write_mem( msg->data, msg->len );
+    }
+    shell_write_char( '\n' );
+}
+
+
+int cmd_can( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', "cmd", shell_str_command, "info|baudrate|read|write|filter" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'i', "idx", shell_str_index, "index param" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'v', "val", shell_str_value, "value param" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'e', "ext", "extended", "extended" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'r', "rtr", "remote", "remote" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_data, 0, "data args" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    const char *cmd=0;
+    int index, value;
+    uint8_t index_set=0, value_set=0, ext_set=0, rtr_set=0;
+    can_message_t msg;
+    int arg_idx=-1;
+    int dat;
+    can_filter_t filter;
+    int i;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( strcmp( opt.spec->name, "cmd" ) == 0 )
+                cmd = opt.value;
+            else if( strcmp( opt.spec->name, "idx" ) == 0 )
+            {
+                if( parse_int( opt.value, &index ) == 0 )
+                {
+                    shell_write_err(shell_str_index);
+                    return 1;
+                }
+                index_set = 1;
+            }
+            else if( strcmp( opt.spec->name, "val" ) == 0 )
+            {
+                if( parse_int( opt.value, &value ) == 0 )
+                {
+                    shell_write_err(shell_str_value);
+                    return 1;
+                }
+                value_set = 1;
+            } 
+            else if( strcmp( opt.spec->name, "ext" ) == 0 )
+                ext_set = 1;
+            else if( strcmp( opt.spec->name, "rtr" ) == 0 )
+                rtr_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_data ) == 0 )
+            {
+                arg_idx = parser.idx;
+                break;
+            }
+            else
+                STOP_AT_INVALID_ARGUMENT 
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( cmd==NULL || strcmp(cmd, shell_str_info) == 0 )
+    {
+        shell_printf( "error_code: 0x%X\n", CAN_GetLastErrorCode(CAN1) );
+        shell_printf( "error_count: %u\n", CAN_GetReceiveErrorCounter(CAN1) );
+    }
+    else if( strcmp(cmd, "baudrate") == 0 )
+    {
+        if( !value_set )
+            return 1;
+        return hal_can_set_baudrate( value ) ? 0 : 1;
+    }
+    else if( strcmp(cmd, "filter") == 0 )
+    {
+        index = 0;
+        while( 1 )
+        {
+            if( hal_can_filter_get( index, &filter, &i ) == 0 )
+                break;
+            if( i )
+            {
+                shell_printf( "#%d: ", index );
+                shell_printf( "%03X(%03X)", filter.std_id, filter.std_id_mask );
+                if( filter.ext )
+                    shell_printf( " %08X(%08X)", filter.ext_id, filter.ext_id_mask );
+                if( filter.remote )
+                    shell_write_str( " R" );
+                shell_write_char( '\n' );
+            }
+            index += 1;
+        }
+    }
+    else if( strcmp(cmd, "read") == 0 )
+    {
+        while( hal_can_read( &msg, 0 ) )
+            print_can_message( &msg );
+    }
+    else if( strcmp(cmd, "write") == 0 )
+    {
+        msg.id = index_set ? index : 0;
+        msg.ext = ext_set;
+        msg.remote = rtr_set;
+        msg.len = 0;
+        while( (arg_idx > 0) && (arg_idx < argc) && (msg.len < 8) )
+        {
+            if( ! parse_int(argv[arg_idx], &dat) )
+            {
+                shell_write_str( "data err: " );
+                shell_write_line( argv[arg_idx] );
+                return 1;
+            }
+            arg_idx++;
+            msg.data[msg.len++] = dat;
+        }
+        if( hal_can_write( &msg ) == 0 )
+            return 1;
+    }
+    else
+    {
+        shell_write_line("invalid cmd");
+        return -1;
+    } 
+    return 0;
+}
+
+#endif

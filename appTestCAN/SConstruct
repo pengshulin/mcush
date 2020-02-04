@@ -1,0 +1,39 @@
+from VEnvironment import *
+
+haldir = 'stm32f103cb_tiny_controller'
+haldir = 'stm32f103ze_redbull'
+
+#env = loadHalConfig( haldir, use_vcp=True ).env
+env = loadHalConfig( haldir, use_vcp=False ).env
+#env = loadHalConfig( haldir, use_vcp=False, use_spiffs=True ).env
+
+env.appendDefineFlags( [
+    #'MCUSH_STACK_SIZE=4*1024',
+    'TASK_LOGGER_STACK_SIZE=1*1024',
+    'HAL_CAN=1',
+    ] ) 
+
+if haldir == 'stm32f103cb_tiny_controller':
+    env.appendDefineFlags( [ 'CAN_SENDER=1' ] ) 
+
+if not env.DEBUG:
+    if not getBoolEnv('HAL_WDG_DISABLE'):
+        env.appendDefineFlags( [
+            'HAL_WDG_ENABLE=1',
+            ] ) 
+
+env.appendPath([
+    '.',
+    '/libCanFestival/include',
+    '/libCanFestival/include/STM32',
+    '/libCanFestival/driver',
+])
+
+env.appendGlobSource([
+    '*.c',
+    '/libCanFestival/src/*.c',
+    #'/libCanFestival/driver/*.c',
+])
+
+env.makeApp()
+

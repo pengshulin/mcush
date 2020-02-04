@@ -36,11 +36,10 @@
 #define sFLASH_CS_GPIO_CLK                   RCC_APB2Periph_GPIOA
 
 
-void hal_can_init( void );
-void hal_can_deinit( void );
-int hal_can_transmit( const char *buf, int len );
-void hal_can_cancel( int id );
-int hal_can_receive( int *id, char *buf, int *len );
+#if HAL_CAN
+#include "hal_can.h"
+#endif
+
 
 
 #endif

@@ -186,6 +186,14 @@ extern "C" {
 #ifndef USE_CMD_RTC
     #define USE_CMD_RTC  0
 #endif
+#ifndef USE_CMD_CAN
+    #if HAL_CAN
+        #define USE_CMD_CAN  1
+    #else
+        #define USE_CMD_CAN  0
+    #endif
+#endif
+
 #ifndef USE_CMD_LOOP
     #define USE_CMD_LOOP  1
 #endif

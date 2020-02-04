@@ -30,6 +30,7 @@ extern int cmd_ds1w( int argc, char *argv[] );
 extern int cmd_pwm( int argc, char *argv[] );
 extern int cmd_adc( int argc, char *argv[] );
 extern int cmd_rtc( int argc, char *argv[] );
+extern int cmd_can( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
 extern int cmd_fatfs( int argc, char *argv[] );
 extern int cmd_cat( int argc, char *argv[] );
@@ -233,6 +234,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "rtc",  cmd_rtc, 
     "rtc",
     "rtc [-s <val>]" },
+#endif
+#if USE_CMD_CAN
+{   0, 'c',  "can",  cmd_can, 
+    "can bus control",
+    "can -c <cmd> -i <idx> -v <val>" },
 #endif
 #if USE_CMD_BEEP
 {   0,  'b',  "beep",  cmd_beep, 

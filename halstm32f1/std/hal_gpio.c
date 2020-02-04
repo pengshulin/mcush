@@ -1,3 +1,4 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 
 const uint8_t port_num = 7;
