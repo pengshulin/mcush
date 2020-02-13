@@ -13,20 +13,23 @@
  */
 
 #ifndef HAL_CAN_DEFINE 
-    #define HAL_CAN_RCC_GPIO_ENABLE_CMD    RCC_APB2PeriphClockCmd
-    #define HAL_CAN_RCC_GPIO_ENABLE_BIT    RCC_APB2Periph_GPIOB|RCC_APB2Periph_AFIO
+    #define HAL_CAN_RCC_GPIO_ENABLE_CMD    RCC_AHB1PeriphClockCmd
+    #define HAL_CAN_RCC_GPIO_ENABLE_BIT    RCC_AHB1Periph_GPIOB
     #define HAL_CAN_RCC_CAN_ENABLE_CMD     RCC_APB1PeriphClockCmd
     #define HAL_CAN_RCC_CAN_ENABLE_BIT     RCC_APB1Periph_CAN1
     #define HAL_CANx                       CAN1
     #define HAL_CAN_RX_PORT                GPIOB
     #define HAL_CAN_RX_PIN                 GPIO_Pin_8
+    #define HAL_CAN_RX_PIN_SOURCE          GPIO_PinSource8
+    #define HAL_CAN_RX_AF                  GPIO_AF_CAN1
     #define HAL_CAN_TX_PORT                GPIOB
     #define HAL_CAN_TX_PIN                 GPIO_Pin_9
-    #define HAL_CAN_PIN_REMAP              GPIO_Remap1_CAN1
+    #define HAL_CAN_TX_PIN_SOURCE          GPIO_PinSource9
+    #define HAL_CAN_TX_AF                  GPIO_AF_CAN1
     #define HAL_CAN_RX_IRQn                CAN1_RX1_IRQn
     #define HAL_CAN_RX_IRQHandler          CAN1_RX1_IRQHandler
-    #define HAL_CAN_TX_IRQn                USB_HP_CAN1_TX_IRQn
-    #define HAL_CAN_TX_IRQHandler          USB_HP_CAN1_TX_IRQHandler
+    #define HAL_CAN_TX_IRQn                CAN1_TX_IRQn
+    #define HAL_CAN_TX_IRQHandler          CAN1_TX_IRQHandler
 #endif
 
 #ifndef HAL_CAN_BAUDRATE_DEF
@@ -53,24 +56,23 @@ int hal_can_init( void )
     vQueueAddToRegistry( hal_can_queue_rx, "canrxQ" );
     vQueueAddToRegistry( hal_can_queue_tx, "cantxQ" );
 
-    //RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_CRC, ENABLE);
 
     // clock
     HAL_CAN_RCC_GPIO_ENABLE_CMD( HAL_CAN_RCC_GPIO_ENABLE_BIT, ENABLE );
     HAL_CAN_RCC_CAN_ENABLE_CMD( HAL_CAN_RCC_CAN_ENABLE_BIT, ENABLE );
 
-#if defined(HAL_CAN_PIN_REMAP)
-    GPIO_PinRemapConfig( HAL_CAN_PIN_REMAP, ENABLE );
-#endif
-
     // alternative output port
-    gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
-    gpio_init.GPIO_Mode = GPIO_Mode_IPU;
+    gpio_init.GPIO_Speed = GPIO_High_Speed;
+    gpio_init.GPIO_Mode = GPIO_Mode_AF;
+    gpio_init.GPIO_OType = GPIO_OType_PP;
+    gpio_init.GPIO_PuPd = GPIO_PuPd_UP;
     gpio_init.GPIO_Pin = HAL_CAN_RX_PIN;
     GPIO_Init( HAL_CAN_RX_PORT, &gpio_init );
-    gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
     gpio_init.GPIO_Pin = HAL_CAN_TX_PIN;
     GPIO_Init( HAL_CAN_TX_PORT, &gpio_init );
+    GPIO_PinAFConfig( HAL_CAN_RX_PORT, HAL_CAN_RX_PIN_SOURCE, HAL_CAN_RX_AF );
+    GPIO_PinAFConfig( HAL_CAN_TX_PORT, HAL_CAN_TX_PIN_SOURCE, HAL_CAN_TX_AF );
 
     /* CAN register init */
     CAN_DeInit( HAL_CANx );
@@ -124,19 +126,19 @@ typedef struct {
     uint32_t BS1:4;  /* time segment 1 */
 } can_baudrate_config_t;
 
-// baudrate = PCLK1(36M) / (SJW+BS1+BS2) / Prescaler
+// baudrate = PCLK1 / (SJW+BS1+BS2) / Prescaler
 const can_baudrate_config_t baudrate_config[] = {
-{ 1000000,   4, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{  500000,   8, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{  250000,  16, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{  200000,  20, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{  125000,  32, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{  100000,  40, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{   50000,  80, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{   40000, 100, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{   20000, 200, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{   10000, 400, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
-{    5000, 800, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{ 1000000,    5, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{  500000,   10, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{  250000,   20, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{  200000,   25, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{  125000,   40, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{  100000,   50, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{   50000,  100, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{   40000,  125, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{   20000,  250, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{   10000,  500, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
+{    5000, 1000, CAN_SJW_1tq, CAN_BS1_3tq, CAN_BS2_5tq },
 };
 
 

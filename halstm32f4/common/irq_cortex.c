@@ -29,8 +29,8 @@ void HardFault_Handler(unsigned int *args)
 
     /* TODO: 
        1. check $lr, determine MSP/PSP:
-          0xFFFFFFF9 - MSP
-          0xFFFFFFFD - PSP
+          0xFFFFFFF9 (-7) - MSP
+          0xFFFFFFFD (-3) - PSP
        2. check $msp/$psp and find the fault point 
        3. jump back by 'set $pc=??????'
      */

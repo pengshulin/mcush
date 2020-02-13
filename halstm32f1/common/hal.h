@@ -13,6 +13,9 @@ void hal_led_clr(int index);
 void hal_led_toggle(int index);
 int hal_led_get(int index);
 
+int hal_key_get_num(void);
+int hal_key_get(int mask);
+
 void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
 

@@ -26,18 +26,26 @@ void task_can_entry(void *p)
 
     while( 1 )
     {
-        vTaskDelay( configTICK_RATE_HZ/2 );
+        //vTaskDelay( configTICK_RATE_HZ/2 );
 
-        while( hal_can_read( &msg, portMAX_DELAY ) )
+        if( hal_can_read( &msg, portMAX_DELAY ) )
         {
             /* TODO: process received message */
-            /* LED set/clr command in two bytes */
+            /* LED set/clr/toggle command in two bytes */
             if( (msg.id == 0x1) && (msg.len == 2) )
             {
-               if( msg.data[0] )
-                   hal_led_set( msg.data[1] );
-               else
-                   hal_led_clr( msg.data[1] );
+                switch( msg.data[0] )
+                {
+                case 1:
+                    hal_led_set( msg.data[1] );
+                    break;
+                case 0:
+                    hal_led_clr( msg.data[1] );
+                    break;
+                default:
+                    hal_led_toggle( msg.data[1] );
+                    break;
+                }
             }
         }
     }

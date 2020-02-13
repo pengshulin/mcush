@@ -8,6 +8,10 @@
 #define HAL_LED_PORTS  { 3, 7, 7, 7 } 
 #define HAL_LED_PINS  { 12, 10, 11, 12 }
 
+#define HAL_KEY_NUM   2
+#define HAL_KEY_PORTS   { 0, 2 }
+#define HAL_KEY_PINS  { 0, 13 }
+
 
 #ifndef HAL_RTC
   #define HAL_RTC  1
@@ -29,39 +33,14 @@ uint32_t hal_rng_get(void);
 
 
 #ifndef USE_CMD_SGPIO
-#define USE_CMD_SGPIO  1
+#define USE_CMD_SGPIO  0
 #endif
-#define SGPIO_FREQ_MIN  1.0
-#define SGPIO_FREQ_DEF  1000000.0
-#define SGPIO_FREQ_MAX  4000000.0
-
-typedef struct _sgpio_cfg_t
-{
-    uint8_t inited;
-    uint8_t run;
-    uint8_t loop_mode;
-    uint8_t port;
-    uint16_t input_mode;
-    uint16_t output_mode;
-    void *buf_out;
-    void *buf_in;
-    uint32_t buf_len;
-    float freq;
-} sgpio_cfg_t;
-
-int hal_sgpio_init( void );
-int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, void *buf_out, void *buf_in, int buf_len, float freq );
-int hal_sgpio_start( void );
-void hal_sgpio_stop( void );
-int hal_sgpio_set_freq( float freq );
-sgpio_cfg_t *hal_sgpio_info( void );
-
 
 #ifndef MCUSH_SPIFFS
 #define MCUSH_SPIFFS  1
 #endif
 
-#define HAL_SPIFFS_CHIPID  0xEF4018  // W25P128
+//#define HAL_SPIFFS_CHIPID  0xEF4018  // W25P128
 #define sFLASH_SPI                           SPI5
 #define sFLASH_SPI_CLK                       RCC_APB2Periph_SPI5
 #define sFLASH_SPI_CLK_INIT                  RCC_APB2PeriphClockCmd
@@ -107,6 +86,10 @@ uint16_t hal_lcd_get_pixel(uint16_t x0, uint16_t y0);
 
 #if HAL_SDRAM
 #include "hal_sdram.h"
+#endif
+
+#if HAL_CAN
+#include "hal_can.h"
 #endif
 
 #endif

@@ -7,6 +7,12 @@
 #define HAL_LED_PINS  { 6, 7, 8, 9, 10 }
 #define HAL_LED_REV
 
+#define HAL_KEY_NUM   4
+#define HAL_KEY_PORTS   { 0, 0, 2, 3 }
+#define HAL_KEY_PINS  { 0, 8, 13, 3 }
+
+
+
 //#define HAL_SPIFFS_CHIPID  0xEF4017  // AT45DB161B 
 //#define SPIFLASH_CFG_PHYS_SZ        (2*1024*1024)
 #define sFLASH_SPI                           SPI1

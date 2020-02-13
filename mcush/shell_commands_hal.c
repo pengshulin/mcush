@@ -970,7 +970,7 @@ int cmd_can( int argc, char *argv[] )
     int arg_idx=-1;
     int dat;
     can_filter_t filter;
-    int i;
+    int i, j, k, l;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -1015,8 +1015,9 @@ int cmd_can( int argc, char *argv[] )
 
     if( cmd==NULL || strcmp(cmd, shell_str_info) == 0 )
     {
-        shell_printf( "error_code: 0x%X\n", CAN_GetLastErrorCode(CAN1) );
-        shell_printf( "error_count: %u\n", CAN_GetReceiveErrorCounter(CAN1) );
+        shell_printf( "baudrate: %d\n", hal_can_get_baudrate() );
+        shell_printf( "last_error: %d\n", hal_can_get_last_error() );
+        shell_printf( "error_count: %u\n", hal_can_get_error_count() );
     }
     else if( strcmp(cmd, "baudrate") == 0 )
     {
@@ -1026,22 +1027,64 @@ int cmd_can( int argc, char *argv[] )
     }
     else if( strcmp(cmd, "filter") == 0 )
     {
-        index = 0;
-        while( 1 )
+        if( arg_idx > 0 )
         {
-            if( hal_can_filter_get( index, &filter, &i ) == 0 )
-                break;
-            if( i )
+            /* set single filter as following arguments assigned */
+            /* format: <filter_id> <enabled>  <can_id> <mask> */
+            /* eg: can -c filter 5 0            (disable #5)   */
+            /* eg: can -c filter 0 1 0x01 0x1F  (enable #0 as 0x1/0x1F) */
+            /* eg: can -e -r -c filter 1 1 0x01 0x1F  (enable #0 as 0x1/0x1F ext/rtr set) */
+            memset( (void*)&filter, 0, sizeof(can_filter_t) );
+            if( arg_idx + 2 > argc )
+                return 1;
+            if( ! parse_int(argv[arg_idx++], &i) )
+                return 1;
+            if( ! parse_int(argv[arg_idx++], &j) )
+                return 1;
+            if( j )
             {
-                shell_printf( "#%d: ", index );
-                shell_printf( "%03X(%03X)", filter.std_id, filter.std_id_mask );
-                if( filter.ext )
-                    shell_printf( " %08X(%08X)", filter.ext_id, filter.ext_id_mask );
-                if( filter.remote )
-                    shell_write_str( " R" );
-                shell_write_char( '\n' );
+                if( arg_idx + 2 > argc )
+                    return 1;
+                if( ! parse_int(argv[arg_idx++], &k) )
+                    return 1;
+                if( ! parse_int(argv[arg_idx++], &l) )
+                    return 1;
+                if( ext_set )
+                {
+                    filter.ext = 1;
+                    filter.ext_id = k;
+                    filter.ext_id_mask = l;
+                }
+                else
+                {
+                    filter.std_id = k;
+                    filter.std_id_mask = l;
+                }
+                filter.remote = rtr_set ? 1 : 0;
             }
-            index += 1;
+            hal_can_filter_set( i, &filter, j );
+        }
+        else
+        {
+            /* no args assigned, list all filters */
+            index = 0;
+            while( 1 )
+            {
+                if( hal_can_filter_get( index, &filter, &i ) == 0 )
+                    break;
+                if( i )
+                {
+                    shell_printf( "#%d: ", index );
+                    if( filter.ext )
+                        shell_printf( "%08X(%08X)", filter.ext_id, filter.ext_id_mask );
+                    else
+                        shell_printf( "%03X(%03X)", filter.std_id, filter.std_id_mask );
+                    if( filter.remote )
+                        shell_write_str( " R" );
+                    shell_write_char( '\n' );
+                }
+                index += 1;
+            }
         }
     }
     else if( strcmp(cmd, "read") == 0 )

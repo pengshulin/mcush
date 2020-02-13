@@ -13,9 +13,6 @@ env.appendDefineFlags( [
     'HAL_CAN=1',
     ] ) 
 
-if haldir == 'stm32f103cb_tiny_controller':
-    env.appendDefineFlags( [ 'CAN_SENDER=1' ] ) 
-
 if not env.DEBUG:
     if not getBoolEnv('HAL_WDG_DISABLE'):
         env.appendDefineFlags( [
@@ -24,15 +21,10 @@ if not env.DEBUG:
 
 env.appendPath([
     '.',
-    '/libCanFestival/include',
-    '/libCanFestival/include/STM32',
-    '/libCanFestival/driver',
 ])
 
 env.appendGlobSource([
     '*.c',
-    '/libCanFestival/src/*.c',
-    #'/libCanFestival/driver/*.c',
 ])
 
 env.makeApp()

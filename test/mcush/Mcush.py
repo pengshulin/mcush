@@ -901,4 +901,26 @@ class Mcush( Instrument.SerialInstrument ):
     def luaCommand( self, cmd ):
         ret = self.writeCommand( 'lua -c "%s"'% cmd )
         return ret[:-1]
- 
+
+    def can( self, cmd, index=None, val=None, ext=None, rtr=None, args=None ):
+        command = 'can -c %s'% cmd
+        if index is not None:
+            command += ' -i %d'% index
+        if val is not None:
+            command += ' -v %d'% val
+        if ext:
+            command += ' -e'
+        if rtr:
+            command += ' -r'
+        if args:
+            command += ' '+(' '.join([str(a) for a in args]))
+        ret = self.writeCommand( command )
+        return ret[:-1]
+
+    def canWrite( self, cob_id, dat=[], ext=None, rtr=None ):
+        self.can( 'write', index=cob_id, ext=ext, rtr=rtr, args=dat )
+
+    def canRead( self ):
+        return self.can( 'read' )
+
+
