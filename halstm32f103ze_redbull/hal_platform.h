@@ -8,8 +8,9 @@
 #define HAL_LED_REV
 
 #define HAL_KEY_NUM   4
-#define HAL_KEY_PORTS   { 0, 0, 2, 3 }
-#define HAL_KEY_PINS  { 0, 8, 13, 3 }
+#define HAL_KEY_PORTS   { 0, 2, 0, 3 }
+#define HAL_KEY_PINS  { 0, 13, 8, 3 }
+#define HAL_KEY_REV
 
 
 

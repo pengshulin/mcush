@@ -915,12 +915,24 @@ class Mcush( Instrument.SerialInstrument ):
         if args:
             command += ' '+(' '.join([str(a) for a in args]))
         ret = self.writeCommand( command )
-        return ret[:-1]
+        return ret
+
+    def canBaudrate( self, new_baudrate ):
+        self.can( 'baudrate', val=new_baudrate )
 
     def canWrite( self, cob_id, dat=[], ext=None, rtr=None ):
         self.can( 'write', index=cob_id, ext=ext, rtr=rtr, args=dat )
 
     def canRead( self ):
-        return self.can( 'read' )
+        ret = []
+        for line in self.can( 'read' ):
+            items = line.split()
+            cid, rtr = items[0], items[1]
+            try:
+                dat = items[2]
+            except IndexError:
+                dat = ''
+            ret.append( (int(cid,16), bool(len(cid)>3), bool(rtr=='R'), dat) )
+        return ret
 
 

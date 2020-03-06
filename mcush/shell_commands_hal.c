@@ -949,7 +949,7 @@ int cmd_can( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', "cmd", shell_str_command, "info|baudrate|read|write|filter" },
+          'c', "cmd", shell_str_command, "info|(de)init|baudrate|read|write|filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'i', "idx", shell_str_index, "index param" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -1016,8 +1016,17 @@ int cmd_can( int argc, char *argv[] )
     if( cmd==NULL || strcmp(cmd, shell_str_info) == 0 )
     {
         shell_printf( "baudrate: %d\n", hal_can_get_baudrate() );
-        shell_printf( "last_error: %d\n", hal_can_get_last_error() );
+        shell_printf( "last_error: 0x%X\n", hal_can_get_last_error() );
         shell_printf( "error_count: %u\n", hal_can_get_error_count() );
+    }
+    else if( strcmp(cmd, "init") == 0 )
+    {
+        if( hal_can_init() == 0 )
+            return 1;
+    }
+    else if( strcmp(cmd, "deinit") == 0 )
+    {
+        hal_can_deinit();
     }
     else if( strcmp(cmd, "baudrate") == 0 )
     {

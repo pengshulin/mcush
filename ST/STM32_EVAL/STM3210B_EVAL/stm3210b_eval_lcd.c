@@ -1321,7 +1321,9 @@ void LCD_FillPolyLine(pPoint Points, uint16_t PointCount)
 
     for (i = 0; i < PointCount; i++) 
     {
-      if (POLY_Y(i)<(double) pixelY && POLY_Y(j)>=(double) pixelY || POLY_Y(j)<(double) pixelY && POLY_Y(i)>=(double) pixelY) 
+      //if (POLY_Y(i)<(double) pixelY && POLY_Y(j)>=(double) pixelY || POLY_Y(j)<(double) pixelY && POLY_Y(i)>=(double) pixelY) 
+      /* fixed */
+      if ((POLY_Y(i)<(double) pixelY && POLY_Y(j)>=(double) pixelY) || (POLY_Y(j)<(double) pixelY && POLY_Y(i)>=(double) pixelY)) 
       {
         nodeX[nodes++]=(int) (POLY_X(i)+((pixelY-POLY_Y(i))*(POLY_X(j)-POLY_X(i)))/(POLY_Y(j)-POLY_Y(i))); 
       }

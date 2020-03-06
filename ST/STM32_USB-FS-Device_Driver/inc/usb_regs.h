@@ -2,25 +2,35 @@
   ******************************************************************************
   * @file    usb_regs.h
   * @author  MCD Application Team
-  * @version V4.0.0
-  * @date    28-August-2012
+  * @version V4.1.0
+  * @date    26-May-2017
   * @brief   Interface prototype functions to USB cell registers
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
   *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
@@ -66,6 +76,10 @@ enum EP_BUF_NUM
 #define DADDR   ((__IO unsigned *)(RegBase + 0x4C))
 /* Buffer Table address register */
 #define BTABLE  ((__IO unsigned *)(RegBase + 0x50))
+#if defined STM32F303xE || defined STM32F302x8 
+  /* LPM Control and Status register */
+#define LPMCSR    (( __IO unsigned *)(RegBase + 0x54))
+#endif
 /******************************************************************************/
 /*                         Endpoint registers                                 */
 /******************************************************************************/
@@ -110,8 +124,9 @@ enum EP_BUF_NUM
 #define ISTR_RESET  (0x0400) /* RESET (clear-only bit) */
 #define ISTR_SOF    (0x0200) /* Start Of Frame (clear-only bit) */
 #define ISTR_ESOF   (0x0100) /* Expected Start Of Frame (clear-only bit) */
-
-
+#if defined STM32F303xE || defined STM32F302x8 
+#define ISTR_L1REQ  (0x0080)  /* LPM L1 state request  */
+#endif
 #define ISTR_DIR    (0x0010)  /* DIRection of transaction (read-only bit)  */
 #define ISTR_EP_ID  (0x000F)  /* EndPoint IDentifier (read-only bit)  */
 
@@ -123,7 +138,9 @@ enum EP_BUF_NUM
 #define CLR_RESET  (~ISTR_RESET) /* clear RESET bit      */
 #define CLR_SOF    (~ISTR_SOF)   /* clear Start Of Frame bit   */
 #define CLR_ESOF   (~ISTR_ESOF)  /* clear Expected Start Of Frame bit */
-
+#if defined STM32F303xE || defined STM32F302x8 
+#define CLR_L1REQ  (~ISTR_L1REQ)  /* clear LPM L1  bit */
+#endif
 /******************************************************************************/
 /*             CNTR control register bits definitions                         */
 /******************************************************************************/
@@ -135,13 +152,26 @@ enum EP_BUF_NUM
 #define CNTR_RESETM (0x0400) /* RESET Mask   */
 #define CNTR_SOFM   (0x0200) /* Start Of Frame Mask */
 #define CNTR_ESOFM  (0x0100) /* Expected Start Of Frame Mask */
-
-
+#if defined STM32F303xE || defined STM32F302x8 
+#define CNTR_L1REQM (0x0080)    /* LPM L1 state request interrupt mask */
+#define CNTR_L1RESUME (0x0020) /* LPM L1 Resume request */
+#endif
 #define CNTR_RESUME (0x0010) /* RESUME request */
 #define CNTR_FSUSP  (0x0008) /* Force SUSPend */
 #define CNTR_LPMODE (0x0004) /* Low-power MODE */
 #define CNTR_PDWN   (0x0002) /* Power DoWN */
 #define CNTR_FRES   (0x0001) /* Force USB RESet */
+
+#if defined STM32F303xE || defined STM32F302x8 
+
+/******************************************************************************/
+/*             Bit definition for LPM register                         */
+/******************************************************************************/
+#define  LPMCSR_BESL    ((uint16_t)0x00F0) /* BESL value received with last ACKed LPM Token  */ 
+#define  LPMCSR_REMWAKE ((uint16_t)0x0008) /* bRemoteWake value received with last ACKed LPM Token */ 
+#define  LPMCSR_LPMACK  ((uint16_t)0x0002) /* LPM Token acknowledge enable*/
+#define  LPMCSR_LMPEN   ((uint16_t)0x0001) /* LPM support enable  */
+#endif
 
 /******************************************************************************/
 /*                FNR Frame Number Register bit definitions                   */
@@ -216,6 +246,9 @@ enum EP_BUF_NUM
 /* SetBTABLE */
 #define _SetBTABLE(wRegValue)(*BTABLE = (uint16_t)(wRegValue & 0xFFF8))
 
+/*SetLPMCSR */
+#define _SetLPMCSR(wRegValue) (*LPMCSR = (uint16_t)wRegValue)
+
 /* GetCNTR */
 #define _GetCNTR()   ((uint16_t) *CNTR)
 
@@ -230,6 +263,9 @@ enum EP_BUF_NUM
 
 /* GetBTABLE */
 #define _GetBTABLE() ((uint16_t) *BTABLE)
+
+/*GetLPMCSR */
+#define _GetLPMCSR() ((uint16_t) *LPMCSR)
 
 /* SetENDPOINT */
 #define _SetENDPOINT(bEpNum,wRegValue)  (*(EP0REG + bEpNum)= \
@@ -447,11 +483,18 @@ enum EP_BUF_NUM
 * Return         : None.
 *******************************************************************************/
 #define _GetEPAddress(bEpNum) ((uint8_t)(_GetENDPOINT(bEpNum) & EPADDR_FIELD))
+#if defined STM32F303xE || defined STM32F302x8 
+#define _pEPTxAddr(bEpNum) ((uint16_t *)((_GetBTABLE()+bEpNum*8) + PMAAddr))
+#define _pEPTxCount(bEpNum) ((uint16_t *)((_GetBTABLE()+bEpNum*8+2) + PMAAddr))
+#define _pEPRxAddr(bEpNum) ((uint16_t *)((_GetBTABLE()+bEpNum*8+4) + PMAAddr))
+#define _pEPRxCount(bEpNum) ((uint16_t *)((_GetBTABLE()+bEpNum*8+6) + PMAAddr))
 
+#else
 #define _pEPTxAddr(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8  )*2 + PMAAddr))
 #define _pEPTxCount(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8+2)*2 + PMAAddr))
 #define _pEPRxAddr(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8+4)*2 + PMAAddr))
 #define _pEPRxCount(bEpNum) ((uint32_t *)((_GetBTABLE()+bEpNum*8+6)*2 + PMAAddr))
+#endif
 
 /*******************************************************************************
 * Macro Name     : SetEPTxAddr / SetEPRxAddr.
@@ -482,19 +525,37 @@ enum EP_BUF_NUM
 * Output         : None.
 * Return         : None.
 *******************************************************************************/
+#if defined STM32F303xE || defined STM32F302x8 
+#define _BlocksOf32(dwReg,wCount,wNBlocks) {\
+    wNBlocks = wCount >> 5;\
+    if((wCount & 0x1f) == 0)\
+      wNBlocks--;\
+    *pdwReg = (uint16_t)((wNBlocks << 10) | 0x8000);\
+  }/* _BlocksOf32 */
+#else
 #define _BlocksOf32(dwReg,wCount,wNBlocks) {\
     wNBlocks = wCount >> 5;\
     if((wCount & 0x1f) == 0)\
       wNBlocks--;\
     *pdwReg = (uint32_t)((wNBlocks << 10) | 0x8000);\
   }/* _BlocksOf32 */
+#endif
 
+#if defined STM32F303xE || defined STM32F302x8 
+#define _BlocksOf2(dwReg,wCount,wNBlocks) {\
+    wNBlocks = wCount >> 1;\
+    if((wCount & 0x1) != 0)\
+      wNBlocks++;\
+    *pdwReg = (uint16_t)(wNBlocks << 10);\
+  }/* _BlocksOf2 */
+#else
 #define _BlocksOf2(dwReg,wCount,wNBlocks) {\
     wNBlocks = wCount >> 1;\
     if((wCount & 0x1) != 0)\
       wNBlocks++;\
     *pdwReg = (uint32_t)(wNBlocks << 10);\
   }/* _BlocksOf2 */
+#endif
 
 #define _SetEPCountRxReg(dwReg,wCount)  {\
     uint16_t wNBlocks;\
@@ -502,12 +563,17 @@ enum EP_BUF_NUM
     else {_BlocksOf2(dwReg,wCount,wNBlocks);}\
   }/* _SetEPCountRxReg */
 
-
-
+#if defined STM32F303xE || defined STM32F302x8 
+#define _SetEPRxDblBuf0Count(bEpNum,wCount) {\
+    uint16_t *pdwReg = _pEPTxCount(bEpNum); \
+    _SetEPCountRxReg(pdwReg, wCount);\
+  }
+#else
 #define _SetEPRxDblBuf0Count(bEpNum,wCount) {\
     uint32_t *pdwReg = _pEPTxCount(bEpNum); \
     _SetEPCountRxReg(pdwReg, wCount);\
   }
+#endif
 /*******************************************************************************
 * Macro Name     : SetEPTxCount / SetEPRxCount.
 * Description    : sets counter for the tx/rx buffer.
@@ -517,10 +583,17 @@ enum EP_BUF_NUM
 * Return         : None.
 *******************************************************************************/
 #define _SetEPTxCount(bEpNum,wCount) (*_pEPTxCount(bEpNum) = wCount)
+#if defined STM32F303xE || defined STM32F302x8 
+#define _SetEPRxCount(bEpNum,wCount) {\
+    uint16_t *pdwReg = _pEPRxCount(bEpNum); \
+    _SetEPCountRxReg(pdwReg, wCount);\
+  }
+#else
 #define _SetEPRxCount(bEpNum,wCount) {\
     uint32_t *pdwReg = _pEPRxCount(bEpNum); \
     _SetEPCountRxReg(pdwReg, wCount);\
   }
+#endif
 /*******************************************************************************
 * Macro Name     : GetEPTxCount / GetEPRxCount.
 * Description    : gets counter of the tx buffer.
@@ -655,7 +728,11 @@ void SetEPTxAddr(uint8_t /*bEpNum*/, uint16_t /*wAddr*/);
 void SetEPRxAddr(uint8_t /*bEpNum*/, uint16_t /*wAddr*/);
 uint16_t GetEPTxAddr(uint8_t /*bEpNum*/);
 uint16_t GetEPRxAddr(uint8_t /*bEpNum*/);
+#if defined STM32F303xE || defined STM32F302x8 
+void SetEPCountRxReg(uint16_t * /*pdwReg*/, uint16_t /*wCount*/);
+#else
 void SetEPCountRxReg(uint32_t * /*pdwReg*/, uint16_t /*wCount*/);
+#endif
 void SetEPTxCount(uint8_t /*bEpNum*/, uint16_t /*wCount*/);
 void SetEPRxCount(uint8_t /*bEpNum*/, uint16_t /*wCount*/);
 uint16_t GetEPTxCount(uint8_t /*bEpNum*/);

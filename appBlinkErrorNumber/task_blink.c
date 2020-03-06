@@ -3,11 +3,11 @@
 #include "task_blink.h"
 
 #ifndef LED_NORMAL
-    #define LED_NORMAL  0
+#define LED_NORMAL  0
 #endif
 
 #ifndef LED_ERROR
-    #define LED_ERROR   LED_NORMAL
+#define LED_ERROR   LED_NORMAL
 #endif
 
 static int _errno = 0;
@@ -28,9 +28,9 @@ int set_errno(int num)
 int cmd_error( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           's', shell_str_stop, 0, shell_str_stop },
-        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
           0, "errno", 0, "0~100000000" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
@@ -52,7 +52,7 @@ int cmd_error( int argc, char *argv[] )
                 stop = 1;
         }
         else
-            STOP_AT_INVALID_ARGUMENT 
+            STOP_AT_INVALID_ARGUMENT
     }
 
     if( stop )
@@ -65,12 +65,12 @@ int cmd_error( int argc, char *argv[] )
     if( new == -1 )
     {
         if( _errno < 0 )
-             shell_write_line( "stop" );
+            shell_write_line( "stop" );
         else
-             shell_printf( "%d\n", _errno );
+            shell_printf( "%d\n", _errno );
         return 0;
     }
-    
+
     if( (new < 0) || (new > 100000000) )
     {
         shell_write_line( "out of range" );
@@ -81,7 +81,7 @@ int cmd_error( int argc, char *argv[] )
 }
 
 const shell_cmd_t cmd_tab_blink[] = {
-{   0, 'e', "error",  cmd_error, 
+{   0, 'e', "error",  cmd_error,
     "set error number",
     "error -s <num>"  },
 {   CMD_END  } };
@@ -107,7 +107,7 @@ void blink_digit( int digit, int led )
             vTaskDelay(DELAY_A);
             hal_led_clr(led);
             vTaskDelay(DELAY_A);
-            /* NOTE:  if the blink task is the only running task, in release mode, 
+            /* NOTE:  if the blink task is the only running task, in release mode,
             cpu may reboot by the wdg (especially for long digits error code),
             so clear the wdg on every blink */
             hal_wdg_clear();
@@ -171,9 +171,9 @@ void task_blink_init(void)
 
     shell_add_cmd_table( cmd_tab_blink );
 
-    (void)xTaskCreate(task_blink_entry, (const char *)"blinkT", 
-                TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_BLINK_PRIORITY, &task_blink);
+    (void)xTaskCreate(task_blink_entry, (const char *)"blinkT",
+                      TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
+                      NULL, TASK_BLINK_PRIORITY, &task_blink);
     if( task_blink == NULL )
         halt("create blink task");
 }

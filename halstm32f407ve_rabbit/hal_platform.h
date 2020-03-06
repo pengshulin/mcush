@@ -31,33 +31,10 @@ uint32_t hal_rng_get(void);
 #define MCUSH_SPIFFS  0
 #endif
 
-//#define HAL_SPIFFS_CHIPID  0xEF4017  // W25P64
-#define sFLASH_SPI                           SPI1
-#define sFLASH_SPI_CLK                       RCC_APB2Periph_SPI1
-#define sFLASH_SPI_CLK_INIT                  RCC_APB2PeriphClockCmd
+#include "hal_platform_spiffs.h"
 
-#define sFLASH_SPI_SCK_PIN                   GPIO_Pin_5
-#define sFLASH_SPI_SCK_GPIO_PORT             GPIOA
-#define sFLASH_SPI_SCK_GPIO_CLK              RCC_AHB1Periph_GPIOA
-#define sFLASH_SPI_SCK_SOURCE                GPIO_PinSource5
-#define sFLASH_SPI_SCK_AF                    GPIO_AF_SPI1
-
-#define sFLASH_SPI_MISO_PIN                  GPIO_Pin_6
-#define sFLASH_SPI_MISO_GPIO_PORT            GPIOA
-#define sFLASH_SPI_MISO_GPIO_CLK             RCC_AHB1Periph_GPIOA
-#define sFLASH_SPI_MISO_SOURCE               GPIO_PinSource6
-#define sFLASH_SPI_MISO_AF                   GPIO_AF_SPI1
-
-#define sFLASH_SPI_MOSI_PIN                  GPIO_Pin_5
-#define sFLASH_SPI_MOSI_GPIO_PORT            GPIOB
-#define sFLASH_SPI_MOSI_GPIO_CLK             RCC_AHB1Periph_GPIOB
-#define sFLASH_SPI_MOSI_SOURCE               GPIO_PinSource5
-#define sFLASH_SPI_MOSI_AF                   GPIO_AF_SPI1
-
-#define sFLASH_CS_PIN                        GPIO_Pin_4
-#define sFLASH_CS_GPIO_PORT                  GPIOA
-#define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOA
-
+#ifdef HAL_MOTION
 #include "hal_motion.h"
+#endif
 
 #endif

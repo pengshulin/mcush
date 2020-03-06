@@ -1,10 +1,15 @@
-#ifndef _HAL_H_
-#define _HAL_H_
+#ifndef __HAL_H__
+#define __HAL_H__
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "hal_chip.h"
 
-
 void hal_clk_init(void);
+void hal_debug_init(void);
 
 void hal_led_init(void);
 int hal_led_get_num(void);
@@ -18,6 +23,7 @@ int hal_key_get(int mask);
 
 void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);
+void hal_delay_10ms(uint32_t ms10);
 
 void hal_reboot(void);
 void hal_reboot_counter_init(void);
@@ -45,9 +51,6 @@ void hal_wdg_enable(void);
 void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
-int hal_get_serial_number( char *buf );
-
-int hal_init(void);
 
 typedef struct _sgpio_cfg_t
 {
@@ -81,29 +84,41 @@ sgpio_cfg_t *hal_sgpio_info( void );
 #endif
 
 
-
 void hal_beep_init( void );
 void hal_beep_on( int freq );
 void hal_beep_off( void );
 
- 
 void hal_pwm_init( int freq, int range, int value );
 void hal_pwm_deinit( void );
 void hal_pwm_set( int index, int value );
 int hal_pwm_get( int index );
 int hal_pwm_get_num( void );
 
- 
 void hal_adc_init( void );
 void hal_adc_deinit( void );
 int hal_adc_get_num( void );
+int hal_adc_in_use( void );
 float hal_adc_get( int index );
 
-  
 
+#if HAL_DAQ
+#include "hal_daq.h"
+#endif
 
+#if HAL_CAN
+#include "hal_can.h"
+#endif
+
+int hal_init(void);
+int hal_get_serial_number( char *buf );
+void init_sys_tick(void);
+unsigned int get_sys_tick_count(void);
 void hal_platform_reset(void);
 void hal_platform_init(void);
 #include "hal_platform.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

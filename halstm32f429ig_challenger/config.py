@@ -4,7 +4,7 @@ env.setLinkfile( '/ld/stm32f429xg_ccmsram.ld' )
 #env.setLinkfile( '/ld/stm32f429xg_min.ld' )
 #env.setLinkfile( '/ld/stm32f429xg_sdram_b2.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=25000000', 'NEED_FMC' ] )
-env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
+
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']
@@ -58,4 +58,7 @@ if hal_config.use_hal_driver:
         'HAL_REBOOT_COUNTER=0',
         ] )
 
-
+else:
+    env.appendDefineFlags( [
+        'HAL_REBOOT_COUNTER=1'
+        ] )

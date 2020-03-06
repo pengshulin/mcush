@@ -79,31 +79,31 @@ class ShellLab(Mcush.Mcush):
     daqDone = daq_done
     daqRead = daq_read
 
-    def monitor( self, cmd, index=None, value=None ):
-        cmd = 'monitor -c %s'% cmd
+    def measure( self, cmd, index=None, value=None ):
+        cmd = 'measure -c %s'% cmd
         if index is not None:
             cmd += ' -i %d'% index
         if value is not None:
             cmd += ' -v %d'% value
         return self.writeCommand( cmd )
 
-    def monitor_start( self ):
-        self.monitor( 'start' )
+    def measure_start( self ):
+        self.measure( 'start' )
 
-    def monitor_stop( self ):
-        self.monitor( 'stop' )
+    def measure_stop( self ):
+        self.measure( 'stop' )
 
-    def monitor_read( self, channel ):
-        ret = self.monitor( 'read', index=channel )
+    def measure_read( self, channel ):
+        ret = self.measure( 'read', index=channel )
         dat = []
         for l in ret:
             for v in l.strip().split(','):
                 dat.append( float(v) )
         return dat
 
-    monitorStart = monitor_start
-    monitorStop = monitor_stop
-    monitorRead = monitor_read
+    measureStart = measure_start
+    measureStop = measure_stop
+    measureRead = measure_read
 
 
 COLOR_TAB = {

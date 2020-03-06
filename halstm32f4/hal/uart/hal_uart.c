@@ -59,7 +59,6 @@ int hal_uart_init( uint32_t baudrate )
 {
     LL_GPIO_InitTypeDef gpio_init;
     LL_USART_InitTypeDef usart_init;
-    //NVIC_InitTypeDef nvic_init;
 
     hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
     hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );

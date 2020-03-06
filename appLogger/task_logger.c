@@ -20,7 +20,7 @@ static uint8_t monitoring_mode=0;
 static const char _fname[] = LOGGER_FNAME;
 static uint8_t _enable = LOGGER_ENABLE;
 
- 
+
 void logger_enable(void)
 {
     _enable = 1;
@@ -45,9 +45,9 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 
 #if HAL_RTC
     if( ! get_rtc_tick_str( buf, evt->time ) )
-        get_tick_time_str( buf, evt->time, 1 ); 
+        get_tick_time_str( buf, evt->time, 1 );
 #else
-    get_tick_time_str( buf, evt->time, 1 ); 
+    get_tick_time_str( buf, evt->time, 1 );
 #endif
     strcat( buf, " " );
     if( evt->type & LOG_ERROR )
@@ -63,17 +63,17 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
     tp[1] = 0;
     strcat( buf, tp );
     strcat( buf, " " );
-    if( evt->module ) 
+    if( evt->module )
     {
         strcat( buf, evt->module);
         strcat( buf, ": " );
-    } 
+    }
     strcat( buf, evt->str );
     strcat( buf, "\n" );
-    return buf;    
+    return buf;
 }
 
- 
+
 static int _logger_module_str( int type, const char *module, const char *str, int isr_mode, int flag )
 {
     logger_event_t evt;
@@ -81,8 +81,8 @@ static int _logger_module_str( int type, const char *module, const char *str, in
     char *buf;
     int err=0;
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-   
-    if( !( flag & LOG_FLAG_CONST ) ) 
+
+    if( !( flag & LOG_FLAG_CONST ) )
     {
         buf = (char*)pvPortMalloc(length+1);
         if( buf == NULL )
@@ -93,7 +93,7 @@ static int _logger_module_str( int type, const char *module, const char *str, in
     evt.time = (uint32_t)xTaskGetTickCount();
     evt.flag = flag;
     evt.module = module;
-    if( !( flag & LOG_FLAG_CONST ) ) 
+    if( !( flag & LOG_FLAG_CONST ) )
     {
         evt.str = buf;
         strncpy( buf, str, length );
@@ -111,14 +111,14 @@ static int _logger_module_str( int type, const char *module, const char *str, in
             portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     }
     else
-    { 
+    {
         if( xQueueSend( queue_logger, &evt, 0 ) != pdPASS )
             err = 1;
     }
 
     if( err )
     {
-        if( !( flag & LOG_FLAG_CONST ) ) 
+        if( !( flag & LOG_FLAG_CONST ) )
             vPortFree( (void*)buf );
     }
     return err ? 0 : 1;
@@ -350,7 +350,7 @@ void logger_module_buffer( const char *module, const char *buf, int len )
         i += j;
         do
         {
-            --j; 
+            --j;
             if( isprint((int)p[j]) == 0 )
                 p[j] = '.';
         } while(j);
@@ -375,7 +375,7 @@ int delete_all_log_files( int delete_backup )
     char fname_bak[20];
     int i=0;
     int succ=1;
-    
+
     xSemaphoreTake( semaphore_logger, portMAX_DELAY );
     /* remove all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
@@ -431,7 +431,7 @@ int backup_all_log_files( void )
     char fname_bak[20];
     int i=0;
     int succ=1;
-    
+
     xSemaphoreTake( semaphore_logger, portMAX_DELAY );
     /* rename all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
@@ -459,7 +459,7 @@ int backup_all_log_files( void )
                 continue;
             }
         }
-        
+
         succ = mcush_rename( fname, &fname_bak[3] );
         if( ! succ )
         {
@@ -510,19 +510,19 @@ static int rotate_log_files( const char *src_fname, int level )
 
 static void post_process_event( logger_event_t *evt )
 {
-    /* forward event to shell_monitor or clean up directly */ 
+    /* forward event to shell_monitor or clean up directly */
     if( monitoring_mode )
     {
         /* forward the event */
         if( xQueueSend( queue_logger_monitor, evt, 0 ) != pdPASS )
         {
-            if( !( evt->flag & LOG_FLAG_CONST ) ) 
+            if( !( evt->flag & LOG_FLAG_CONST ) )
                 vPortFree(evt->str);
         }
     }
     else
     {
-        if( !( evt->flag & LOG_FLAG_CONST ) ) 
+        if( !( evt->flag & LOG_FLAG_CONST ) )
             vPortFree(evt->str);
     }
 }
@@ -543,7 +543,7 @@ void task_logger_entry(void *p)
         hal_wdg_clear();
         if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) != pdPASS )
             continue;
- 
+
         if( ! _enable )
         {
             post_process_event( &evt );
@@ -555,14 +555,14 @@ void task_logger_entry(void *p)
 
         xSemaphoreTake( semaphore_logger, portMAX_DELAY );
 
-        /* check file size from filesystem only once */ 
+        /* check file size from filesystem only once */
         if( size < 0 )
         {
             if( mcush_size( _fname, &size ) == 0 )
                 size = 0;  /* read error, skip */
         }
 
-        /* log files rotate if needed */ 
+        /* log files rotate if needed */
         if( size > LOGGER_FSIZE_LIMIT )
         {
             hal_wdg_clear();
@@ -593,7 +593,7 @@ void task_logger_entry(void *p)
             size = size < 0 ? j : size + j;
             /* write the remaining (if exists) in one cycle */
             while( xQueueReceive( queue_logger, &evt, \
-                TASK_LOGGER_LAZY_CLOSE_MS * configTICK_RATE_HZ / 1000 ) == pdPASS )
+                                  TASK_LOGGER_LAZY_CLOSE_MS * configTICK_RATE_HZ / 1000 ) == pdPASS )
             {
                 if( ! _enable )
                 {
@@ -637,10 +637,12 @@ void task_logger_entry(void *p)
 
 int cmd_logger( int argc, char *argv[] );
 const shell_cmd_t cmd_tab_logger[] = {
-{   0, 0, "log",  cmd_logger, 
-    "logger",
-    "log [-e|d|t|b|D|I|W|E]"  },
-{   CMD_END  } };
+    {   0, 0, "log",  cmd_logger,
+        "logger",
+        "log [-e|d|t|b|D|I|W|E]"
+    },
+    {   CMD_END  }
+};
 
 
 void task_logger_init(void)
@@ -649,24 +651,24 @@ void task_logger_init(void)
 
     semaphore_logger = xSemaphoreCreateMutex();
     if( !semaphore_logger )
-        halt("logger semphr create"); 
+        halt("logger semphr create");
 
-    queue_logger = xQueueCreate(TASK_LOGGER_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));  
+    queue_logger = xQueueCreate(TASK_LOGGER_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));
     if( queue_logger == NULL )
         halt("create logger queue");
     vQueueAddToRegistry( queue_logger, "logQ" );
 
-    queue_logger_monitor = xQueueCreate(TASK_LOGGER_MONITOR_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));  
+    queue_logger_monitor = xQueueCreate(TASK_LOGGER_MONITOR_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));
     if( queue_logger_monitor == NULL )
         halt("create logger monitor queue");
     vQueueAddToRegistry( queue_logger_monitor, "logMQ" );
 
-    xTaskCreate(task_logger_entry, (const char *)"logT", 
-        TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
-        NULL, TASK_LOGGER_PRIORITY, &task_logger);
+    xTaskCreate(task_logger_entry, (const char *)"logT",
+                TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
+                NULL, TASK_LOGGER_PRIORITY, &task_logger);
     if( task_logger == NULL )
         halt("create logger task");
-    
+
     shell_add_cmd_table( cmd_tab_logger );
 }
 
@@ -674,29 +676,29 @@ void task_logger_init(void)
 int cmd_logger( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'd', shell_str_disable, 0, "disable logging to file" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'e', shell_str_enable, 0, "enable logging to file" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'b', shell_str_backup, 0, "backup history files" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           0, shell_str_delete, 0, "delete history files" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           't', shell_str_tail, 0, "list tail 10 lines from log file" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'D', shell_str_debug, 0, "DEBUG type filter" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'I', shell_str_info, 0, "INFO type filter" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'W', shell_str_warn, 0, "WARN type filter" },
-        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'E', shell_str_error, 0, "ERROR type filter" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'M', shell_str_module, "module", "module filter" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'H', shell_str_head, "head", "message head filter" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'm', shell_str_msg, shell_str_message, "log message" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
@@ -770,10 +772,9 @@ int cmd_logger( int argc, char *argv[] )
                     return -1;
                 }
             }
- 
         }
         else
-            STOP_AT_INVALID_ARGUMENT 
+            STOP_AT_INVALID_ARGUMENT
     }
 
     if( enable_set )
@@ -781,21 +782,21 @@ int cmd_logger( int argc, char *argv[] )
         _enable = enable;
         return 0;
     }
-  
+
     if( delete_set )
     {
         hal_wdg_clear();
         return delete_all_log_files( backup_set ) ? 0 : 1;
     }
- 
+
     if( backup_set )
     {
         hal_wdg_clear();
         return backup_all_log_files() ? 0 : 1;
     }
 
-    /* priority: 
-       1 - add new message 
+    /* priority:
+       1 - add new message
        2 - view tail
        3 - monitor
      */
@@ -885,14 +886,14 @@ int cmd_logger( int argc, char *argv[] )
             {
                 if( evt.type & filter_mode )
                 {
-                    if( ((head==0) || (strncmp(evt.str, head, head_len) == 0)) && 
+                    if( ((head==0) || (strncmp(evt.str, head, head_len) == 0)) &&
                         ((module==0) || (strcmp(evt.module, module) == 0)) )
                     {
                         convert_logger_event_to_str( &evt, buf );
                         shell_write_str( buf );
                     }
                 }
-                if( !( evt.flag & LOG_FLAG_CONST ) ) 
+                if( !( evt.flag & LOG_FLAG_CONST ) )
                     vPortFree( evt.str );
             }
 
@@ -906,15 +907,15 @@ int cmd_logger( int argc, char *argv[] )
             } while(1);
             if( c == 0x03 )
                 break;
-        }  
+        }
         monitoring_mode = 0;
         /* free all remaining event */
-        while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdPASS ) 
+        while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdPASS )
         {
-            if( !( evt.flag & LOG_FLAG_CONST ) ) 
+            if( !( evt.flag & LOG_FLAG_CONST ) )
                 vPortFree( evt.str );
         }
-    } 
+    }
     return 0;
 }
 

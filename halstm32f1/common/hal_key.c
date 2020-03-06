@@ -29,7 +29,11 @@ int hal_key_get(int mask)
 
     for( i=0, m=1; i<key_num; i++, m<<=1 )
     {
+#if defined(HAL_KEY_REV)
+        if( (mask & m) && (hal_gpio_get( key_ports[i], 1<<key_pins[i] )==0) )
+#else
         if( (mask & m) && hal_gpio_get( key_ports[i], 1<<key_pins[i] ) )
+#endif
             ret |= m;
     }
     return ret;

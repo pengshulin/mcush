@@ -22,8 +22,9 @@ env = loadHalConfig( haldir ).env
 #env = loadHalConfig( haldir, use_vfs=False ).env
 #env = loadHalConfig( haldir, use_hal_driver=True ).env
 #env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True ).env
-#env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True, use_spiffs=True ).env
 #env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=False ).env
+#env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True, use_spiffs=True ).env
+#env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=False, use_spiffs=True ).env
 #env = loadHalConfig( haldir, use_hal_driver=False ).env
 #env = loadHalConfig( haldir, use_hal_driver=False, use_vcp=False ).env
 #env = loadHalConfig( haldir, use_hal_driver=False, use_vcp=False, use_spiffs=True ).env

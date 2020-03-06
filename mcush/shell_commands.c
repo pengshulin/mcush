@@ -29,6 +29,7 @@ extern int cmd_pulse( int argc, char *argv[] );
 extern int cmd_ds1w( int argc, char *argv[] );
 extern int cmd_pwm( int argc, char *argv[] );
 extern int cmd_adc( int argc, char *argv[] );
+extern int cmd_daq( int argc, char *argv[] );
 extern int cmd_rtc( int argc, char *argv[] );
 extern int cmd_can( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
@@ -229,6 +230,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0, 0,  "adc",  cmd_adc, 
     "adc measure",
     "adc -i <idx>" },
+#endif
+#if USE_CMD_DAQ
+{   0, 0,  "daq",  cmd_daq, 
+    "data acquire",
+    "daq -c <cmd> -i <idx> -v <val>" },
 #endif
 #if USE_CMD_RTC
 {   0, 0,  "rtc",  cmd_rtc, 

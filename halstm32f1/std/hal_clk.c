@@ -34,7 +34,11 @@ void hal_clk_init(void)
     if( RCC_WaitForHSEStartUp() == SUCCESS )
     {
 #if HSE_VALUE == 8000000
+    #ifdef RCC_PLLSource_PREDIV1
+        RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);   /* 8M / 1 * 9 = 72M */
+    #else
         RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);   /* 8M / 1 * 9 = 72M */
+    #endif
 #elif HSE_VALUE == 12000000
         RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);   /* 12M / 1 * 6 = 72M */
 #elif HSE_VALUE == 16000000
@@ -47,8 +51,18 @@ void hal_clk_init(void)
     {
         RCC_HSEConfig(RCC_HSE_OFF);
         RCC_ClockSecuritySystemCmd(DISABLE);
+#if HSE_VALUE == 8000000
+    #ifdef RCC_PLLSource_PREDIV1
+        RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_8);   /* 8M / 2 * 9 = 36M */
+    #else
         //RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_8);   /* 8M / 2 * 8 = 32M */
         RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);   /* 8M / 2 * 16 = 64M (Max) */
+    #endif
+#elif HSE_VALUE == 12000000
+#elif HSE_VALUE == 16000000
+#else
+        #error "HSE_VALUE not defined"
+#endif
     }
     RCC_PLLCmd(ENABLE);
     while( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET )

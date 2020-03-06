@@ -3,44 +3,38 @@
 #include "hal.h"
 
 
-#if USE_CMD_SCPI_IDN_CUSTOM
-int cmd_scpi_idn_custom( int argc, char *argv[] );
-#endif
 #if USE_CMD_SCPI_IDN
-int cmd_scpi_idn( int argc, char *argv[] )
+__attribute__((weak)) int cmd_scpi_idn( int argc, char *argv[] )
 {
-#if USE_CMD_SCPI_IDN_CUSTOM
-    return cmd_scpi_idn_custom( argc, argv );
-#else
     /* *idn? command ignore all arguments */
     char buf[64];
 
+#ifndef MODEL_STRING
     shell_write_str( shell_str_mcush );
+#else
+    shell_write_str( MODEL_STRING );
+#endif
     shell_write_char( ',' );
+#ifndef VERSION_STRING
     shell_write_line( MCUSH_VERSION_STRING );
+#else
+    shell_write_line( VERSION_STRING );
+#endif
     buf[0] = 0;
     if( hal_get_serial_number(buf) && strlen(buf) )
         shell_write_line( buf );
 
     return 0;
-#endif
 }
 #endif
 
 
-#if USE_CMD_SCPI_RST_CUSTOM
-int cmd_scpi_rst_custom( int argc, char *argv[] );
-#endif
 #if USE_CMD_SCPI_RST
-int cmd_scpi_rst( int argc, char *argv[] )
+__attribute__((weak)) int cmd_scpi_rst( int argc, char *argv[] )
 {
-#if USE_CMD_SCPI_RST_CUSTOM
-    return cmd_scpi_rst_custom( argc, argv );
-#else
     /* *rst command ignore all arguments */
     hal_platform_reset();
     return 0;
-#endif
 }
 #endif
 

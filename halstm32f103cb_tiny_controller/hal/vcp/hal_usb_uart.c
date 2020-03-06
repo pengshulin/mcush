@@ -108,9 +108,6 @@ int hal_uart_init(uint32_t baudrate)
                 NULL, TASK_VCP_TX_PRIORITY, &task_vcp_tx);
     if( task_vcp_tx == NULL )
         halt("create vcp/tx task");
-#if DEBUG
-    mcushTaskAddToRegistered((void*)task_vcp_tx);
-#endif
 
     USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
     USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC);

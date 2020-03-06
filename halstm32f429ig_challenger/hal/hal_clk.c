@@ -1,5 +1,5 @@
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-
 
 
 static void LL_Init(void)
@@ -49,9 +49,12 @@ void SystemClock_Config(void)
   {
     
   }
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 168, LL_RCC_PLLP_DIV_2);
 
-  LL_RCC_PLL_ConfigDomain_48M(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 168, LL_RCC_PLLQ_DIV_7);
+  LL_RCC_HSE_EnableCSS();
+
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, HSE_VALUE/1000000, 336, LL_RCC_PLLP_DIV_2);
+
+  LL_RCC_PLL_ConfigDomain_48M(LL_RCC_PLLSOURCE_HSE, HSE_VALUE/1000000, 336, LL_RCC_PLLQ_DIV_7);
 
   LL_RCC_PLL_Enable();
 
@@ -97,3 +100,9 @@ void HAL_Delay(uint32_t Delay)
     hal_delay_ms( Delay );
 }
 
+
+/* replace the original implementation of ST/HAL driver */
+uint32_t HAL_GetTick( void )
+{
+    return xTaskGetTickCount()*1000/configTICK_RATE_HZ;
+}

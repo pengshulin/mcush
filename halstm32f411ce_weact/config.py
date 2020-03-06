@@ -3,6 +3,7 @@ env = Stm32f411xe( use_hal_driver=True  )
 env.setLinkfile( '/ld/stm32f411xe_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=25000000' ] )
 env.appendDefineFlags( [ 'HAL_REBOOT_COUNTER=1' ] )
+env.appendDefineFlags( [ 'HAL_DAQ=1' ] )
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']

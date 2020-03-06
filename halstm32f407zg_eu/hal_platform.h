@@ -6,6 +6,10 @@
 #define HAL_LED_PORTS  { 2, 3 } 
 #define HAL_LED_PINS  { 0, 3 }
 
+#define HAL_KEY_NUM   2
+#define HAL_KEY_PORTS   { 0, 5 }
+#define HAL_KEY_PINS  { 0, 11 }
+
 #ifndef HAL_RTC
   #define HAL_RTC  1
   #define USE_CMD_RTC  1
@@ -55,9 +59,9 @@ uint16_t hal_lcd_get_pixel(uint16_t x0, uint16_t y0);
 int hal_upgrade_prepare_swap( const char *filename, int debug_mode );
 void hal_upgrade_run_stage2(void);
 
-void hal_can_init( void );
-void hal_can_deinit( void );
-int hal_can_transmit( const char *buf );
+#if HAL_CAN
+#include "hal_can.h"
+#endif
 
 
 
