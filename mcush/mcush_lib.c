@@ -743,4 +743,14 @@ int cmp_float(const void *a, const void *b)
 }
 
 
+int bytes_to_int( char *bytes, int len )
+{
+    int ret=0;
+    char *p=(char*)&ret;
+
+    while( len-- )
+        *p++ = *bytes++;
+    return ret;
+}
+
 

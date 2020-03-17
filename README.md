@@ -77,8 +77,14 @@ LICENSE
   * similar to the source codes: need commercial authorization
 
 
+COMMERCIAL
+==========
+Contact Shanghai Linkong Software Technologies Co., Ltd for commerical support.
+http://www.linkongsoft.com/
+
+
 AUTHOR
 ======
 Peng Shulin <trees_peng@163.com>
 Shanghai, China 2020
- 
+

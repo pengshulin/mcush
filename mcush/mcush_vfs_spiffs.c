@@ -82,6 +82,7 @@ int mcush_spiffs_mount( void )
     case 0xEF4014:  // W25Q80 (Winbond)
         cfg.phys_size = 1*1024*1024;
         break;
+    case 0xBF2541:  // SST25VF016B (Microchip)
     case 0xEF4015:  // W25Q16 (Winbond)
         cfg.phys_size = 2*1024*1024;
         break;

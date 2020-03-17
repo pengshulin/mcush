@@ -31,4 +31,5 @@ from . import Max30102
 from . import Ads1115
 from . import Hmc5883
 from . import Korad
+from . import Yaohua
 

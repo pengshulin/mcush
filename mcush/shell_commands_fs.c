@@ -579,6 +579,10 @@ int cmd_spiffs( int argc, char *argv[] )
     {
         shell_printf( "%X\n", (unsigned int)hal_spiffs_flash_read_id() );
     }
+    else if( strcmp( cmd, shell_str_status ) == 0 )
+    {
+        shell_printf( "%X\n", (unsigned int)hal_spiffs_flash_read_status() );
+    }
     else if( strcmp( cmd, shell_str_erase ) == 0 )
     {
         /* umount and erase bulk/sector and remount */

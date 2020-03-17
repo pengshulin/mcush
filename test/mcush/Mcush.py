@@ -503,7 +503,10 @@ class Mcush( Instrument.SerialInstrument ):
         return self.writeCommand( cmd )
 
     def spiffsID( self ):
-        return self.spiffs('id')[0]
+        return int(self.spiffs('id')[0], 16)
+    
+    def spiffsStatus( self ):
+        return int(self.spiffs('status')[0], 16)
 
     def spiffsMount( self ):
         self.spiffs('mount')
@@ -935,4 +938,6 @@ class Mcush( Instrument.SerialInstrument ):
             ret.append( (int(cid,16), bool(len(cid)>3), bool(rtr=='R'), dat) )
         return ret
 
+    def env( self ):
+        return Utils.parseKeyValueLines( self.writeCommand('env') )
 

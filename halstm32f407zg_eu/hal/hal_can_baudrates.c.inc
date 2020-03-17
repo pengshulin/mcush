@@ -1,0 +1,16 @@
+// PCLK1 = SYSCLK(168M) / 4 = 42M
+// baudrate = PCLK1 / (SJW+BS1+BS2) / Prescaler
+const can_baudrate_config_t baudrate_config[] = {
+{ 1000,    6, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{  500,   12, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{  250,   24, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{  200,   30, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{  125,   48, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{  100,   60, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{   50,  120, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{   40,  150, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{   20,  300, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{   10,  600, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+{    5, 1200, CAN_SJW_1TQ + CAN_BS1_3TQ + CAN_BS2_3TQ },
+};
+

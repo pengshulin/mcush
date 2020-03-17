@@ -72,6 +72,8 @@ int cmp_uint16(const void *a, const void *b);
 int cmp_uint32(const void *a, const void *b);
 int cmp_float(const void *a, const void *b);
 
+int bytes_to_int( char *bytes, int len );
+
 
 
 #ifdef __cplusplus
