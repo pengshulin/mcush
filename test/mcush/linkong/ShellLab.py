@@ -3,7 +3,9 @@ __doc__ = 'Shell Lab Series'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
-from .. import Mcush
+from .. import Mcush, Utils
+import binascii
+import time
 
 
 class ShellLab(Mcush.Mcush):
@@ -154,5 +156,295 @@ class ShellLabLamp(Mcush.Mcush):
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
         self.lamp( c, freq=freq ) 
+
+
+class ShellLabCAN(ShellLab):
+    DEFAULT_NAME = 'ShellLabCAN'
+    DEFAULT_IDN = re_compile( 'ShellLab-CAN[0-9a-zA-Z\-]*,([0-9]+\.[0-9]+.*)' )
+
+# CANopen function codes
+NMT   = 0x0<<7
+SYNC  = 0x1<<7
+TIME  = 0x2<<7
+TPDO1 = 0x3<<7
+RPDO1 = 0x4<<7
+TPDO2 = 0x5<<7
+RPDO2 = 0x6<<7
+TPDO3 = 0x7<<7
+RPDO3 = 0x8<<7
+TPDO4 = 0x9<<7
+RPDO4 = 0xA<<7
+TSDO  = 0xB<<7
+RSDO  = 0xC<<7
+NDGRD = 0xE<<7
+LSS   = 0xF<<7
+# NMT commands
+NMT_START = 1
+NMT_STOP = 2
+NMT_PRE_OPER = 0x80
+NMT_RESET = 0x81
+NMT_RESET_COMM = 0x82
+# NODE status
+STATUS_BOOT_UP = 0
+STATUS_CONNECTING = 2
+STATUS_STOPPED = 4
+STATUS_OPERATIONAL = 5
+STATUS_PRE_OPERATIONAL = 0x7F
+
+def _v2l( val ):
+    if isinstance(val, list):
+        return val
+    else:
+        return map(ord,val)[:8]
+
+class ShellLabCANopen(ShellLabCAN):
+    DEFAULT_SDO_TIMEOUT = 5
+
+    # SYNC command
+    def sync( self ):
+        self.canWrite( SYNC )
+
+    # NODE_GUARD command
+    def writeNodeGuardRequest( self, id ):
+        self.canWrite( NDGRD+(id&0x7F), rtr=True )
+
+    # NMT command
+    def writeNMTCommand( self, cmd, id ):
+        self.canWrite( NMT, [cmd, id&0x7F] )
+        
+    def resetNode( self, id ):
+        self.writeNMTCommand( NMT_RESET, id )
+
+    def startNode( self, id ):
+        self.writeNMTCommand( NMT_START, id )
+ 
+    def stopNode( self, id ):
+        self.writeNMTCommand( NMT_STOP, id )
+
+    def preOperNode( self, id ):
+        self.writeNMTCommand( NMT_PRE_OPER, id )
+
+    # RPDO commands 
+    def writeRPDO1( self, id, val ):
+        self.canWrite( RPDO1+(id&0x7F), _v2l(val) )
+
+    def writeRPDO2( self, id, val ):
+        self.canWrite( RPDO2+(id&0x7F), _v2l(val) )
+
+    def writeRPDO3( self, id, val ):
+        self.canWrite( RPDO3+(id&0x7F), _v2l(val) )
+
+    def writeRPDO4( self, id, val ):
+        self.canWrite( RPDO4+(id&0x7F), _v2l(val) )
+
+    # TPDO commands 
+    def writeTPDO1Request( self, id ):
+        self.canWrite( TPDO1+(id&0x7F), rtr=True  )
+
+    def writeTPDO2Request( self, id ):
+        self.canWrite( TPDO2+(id&0x7F), rtr=True  )
+
+    def writeTPDO3Request( self, id ):
+        self.canWrite( TPDO3+(id&0x7F), rtr=True  )
+
+    def writeTPDO4Request( self, id ):
+        self.canWrite( TPDO4+(id&0x7F), rtr=True  )
+
+    # Object dictionaries
+    def readObject( self, id, index, subindex ):
+        self.canWrite( RSDO+id, [0x5F, index&0xFF, (index>>8)&0xFF, subindex, 0, 0, 0, 0] )
+        bytes_required = None
+        t0 = time.time()
+        responsed = None
+        while not responsed:
+            if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
+                raise Exception("SDO upload request timeout")
+            for cid, ext, rtr, dat in self.canRead():
+                #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
+                if (cid != TSDO+id) or rtr or (len(dat) != 16):
+                    continue
+                dat = binascii.unhexlify(dat)
+                if (Utils.s2H(dat[1:3]) != index) or (Utils.s2B(dat[3]) != subindex):
+                    continue
+                m = Utils.s2B(dat[0])
+                transfer_type = bool(m & 0x02)
+                size_indicator = bool(m & 0x01)
+                #self.logger.debug( 'transfer_type: %d  size_indicator: %d'% (transfer_type, size_indicator) )
+                if transfer_type:
+                    # expedited
+                    not_used = (m>>2)&3
+                    #self.logger.debug( 'SDO read %d bytes'% (4-not_used) )
+                    if size_indicator and not_used:
+                        return dat[4:-not_used]
+                    else:
+                        return dat[4:]
+                else:
+                    # normal
+                    if size_indicator:
+                        bytes_required = Utils.s2I(dat[4:])
+                    else:
+                        bytes_required = 0xFFFFFF  # unknown length
+                    #self.logger.debug( 'SDO bytes_required=%X'% (bytes_required) )
+                    responsed = True
+                    break
+        if not bytes_required:
+            return
+        # continue to read
+        read = []
+        read_bytes = 0
+        control = 0x60
+        while read_bytes < bytes_required:
+            #self.logger.debug( 'SDO Segment Req control=%X'% (control) )
+            self.canWrite( RSDO+id, [control, 0, 0, 0, 0, 0, 0, 0] )
+            t0 = time.time()
+            responsed = None
+            while not responsed:
+                if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
+                    raise Exception("SDO upload segment Timeout")
+                for cid, ext, rtr, dat in self.canRead():
+                    #self.logger.debug( 'SDO Segment id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
+                    if (cid==(TSDO+id)) and (not rtr) and (len(dat)==16):
+                        dat = binascii.unhexlify(dat)
+                        m = Utils.s2B(dat[0])
+                        if m & 0x80:
+                            raise Exception("SDO Abort")
+                        not_used = (m>>1)&7
+                        no_more = m&1
+                        if not_used:
+                            read.append( dat[1:-not_used] )
+                        else:
+                            read.append( dat[1:] )
+                        read_bytes += 7-not_used
+                        if no_more:
+                            bytes_required = read_bytes
+                        #self.logger.debug( 'SDO read_len=%s, no_more=%d'% (read_bytes, no_more) )
+                        responsed = True
+                        break
+            control ^= 0x10
+        return ''.join(read)
+     
+    def writeObject( self, id, index, subindex, val ):
+        val_len = len(val)
+        control = 0x20
+        bytes_written = 0
+        if val_len <= 4:
+            # expedited mode
+            control |= 0x02
+            v = map(ord, val)
+            if len(v) < 4:
+                control |= 0x01  # indicated 
+                control |= (4-len(v)) << 2 # not used bytes
+                while len(v) < 4:
+                    v.append( 0 )
+            self.canWrite( RSDO+id, [control, index&0xFF, (index>>8)&0xFF, subindex] + v )
+            bytes_written = val_len
+        else:
+            # normal mode
+            control |= 0x01  # indicated 
+            self.canWrite( RSDO+id, [control, index&0xFF, (index>>8)&0xFF, subindex, 
+                           val_len&0xFF, (val_len>>8)&0xFF, (val_len>>16)&0xFF, 0] )
+        # initial download response
+        t0 = time.time()
+        responsed = None
+        while not responsed:
+            if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
+                raise Exception("SDO download request timeout")
+            for cid, ext, rtr, dat in self.canRead():
+                #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
+                if (cid!=TSDO+id) or rtr or (len(dat)!=16):
+                    continue
+                dat = binascii.unhexlify(dat)
+                m = Utils.s2B(dat[0])
+                if m & 0x80:
+                    raise Exception("SDO Abort")
+                if (Utils.s2H(dat[1:3]) != index) or (Utils.s2B(dat[3]) != subindex):
+                    continue
+                responsed = True
+                break
+        # remaining segment request
+        control = 0x00
+        while bytes_written < val_len:
+            v = map(ord, val[bytes_written:bytes_written+7])
+            bytes_written += len(v)
+            if len(v) < 7:
+                control |= 0x01  # no more flag
+                control |= (7-len(v))<<1  # not used bytes
+                while len(v) < 7:
+                    v.append( 0 )
+            self.canWrite( RSDO+id, [control] + v )
+            t0 = time.time()
+            responsed = None
+            while not responsed:
+                if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
+                    raise Exception("SDO download segment timeout")
+                for cid, ext, rtr, dat in self.canRead():
+                    #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
+                    if (cid!=TSDO+id) or rtr or (len(dat)!=16):
+                        continue
+                    dat = binascii.unhexlify(dat)
+                    m = Utils.s2B(dat[0])
+                    if m & 0x80:
+                        raise Exception("SDO Abort")
+                    responsed = True
+                    break
+            control ^= 0x10
+        
+    def readUINT32( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2I(val[:4])
+
+    def readINT32( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2i(val[:4])
+
+    def readUINT16( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2H(val[:2])
+
+    def readINT16( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2h(val[:2])
+
+    def readUINT8( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2B(val[:1])
+
+    def readINT8( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2b(val[:1])
+
+    def readFLOAT32( self, id, index, subindex ):
+        val = self.readObject( id, index, subindex )
+        return Utils.s2f(val[:4])
+
+    def writeUINT32( self, id, index, subindex, val ):
+        dat = Utils.I2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+    def writeINT32( self, id, index, subindex, val ):
+        dat = Utils.i2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+    def writeUINT16( self, id, index, subindex, val ):
+        dat = Utils.H2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+    def writeINT16( self, id, index, subindex, val ):
+        dat = Utils.h2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+    def writeUINT8( self, id, index, subindex, val ):
+        dat = Utils.B2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+    def writeINT8( self, id, index, subindex, val ):
+        dat = Utils.b2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+    def writeFLOAT32( self, id, index, subindex, val ):
+        dat = Utils.f2s(val)
+        self.writeObject( id, index, subindex, dat )
+
+
 
 

@@ -533,7 +533,7 @@ int cmd_spiffs( int argc, char *argv[] )
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', shell_str_command, "cmd_name", "id|erase|read|write|[u|re]mount|test|format|check|info" },
+          'c', shell_str_command, "cmd_name", "info|id|status|erase|read|write|[u|re]mount|test|format|check" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'C', shell_str_ascii, 0, shell_str_ascii },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 

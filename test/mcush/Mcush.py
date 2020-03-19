@@ -924,6 +924,7 @@ class Mcush( Instrument.SerialInstrument ):
         self.can( 'baudrate', val=new_baudrate )
 
     def canWrite( self, cob_id, dat=[], ext=None, rtr=None ):
+        #self.logger.debug( 'canWrite id=0x%X, ext=%d, rtr=%d, dat=%s'% (cob_id, int(bool(ext)), int(bool(rtr)), ','.join([hex(d) for d in dat])) )
         self.can( 'write', index=cob_id, ext=ext, rtr=rtr, args=dat )
 
     def canRead( self ):

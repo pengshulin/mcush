@@ -36,6 +36,7 @@
     #define HAL_UARTx_BAUDRATE              9600
     #define HAL_UART_QUEUE_RX_LEN           128
     #define HAL_UART_QUEUE_TX_LEN           128
+    #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
 
@@ -52,8 +53,6 @@
     #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
-
-
 QueueHandle_t hal_uart_queue_rx, hal_uart_queue_tx;
 
 
@@ -68,8 +67,10 @@ int hal_uart_init( uint32_t baudrate )
     if( !hal_uart_queue_rx || !hal_uart_queue_tx )
         return 0;
 
+#if HAL_UART_QUEUE_ADD_TO_REG
     vQueueAddToRegistry( hal_uart_queue_rx, "rxQ" );
     vQueueAddToRegistry( hal_uart_queue_tx, "txQ" );
+#endif
  
     USART_ClearFlag( HAL_UARTx, USART_FLAG_CTS | USART_FLAG_LBD | USART_FLAG_TC | USART_FLAG_RXNE );	
     USART_ITConfig( HAL_UARTx, USART_IT_CTS | USART_IT_LBD | USART_IT_TXE | USART_IT_TC | \
@@ -180,6 +181,16 @@ signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime )
 }
 
 
+signed portBASE_TYPE hal_uart_feedc( char c, TickType_t xBlockTime )
+{
+    if( xQueueSend( hal_uart_queue_rx, &c, xBlockTime ) == pdPASS )
+        return pdPASS;
+    else
+        return pdFAIL;
+}
+
+
+
 /****************************************************************************/
 /* shell APIs                                                                */
 /****************************************************************************/
@@ -193,6 +204,19 @@ int shell_driver_init( void )
 void shell_driver_reset( void )
 {
     hal_uart_reset();
+}
+
+
+int  shell_driver_read_feed( char *buffer, int len )
+{
+    int bytes=0;
+    while( bytes < len )
+    {
+        while( hal_uart_feedc( *(char*)((int)buffer + bytes), portMAX_DELAY ) == pdFAIL )
+            vTaskDelay(1);
+        bytes += 1;
+    }
+    return bytes;
 }
 
 
