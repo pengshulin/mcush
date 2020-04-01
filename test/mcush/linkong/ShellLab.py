@@ -160,7 +160,7 @@ class ShellLabLamp(Mcush.Mcush):
 
 class ShellLabCAN(ShellLab):
     DEFAULT_NAME = 'ShellLabCAN'
-    DEFAULT_IDN = re_compile( 'ShellLab-CAN[0-9a-zA-Z\-]*,([0-9]+\.[0-9]+.*)' )
+    DEFAULT_IDN = re_compile( 'ShellLab-C[0-9a-zA-Z\-]*,([0-9]+\.[0-9]+.*)' )
 
 # CANopen function codes
 NMT   = 0x0<<7
@@ -366,8 +366,9 @@ class ShellLabCANopen(ShellLabCAN):
         while bytes_written < val_len:
             v = map(ord, val[bytes_written:bytes_written+7])
             bytes_written += len(v)
-            if len(v) < 7:
+            if bytes_written >= val_len:
                 control |= 0x01  # no more flag
+            if len(v) < 7:
                 control |= (7-len(v))<<1  # not used bytes
                 while len(v) < 7:
                     v.append( 0 )

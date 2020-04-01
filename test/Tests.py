@@ -269,7 +269,6 @@ def spiffs_get( argv=None ):
         print( 'syntax: spiffs_get <remote_pathname> [local_pathname]' )
         return
     r = Mcush().cat( argv[0], b64=True )
-    r = base64.b64decode('\n'.join(r))
     if len(argv) > 1:
         open(argv[1], 'w+').write(r)
     else:

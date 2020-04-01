@@ -96,6 +96,10 @@ class Instrument:
             kwargs['prompts'] = self.DEFAULT_PROMPTS
         if not 'timeout' in kwargs:
             kwargs['timeout'] = self.DEFAULT_TIMEOUT
+        if not 'check_idn' in kwargs:
+            kwargs['check_idn'] = True
+        if not 'terminal_reset' in kwargs:
+            kwargs['terminal_reset'] = True
         # some attributes 'connect', ...  need to be renamed for method conflict
         for n in ['connect', 'timeout']:
             kwargs['_'+n] = kwargs.pop(n)
@@ -108,10 +112,7 @@ class Instrument:
         self.idn = None
         self.port = self.PORT_TYPE(self, *args, **kwargs)
         if self._connect:
-            if kwargs.has_key('check_idn'):
-                self.connect(check_idn=self.check_idn)
-            else:
-                self.connect()
+            self.connect()
 
     @property        
     def connected( self ):
@@ -157,11 +158,11 @@ class Instrument:
         self.port.connect()
         if not self.port.connected:
             return
-        if self.DEFAULT_TERMINATOR_RESET:
+        if self.terminal_reset and self.DEFAULT_TERMINATOR_RESET:
             self.port.write( self.DEFAULT_TERMINATOR_RESET )
             self.port.flush()
             self.readUntilPrompts()
-        if check_idn and self.DEFAULT_IDN is not None:
+        if check_idn and self.check_idn and self.DEFAULT_IDN is not None:
             self.scpiIdn()
 
     def disconnect( self ):

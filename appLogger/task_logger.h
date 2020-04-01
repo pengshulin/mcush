@@ -112,6 +112,7 @@ void task_logger_init(void);
 void logger_enable(void);
 void logger_disable(void);
 int logger_is_enabled(void);
+int logger_is_busy(void);
 
 /* these apis will malloc new buffer and copy from the original str,
    so they are safe to use, not mater whether the buffer is in stack or

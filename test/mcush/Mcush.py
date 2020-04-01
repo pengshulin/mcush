@@ -936,7 +936,11 @@ class Mcush( Instrument.SerialInstrument ):
                 dat = items[2]
             except IndexError:
                 dat = ''
-            ret.append( (int(cid,16), bool(len(cid)>3), bool(rtr=='R'), dat) )
+            id = int(cid,16)
+            ext = bool(len(cid)>3)
+            rtr = bool(rtr=='R')
+            ret.append( (id, ext, rtr, dat) )
+            #self.logger.debug( 'canRead id=0x%X, ext=%d, rtr=%d, dat=%s'% (id, int(ext), int(rtr), dat) )
         return ret
 
     def env( self ):

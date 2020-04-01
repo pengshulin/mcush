@@ -209,8 +209,9 @@ SE = 0x04
 SF = 0x02
 SG = 0x01
 SH = 0x80
-SegmentTable.SEGMENT_TABLE_HEX = SegmentTable.generateSegmentTableHEX(SA,SB,SC,SD,SE,SF,SG,SH)
-SegmentTable.SEGMENT_TABLE_ASCII = SegmentTable.generateSegmentTableASCII(SA,SB,SC,SD,SE,SF,SG,SH)
+
+SEGMENT_TABLE_HEX = SegmentTable.generateSegmentTableHEX(SA,SB,SC,SD,SE,SF,SG,SH)
+SEGMENT_TABLE_ASCII = SegmentTable.generateSegmentTableASCII(SA,SB,SC,SD,SE,SF,SG,SH)
 
 class LED8(LED):
     DIGITS = 8
@@ -228,7 +229,14 @@ class LED8(LED):
         self.display_segs( 0, "    ", ascii_mode=True )
 
     def display_string( self, string, index=0 ):
-        self.display_segs( index, string[:self.DIGITS-index], ascii_mode=True )
+        segments = []
+        for c in string:
+            if not c in ['.', ':']:
+                segments.append( SEGMENT_TABLE_ASCII[ord(c)] )
+            elif len(segments) > 0:
+                segments[-1] |= SegmentTable.SH
+        for i, s in enumerate(segments[:self.DIGITS], index):
+            self.write_line( i, s )
  
     def display_integer( self, val, hex_mode=False ):
         if hex_mode:
@@ -239,18 +247,18 @@ class LED8(LED):
     
     def display_segment( self, index, segment, ascii_mode=None, hex_mode=None ):
         if hex_mode:
-            segment = SegmentTable.SEGMENT_TABLE_HEX[segment]
+            segment = SEGMENT_TABLE_HEX[segment]
         elif ascii_mode:
-            segment = SegmentTable.SEGMENT_TABLE_ASCII[ord(segment)]
+            segment = SEGMENT_TABLE_ASCII[ord(segment)]
         self.segments[index] = segment
         self.write_line( index, segment )
 
     def display_segments( self, index, segments, ascii_mode=None, hex_mode=None ):
         segments = segments[:self.DIGITS]
         if hex_mode:
-            segments = [ SegmentTable.SEGMENT_TABLE_HEX[c] for c in segments ]
+            segments = [ SEGMENT_TABLE_HEX[c] for c in segments ]
         elif ascii_mode:
-            segments = [ SegmentTable.SEGMENT_TABLE_ASCII[ord(c)] for c in segments ]
+            segments = [ SEGMENT_TABLE_ASCII[ord(c)] for c in segments ]
         self.segments = segments
         for i,s in enumerate(segments,index):
             self.write_line( i, s )

@@ -2,8 +2,8 @@ from VEnvironment import *
 
 haldir = 'stm32f429ig_challenger'
 haldir = 'stm32f103ze_redbull'
-haldir = 'stm32f407zg_eu'
 haldir = 'stm32f411ce_weact'
+haldir = 'stm32f407zg_eu'
 
 #env = loadHalConfig( haldir, use_vcp=True ).env
 #env = loadHalConfig( haldir, use_vcp=False ).env
@@ -15,6 +15,7 @@ env.appendDefineFlags( [
     'MODEL_STRING=\\\"ShellLab-CAN\\\"',
     'VERSION_STRING=\\\"1.0pre\\\"',
     'HAL_CAN=1',
+    'HAL_CAN_INIT=1',
     'HAL_CAN_QUEUE_RX_LEN=64',
     ] ) 
 

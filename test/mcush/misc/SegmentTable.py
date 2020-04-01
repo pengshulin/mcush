@@ -321,6 +321,7 @@ def generateSegmentTableASCII(sa=SA,sb=SB,sc=SC,sd=SD,se=SE,sf=SF,sg=SG,sh=SH):
     return table
 
 
+# re-generate the segment tables if necessary
 SEGMENT_TABLE_HEX = generateSegmentTableHEX()
 SEGMENT_TABLE_ASCII = generateSegmentTableASCII()
 

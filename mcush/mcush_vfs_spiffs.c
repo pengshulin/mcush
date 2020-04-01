@@ -59,6 +59,9 @@ int mcush_spiffs_mounted( void )
 int mcush_spiffs_mount( void )
 {
     spiffs_config cfg;
+#if SPIFLASH_AUTO_DETECT
+    int id;
+#endif
 
     if( SPIFFS_mounted(&_fs) )
         return 1;
@@ -77,35 +80,28 @@ int mcush_spiffs_mount( void )
 
     hal_spiffs_flash_init();
 #if SPIFLASH_AUTO_DETECT
-    switch( hal_spiffs_flash_read_id() )
+    id = hal_spiffs_flash_read_id();    
+    switch( (id>>16) & 0xFF )
     {
-    case 0xEF4014:  // W25Q80 (Winbond)
-        cfg.phys_size = 1*1024*1024;
+    case 0xEF:  /* Winbond */
+    case 0xC8:  /* GigaDevice */
+    case 0x85:  /* PUYA */
+        switch( id & 0xFF )
+        {
+        case 0x14: cfg.phys_size = 1*1024*1024;  break;
+        case 0x15: cfg.phys_size = 2*1024*1024;  break;
+        case 0x16: cfg.phys_size = 4*1024*1024;  break;
+        case 0x17: cfg.phys_size = 8*1024*1024;  break;
+        case 0x18: cfg.phys_size = 16*1024*1024;  break;
+        case 0x19: cfg.phys_size = 32*1024*1024;  break;
+        default:  return 0;
+        }
         break;
-    case 0xBF2541:  // SST25VF016B (Microchip)
-    case 0xEF4015:  // W25Q16 (Winbond)
-        cfg.phys_size = 2*1024*1024;
-        break;
-    case 0xEF4016:  // W25Q32 (Winbond)
-    case 0x856016:  // P25Q32 (PUYA)
-        cfg.phys_size = 4*1024*1024;
-        break;
-    case 0xEF4017:
-    case 0xEF6017:  // W25Q64 (Winbond)
-    case 0x856017:  // P25Q64 (PUYA)
-        cfg.phys_size = 8*1024*1024;
-        break;
-    case 0xEF4018:
-    case 0xEF6018:  // W25Q128 (Winbond)
-        cfg.phys_size = 16*1024*1024;
-        break;
-    case 0xEF4019:
-    case 0xEF6019:  // W25Q256
-        cfg.phys_size = 32*1024*1024;
-        break;
-    default:
+    // TODO: support these chips
+    //case 0xBF:  /* Microchip */
+    //    break;
+    default:  /* unknown */
         return 0;
-        break;  // unknown
     }
 #else
     if( hal_spiffs_flash_read_id() != HAL_SPIFFS_CHIPID )

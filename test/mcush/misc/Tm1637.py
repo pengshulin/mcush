@@ -29,8 +29,16 @@ class LED4:
         self.display_segs( 0, "    ", ascii_mode=True )
 
     def display_string( self, string, index=0 ):
-        self.display_segs( index, string[:self.DIGITS-index], ascii_mode=True )
- 
+        segments = []
+        for c in string:
+            if not c in ['.', ':']:
+                segments.append( SegmentTable.SEGMENT_TABLE_ASCII[ord(c)] )
+            elif len(segments) > 0:
+                segments[-1] |= SegmentTable.SH
+        self.controller.i2c( addr=CMD_DATA )
+        self.controller.i2c( segments[:self.DIGITS], addr=CMD_ADDRESS+index )
+        self.controller.i2c( addr=CMD_CONTROL+0x08+self.brightness ) 
+
     def display_integer( self, val, hex_mode=False ):
         if hex_mode:
             string = (('%%%dX'% self.DIGITS)% val)[-self.DIGITS:]

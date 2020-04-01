@@ -19,7 +19,7 @@ static uint8_t monitoring_mode=0;
 
 static const char _fname[] = LOGGER_FNAME;
 static uint8_t _enable = LOGGER_ENABLE;
-
+static uint8_t _busy;
 
 void logger_enable(void)
 {
@@ -36,6 +36,12 @@ void logger_disable(void)
 int logger_is_enabled(void)
 {
     return _enable;
+}
+
+
+int logger_is_busy(void)
+{
+    return (_busy || uxQueueMessagesWaiting( queue_logger ) != 0) ? 1 : 0;
 }
 
 
@@ -551,6 +557,7 @@ void task_logger_entry(void *p)
         }
 
 #if MCUSH_SPIFFS
+        _busy = 1;
         hal_wdg_clear();
 
         xSemaphoreTake( semaphore_logger, portMAX_DELAY );
@@ -627,6 +634,7 @@ void task_logger_entry(void *p)
                 post_process_event( &evt );
         }
         xSemaphoreGive( semaphore_logger );
+        _busy = 0;
 #else
         post_process_event( &evt );  /* spiffs not support */
 #endif

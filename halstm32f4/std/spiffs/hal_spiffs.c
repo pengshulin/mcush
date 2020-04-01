@@ -43,6 +43,20 @@ int hal_spiffs_flash_read_id(void)
 }
 
 
+int hal_spiffs_flash_read_status(void)
+{
+    int status;
+#if USE_LOCK
+    xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
+#endif
+    status = (int)sFLASH_ReadStatus();
+#if USE_LOCK
+    xSemaphoreGive( semaphore_spiflash );
+#endif
+    return status;
+}
+
+
 void hal_spiffs_flash_lock(int lock)
 {
 #if USE_LOCK

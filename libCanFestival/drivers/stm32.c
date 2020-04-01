@@ -14,7 +14,9 @@ void setTimer(TIMEVAL value)
 {
     t0 = xTaskGetTickCount();
     tmr = value;
+#if DEBUG_WAR_CONSOLE_ON
     canopen_debug_msg( 0, 0, "setTimer : ", value );
+#endif
 }
 
 
@@ -22,7 +24,9 @@ TIMEVAL getElapsedTime(void)
 {
     unsigned int dt;
     dt = xTaskGetTickCount() - t0;
+#if DEBUG_WAR_CONSOLE_ON
     canopen_debug_msg( 0, 0, "getElapsedTime : ", dt );
+#endif
     return dt;
 }
 
