@@ -74,7 +74,7 @@ void mcushGetKernInfo( mcush_kern_info_t *info )
     info->uxTickCount = xTickCount;
     info->uxTopReadyPriority = uxTopReadyPriority;
     info->uxSchedulerRunning = xSchedulerRunning ? 1 : 0;
-    info->uxPendedTicks = uxPendedTicks;
+    info->uxPendedTicks = xPendedTicks;
     info->uxNumOfOverflows = xNumOfOverflows;
 
     info->pxCurrentTCB = (void*)pxCurrentTCB;

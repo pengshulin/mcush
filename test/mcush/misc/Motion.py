@@ -168,16 +168,32 @@ class Mpu6050():
  
 
 
+     
+# code, bandwidth, data rate
+RATE_CODES = [
+    ( 0x6, 3.125, 6.25 ),
+    ( 0x7, 6.25, 12.5 ),
+    ( 0x8, 12.5, 25.0 ),  # set
+    ( 0x9, 25.0, 50.0 ),
+    ( 0xA, 50.0, 100.0 ),  # reset default
+    ( 0xB, 100.0, 200.0 ),
+    ( 0xC, 200.0, 400.0 ),
+    ( 0xD, 400.0, 800.0 ),
+    ( 0xE, 800.0, 1600.0 ),
+    ( 0xF, 1600.0, 3200.0 ) ]
+
 
 class Adxl345():
+    I2C_ADDR = 0x53
+    MAX_RANGE = 16  # g
 
     def __init__( self, controller, scl=None, sda=None ):
         self.controller = controller
-        self.controller.i2c_init( 0x53, scl=scl, sda=sda )
+        self.controller.i2c_init( self.I2C_ADDR, scl=scl, sda=sda )
         self.reset()
 
     def reset(self):
-        self.controller.i2c( [0x31, 0x0B] )  # DATA_FORMAT: full resolution, 16g range
+        self.controller.i2c( [0x31, 0x0B] )  # DATA_FORMAT: full resolution, max range
         self.controller.i2c( [0x2C, 0x08] )  # BW_RATE: 12.5Hz bandwidth, 25Hz output rate
         self.controller.i2c( [0x2D, 0x08] )  # POWER_CTRL: Measure 
         self.controller.i2c( [0x2E, 0x80] )  # INT_ENABLE: DATA_READY 
@@ -200,3 +216,9 @@ class Adxl345():
         a,b = self.controller.i2c( [0x36], 2 )
         return Utils.s2h( chr(a) + chr(b) ) / 25.0
  
+
+class Adxl313(Adxl345):
+    I2C_ADDR = 0x1D
+    MAX_RANGE = 4  # g
+
+

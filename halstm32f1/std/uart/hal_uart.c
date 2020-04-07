@@ -5,7 +5,7 @@
    (port the driver to other module)
 1. search and replace HAL_UART wth HAL_XXXX
 2. search and replace hal_uart to hal_xxxx
-3. remove all shell apis at the bottom
+3. modify/remove shell apis at the bottom
 */
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
@@ -53,7 +53,13 @@
     #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
-QueueHandle_t hal_uart_queue_rx, hal_uart_queue_tx;
+    
+#if HAL_UART_QUEUE_RX_LEN
+QueueHandle_t hal_uart_queue_rx;
+#endif
+#if HAL_UART_QUEUE_TX_LEN
+QueueHandle_t hal_uart_queue_tx;
+#endif
 
 
 int hal_uart_init( uint32_t baudrate )
@@ -62,14 +68,24 @@ int hal_uart_init( uint32_t baudrate )
     USART_InitTypeDef usart_init;
     NVIC_InitTypeDef nvic_init;
 
+#if HAL_UART_QUEUE_RX_LEN
     hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    if( !hal_uart_queue_rx || !hal_uart_queue_tx )
+    if( hal_uart_queue_rx == NULL )
         return 0;
+#endif
+#if HAL_UART_QUEUE_TX_LEN
+    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    if( hal_uart_queue_tx == NULL )
+        return 0;
+#endif
 
 #if HAL_UART_QUEUE_ADD_TO_REG
+#if HAL_UART_QUEUE_RX_LEN
     vQueueAddToRegistry( hal_uart_queue_rx, "rxQ" );
+#endif
+#if HAL_UART_QUEUE_TX_LEN
     vQueueAddToRegistry( hal_uart_queue_tx, "txQ" );
+#endif
 #endif
  
     USART_ClearFlag( HAL_UARTx, USART_FLAG_CTS | USART_FLAG_LBD | USART_FLAG_TC | USART_FLAG_RXNE );	
@@ -120,6 +136,7 @@ void HAL_UARTx_IRQHandler(void)
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     char c;
 
+#if HAL_UART_QUEUE_TX_LEN
     if( USART_GetITStatus( HAL_UARTx, USART_IT_TXE ) == SET )
     {
         if( xQueueReceiveFromISR( hal_uart_queue_tx, &c, &xHigherPriorityTaskWoken ) == pdTRUE )
@@ -131,13 +148,16 @@ void HAL_UARTx_IRQHandler(void)
             USART_ITConfig( HAL_UARTx, USART_IT_TXE, DISABLE );        
         }       
     }
+#endif
     
+#if HAL_UART_QUEUE_RX_LEN
     if( USART_GetITStatus( HAL_UARTx, USART_IT_RXNE ) == SET )
     {
         c = USART_ReceiveData( HAL_UARTx );
         xQueueSendFromISR( hal_uart_queue_rx, &c, &xHigherPriorityTaskWoken );
         USART_ClearITPendingBit( HAL_UARTx, USART_IT_RXNE );
-    }   
+    }
+#endif
 
     if( USART_GetITStatus( HAL_UARTx, USART_IT_ORE_RX ) == SET )
     {
@@ -151,8 +171,12 @@ void HAL_UARTx_IRQHandler(void)
 
 void hal_uart_reset(void)
 {
+#if HAL_UART_QUEUE_RX_LEN
     xQueueReset( hal_uart_queue_rx );
+#endif
+#if HAL_UART_QUEUE_TX_LEN
     xQueueReset( hal_uart_queue_tx );
+#endif
 }
 
 
@@ -164,35 +188,42 @@ void hal_uart_enable(uint8_t enable)
 
 signed portBASE_TYPE hal_uart_putc( char c, TickType_t xBlockTime )
 {
-
+#if HAL_UART_QUEUE_TX_LEN
     if( xQueueSend( hal_uart_queue_tx, &c, xBlockTime ) == pdPASS )
     {
         USART_ITConfig( HAL_UARTx, USART_IT_TXE, ENABLE );
         return pdPASS;
     }
     else
+#endif
         return pdFAIL;
 }
 
 
 signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime )
 {
+#if HAL_UART_QUEUE_RX_LEN
     return xQueueReceive( hal_uart_queue_rx, c, xBlockTime );
+#else
+    return pdFAIL;
+#endif
 }
 
 
 signed portBASE_TYPE hal_uart_feedc( char c, TickType_t xBlockTime )
 {
+#if HAL_UART_QUEUE_RX_LEN
     if( xQueueSend( hal_uart_queue_rx, &c, xBlockTime ) == pdPASS )
         return pdPASS;
     else
+#endif
         return pdFAIL;
 }
 
 
 
 /****************************************************************************/
-/* shell APIs                                                                */
+/* APIs                                                                     */
 /****************************************************************************/
 
 int shell_driver_init( void )

@@ -51,7 +51,13 @@
     #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
-QueueHandle_t hal_uart_queue_rx, hal_uart_queue_tx;
+    
+#if HAL_UART_QUEUE_RX_LEN
+QueueHandle_t hal_uart_queue_rx;
+#endif
+#if HAL_UART_QUEUE_TX_LEN
+QueueHandle_t hal_uart_queue_tx;
+#endif
 
 
 
@@ -60,14 +66,24 @@ int hal_uart_init( uint32_t baudrate )
     LL_GPIO_InitTypeDef gpio_init;
     LL_USART_InitTypeDef usart_init;
 
+#if HAL_UART_QUEUE_RX_LEN
     hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    if( !hal_uart_queue_rx || !hal_uart_queue_tx )
+    if( hal_uart_queue_rx == NULL )
         return 0;
+#endif
+#if HAL_UART_QUEUE_RX_LEN
+    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    if( hal_uart_queue_tx == NULL )
+        return 0;
+#endif
 
 #if HAL_UART_QUEUE_ADD_TO_REG
+#if HAL_UART_QUEUE_RX_LEN
     vQueueAddToRegistry( hal_uart_queue_rx, "rxQ" );
+#endif
+#if HAL_UART_QUEUE_RX_LEN
     vQueueAddToRegistry( hal_uart_queue_tx, "txQ" );
+#endif
 #endif
 
     HAL_UART_RCC_GPIO_ENABLE_CMD( HAL_UART_RCC_GPIO_ENABLE_BIT );
@@ -116,6 +132,7 @@ void HAL_UARTx_IRQHandler(void)
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     char c;
 
+#if HAL_UART_QUEUE_TX_LEN
     if( LL_USART_IsEnabledIT_TXE( HAL_UARTx ) && LL_USART_IsActiveFlag_TXE( HAL_UARTx ) )
     {
         if( xQueueReceiveFromISR( hal_uart_queue_tx, &c, &xHigherPriorityTaskWoken ) == pdTRUE )
@@ -127,12 +144,15 @@ void HAL_UARTx_IRQHandler(void)
             LL_USART_DisableIT_TXE( HAL_UARTx );        
         }       
     }
+#endif
     
+#if HAL_UART_QUEUE_RX_LEN
     if( LL_USART_IsActiveFlag_RXNE( HAL_UARTx ) )
     {
         c = LL_USART_ReceiveData8( HAL_UARTx );
         xQueueSendFromISR( hal_uart_queue_rx, &c, &xHigherPriorityTaskWoken );
-    }   
+    }
+#endif
 
     if( LL_USART_IsActiveFlag_ORE( HAL_UARTx ) )
     {
@@ -146,8 +166,12 @@ void HAL_UARTx_IRQHandler(void)
 
 void hal_uart_reset(void)
 {
+#if HAL_UART_QUEUE_RX_LEN
     xQueueReset( hal_uart_queue_rx );
+#endif
+#if HAL_UART_QUEUE_TX_LEN
     xQueueReset( hal_uart_queue_tx );
+#endif
 }
 
 
@@ -162,28 +186,35 @@ void hal_uart_enable(uint8_t enable)
 
 signed portBASE_TYPE hal_uart_putc( char c, TickType_t xBlockTime )
 {
-
+#if HAL_UART_QUEUE_TX_LEN
     if( xQueueSend( hal_uart_queue_tx, &c, xBlockTime ) == pdPASS )
     {
         LL_USART_EnableIT_TXE( HAL_UARTx );        
         return pdPASS;
     }
     else
+#endif
         return pdFAIL;
 }
 
 
 signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime )
 {
+#if HAL_UART_QUEUE_RX_LEN
     return xQueueReceive( hal_uart_queue_rx, c, xBlockTime );
+#else
+    return pdFAIL;
+#endif
 }
 
 
 signed portBASE_TYPE hal_uart_feedc( char c, TickType_t xBlockTime )
 {
+#if HAL_UART_QUEUE_RX_LEN
     if( xQueueSend( hal_uart_queue_rx, &c, xBlockTime ) == pdPASS )
         return pdPASS;
     else
+#endif
         return pdFAIL;
 }
 
