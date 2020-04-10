@@ -37,7 +37,23 @@ int cmd_system( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
-          0, shell_str_type, 0, "(t)ask|(q)ueue|(k)ern|heap|stack|(i)dle|v(f)s" },
+          0, shell_str_type, 0, "(t)ask|(q)ueue"
+#if USE_CMD_SYSTEM_KERNEL
+            "|(k)ern"
+#endif
+#if USE_CMD_SYSTEM_HEAP
+            "|heap"
+#endif
+#if USE_CMD_SYSTEM_STACK
+            "|stack"
+#endif
+#if USE_CMD_SYSTEM_IDLE
+            "|(i)dle"
+#endif
+#if MCUSH_VFS_STATISTICS
+            "|v(f)s"
+#endif
+             },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -45,14 +61,18 @@ int cmd_system( int argc, char *argv[] )
     mcush_queue_info_t qinfo;
     mcush_kern_info_t kinfo;
     const char *name=0;
-    char *p;
     int i, j;
     const char *type=0;
     char c;
+#if USE_CMD_SYSTEM_IDLE
     uint32_t idle_counter, idle_counter_last, idle_counter_max;
     TaskHandle_t task_idle_counter;
+#endif
     char buf[1024];
     TaskStatus_t *task_status_array;
+#if USE_CMD_SYSTEM_STACK
+    char *p;
+#endif
     
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -113,15 +133,17 @@ int cmd_system( int argc, char *argv[] )
             }
         }
     }
+#if USE_CMD_SYSTEM_KERNEL
     else if( (strcmp( type, "k" ) == 0 ) || (strcmp( type, "kern" ) == 0 ) )
     {
+        shell_printf( "SystemCoreClock:      %d\n", SystemCoreClock );
         mcushGetKernInfo(&kinfo);
         shell_printf( "CurrentNumberOfTasks: %d\n", kinfo.uxCurrentNumberOfTasks );
         shell_printf( "TopReadyPriority:     %d\n", kinfo.uxTopReadyPriority );
         shell_printf( "PendedTicks:          %d\n", kinfo.uxPendedTicks );
         shell_printf( "NumOfOverflows:       %d\n", kinfo.uxNumOfOverflows );
         shell_printf( "CurrentTCB:           0x%08X %s\n", (uint32_t)kinfo.pxCurrentTCB, mcushGetTaskNameFromTCB(kinfo.pxCurrentTCB) );
-        for( i=0; i<configMAX_PRIORITIES; i++ )
+        for( i=configMAX_PRIORITIES-1; i>=0; i-- )
         {
             shell_printf( "ReadyTaskLists[%d]:    0x%08X %s\n", i, (uint32_t)kinfo.pxReadyTaskLists[i], mcushGetTaskNamesFromTaskList(kinfo.pxReadyTaskLists[i], buf) );
         }
@@ -134,6 +156,7 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "SuspendedTaskList:    0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
 #endif
     }
+#endif
 #if USE_CMD_SYSTEM_HEAP
     else if( strcmp( type, "heap" ) == 0 )
     {
@@ -152,6 +175,7 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "%s: 0x%08X\n%s: 0x%08X\n%s: %d\n", shell_str_start, &_sstack, shell_str_end, &_estack, shell_str_free, i );
     }
 #endif
+#if USE_CMD_SYSTEM_IDLE
     else if( (strcmp( type, "i" ) == 0 ) || (strcmp( type, "idle" ) == 0) )
     {
         /* create counter task to check the maximum count value available */
@@ -204,10 +228,10 @@ int cmd_system( int argc, char *argv[] )
             shell_printf( "%d %%\n", i * 100 / idle_counter_max );
         }
     }
-#if MCUSH_VFS
+#endif
+#if MCUSH_VFS_STATISTICS
     else if( (strcmp( type, "f" ) == 0 ) || (strcmp( type, "vfs" ) == 0) )
     {
-#if MCUSH_VFS_STATISTICS
         extern mcush_vfs_statistics_t vfs_stat;
         mcush_vfs_statistics_t stat;  /* take snapshot */
         memcpy((void*)&stat, (const void*)&vfs_stat, sizeof(mcush_vfs_statistics_t)); 
@@ -218,7 +242,6 @@ int cmd_system( int argc, char *argv[] )
         shell_printf( "read:  %u / %u\n", stat.count_read, stat.count_read_err );
         shell_printf( "write: %u / %u\n", stat.count_write, stat.count_write_err );
         shell_printf( "flush: %u / %u\n", stat.count_flush, stat.count_flush_err );
-#endif
     }
 #endif
     else

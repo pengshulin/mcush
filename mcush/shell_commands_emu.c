@@ -30,6 +30,17 @@ static i2c_cb_t *i2c_cb[2];
 static i2c_cb_t *i2c_cb[1];
 #endif
 
+/* NOTE: larger r/w buffers in task stack may overflow and cause unpredictable behavior */
+#ifndef I2C_RW_BUF_LEN
+    #define I2C_RW_BUF_LEN  256  /* 256*2*1=512 stack size */
+    //#define I2C_RW_BUF_LEN  128  /* 128*2*1=256 stack size */
+#endif
+
+#ifndef SPI_RW_BUF_LEN
+    //#define SPI_RW_BUF_LEN  256  /* 256*2*4=2K stack size */
+    #define SPI_RW_BUF_LEN  128  /* 128*2*4=1K stack size */
+    //#define SPI_RW_BUF_LEN  64  /* 64*2*4=512 stack size */
+#endif
 
 void emu_i2c_init_structure(i2c_cb_t *i2c_init)
 {
@@ -271,7 +282,7 @@ int cmd_i2c( int argc, char *argv[] )
     int i2c_index=0;
     i2c_cb_t i2c_init;
     int i, line_count;
-    uint8_t buf_out[256], buf_in[256];
+    uint8_t buf_out[I2C_RW_BUF_LEN], buf_in[I2C_RW_BUF_LEN];
     int read_bytes=0, write_bytes;
 
     /* check which command i2c/i2c2/i2c3/i2c4 is used */
@@ -629,7 +640,6 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int length
 }
 
 
-#define SPI_WRITE_BUFFER_LEN  256
 int cmd_spi( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
@@ -668,7 +678,7 @@ int cmd_spi( int argc, char *argv[] )
     char *p;
     int spi_index=0;
     spi_cb_t spi_init;
-    uint32_t buf_out[SPI_WRITE_BUFFER_LEN], buf_in[SPI_WRITE_BUFFER_LEN];
+    uint32_t buf_out[SPI_RW_BUF_LEN], buf_in[SPI_RW_BUF_LEN];
     int length, i, line_count, repeat;
 
     /* check which command spi/spi2/spi3/spi4 is used */
@@ -796,7 +806,7 @@ int cmd_spi( int argc, char *argv[] )
             buf_out[length] = buf_out[length-1];
             length += 1;
             repeat -= 1;
-            if( length > SPI_WRITE_BUFFER_LEN )
+            if( length > SPI_RW_BUF_LEN )
             {
                 shell_write_err( "buffer" );
                 return 1;

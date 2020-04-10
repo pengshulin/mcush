@@ -3,6 +3,7 @@
 #include "hal.h"
 
 
+#if USE_CMD_FATFS || USE_CMD_SPIFFS
 int do_test_file( const char *mount_point )
 {
     char fname[32];
@@ -27,9 +28,15 @@ int do_test_file( const char *mount_point )
     mcush_close( fd );
     return (i == j) ? 1 : 0;
 }
+#endif
 
 
 #if USE_CMD_CAT
+#if CMD_CAT_READONLY
+    #define _SUPPORT_WRITE  0
+#else
+    #define _SUPPORT_WRITE  1
+#endif
 #define CAT_BUF_RAW  100
 #define CAT_BUF_B64  180
 #define CAT_BUF_LEN  (CAT_BUF_RAW+CAT_BUF_B64)
@@ -38,10 +45,12 @@ int cmd_cat( int argc, char *argv[] )
     static const mcush_opt_spec const opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'b', "b64", 0, "base 64 code" },
+#if _SUPPORT_WRITE
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'w', shell_str_write, 0, "write mode" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'a', shell_str_append, 0, "append mode" },
+#endif
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'd', shell_str_delay, shell_str_delay, "output delay in ms" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
@@ -49,18 +58,21 @@ int cmd_cat( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t write=0, append=0, b64=0;
+    uint8_t b64=0;
     uint32_t delay=0;
     char fname[32];
     char buf[CAT_BUF_LEN];
     int i, j;
     int fd;
-    void *input=0;
-    char *p, *p2;
-    base64_encodestate state_en;
-    base64_decodestate state_de;
     char c;
     int size, bytes;
+    base64_encodestate state_en;
+#if _SUPPORT_WRITE
+    base64_decodestate state_de;
+    uint8_t write=0, append=0;
+    void *input=0;
+    char *p, *p2;
+#endif
 
     fname[0] = 0;
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -68,15 +80,20 @@ int cmd_cat( int argc, char *argv[] )
     {
         if( opt.spec )
         {
+#if _SUPPORT_WRITE
             if( STRCMP( opt.spec->name, shell_str_write ) == 0 )
                 write = 1;
             else if( STRCMP( opt.spec->name, shell_str_append ) == 0 )
                 append = 1;
-            else if( strcmp( opt.spec->name, "b64" ) == 0 )
+            else 
+#endif
+                 if( strcmp( opt.spec->name, "b64" ) == 0 )
             {
                 b64 = 1;
                 base64_init_encodestate( &state_en );
+#if _SUPPORT_WRITE
                 base64_init_decodestate( &state_de );
+#endif
             }
             else if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
@@ -96,6 +113,7 @@ int cmd_cat( int argc, char *argv[] )
     if( ! fname[0] )
         return -1;
        
+#if _SUPPORT_WRITE
     if( write || append )
     {
         input = shell_read_multi_lines(0);
@@ -157,6 +175,7 @@ int cmd_cat( int argc, char *argv[] )
         vPortFree(input);
     }
     else
+#endif
     { 
         if( ! mcush_size( fname, &size ) )
             return 1;

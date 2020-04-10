@@ -48,8 +48,8 @@ extern int cmd_loop( int argc, char *argv[] );
 const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_HELP
 {   0,  '?',  shell_str_help,  cmd_help, 
-    "print command list",
-    "help [-a]"  },
+    "command list",
+    "? [-a]"  },
 #endif
 #if USE_CMD_SCPI_IDN
 {   0,  0,  "*idn?", cmd_scpi_idn,
@@ -74,12 +74,12 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_DUMP
 {   CMD_HIDDEN,  'x',  "dump",  cmd_dump, 
     "dump memory",
-    "dump -b <address> [-l <length>] [-w 1|2|4]" },
+    "x -b <address> [-l <length>] [-w 1|2|4]" },
 #endif
 #if USE_CMD_WRITE
 {   CMD_HIDDEN,  'w',  "write",  cmd_write, 
     "write memory",
-    "write -b <address> [-w 1|2|4] <dat1> [dat2 ...]" },
+    "w -b <address> [-w 1|2|4] dat1...N" },
 #endif
 #if USE_CMD_MFILL
 {   CMD_HIDDEN,  0,  "mfill",  cmd_mfill, 
@@ -89,7 +89,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_MAPI
 {   CMD_HIDDEN,  0,  "mapi",  cmd_mapi,
     "memory api",
-    "mapi -m|-r|-f [-b <address>] [-l <length>]" },
+    "mapi -t" },
 #endif
 #if USE_CMD_WAIT
 {   CMD_HIDDEN,  0,  "wait",  cmd_wait, 
@@ -109,27 +109,27 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_WDG
 {   CMD_HIDDEN,  0,  "wdg",  cmd_wdg, 
     "watchdog",
-    "wdg enable|disable|clear|reset" },
+    "wdg (en|dis)able|clear|reset" },
 #endif
 #if USE_CMD_UPTIME
 {   CMD_HIDDEN,  0,  "uptime",  cmd_uptime, 
-    "print run time",
+    "run time",
     "uptime" },
 #endif
 #if USE_CMD_SYSTEM
 {   CMD_HIDDEN,  0,  "sys",  cmd_system, 
-    "print sys info",
-    "sys t|q|k" },
+    "system info",
+    "sys t|q" },
 #endif
 #if USE_CMD_GPIO
 {   0,  0,  "gpio",  cmd_gpio, 
     "control gpio",
-    "gpio -p <port.bit> [-i <val>] [-o <val>] [-s <val>] [-c <val>] [-t <val>] [-l]" },
+    "gpio -p <port.bit> [-i|o|s|c|t|v]" },
 #endif
 #if USE_CMD_SGPIO
 {   0,  0,  "sgpio",  cmd_sgpio, 
     "control sgpio",
-    "sgpio -p <port> -o <val> -i <val> -f <val> [-l] [--start|stop]" },
+    "sgpio -p <port> -o <val> -i <val> -f <val>" },
 #endif
 #if USE_CMD_LED
 {   0,  0,  "led",  cmd_led, 

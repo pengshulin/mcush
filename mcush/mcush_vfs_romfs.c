@@ -10,6 +10,7 @@
 #if MCUSH_ROMFS_USER
 extern const romfs_file_t romfs_tab[];
 #else
+__attribute__((section(".signature"))) __attribute__((used))
 const char file_readme[] = "MCUSH designed by Peng Shulin, all rights reserved.\nhttps://github.com/pengshulin/mcush";
 #include ".build_signature"
 const romfs_file_t romfs_tab[] = {

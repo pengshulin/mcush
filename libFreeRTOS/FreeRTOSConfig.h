@@ -13,8 +13,8 @@ extern uint32_t SystemCoreClock;
 #ifdef CONFIG_TICK_RATE_HZ
     #define configTICK_RATE_HZ                  ((TickType_t)CONFIG_TICK_RATE_HZ)
 #else
-    /* max uptime counter support:
-       @100 Hz:  (4*1024*1024*1024) * (1/150) / (24*60*60)  = 497.10 days = 16.6 months
+    /* uptime counter overflow period:
+       @100 Hz:  (4*1024*1024*1024) * (1/100) / (24*60*60)  = 497.10 days = 16.6 months
        @200 Hz:  (4*1024*1024*1024) * (1/200) / (24*60*60)  = 248.55 days =  8.3 months
        @250 Hz:  (4*1024*1024*1024) * (1/250) / (24*60*60)  = 198.84 days =  6.6 months
        @500 Hz:  (4*1024*1024*1024) * (1/500) / (24*60*60)  =  99.42 days =  3.3 months
@@ -28,10 +28,20 @@ extern uint32_t SystemCoreClock;
 #endif
 
 #ifndef configMINIMAL_STACK_SIZE
-    #define configMINIMAL_STACK_SIZE            (100)
+    #define configMINIMAL_STACK_SIZE            (128/sizeof(portSTACK_TYPE))
 #endif
 
-//#define configTOTAL_HEAP_SIZE                 ((size_t)(8*1024))
+#ifndef configSUPPORT_STATIC_ALLOCATION
+    #define configSUPPORT_STATIC_ALLOCATION     0
+#endif
+
+#ifndef configAPPLICATION_ALLOCATED_HEAP
+    #define configAPPLICATION_ALLOCATED_HEAP    1  /* for heap_4 */
+#endif
+
+#ifndef configTOTAL_HEAP_SIZE
+    #define configTOTAL_HEAP_SIZE               ((size_t)(4*1024))  /* for heap_4 */
+#endif
 
 #ifndef configMAX_TASK_NAME_LEN 
     #define configMAX_TASK_NAME_LEN             8
@@ -85,6 +95,7 @@ extern uint32_t SystemCoreClock;
 #endif
 
 
+
 #define INCLUDE_vTaskDelay                      1
 #define INCLUDE_vTaskDelayUntil                 1
 #define INCLUDE_vTaskSuspend                    1
@@ -103,7 +114,9 @@ extern uint32_t SystemCoreClock;
     #define configUSE_STATS_FORMATTING_FUNCTIONS    1
 #endif
 
-//#define configGENERATE_RUN_TIME_STATS           0
+#ifndef configGENERATE_RUN_TIME_STATS
+    #define configGENERATE_RUN_TIME_STATS       0
+#endif
 
 //#define configUSE_PORT_OPTIMISED_TASK_SELECTION   0
 
@@ -135,7 +148,6 @@ extern uint32_t SystemCoreClock;
     #define configMAX_SYSCALL_INTERRUPT_PRIORITY     ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
         
 #endif
-
 
 
 #define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); for( ;; ); } 

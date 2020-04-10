@@ -67,11 +67,13 @@ SECTIONS
         *(.dma)
         . = ALIGN(4);
     } > SRAM
+        
 
     .userheap :
     {
         . = ALIGN(4);
         _sheap = . ;
+        *(.userheap)
         . = . + USER_HEAP_SIZE ;
         . = ALIGN(4);
         _eheap = . ;

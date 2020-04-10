@@ -9,8 +9,29 @@ __attribute__((used))
 static const char mcush_signature[] = "<mcush>";
 
 
+#if MCUSH_STACK_ALLOC_STATIC
+StaticTask_t task_mcush_buffer;
+StackType_t task_mcush_stack[MCUSH_STACK_SIZE/sizeof(portSTACK_TYPE)];
+StaticTask_t task_idle_buffer;
+StackType_t task_idle_stack[configMINIMAL_STACK_SIZE];
+
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
+{
+    *ppxIdleTaskTCBBuffer = &task_idle_buffer;
+    *ppxIdleTaskStackBuffer = task_idle_stack;
+    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+}
+#endif
+
+#if configAPPLICATION_ALLOCATED_HEAP
+/* TODO: Fix this, place ucHeap into .userheap area.
+         Currently, the objcopy will generate incorrect 
+         binary file attached with unecessary zero data */
+//__attribute__((section(".userheap")))
+uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];  /* for heap_4 */
+#endif
+
 TaskHandle_t  task_mcush;
-//QueueHandle_t queue_mcush;
 static uint8_t mcush_inited = 0;
 
 void mcush_init(void)
@@ -20,10 +41,6 @@ void mcush_init(void)
 
     if( !hal_init() )
         halt("hal init");
-
-    //queue_mcush = xQueueCreate(MCUSH_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(mcush_message_t));
-    //if( !queue_mcush )
-    //    halt("mcush queue create");
 
     if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
         halt("shell init");
@@ -41,11 +58,15 @@ void mcush_init(void)
     mcush_mount( "f", &mcush_fatfs_driver );
 #endif
 
-
-
+#if MCUSH_STACK_ALLOC_STATIC
+    task_mcush = xTaskCreateStatic((TaskFunction_t)shell_run, (const char *)"mcushT", 
+                MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
+                NULL, MCUSH_PRIORITY, task_mcush_stack, &task_mcush_buffer);
+#else
     xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", 
                 MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
                 NULL, MCUSH_PRIORITY, &task_mcush);
+#endif
     if( !task_mcush )
         halt("mcush task create");
     mcush_inited = 1;

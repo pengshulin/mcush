@@ -46,6 +46,14 @@ extern "C" {
     #define MCUSH_STACK_SIZE  (4*1024)
 #endif
 
+#ifndef MCUSH_STACK_ALLOC_STATIC
+    #if configSUPPORT_STATIC_ALLOCATION
+        #define MCUSH_STACK_ALLOC_STATIC  1
+    #else
+        #define MCUSH_STACK_ALLOC_STATIC  0
+    #endif
+#endif
+
 #ifndef MCUSH_QUEUE_SIZE
     #define MCUSH_QUEUE_SIZE  (64)
 #endif
@@ -148,17 +156,37 @@ extern "C" {
 
 #ifndef USE_CMD_SYSTEM
     #define USE_CMD_SYSTEM  1
+#endif
+#if USE_CMD_SYSTEM
+    #ifndef USE_CMD_SYSTEM_KERNEL
+        #define USE_CMD_SYSTEM_KERNEL  1
+    #endif
     #ifndef USE_CMD_SYSTEM_HEAP
-        #define USE_CMD_SYSTEM_HEAP  1
+        #define USE_CMD_SYSTEM_HEAP  0
     #endif
     #ifndef USE_CMD_SYSTEM_STACK
-        #define USE_CMD_SYSTEM_STACK  1
+        #define USE_CMD_SYSTEM_STACK  0
+    #endif
+    #ifndef USE_CMD_SYSTEM_IDLE
+        #define USE_CMD_SYSTEM_IDLE  1
     #endif
 #endif
 
 #ifndef USE_CMD_MAPI
     #define USE_CMD_MAPI  1
 #endif
+#if USE_CMD_MAPI
+    #ifndef USE_CMD_MAPI_INFO
+        #define USE_CMD_MAPI_INFO  0
+    #endif
+    #ifndef USE_CMD_MAPI_REALLOC
+        #define USE_CMD_MAPI_REALLOC  0
+    #endif
+    #ifndef MAPI_TEST_MALLOC_SIZE
+        #define MAPI_TEST_MALLOC_SIZE  65536
+    #endif
+#endif
+
 #ifndef USE_CMD_BEEP
     #define USE_CMD_BEEP  0
 #endif

@@ -7,6 +7,7 @@ from mcush import *
 
 MALLOC_LIMIT = int(os.getenv('MALLOC_LIMIT', 1*1024))
 NO_FREE = Env.getenv_bool("NO_FREE")
+REALLOC_SUPPORT = Env.getenv_bool("REALLOC_SUPPORT")
 
 def main(argv=None):
 
@@ -45,7 +46,7 @@ def main(argv=None):
                 info( 'malloc %d 0x%08X'% (size, m) )
                 s.fillMem( m, pat, 1, size )
             # 2. if malloc failed, try to use realloc from existing one
-            elif mem:
+            elif mem and REALLOC_SUPPORT:
                 em = random.choice(mem)
                 ems = msize[em]
                 m = s.realloc( em, size )

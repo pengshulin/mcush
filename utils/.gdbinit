@@ -9,14 +9,6 @@ def getenv_bool( key, default=None ):
     return False if ret is None else bool(ret in _bool_true_list)
 DEBUG=getenv_bool("DEBUG")
 CHIP=os.getenv("CHIP")
-#if CHIP is None:
-#    chip='lpc4337'
-#    chip='stm32l152'
-#    chip='stm32f103'
-#    chip='stm32f407'
-#    chip='stm32f429'
-#else:
-#    chip = CHIP
 chip = CHIP
 if chip is None:
     raise Exception('CHIP not assigned')
@@ -110,8 +102,8 @@ python
 chip_mem_configs = {
 
 'stm32f030': [
-[ 0x08000000, 0x08003FFC, 'ro', 32, True,  'Flash 16k' ],
-[ 0x20000000, 0x20000FFC, 'rw', 32, False, 'SRAM 4k' ],
+[ 0x08000000, 0x0803FFFC, 'ro', 32, True,  'Flash 256k' ],
+[ 0x20000000, 0x20007FFC, 'rw', 32, False, 'SRAM 32k' ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 ],
 

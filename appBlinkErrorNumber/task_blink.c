@@ -12,6 +12,11 @@
 
 static int _errno = 0;
 
+#if configSUPPORT_STATIC_ALLOCATION
+StaticTask_t task_blink_buffer;
+StackType_t task_blink_stack[TASK_BLINK_STACK_SIZE/sizeof(portSTACK_TYPE)];
+#endif
+
 int get_errno(void)
 {
     return _errno;
@@ -82,8 +87,8 @@ int cmd_error( int argc, char *argv[] )
 
 const shell_cmd_t cmd_tab_blink[] = {
 {   0, 'e', "error",  cmd_error,
-    "set error number",
-    "error -s <num>"  },
+    "error number",
+    "e <num>"  },
 {   CMD_END  } };
 
 
@@ -171,9 +176,15 @@ void task_blink_init(void)
 
     shell_add_cmd_table( cmd_tab_blink );
 
+#if configSUPPORT_STATIC_ALLOCATION
+    task_blink = xTaskCreateStatic((TaskFunction_t)task_blink_entry, (const char *)"blinkT", 
+                TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
+                NULL, TASK_BLINK_PRIORITY, task_blink_stack, &task_blink_buffer);
+#else
     (void)xTaskCreate(task_blink_entry, (const char *)"blinkT",
                       TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
                       NULL, TASK_BLINK_PRIORITY, &task_blink);
+#endif
     if( task_blink == NULL )
         halt("create blink task");
 }
