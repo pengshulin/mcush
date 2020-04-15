@@ -368,13 +368,14 @@ int cmd_led( int argc, char *argv[] )
         return -1;
     }
  
-    switch( cmd )
-    {
-    case 0: hal_led_clr( index ); break;
-    case 1: hal_led_set( index ); break;
-    case 2: hal_led_toggle( index ); break;
-    default: shell_write_line( hal_led_get(index) ? "1" : "0" ); break;
-    }
+    if( cmd == 0 )
+        hal_led_clr( index );
+    else if( cmd == 1 )
+        hal_led_set( index );
+    else if( cmd == 2 )
+        hal_led_toggle( index );
+    else
+        shell_write_line( hal_led_get(index) ? "1" : "0" );
     return 0;
 }
 #endif
@@ -933,6 +934,16 @@ int cmd_rtc( int argc, char *argv[] )
 
 
 #if USE_CMD_CAN
+#define DEFAULT_CAN_READ_TIMEOUT_MS  100
+#define DEFAULT_CAN_READ_MAX_LINE    1000
+#ifndef CAN_READ_MAX_LINE
+    #if HAL_CAN_QUEUE_RX_LEN < DEFAULT_CAN_READ_MAX_LINE
+        #define CAN_READ_MAX_LINE   DEFAULT_CAN_READ_MAX_LINE
+    #else
+        #define CAN_READ_MAX_LINE   HAL_CAN_QUEUE_RX_LEN 
+    #endif
+#endif
+
 static void print_can_message( can_message_t *msg )
 {
     shell_printf( msg->ext ? "%08X %c" : "%03X %c", msg->id, msg->remote ? 'R' : 'D' );
@@ -949,7 +960,7 @@ int cmd_can( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', "cmd", shell_str_command, "info|(de)init|baudrate|read|write|filter" },
+          'c', "cmd", shell_str_command, "info|(de)init|reset|baudrate|read|write|filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'i', "idx", shell_str_index, "index param" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -1028,6 +1039,10 @@ int cmd_can( int argc, char *argv[] )
     {
         hal_can_deinit();
     }
+    else if( strcmp(cmd, "reset") == 0 )
+    {
+        hal_can_reset();
+    }
     else if( strcmp(cmd, "baudrate") == 0 )
     {
         if( !value_set )
@@ -1098,8 +1113,15 @@ int cmd_can( int argc, char *argv[] )
     }
     else if( strcmp(cmd, "read") == 0 )
     {
-        while( hal_can_read( &msg, 0 ) )
+        /* timeout, may be modified by '-v value' */
+        if( ! value_set )
+            value = DEFAULT_CAN_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000;
+        i = DEFAULT_CAN_READ_MAX_LINE;
+        while( i && hal_can_read( &msg, value ) )
+        {
             print_can_message( &msg );
+            i--;
+        }
     }
     else if( strcmp(cmd, "write") == 0 )
     {

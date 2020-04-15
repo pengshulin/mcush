@@ -28,6 +28,7 @@ typedef struct {
 
 int hal_can_init( void );
 void hal_can_deinit( void );
+void hal_can_reset( void );
 int hal_can_set_baudrate( int baudrate );
 int hal_can_get_baudrate( void );
 int hal_can_get_last_error( void );

@@ -307,9 +307,8 @@ int cmd_dump( int argc, char *argv[] )
             shell_printf( "%08X: ", (unsigned int)addr );
         count2 = count;
         addr2 = addr;
-        switch(width)
+        if( width == 1 )
         {
-        case 1:
             for( i=0; i<16; i++ )
             {
                 shell_printf( compact_mode ? "%02X" : "%02X ", *(unsigned char*)addr );
@@ -319,7 +318,7 @@ int cmd_dump( int argc, char *argv[] )
                 {
                     if( need_fill_line )
                     {
-                        for( i++; i<16; i++ )
+                        while( ++i<16 )
                             shell_write_str( "   " ); 
                     }
                     break;
@@ -359,8 +358,9 @@ int cmd_dump( int argc, char *argv[] )
                 }
                 shell_write_char( '|' );
             }
-            break;
-        case 2:
+        }
+        else if( width == 2 )
+        {
             for( i=0; i<8; i++ )
             {
                 shell_printf( compact_mode ? "%04X" : "%04X ", *(unsigned short*)addr );
@@ -370,7 +370,7 @@ int cmd_dump( int argc, char *argv[] )
                 {
                     if( need_fill_line )
                     {
-                        for( i++; i<8; i++ )
+                        while( ++i<8 )
                             shell_write_str( "     " ); 
                     }
                     break;
@@ -394,8 +394,9 @@ int cmd_dump( int argc, char *argv[] )
                 }
                 shell_write_char( '|' );
             }
-            break;
-        case 4:
+        }
+        else if( width == 4 )
+        {
             for( i=0; i<4; i++ )
             {
                 shell_printf( compact_mode ? "%08X" : "%08X ", *(unsigned int*)addr );
@@ -405,7 +406,7 @@ int cmd_dump( int argc, char *argv[] )
                 {
                     if( need_fill_line )
                     {
-                        for( i++; i<4; i++ )
+                        while( ++i<4 )
                             shell_write_str( "         " ); 
                     }
                     break;
@@ -431,7 +432,6 @@ int cmd_dump( int argc, char *argv[] )
                 }
                 shell_write_char( '|' );
             }
-            break;
         }
         shell_write_str( "\r\n" );
         /* check if Ctrl-C is pressed */

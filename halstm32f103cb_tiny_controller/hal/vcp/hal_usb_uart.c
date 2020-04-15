@@ -94,8 +94,8 @@ int hal_uart_init(uint32_t baudrate)
 {
     TaskHandle_t task_vcp_tx;
 
-    hal_queue_vcp_rx = xQueueCreate( VCP_RX_BUF_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_queue_vcp_tx = xQueueCreate( VCP_TX_BUF_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_queue_vcp_rx = xQueueCreate( VCP_RX_BUF_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
+    hal_queue_vcp_tx = xQueueCreate( VCP_TX_BUF_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
     hal_sem_vcp_tx = xSemaphoreCreateBinary();
     if( !hal_queue_vcp_rx || !hal_queue_vcp_tx || !hal_sem_vcp_tx )
         return 0;

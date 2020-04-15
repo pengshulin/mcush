@@ -60,8 +60,8 @@ extern char hal_vcp_tx_buf1[];
 extern char hal_vcp_tx_buf2[];
 extern int hal_vcp_tx_buf1_len, hal_vcp_tx_buf2_len;
 extern uint8_t hal_vcp_tx_use_buf2;
-extern QueueHandle_t hal_queue_vcp_rx;
-extern QueueHandle_t hal_queue_vcp_tx;
+extern QueueHandle_t hal_vcp_queue_rx;
+extern QueueHandle_t hal_vcp_queue_tx;
 
 /* USER CODE END INCLUDE */
 
@@ -304,7 +304,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     /* receive and append to rx queue */
     while( len )
     {
-        if( xQueueSendFromISR( hal_queue_vcp_rx, (void*)Buf, NULL ) == pdTRUE )
+        if( xQueueSendFromISR( hal_vcp_queue_rx, (void*)Buf, NULL ) == pdTRUE )
         {
             Buf++;
             len--;

@@ -100,6 +100,15 @@ int hal_adc_get_num( void );
 int hal_adc_in_use( void );
 float hal_adc_get( int index );
 
+int hal_init(void);
+int hal_get_serial_number( char *buf );
+void init_sys_tick(void);
+unsigned int get_sys_tick_count(void);
+void hal_platform_reset(void);
+void hal_platform_init(void);
+
+
+#include "hal_platform.h"
 
 #if HAL_DAQ
 #include "hal_daq.h"
@@ -108,14 +117,6 @@ float hal_adc_get( int index );
 #if HAL_CAN
 #include "hal_can.h"
 #endif
-
-int hal_init(void);
-int hal_get_serial_number( char *buf );
-void init_sys_tick(void);
-unsigned int get_sys_tick_count(void);
-void hal_platform_reset(void);
-void hal_platform_init(void);
-#include "hal_platform.h"
 
 #ifdef __cplusplus
 }

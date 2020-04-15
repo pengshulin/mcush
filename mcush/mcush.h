@@ -46,14 +46,6 @@ extern "C" {
     #define MCUSH_STACK_SIZE  (4*1024)
 #endif
 
-#ifndef MCUSH_STACK_ALLOC_STATIC
-    #if configSUPPORT_STATIC_ALLOCATION
-        #define MCUSH_STACK_ALLOC_STATIC  1
-    #else
-        #define MCUSH_STACK_ALLOC_STATIC  0
-    #endif
-#endif
-
 #ifndef MCUSH_QUEUE_SIZE
     #define MCUSH_QUEUE_SIZE  (64)
 #endif
@@ -306,6 +298,14 @@ extern "C" {
     #define USE_CMD_UPGRADE  0
 #endif
 
+#if USE_CMD_CAT
+    #ifndef USE_CMD_CAT_WRITE
+        #define USE_CMD_CAT_WRITE  1
+    #endif
+    #ifndef USE_CMD_CAT_B64
+        #define USE_CMD_CAT_B64  1
+    #endif
+#endif
    
 #if USE_CMD_I2C
 typedef struct {

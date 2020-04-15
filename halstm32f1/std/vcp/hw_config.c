@@ -37,8 +37,8 @@
 #include "usb_pwr.h"
 
 
-extern QueueHandle_t hal_queue_vcp_rx;
-extern QueueHandle_t hal_queue_vcp_tx;
+extern QueueHandle_t hal_vcp_queue_rx;
+extern QueueHandle_t hal_vcp_queue_tx;
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,13 +85,6 @@ void Set_System(void)
     gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
     gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init( GPIOA, &gpio_init );
-
-    ///* Configure the EXTI line 18 connected internally to the USB IP */
-    //EXTI_ClearITPendingBit(EXTI_Line18);
-    //EXTI_InitStructure.EXTI_Line = EXTI_Line18; 
-    //EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-    //EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    //EXTI_Init(&EXTI_InitStructure);
 }
 
 /*******************************************************************************
@@ -165,11 +158,6 @@ void USB_Interrupts_Config(void)
     NVIC_InitStructure.NVIC_IRQChannel = USBWakeUp_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 6;
     NVIC_Init(&NVIC_InitStructure);
-
-    /* Enable USART Interrupt */
-    //NVIC_InitStructure.NVIC_IRQChannel = EVAL_COM1_IRQn;
-    //NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-    //NVIC_Init(&NVIC_InitStructure);
 }
 
 /*******************************************************************************
@@ -180,14 +168,6 @@ void USB_Interrupts_Config(void)
 *******************************************************************************/
 void USB_Cable_Config (FunctionalState NewState)
 {
-  //if (NewState == DISABLE)
-  //{
-  //  GPIO_ResetBits(USB_DISCONNECT_PORT, USB_DISCONNECT_PIN);
-  //}
-  //else
-  //{
-  //  GPIO_SetBits(USB_DISCONNECT_PORT, USB_DISCONNECT_PIN);
-  //}
 }
 
 /*******************************************************************************
@@ -227,7 +207,7 @@ void USB_To_USART_Send_Data(uint8_t* data_buffer, uint8_t Nb_bytes)
 
     for (i = 0; i < Nb_bytes; i++)
     {
-        if( xQueueSendFromISR( hal_queue_vcp_rx, data_buffer + i, &xHigherPriorityTaskWoken ) == errQUEUE_FULL )
+        if( xQueueSendFromISR( hal_vcp_queue_rx, data_buffer + i, &xHigherPriorityTaskWoken ) == errQUEUE_FULL )
             break;
     }  
 }
@@ -297,7 +277,7 @@ void USART_To_USB_Send_Data(void)
 {
     char c;
 
-    while( xQueueReceiveFromISR( hal_queue_vcp_tx, &c, 0 ) == pdTRUE )
+    while( xQueueReceiveFromISR( hal_vcp_queue_tx, &c, 0 ) == pdTRUE )
     {
         USART_Rx_Buffer[USART_Rx_ptr_in] = c;
   

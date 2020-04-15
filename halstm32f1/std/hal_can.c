@@ -36,6 +36,12 @@
 extern const GPIO_TypeDef * const ports[];
 
 QueueHandle_t hal_can_queue_rx, hal_can_queue_tx;
+#if configSUPPORT_STATIC_ALLOCATION
+StaticQueue_t hal_can_queue_rx_data;
+uint8_t hal_can_queue_rx_buffer[HAL_CAN_QUEUE_RX_LEN*sizeof(can_message_t)];
+StaticQueue_t hal_can_queue_tx_data;
+uint8_t hal_can_queue_tx_buffer[HAL_CAN_QUEUE_TX_LEN*sizeof(can_message_t)];
+#endif
 
 uint32_t can_baudrate=HAL_CAN_BAUDRATE_DEF;
 
@@ -57,15 +63,21 @@ typedef struct {
 int hal_can_init( void )
 {
     GPIO_InitTypeDef gpio_init;
-    CAN_InitTypeDef can_init;
     CAN_FilterInitTypeDef can_filter_init;
     NVIC_InitTypeDef nvic_init;
     
     if( _inited )
         return 1;
 
+#if configSUPPORT_STATIC_ALLOCATION
+    hal_can_queue_rx = xQueueCreateStatic( HAL_CAN_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t),
+                                           hal_can_queue_rx_buffer, &hal_can_queue_rx_data );
+    hal_can_queue_tx = xQueueCreateStatic( HAL_CAN_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t),
+                                           hal_can_queue_tx_buffer, &hal_can_queue_tx_data );
+#else
     hal_can_queue_rx = xQueueCreate( HAL_CAN_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof(can_message_t) );
     hal_can_queue_tx = xQueueCreate( HAL_CAN_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof(can_message_t) );
+#endif
     if( !hal_can_queue_rx || !hal_can_queue_tx )
         return 0;
     vQueueAddToRegistry( hal_can_queue_rx, "canrxQ" );
@@ -92,7 +104,6 @@ int hal_can_init( void )
 
     /* CAN register init */
     CAN_DeInit( HAL_CANx );
-    CAN_StructInit( &can_init );
    
     /* CAN cell init */
     hal_can_set_baudrate(can_baudrate);
@@ -153,6 +164,12 @@ void hal_can_deinit( void )
 }
 
 
+void hal_can_reset( void )
+{
+
+}
+
+
 int hal_can_set_baudrate( int baudrate )
 {
     CAN_InitTypeDef can_init;
@@ -175,6 +192,8 @@ int hal_can_set_baudrate( int baudrate )
             can_init.CAN_TXFP = DISABLE;  // transmit fifo priority
             CAN_Init( HAL_CANx, &can_init );  
             can_baudrate = baudrate;
+            if( _inited )
+                CAN_OperatingModeRequest( HAL_CANx, CAN_OperatingMode_Normal );
             return 1;
         }
     }

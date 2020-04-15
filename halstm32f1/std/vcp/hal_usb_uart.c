@@ -11,16 +11,24 @@ extern uint32_t USART_Rx_ptr_out;
 extern uint32_t USART_Rx_length;
 
 
-#define QUEUE_VCP_RX_LEN    128
-#define QUEUE_VCP_TX_LEN    128
+#define HAL_VCP_QUEUE_RX_LEN    128
+#define HAL_VCP_QUEUE_TX_LEN    128
 
-QueueHandle_t hal_queue_vcp_rx;
-QueueHandle_t hal_queue_vcp_tx;
+QueueHandle_t hal_vcp_queue_rx;
+QueueHandle_t hal_vcp_queue_tx;
+
+#if configSUPPORT_STATIC_ALLOCATION
+StaticQueue_t hal_vcp_queue_rx_data;
+uint8_t hal_vcp_queue_rx_buffer[HAL_VCP_QUEUE_RX_LEN];
+StaticQueue_t hal_vcp_queue_tx_data;
+uint8_t hal_vcp_queue_tx_buffer[HAL_VCP_QUEUE_TX_LEN];
+#endif
+
 
 signed portBASE_TYPE hal_vcp_putc( char c, TickType_t xBlockTime )
 {
 
-    if( xQueueSend( hal_queue_vcp_tx, &c, xBlockTime ) == pdPASS )
+    if( xQueueSend( hal_vcp_queue_tx, &c, xBlockTime ) == pdPASS )
     {
         return pdPASS;
     }
@@ -30,14 +38,14 @@ signed portBASE_TYPE hal_vcp_putc( char c, TickType_t xBlockTime )
 
 signed portBASE_TYPE hal_vcp_getc( char *c, TickType_t xBlockTime )
 {
-    return xQueueReceive( hal_queue_vcp_rx, c, xBlockTime );
+    return xQueueReceive( hal_vcp_queue_rx, c, xBlockTime );
 }
 
 
 void hal_vcp_reset(void)
 {
-    xQueueReset( hal_queue_vcp_rx );
-    xQueueReset( hal_queue_vcp_tx );
+    xQueueReset( hal_vcp_queue_rx );
+    xQueueReset( hal_vcp_queue_tx );
 }
 
 
@@ -48,9 +56,16 @@ void hal_vcp_enable(uint8_t enable)
 
 int hal_uart_init(uint32_t baudrate)
 {
-    hal_queue_vcp_rx = xQueueCreate( QUEUE_VCP_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_queue_vcp_tx = xQueueCreate( QUEUE_VCP_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    if( !hal_queue_vcp_rx || !hal_queue_vcp_tx )
+#if configSUPPORT_STATIC_ALLOCATION
+    hal_vcp_queue_rx = xQueueCreateStatic( HAL_VCP_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(signed char),
+                                           hal_vcp_queue_rx_buffer, &hal_vcp_queue_rx_data );
+    hal_vcp_queue_tx = xQueueCreateStatic( HAL_VCP_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(signed char),
+                                           hal_vcp_queue_tx_buffer, &hal_vcp_queue_tx_data );
+#else
+    hal_vcp_queue_rx = xQueueCreate( HAL_VCP_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
+    hal_vcp_queue_tx = xQueueCreate( HAL_VCP_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
+#endif
+    if( !hal_vcp_queue_rx || !hal_vcp_queue_tx )
         return 0;
 
     Get_SerialNum();  /* Serial Number from Chip UID */

@@ -51,7 +51,7 @@ extern "C" {
     #define SHELL_QUOTE_PARSE_ENABLE  1
 #endif
 #ifndef SHELL_LINE_BUF_SIZE 
-    #define SHELL_LINE_BUF_SIZE  512
+    #define SHELL_LINE_BUF_SIZE  256
 #endif
 #ifndef SHELL_HALT_ON_ADD_CMD_TABLE_FAIL
     #define SHELL_HALT_ON_ADD_CMD_TABLE_FAIL  1

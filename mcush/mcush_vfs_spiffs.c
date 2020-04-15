@@ -23,13 +23,20 @@ static char _fds[SPIFFS_FD_NUM * sizeof(spiffs_fd)];
 static char _cache_buf[sizeof(spiffs_cache) + SPIFFS_CACHE_NUM * 
                      (sizeof(spiffs_cache_page)+SPIFLASH_CFG_LOG_PAGE_SZ)];
 SemaphoreHandle_t semaphore_spiffs;
+#if configSUPPORT_STATIC_ALLOCATION
+StaticSemaphore_t semaphore_spiffs_data;
+#endif
 
 
 static void _lock_check(void)
 {
     if( !semaphore_spiffs )
     {
+#if configSUPPORT_STATIC_ALLOCATION
+        semaphore_spiffs = xSemaphoreCreateMutexStatic(&semaphore_spiffs_data);
+#else
         semaphore_spiffs = xSemaphoreCreateMutex();
+#endif
         if( !semaphore_spiffs )
             halt("spiffs semphr create"); 
     }

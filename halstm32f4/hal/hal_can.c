@@ -35,8 +35,13 @@
 #endif
 
 
-
 QueueHandle_t hal_can_queue_rx, hal_can_queue_tx;
+#if configSUPPORT_STATIC_ALLOCATION
+StaticQueue_t hal_can_queue_rx_data;
+uint8_t hal_can_queue_rx_buffer[HAL_CAN_QUEUE_RX_LEN*sizeof(can_message_t)];
+StaticQueue_t hal_can_queue_tx_data;
+uint8_t hal_can_queue_tx_buffer[HAL_CAN_QUEUE_TX_LEN*sizeof(can_message_t)];
+#endif
 
 uint32_t can_baudrate=HAL_CAN_BAUDRATE_DEF;
 
@@ -62,8 +67,15 @@ int hal_can_init( void )
     if( _inited )
         return 1;
 
-    hal_can_queue_rx = xQueueCreate( HAL_CAN_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof(can_message_t) );
-    hal_can_queue_tx = xQueueCreate( HAL_CAN_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof(can_message_t) );
+#if configSUPPORT_STATIC_ALLOCATION
+    hal_can_queue_rx = xQueueCreateStatic( HAL_CAN_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t),
+                                           hal_can_queue_rx_buffer, &hal_can_queue_rx_data );
+    hal_can_queue_tx = xQueueCreateStatic( HAL_CAN_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t),
+                                           hal_can_queue_tx_buffer, &hal_can_queue_tx_data );
+#else
+    hal_can_queue_rx = xQueueCreate( HAL_CAN_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t) );
+    hal_can_queue_tx = xQueueCreate( HAL_CAN_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t) );
+#endif
     if( !hal_can_queue_rx || !hal_can_queue_tx )
         return 0;
     vQueueAddToRegistry( hal_can_queue_rx, "canrxQ" );
@@ -86,14 +98,13 @@ int hal_can_init( void )
     gpio_init.Alternate = HAL_CAN_TX_AF;
     HAL_GPIO_Init( HAL_CAN_TX_PORT, &gpio_init );
 
-    /* CAN register init */
+    /* handle prepare */
     hcan.Instance = HAL_CANx;
-    HAL_CAN_DeInit( &hcan );
-   
-    /* CAN cell init */
-    hal_can_set_baudrate(can_baudrate);
   
-    /* CAN filter init */
+    /* start with default baudrate */
+    hal_can_set_baudrate(can_baudrate);
+
+    /* filter init */
     can_filter_init.FilterBank = 0;
     can_filter_init.FilterMode = CAN_FILTERMODE_IDMASK;
     can_filter_init.FilterScale = CAN_FILTERSCALE_32BIT;
@@ -105,10 +116,9 @@ int hal_can_init( void )
     can_filter_init.FilterActivation = ENABLE;
     HAL_CAN_ConfigFilter( &hcan, &can_filter_init );
 
+    /* Interrupt Enable */  
     __HAL_CAN_ENABLE_IT( &hcan, CAN_IT_RX_FIFO1_MSG_PENDING );  /* Receive messages pending */
     __HAL_CAN_ENABLE_IT( &hcan, CAN_IT_TX_MAILBOX_EMPTY );   /* Transmit mailbox empty */
- 
-    /* Interrupt Enable */  
     HAL_NVIC_SetPriority( HAL_CAN_RX_IRQn, 10, 0 );
     HAL_NVIC_EnableIRQ( HAL_CAN_RX_IRQn );
     HAL_NVIC_SetPriority( HAL_CAN_TX_IRQn, 10, 0 );
@@ -147,6 +157,14 @@ void hal_can_deinit( void )
 }
 
 
+void hal_can_reset( void )
+{
+    HAL_CAN_Stop( &hcan );
+    HAL_CAN_ResetError( &hcan );
+    HAL_CAN_Start( &hcan );
+}
+
+
 int hal_can_set_baudrate( int baudrate )
 {
     int i;
@@ -155,7 +173,10 @@ int hal_can_set_baudrate( int baudrate )
     {
         if( baudrate_config[i].kbps*1000 == baudrate )
         {
-            hcan.Instance = HAL_CANx;
+            if( _inited )
+                HAL_CAN_Stop( &hcan );
+            else
+                HAL_CAN_DeInit( &hcan );
             hcan.Init.Mode = CAN_MODE_NORMAL;
             hcan.Init.Prescaler = baudrate_config[i].prescaler;
             hcan.Init.SyncJumpWidth = baudrate_config[i].control;
@@ -167,9 +188,14 @@ int hal_can_set_baudrate( int baudrate )
             hcan.Init.AutoRetransmission = DISABLE;
             hcan.Init.ReceiveFifoLocked = DISABLE;
             hcan.Init.TransmitFifoPriority = DISABLE;
+            HAL_CAN_ResetError( &hcan );
             if( HAL_CAN_Init( &hcan ) != HAL_OK )
                 return 0;
             can_baudrate = baudrate;
+            if( _inited )
+            {
+                HAL_CAN_Start( &hcan );
+            }
             return 1;
         }
     }

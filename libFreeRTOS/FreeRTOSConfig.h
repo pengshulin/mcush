@@ -32,7 +32,7 @@ extern uint32_t SystemCoreClock;
 #endif
 
 #ifndef configSUPPORT_STATIC_ALLOCATION
-    #define configSUPPORT_STATIC_ALLOCATION     0
+    #define configSUPPORT_STATIC_ALLOCATION     1
 #endif
 
 #ifndef configAPPLICATION_ALLOCATED_HEAP
@@ -58,7 +58,7 @@ extern uint32_t SystemCoreClock;
 	#define configTIMER_SERVICE_TASK_NAME       "tmrSvrT"
     #define configTIMER_TASK_PRIORITY           (configMAX_PRIORITIES - 1)
     #ifndef configTIMER_TASK_STACK_DEPTH
-        #define configTIMER_TASK_STACK_DEPTH    (configMINIMAL_STACK_SIZE)
+        #define configTIMER_TASK_STACK_DEPTH    (256/sizeof(portSTACK_TYPE))
     #endif
     #define configTIMER_QUEUE_LENGTH            16
 #endif

@@ -9,26 +9,38 @@ __attribute__((used))
 static const char mcush_signature[] = "<mcush>";
 
 
-#if MCUSH_STACK_ALLOC_STATIC
-StaticTask_t task_mcush_buffer;
-StackType_t task_mcush_stack[MCUSH_STACK_SIZE/sizeof(portSTACK_TYPE)];
-StaticTask_t task_idle_buffer;
-StackType_t task_idle_stack[configMINIMAL_STACK_SIZE];
+#if configSUPPORT_STATIC_ALLOCATION
+StaticTask_t task_mcush_data;
+StackType_t task_mcush_buffer[MCUSH_STACK_SIZE/sizeof(portSTACK_TYPE)];
 
+StaticTask_t task_idle_data;
+StackType_t task_idle_buffer[configMINIMAL_STACK_SIZE];
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
 {
-    *ppxIdleTaskTCBBuffer = &task_idle_buffer;
-    *ppxIdleTaskStackBuffer = task_idle_stack;
+    *ppxIdleTaskTCBBuffer = &task_idle_data;
+    *ppxIdleTaskStackBuffer = task_idle_buffer;
     *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+}
+
+#if configUSE_TIMERS
+StaticTask_t task_timer_data;
+StackType_t task_timer_buffer[configTIMER_TASK_STACK_DEPTH];
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
+{
+    *ppxTimerTaskTCBBuffer = &task_timer_data;
+    *ppxTimerTaskStackBuffer = task_timer_buffer;
+    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
 }
 #endif
 
+
 #if configAPPLICATION_ALLOCATED_HEAP
-/* TODO: Fix this, place ucHeap into .userheap area.
+/* TODO: Fix this, link ucHeap into .userheap area.
          Currently, the objcopy will generate incorrect 
          binary file attached with unecessary zero data */
 //__attribute__((section(".userheap")))
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];  /* for heap_4 */
+#endif
 #endif
 
 TaskHandle_t  task_mcush;
@@ -58,10 +70,10 @@ void mcush_init(void)
     mcush_mount( "f", &mcush_fatfs_driver );
 #endif
 
-#if MCUSH_STACK_ALLOC_STATIC
+#if configSUPPORT_STATIC_ALLOCATION
     task_mcush = xTaskCreateStatic((TaskFunction_t)shell_run, (const char *)"mcushT", 
                 MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, MCUSH_PRIORITY, task_mcush_stack, &task_mcush_buffer);
+                NULL, MCUSH_PRIORITY, task_mcush_buffer, &task_mcush_data);
 #else
     xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", 
                 MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),

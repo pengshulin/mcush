@@ -13,8 +13,8 @@
 static int _errno = 0;
 
 #if configSUPPORT_STATIC_ALLOCATION
-StaticTask_t task_blink_buffer;
-StackType_t task_blink_stack[TASK_BLINK_STACK_SIZE/sizeof(portSTACK_TYPE)];
+StaticTask_t task_blink_data;
+StackType_t task_blink_buffer[TASK_BLINK_STACK_SIZE/sizeof(portSTACK_TYPE)];
 #endif
 
 int get_errno(void)
@@ -179,7 +179,7 @@ void task_blink_init(void)
 #if configSUPPORT_STATIC_ALLOCATION
     task_blink = xTaskCreateStatic((TaskFunction_t)task_blink_entry, (const char *)"blinkT", 
                 TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_BLINK_PRIORITY, task_blink_stack, &task_blink_buffer);
+                NULL, TASK_BLINK_PRIORITY, task_blink_buffer, &task_blink_data);
 #else
     (void)xTaskCreate(task_blink_entry, (const char *)"blinkT",
                       TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),

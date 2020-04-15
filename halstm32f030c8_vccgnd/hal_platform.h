@@ -26,7 +26,7 @@
 #define HAL_UARTx_BAUDRATE              9600
 #define HAL_UART_QUEUE_RX_LEN           64
 #define HAL_UART_QUEUE_TX_LEN           64
-#define HAL_UART_QUEUE_ADD_TO_REG       0
+#define HAL_UART_QUEUE_ADD_TO_REG       1
 
 
 

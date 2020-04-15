@@ -54,9 +54,18 @@
     
 #if HAL_UART_QUEUE_RX_LEN
 QueueHandle_t hal_uart_queue_rx;
+#if configSUPPORT_STATIC_ALLOCATION
+StaticQueue_t hal_uart_queue_rx_data;
+uint8_t hal_uart_queue_rx_buffer[HAL_UART_QUEUE_RX_LEN];
 #endif
+#endif
+
 #if HAL_UART_QUEUE_TX_LEN
 QueueHandle_t hal_uart_queue_tx;
+#if configSUPPORT_STATIC_ALLOCATION
+StaticQueue_t hal_uart_queue_tx_data;
+uint8_t hal_uart_queue_tx_buffer[HAL_UART_QUEUE_TX_LEN];
+#endif
 #endif
 
 
@@ -67,12 +76,24 @@ int hal_uart_init( uint32_t baudrate )
     LL_USART_InitTypeDef usart_init;
 
 #if HAL_UART_QUEUE_RX_LEN
+#if configSUPPORT_STATIC_ALLOCATION
+    hal_uart_queue_rx = xQueueCreateStatic( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ),
+                                            hal_uart_queue_rx_buffer, &hal_uart_queue_rx_data );
+
+#else
     hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+#endif
     if( hal_uart_queue_rx == NULL )
         return 0;
 #endif
-#if HAL_UART_QUEUE_RX_LEN
+
+#if HAL_UART_QUEUE_TX_LEN
+#if configSUPPORT_STATIC_ALLOCATION
+    hal_uart_queue_tx = xQueueCreateStatic( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ),
+                                            hal_uart_queue_tx_buffer, &hal_uart_queue_tx_data );
+#else
     hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+#endif
     if( hal_uart_queue_tx == NULL )
         return 0;
 #endif

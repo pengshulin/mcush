@@ -63,7 +63,7 @@ class Tm7707():
     ref = 2.5
     channel = CH_1
     gain = GAIN_1
-    polar = UNIPOLAR
+    polar = BIPOLAR
     buffered = BUF_NO
     clock_dis = CLKDIS_0
     clock_sel = CLK_4_9152M
@@ -132,7 +132,11 @@ class Tm7707():
         if mode in ['hex', 'int']:
             return val
         else:
-            return self.ref * val / (2**24)
+            if self.polar == BIPOLAR:
+                val -= 0x800000
+                return self.ref * val / (2**23)
+            else:
+                return self.ref * val / (2**24)
 
     def calibSelf( self ):
         self.controller.spi( [ REG_SETUP | WRITE | self.channel,

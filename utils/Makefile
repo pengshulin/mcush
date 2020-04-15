@@ -19,12 +19,11 @@ reset:
 
 
 # st-flash commands
-flash2:
-	@emu_util_stlink flash `scons --quiet name`.bin
+sterase:
+	@emu_util_stlink erase
 stflash:
 	@emu_util_stlink flash `scons --quiet name`.bin
-reset2:
-	@emu_util_stlink reset
 streset:
 	@emu_util_stlink reset
+
 

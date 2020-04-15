@@ -32,19 +32,30 @@ int do_test_file( const char *mount_point )
 
 
 #if USE_CMD_CAT
-#if CMD_CAT_READONLY
-    #define _SUPPORT_WRITE  0
-#else
+#if USE_CMD_CAT_WRITE
     #define _SUPPORT_WRITE  1
+#else
+    #define _SUPPORT_WRITE  0
+#endif
+#if USE_CMD_CAT_B64
+    #define _SUPPORT_B64  1
+#else
+    #define _SUPPORT_B64  0
 #endif
 #define CAT_BUF_RAW  100
 #define CAT_BUF_B64  180
+#if USE_CMD_CAT_B64
 #define CAT_BUF_LEN  (CAT_BUF_RAW+CAT_BUF_B64)
+#else
+#define CAT_BUF_LEN  (CAT_BUF_RAW)
+#endif
 int cmd_cat( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
+#if _SUPPORT_B64
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'b', "b64", 0, "base 64 code" },
+#endif
 #if _SUPPORT_WRITE
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'w', shell_str_write, 0, "write mode" },
@@ -58,20 +69,25 @@ int cmd_cat( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint8_t b64=0;
     uint32_t delay=0;
     char fname[32];
     char buf[CAT_BUF_LEN];
-    int i, j;
     int fd;
     char c;
     int size, bytes;
+    int i;
+#if _SUPPORT_B64
+    int j;
+    uint8_t b64=0;
     base64_encodestate state_en;
+#endif
 #if _SUPPORT_WRITE
+#if _SUPPORT_B64
     base64_decodestate state_de;
+    char *p, *p2;
+#endif
     uint8_t write=0, append=0;
     void *input=0;
-    char *p, *p2;
 #endif
 
     fname[0] = 0;
@@ -87,6 +103,7 @@ int cmd_cat( int argc, char *argv[] )
                 append = 1;
             else 
 #endif
+#if _SUPPORT_B64
                  if( strcmp( opt.spec->name, "b64" ) == 0 )
             {
                 b64 = 1;
@@ -95,7 +112,9 @@ int cmd_cat( int argc, char *argv[] )
                 base64_init_decodestate( &state_de );
 #endif
             }
-            else if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
+            else 
+#endif
+                if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
             else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
             {
@@ -132,6 +151,7 @@ int cmd_cat( int argc, char *argv[] )
             vPortFree(input);
             return 1;
         }
+#if _SUPPORT_B64
         if( b64 )
         {
             p2 = (char*)input;
@@ -163,6 +183,7 @@ int cmd_cat( int argc, char *argv[] )
             }
         }
         else
+#endif
         {
             if( i != mcush_write( fd, input, i ) )
             {
@@ -185,7 +206,11 @@ int cmd_cat( int argc, char *argv[] )
         bytes = 0;
         while( 1 )
         {    
+#if _SUPPORT_B64
             i = mcush_read( fd, buf, b64 ? CAT_BUF_RAW : CAT_BUF_LEN );
+#else
+            i = mcush_read( fd, buf, CAT_BUF_LEN );
+#endif
             if( i < 0 )
             {
                 mcush_close(fd);
@@ -196,39 +221,51 @@ int cmd_cat( int argc, char *argv[] )
             bytes += i;
             if( i==0  )
             {
+#if _SUPPORT_B64
                 if( b64 )
                 {
                     j = base64_encode_blockend( buf, &state_en );
                     shell_write( buf, j );
                 }
+#endif
                 break;  // end
             }
             else
             {
+#if _SUPPORT_B64
                 if( b64 )
                 {
                     j = base64_encode_block( buf, i, &buf[CAT_BUF_RAW], &state_en );
                     shell_write( buf + CAT_BUF_RAW, j );
                 }
                 else
+#endif
                     shell_write( buf, i );
+#if _SUPPORT_B64
                 if( i < (b64 ? CAT_BUF_RAW : CAT_BUF_LEN) )
+#else
+                if( i < CAT_BUF_LEN )
+#endif
                 {
+#if _SUPPORT_B64
                     if( b64 )
                     {
                         j = base64_encode_blockend( buf, &state_en );
                         shell_write( buf, j );
                     }
+#endif
                     break;  // end
                 }
             }
             if( bytes>=size )
             {
+#if _SUPPORT_B64
                 if( b64 )
                 {
                     j = base64_encode_blockend( buf, &state_en );
                     shell_write( buf, j );
                 }
+#endif
                 break;  // end
             }
 

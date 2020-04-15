@@ -21,6 +21,17 @@ static const char _fname[] = LOGGER_FNAME;
 static uint8_t _enable = LOGGER_ENABLE;
 static uint8_t _busy;
 
+#if configSUPPORT_STATIC_ALLOCATION
+StaticTask_t logger_task_data;
+StackType_t logger_task_buffer[TASK_LOGGER_STACK_SIZE/sizeof(portSTACK_TYPE)];
+StaticQueue_t logger_queue_data;
+StaticQueue_t logger_monitor_queue_data;
+uint8_t logger_queue_buffer[TASK_LOGGER_QUEUE_SIZE*sizeof(logger_event_t)];
+uint8_t logger_monitor_queue_buffer[TASK_LOGGER_MONITOR_QUEUE_SIZE*sizeof(logger_event_t)];
+StaticSemaphore_t logger_semaphore_data;
+#endif
+
+
 void logger_enable(void)
 {
     _enable = 1;
@@ -657,23 +668,45 @@ void task_logger_init(void)
 {
     TaskHandle_t task_logger;
 
+#if configSUPPORT_STATIC_ALLOCATION
+    semaphore_logger = xSemaphoreCreateMutexStatic(&logger_semaphore_data);
+#else
     semaphore_logger = xSemaphoreCreateMutex();
+#endif
     if( !semaphore_logger )
         halt("logger semphr create");
 
+#if configSUPPORT_STATIC_ALLOCATION
+    queue_logger = xQueueCreateStatic(TASK_LOGGER_QUEUE_SIZE,
+                            (unsigned portBASE_TYPE)sizeof(logger_event_t),
+                            logger_queue_buffer, &logger_queue_data );
+#else
     queue_logger = xQueueCreate(TASK_LOGGER_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));
+#endif
     if( queue_logger == NULL )
         halt("create logger queue");
     vQueueAddToRegistry( queue_logger, "logQ" );
 
+#if configSUPPORT_STATIC_ALLOCATION
+    queue_logger_monitor = xQueueCreateStatic(TASK_LOGGER_MONITOR_QUEUE_SIZE,
+                            (unsigned portBASE_TYPE)sizeof(logger_event_t),
+                            logger_monitor_queue_buffer, &logger_monitor_queue_data );
+#else
     queue_logger_monitor = xQueueCreate(TASK_LOGGER_MONITOR_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));
+#endif
     if( queue_logger_monitor == NULL )
         halt("create logger monitor queue");
     vQueueAddToRegistry( queue_logger_monitor, "logMQ" );
 
+#if configSUPPORT_STATIC_ALLOCATION
+    task_logger = xTaskCreateStatic((TaskFunction_t)task_logger_entry, (const char *)"logT", 
+                TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
+                NULL, TASK_LOGGER_PRIORITY, logger_task_buffer, &logger_task_data);
+#else
     xTaskCreate(task_logger_entry, (const char *)"logT",
                 TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
                 NULL, TASK_LOGGER_PRIORITY, &task_logger);
+#endif
     if( task_logger == NULL )
         halt("create logger task");
 

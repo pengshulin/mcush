@@ -58,7 +58,7 @@ int hal_is_power_set(void);
 #define HAL_USB_EN_PORT  0
 #define HAL_USB_EN_PIN   8
 
-#define HAL_RESET_VCP_PIN  1
+//#define HAL_RESET_VCP_PIN  1
 
 
 

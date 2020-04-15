@@ -1,8 +1,5 @@
 #include "hal.h"
 
-
-const unsigned int baudrate=9600;
-
  
 int hal_init(void)
 {
@@ -23,10 +20,8 @@ int hal_init(void)
     hal_sgpio_init();
 #endif
     hal_platform_init();
-    if( !hal_uart_init(baudrate) )
+    if( !hal_uart_init(0) )
         return 0;
     return 1;
 }
-
-
 
