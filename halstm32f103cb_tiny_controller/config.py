@@ -29,8 +29,8 @@ else:
     hal_config.paths += [hal_dir+'/uart']
     hal_config.sources += [hal_dir+'/uart/*.c']
 
-#hal_config.freertos_heap = 4  # use heap_4.c instead of newlib
-#env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=8000'] )
+hal_config.freertos_heap = 4  # use heap_4.c instead of newlib
+env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=4000'] )
 
 
 env.appendDefineFlags( [
@@ -58,7 +58,6 @@ env.appendDefineFlags( [
     'configUSE_TIMERS=0',
     #'configUSE_MUTEX=0',
     #'configCHECK_FOR_STACK_OVERFLOW=0',
-    #'configTOTAL_HEAP_SIZE=10240',
     #'SHELL_QUOTE_PARSE_ENALBE=0',
     #'SUSPEND_ENABLED=0',
     'MCUSH_FREERTOS_PEEK_API=1',

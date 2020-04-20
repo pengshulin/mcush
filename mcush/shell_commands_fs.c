@@ -42,6 +42,11 @@ int do_test_file( const char *mount_point )
 #else
     #define _SUPPORT_B64  0
 #endif
+#if USE_CMD_CAT_DELAY
+    #define _SUPPORT_DELAY  1
+#else
+    #define _SUPPORT_DELAY  0
+#endif
 #define CAT_BUF_RAW  100
 #define CAT_BUF_B64  180
 #if USE_CMD_CAT_B64
@@ -62,14 +67,15 @@ int cmd_cat( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'a', shell_str_append, 0, "append mode" },
 #endif
+#if _SUPPORT_DELAY
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'd', shell_str_delay, shell_str_delay, "output delay in ms" },
+#endif
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    uint32_t delay=0;
     char fname[32];
     char buf[CAT_BUF_LEN];
     int fd;
@@ -88,6 +94,9 @@ int cmd_cat( int argc, char *argv[] )
 #endif
     uint8_t write=0, append=0;
     void *input=0;
+#endif
+#if _SUPPORT_DELAY
+    uint32_t delay=0;
 #endif
 
     fname[0] = 0;
@@ -116,6 +125,7 @@ int cmd_cat( int argc, char *argv[] )
 #endif
                 if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
+#if _SUPPORT_DELAY
             else if( STRCMP( opt.spec->name, shell_str_delay ) == 0 )
             {
                 if( ! parse_int(opt.value, (int*)&delay) )
@@ -124,6 +134,7 @@ int cmd_cat( int argc, char *argv[] )
                     return -1;
                 }
             }
+#endif
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -269,7 +280,11 @@ int cmd_cat( int argc, char *argv[] )
                 break;  // end
             }
 
+#if _SUPPORT_DELAY
             while( shell_driver_read_char_blocked(&c, delay*configTICK_RATE_HZ/1000) != -1 )
+#else
+            while( shell_driver_read_char_blocked(&c, 0) != -1 )
+#endif
             {
                 if( c == 0x03 ) /* Ctrl-C for stop */
                 {

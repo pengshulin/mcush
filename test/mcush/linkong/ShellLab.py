@@ -259,11 +259,10 @@ class ShellLabCANopen(ShellLabCAN):
         while not responsed:
             if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
                 raise Exception("SDO upload request timeout")
-            for cid, ext, rtr, dat in self.canRead():
-                #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
-                if (cid != TSDO+id) or rtr or (len(dat) != 16):
+            for cid, ext, rtr, dat in self.canRead(block_ms=0):
+                #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, binascii.hexlify(dat)) )
+                if (cid != TSDO+id) or rtr or (len(dat) != 8):
                     continue
-                dat = binascii.unhexlify(dat)
                 if (Utils.s2H(dat[1:3]) != index) or (Utils.s2B(dat[3]) != subindex):
                     continue
                 m = Utils.s2B(dat[0])
@@ -301,10 +300,9 @@ class ShellLabCANopen(ShellLabCAN):
             while not responsed:
                 if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
                     raise Exception("SDO upload segment Timeout")
-                for cid, ext, rtr, dat in self.canRead():
-                    #self.logger.debug( 'SDO Segment id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
-                    if (cid==(TSDO+id)) and (not rtr) and (len(dat)==16):
-                        dat = binascii.unhexlify(dat)
+                for cid, ext, rtr, dat in self.canRead(block_ms=0):
+                    #self.logger.debug( 'SDO Segment id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, binascii.hexlify(dat)) )
+                    if (cid==(TSDO+id)) and (not rtr) and (len(dat)==8):
                         m = Utils.s2B(dat[0])
                         if m & 0x80:
                             raise Exception("SDO Abort")
@@ -349,11 +347,10 @@ class ShellLabCANopen(ShellLabCAN):
         while not responsed:
             if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
                 raise Exception("SDO download request timeout")
-            for cid, ext, rtr, dat in self.canRead():
-                #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
-                if (cid!=TSDO+id) or rtr or (len(dat)!=16):
+            for cid, ext, rtr, dat in self.canRead(block_ms=0):
+                #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, binascii.hexlify(dat)) )
+                if (cid!=TSDO+id) or rtr or (len(dat)!=8):
                     continue
-                dat = binascii.unhexlify(dat)
                 m = Utils.s2B(dat[0])
                 if m & 0x80:
                     raise Exception("SDO Abort")
@@ -378,11 +375,10 @@ class ShellLabCANopen(ShellLabCAN):
             while not responsed:
                 if time.time() > t0 + self.DEFAULT_SDO_TIMEOUT:
                     raise Exception("SDO download segment timeout")
-                for cid, ext, rtr, dat in self.canRead():
-                    #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, dat) )
-                    if (cid!=TSDO+id) or rtr or (len(dat)!=16):
+                for cid, ext, rtr, dat in self.canRead(block_ms=0):
+                    #self.logger.debug( 'id=0x%X, ext=%d, rtr=%d, dat=%s'% (cid, ext, rtr, binascii.hexlify(dat)) )
+                    if (cid!=TSDO+id) or rtr or (len(dat)!=8):
                         continue
-                    dat = binascii.unhexlify(dat)
                     m = Utils.s2B(dat[0])
                     if m & 0x80:
                         raise Exception("SDO Abort")

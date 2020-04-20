@@ -43,6 +43,9 @@ StaticQueue_t hal_can_queue_tx_data;
 uint8_t hal_can_queue_tx_buffer[HAL_CAN_QUEUE_TX_LEN*sizeof(can_message_t)];
 #endif
 
+uint32_t hal_can_tx_counter;
+uint32_t hal_can_rx_counter;
+
 uint32_t can_baudrate=HAL_CAN_BAUDRATE_DEF;
 
 static uint8_t _inited;
@@ -161,6 +164,8 @@ void hal_can_reset( void )
 {
     HAL_CAN_Stop( &hcan );
     HAL_CAN_ResetError( &hcan );
+    hal_can_tx_counter = 0;
+    hal_can_rx_counter = 0;
     HAL_CAN_Start( &hcan );
 }
 
@@ -277,16 +282,9 @@ int hal_can_filter_get( int index, can_filter_t *filter, int *enabled )
 }
 
 
-int hal_can_get_last_error( void )
+int hal_can_get_error( void )
 {
     return HAL_CAN_GetError( &hcan );
-}
-
-
-int hal_can_get_error_count( void )
-{
-    //return CAN_GetReceiveErrorCounter(HAL_CANx);
-    return 0;
 }
 
 
@@ -328,6 +326,8 @@ int hal_can_receive( can_message_t *msg )
     CAN_RxHeaderTypeDef rxmsg;
     uint8_t data[8];
 
+    if( HAL_CAN_GetRxFifoFillLevel( &hcan, CAN_RX_FIFO1 ) == 0 )
+        return 0;
     if( HAL_CAN_GetRxMessage( &hcan, CAN_RX_FIFO1, &rxmsg, data ) == HAL_ERROR )
         return 0;
     
@@ -365,6 +365,16 @@ int hal_can_write( can_message_t *msg )
 }
 
 
+int hal_can_get_counter( uint32_t *tx_counter, uint32_t *rx_counter )
+{
+    if( ! _inited )
+        return 0;
+    *tx_counter = hal_can_tx_counter; 
+    *rx_counter = hal_can_rx_counter; 
+    return 1;
+}
+
+
 void HAL_CAN_TX_IRQHandler(void)
 {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -393,9 +403,13 @@ void HAL_CAN_TX_IRQHandler(void)
         {
             if( hal_can_send( &msg ) < 0 )
                 break;
+            hal_can_tx_counter += 1;
         }
         else
+        {
+            hal_can_tx_counter += 1;
             break;
+        }
     }
     portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
@@ -408,6 +422,7 @@ void HAL_CAN_RX_IRQHandler(void)
 
     while( hal_can_receive( &msg ) )
     {
+        hal_can_rx_counter += 1;
         if( xQueueSendFromISR( hal_can_queue_rx, &msg, &xHigherPriorityTaskWoken ) != pdTRUE )
             break;
     }

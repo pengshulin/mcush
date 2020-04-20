@@ -43,6 +43,9 @@ StaticQueue_t hal_can_queue_tx_data;
 uint8_t hal_can_queue_tx_buffer[HAL_CAN_QUEUE_TX_LEN*sizeof(can_message_t)];
 #endif
 
+uint32_t hal_can_tx_counter;
+uint32_t hal_can_rx_counter;
+
 uint32_t can_baudrate=HAL_CAN_BAUDRATE_DEF;
 
 static uint8_t _inited;
@@ -166,7 +169,10 @@ void hal_can_deinit( void )
 
 void hal_can_reset( void )
 {
-
+    CAN_ClearFlag( HAL_CANx, CAN_FLAG_LEC );
+    hal_can_tx_counter = 0;
+    hal_can_rx_counter = 0;
+    CAN_OperatingModeRequest( HAL_CANx, CAN_OperatingMode_Normal );
 }
 
 
@@ -179,6 +185,7 @@ int hal_can_set_baudrate( int baudrate )
     {
         if( baudrate_config[i].bps == baudrate )
         {
+            CAN_ClearFlag( HAL_CANx, CAN_FLAG_LEC );
             can_init.CAN_Mode = CAN_Mode_Normal;  // normal mode
             can_init.CAN_Prescaler = baudrate_config[i].prescaler;
             can_init.CAN_SJW = baudrate_config[i].SWJ;
@@ -275,15 +282,9 @@ int hal_can_filter_get( int index, can_filter_t *filter, int *enabled )
 }
 
 
-int hal_can_get_last_error( void )
+int hal_can_get_error( void )
 {
     return CAN_GetLastErrorCode(HAL_CANx);
-}
-
-
-int hal_can_get_error_count( void )
-{
-    return CAN_GetReceiveErrorCounter(HAL_CANx);
 }
 
 
@@ -361,6 +362,16 @@ int hal_can_write( can_message_t *msg )
 }
 
 
+int hal_can_get_counter( uint32_t *tx_counter, uint32_t *rx_counter )
+{
+    if( ! _inited )
+        return 0;
+    *tx_counter = hal_can_tx_counter; 
+    *rx_counter = hal_can_rx_counter; 
+    return 1;
+}
+
+
 void HAL_CAN_TX_IRQHandler(void)
 {
     portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -369,11 +380,13 @@ void HAL_CAN_TX_IRQHandler(void)
     if( CAN_GetITStatus( HAL_CANx, CAN_IT_TME) == SET )
     {
         CAN_ClearITPendingBit( HAL_CANx, CAN_IT_TME );
+        hal_can_tx_counter += 1;
         /* send remaining */ 
         while( xQueueReceiveFromISR( hal_can_queue_tx, &msg, &xHigherPriorityTaskWoken ) == pdTRUE )
         {
             if( hal_can_send( &msg ) < 0 )
                 break;
+            hal_can_tx_counter += 1;
         }
     }
     portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
@@ -387,6 +400,7 @@ void HAL_CAN_RX_IRQHandler(void)
 
     while( hal_can_receive( &msg ) )
     {
+        hal_can_rx_counter += 1;
         if( xQueueSendFromISR( hal_can_queue_rx, &msg, &xHigherPriorityTaskWoken ) != pdTRUE )
             break;
     }

@@ -905,12 +905,12 @@ class Mcush( Instrument.SerialInstrument ):
         ret = self.writeCommand( 'lua -c "%s"'% cmd )
         return ret[:-1]
 
-    def can( self, cmd, index=None, val=None, ext=None, rtr=None, args=None ):
+    def can( self, cmd, index=None, value=None, ext=None, rtr=None, args=None ):
         command = 'can -c %s'% cmd
         if index is not None:
             command += ' -i %d'% index
-        if val is not None:
-            command += ' -v %d'% val
+        if value is not None:
+            command += ' -v %d'% value
         if ext:
             command += ' -e'
         if rtr:
@@ -921,15 +921,21 @@ class Mcush( Instrument.SerialInstrument ):
         return ret
 
     def canBaudrate( self, new_baudrate ):
-        self.can( 'baudrate', val=new_baudrate )
+        self.can( 'baudrate', value=new_baudrate )
 
     def canWrite( self, cob_id, dat=[], ext=None, rtr=None ):
         #self.logger.debug( 'canWrite id=0x%X, ext=%d, rtr=%d, dat=%s'% (cob_id, int(bool(ext)), int(bool(rtr)), ','.join([hex(d) for d in dat])) )
         self.can( 'write', index=cob_id, ext=ext, rtr=rtr, args=dat )
 
-    def canRead( self ):
+    def canReset( self ):
+        self.can( 'reset' )
+
+    def canResetInput( self ):
+        self.can( 'reset_input' )
+
+    def canRead( self, lines=None, block_ms=None  ):
         ret = []
-        for line in self.can( 'read' ):
+        for line in self.can( 'read', index=lines, value=block_ms ):
             items = line.split()
             cid, rtr = items[0], items[1]
             try:
@@ -939,8 +945,8 @@ class Mcush( Instrument.SerialInstrument ):
             id = int(cid,16)
             ext = bool(len(cid)>3)
             rtr = bool(rtr=='R')
-            ret.append( (id, ext, rtr, dat) )
             #self.logger.debug( 'canRead id=0x%X, ext=%d, rtr=%d, dat=%s'% (id, int(ext), int(rtr), dat) )
+            ret.append( (id, ext, rtr, binascii.unhexlify(dat)) )
         return ret
 
     def env( self ):

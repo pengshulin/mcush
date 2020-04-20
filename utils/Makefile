@@ -1,5 +1,5 @@
 # MCUSH designed by Peng Shulin, all rights reserved.
-.PHONY: clean flash flash2 reset reset2 stflash streset localclean
+.PHONY: clean localclean erase flash reset sterase stflash streset
 
 all:
 	@scons

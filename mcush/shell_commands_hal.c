@@ -1027,8 +1027,10 @@ int cmd_can( int argc, char *argv[] )
     if( cmd==NULL || strcmp(cmd, shell_str_info) == 0 )
     {
         shell_printf( "baudrate: %d\n", hal_can_get_baudrate() );
-        shell_printf( "last_error: 0x%X\n", hal_can_get_last_error() );
-        shell_printf( "error_count: %u\n", hal_can_get_error_count() );
+        k = hal_can_get_counter( (uint32_t*)&i, (uint32_t*)&j );
+        shell_printf( "tx_count: %u\n", k ? (uint32_t)i : 0 );
+        shell_printf( "rx_count: %u\n", k ? (uint32_t)j : 0 );
+        shell_printf( "error: 0x%X\n", hal_can_get_error() );
     }
     else if( strcmp(cmd, "init") == 0 )
     {
@@ -1111,12 +1113,24 @@ int cmd_can( int argc, char *argv[] )
             }
         }
     }
+    else if( strcmp(cmd, "reset_input") == 0 )
+    {
+        while( hal_can_read( &msg, 0 ) )
+        {
+        } 
+    }
     else if( strcmp(cmd, "read") == 0 )
     {
         /* timeout, may be modified by '-v value' */
-        if( ! value_set )
+        if( value_set )
+            value = value*configTICK_RATE_HZ/1000;
+        else
             value = DEFAULT_CAN_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000;
-        i = DEFAULT_CAN_READ_MAX_LINE;
+        /* max number of output lines */
+        if( index_set )
+            i = index;
+        else
+            i = DEFAULT_CAN_READ_MAX_LINE;
         while( i && hal_can_read( &msg, value ) )
         {
             print_can_message( &msg );

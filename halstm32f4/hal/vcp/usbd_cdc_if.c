@@ -63,6 +63,14 @@ extern uint8_t hal_vcp_tx_use_buf2;
 extern QueueHandle_t hal_vcp_queue_rx;
 extern QueueHandle_t hal_vcp_queue_tx;
 
+/* NOTE: cache the cdc setting from PC 
+ * in windows pyserial may raise exception (invalid parameter)
+ * when SetCommState return error
+ */ 
+USBD_CDC_LineCodingTypeDef linecoding;
+
+
+
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -191,13 +199,16 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
   */
 static int8_t CDC_Init_FS(void)
 {
-  /* USER CODE BEGIN 3 */
-  /* Set Application Buffers */
+    /* Set Application Buffers */
     USBD_CDC_SetTxBuffer(&hUsbDeviceFS, (uint8_t *)hal_vcp_tx_buf1, 0);
     USBD_CDC_SetRxBuffer(&hUsbDeviceFS, (uint8_t *)hal_vcp_rx_buf);
     hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
+    /* reset to default */
+    linecoding.bitrate = 9600;
+    linecoding.format = 0;  // 1 stopbit
+    linecoding.paritytype = 0;  // none
+    linecoding.datatype = 8;  // 8-bits
     return (USBD_OK);
-  /* USER CODE END 3 */
 }
 
 /**
@@ -261,11 +272,21 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
   /*******************************************************************************/
     case CDC_SET_LINE_CODING:
-
+        linecoding.bitrate    = (uint32_t)(pbuf[0] | (pbuf[1] << 8) |\
+                                (pbuf[2] << 16) | (pbuf[3] << 24));
+        linecoding.format     = pbuf[4];
+        linecoding.paritytype = pbuf[5];
+        linecoding.datatype   = pbuf[6];
     break;
 
     case CDC_GET_LINE_CODING:
-
+        pbuf[0] = (uint8_t)(linecoding.bitrate);
+        pbuf[1] = (uint8_t)(linecoding.bitrate >> 8);
+        pbuf[2] = (uint8_t)(linecoding.bitrate >> 16);
+        pbuf[3] = (uint8_t)(linecoding.bitrate >> 24);
+        pbuf[4] = linecoding.format;
+        pbuf[5] = linecoding.paritytype;
+        pbuf[6] = linecoding.datatype;     
     break;
 
     case CDC_SET_CONTROL_LINE_STATE:

@@ -174,8 +174,6 @@ void task_blink_init(void)
 {
     TaskHandle_t task_blink;
 
-    shell_add_cmd_table( cmd_tab_blink );
-
 #if configSUPPORT_STATIC_ALLOCATION
     task_blink = xTaskCreateStatic((TaskFunction_t)task_blink_entry, (const char *)"blinkT", 
                 TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
@@ -187,5 +185,7 @@ void task_blink_init(void)
 #endif
     if( task_blink == NULL )
         halt("create blink task");
+
+    shell_add_cmd_table( cmd_tab_blink );
 }
 

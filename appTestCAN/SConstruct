@@ -12,8 +12,8 @@ env = loadHalConfig( haldir, use_hal_driver=True, use_vcp=True ).env
 #env = loadHalConfig( haldir, use_vcp=False, use_spiffs=True ).env
 
 env.appendDefineFlags( [
-    'MODEL_STRING=\\\"ShellLab-CAN\\\"',
-    'VERSION_STRING=\\\"1.0pre\\\"',
+    'MODEL_STRING="ShellLab-CAN"',
+    'VERSION_STRING="1.0pre"',
     'HAL_CAN=1',
     'HAL_CAN_INIT=1',
     'HAL_CAN_QUEUE_RX_LEN=64',

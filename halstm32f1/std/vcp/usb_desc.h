@@ -52,8 +52,8 @@
 #define VIRTUAL_COM_PORT_SIZ_DEVICE_DESC        18
 #define VIRTUAL_COM_PORT_SIZ_CONFIG_DESC        67
 #define VIRTUAL_COM_PORT_SIZ_STRING_LANGID      4
-#define VIRTUAL_COM_PORT_SIZ_STRING_VENDOR      58
-#define VIRTUAL_COM_PORT_SIZ_STRING_PRODUCT     20
+#define VIRTUAL_COM_PORT_SIZ_STRING_VENDOR      58  // 2+2*28
+#define VIRTUAL_COM_PORT_SIZ_STRING_PRODUCT     20  // 2+2*9
 #define VIRTUAL_COM_PORT_SIZ_STRING_SERIAL      50
 
 #define STANDARD_ENDPOINT_DESC_SIZE             0x09
@@ -61,10 +61,17 @@
 /* Exported functions ------------------------------------------------------- */
 extern const uint8_t Virtual_Com_Port_DeviceDescriptor[VIRTUAL_COM_PORT_SIZ_DEVICE_DESC];
 extern const uint8_t Virtual_Com_Port_ConfigDescriptor[VIRTUAL_COM_PORT_SIZ_CONFIG_DESC];
-
 extern const uint8_t Virtual_Com_Port_StringLangID[VIRTUAL_COM_PORT_SIZ_STRING_LANGID];
+#ifdef USBD_VENDOR_STRING
+extern const uint8_t Virtual_Com_Port_StringVendor[sizeof(USBD_VENDOR_STRING)];
+#else
 extern const uint8_t Virtual_Com_Port_StringVendor[VIRTUAL_COM_PORT_SIZ_STRING_VENDOR];
+#endif
+#ifdef USBD_PRODUCT_STRING
+extern const uint8_t Virtual_Com_Port_StringProduct[sizeof(USBD_PRODUCT_STRING)];
+#else
 extern const uint8_t Virtual_Com_Port_StringProduct[VIRTUAL_COM_PORT_SIZ_STRING_PRODUCT];
+#endif
 extern uint8_t Virtual_Com_Port_StringSerial[VIRTUAL_COM_PORT_SIZ_STRING_SERIAL];
 
 #endif /* __USB_DESC_H */

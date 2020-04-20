@@ -152,32 +152,41 @@ const uint8_t Virtual_Com_Port_StringLangID[VIRTUAL_COM_PORT_SIZ_STRING_LANGID] 
     0x04 /* LangID = 0x0409: U.S. English */
   };
 
+#ifdef USBD_VENDOR_STRING
+const uint8_t Virtual_Com_Port_StringVendor[] = USBD_VENDOR_STRING;
+#else
 const uint8_t Virtual_Com_Port_StringVendor[VIRTUAL_COM_PORT_SIZ_STRING_VENDOR] =
   {
-    VIRTUAL_COM_PORT_SIZ_STRING_VENDOR,     /* Size of Vendor string */
-    USB_STRING_DESCRIPTOR_TYPE,             /* bDescriptorType*/
+    VIRTUAL_COM_PORT_SIZ_STRING_VENDOR,  /* Size of Vendor string */
+    USB_STRING_DESCRIPTOR_TYPE,  /* bDescriptorType*/
     /* Manufacturer: "mcush designed by pengshulin" */
-    'm', 0, 'c', 0, 'u', 0, 's', 0, 'h', 0, ' ', 0, 
-    'd', 0, 'e', 0, 's', 0, 'i', 0, 'g', 0, 'n', 0, 'e', 0, 'd', 0, ' ', 0,
-    'b', 0, 'y', 0, ' ', 0, 
-    'p', 0, 'e', 0, 'n', 0, 'g', 0, 's', 0, 'h', 0, 'u', 0, 'l', 0, 'i', 0, 'n', 0
+    'm', 0, 'c', 0, 'u', 0, 's', 0, 'h', 0, ' ', 0, 'd', 0, 'e', 0,
+    's', 0, 'i', 0, 'g', 0, 'n', 0, 'e', 0, 'd', 0, ' ', 0, 'b', 0,
+    'y', 0, ' ', 0, 'p', 0, 'e', 0, 'n', 0, 'g', 0, 's', 0, 'h', 0,
+    'u', 0, 'l', 0, 'i', 0, 'n', 0
   };
+#endif
 
+#ifdef USBD_PRODUCT_STRING
+const uint8_t Virtual_Com_Port_StringProduct[] = USBD_PRODUCT_STRING;
+#else
 const uint8_t Virtual_Com_Port_StringProduct[VIRTUAL_COM_PORT_SIZ_STRING_PRODUCT] =
   {
-    VIRTUAL_COM_PORT_SIZ_STRING_PRODUCT,          /* bLength */
-    USB_STRING_DESCRIPTOR_TYPE,        /* bDescriptorType */
+    VIRTUAL_COM_PORT_SIZ_STRING_PRODUCT,  /* bLength */
+    USB_STRING_DESCRIPTOR_TYPE,  /* bDescriptorType */
     /* Product name: "mcush vcp" */
-    'm', 0, 'c', 0, 'u', 0, 's', 0, 'h', 0, ' ', 0, 'v', 0,  'c', 0, 'p', 0
+    'm', 0, 'c', 0, 'u', 0, 's', 0, 'h', 0, ' ', 0, 'v', 0, 'c', 0,
+    'p', 0
   };
+#endif
 
 uint8_t Virtual_Com_Port_StringSerial[VIRTUAL_COM_PORT_SIZ_STRING_SERIAL] =
   {
-    VIRTUAL_COM_PORT_SIZ_STRING_SERIAL,           /* bLength */
-    USB_STRING_DESCRIPTOR_TYPE,                   /* bDescriptorType */
-    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
-    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
-    '?', 0, '?', 0, '?', 0, '?', 0
+    VIRTUAL_COM_PORT_SIZ_STRING_SERIAL,  /* bLength */
+    USB_STRING_DESCRIPTOR_TYPE,  /* bDescriptorType */
+    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
+    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0,
+    '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0, '?', 0
   };
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
