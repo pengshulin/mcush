@@ -100,6 +100,14 @@ int hal_adc_get_num( void );
 int hal_adc_in_use( void );
 float hal_adc_get( int index );
 
+#if USE_CMD_WS2812
+int hal_ws2812_init(int port, int pin);
+void hal_ws2812_deinit(void);
+void hal_ws2812_clr(void);
+void hal_ws2812_write0(void);
+void hal_ws2812_write1(void);
+#endif
+
 int hal_init(void);
 int hal_get_serial_number( char *buf );
 void init_sys_tick(void);

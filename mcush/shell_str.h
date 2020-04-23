@@ -50,6 +50,7 @@ extern const char shell_str_float[];
 extern const char shell_str_format[];
 extern const char shell_str_free[];
 extern const char shell_str_frequency[];
+extern const char shell_str_group[];
 extern const char shell_str_head[];
 extern const char shell_str_help[];
 extern const char shell_str_history[];

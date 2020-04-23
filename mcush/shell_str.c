@@ -41,6 +41,7 @@ __attribute__((aligned(1))) const char shell_str_float[] = "float";
 __attribute__((aligned(1))) const char shell_str_format[] = "format";
 __attribute__((aligned(1))) const char shell_str_free[] = "free";
 __attribute__((aligned(1))) const char shell_str_frequency[] = "frequency";
+__attribute__((aligned(1))) const char shell_str_group[] = "group";
 __attribute__((aligned(1))) const char shell_str_head[] = "head";
 __attribute__((aligned(1))) const char shell_str_help[] = "help";
 __attribute__((aligned(1))) const char shell_str_history[] = "history";

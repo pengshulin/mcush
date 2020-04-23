@@ -1164,5 +1164,228 @@ int cmd_can( int argc, char *argv[] )
     } 
     return 0;
 }
+#endif
 
+
+#if USE_CMD_WS2812
+#define LENGTH_MAX  1000
+static int ws2812_length;
+static int ws2812_group_length;
+static int *ws2812_buf;  /* memory needs: 4*length bytes */
+
+
+int ws2812_init( int length, int group_length, int port, int pin )
+{
+    if( (length <= 0) || (length > LENGTH_MAX) || (group_length <= 0) )
+        return 0;
+
+    if( ws2812_buf )
+    {
+        vPortFree( ws2812_buf );
+        ws2812_length = 0;
+    }
+    ws2812_buf = (int*)pvPortMalloc( 4*length ); 
+    if( ws2812_buf == NULL )
+    {
+        return 0;
+    }
+    ws2812_length = length;
+    ws2812_group_length = group_length;
+    memset( ws2812_buf, 0, 4*length );
+    if( hal_ws2812_init( port, pin ) )
+        return 1;
+    else
+    {
+        vPortFree( ws2812_buf );
+        return 0;
+    }
+}
+
+
+void ws2812_deinit(void)
+{
+    if( ws2812_buf )
+    {
+        vPortFree( ws2812_buf );
+        ws2812_buf = 0;
+        ws2812_length = 0;
+        hal_ws2812_deinit();
+    }
+}
+
+
+int ws2812_write(int offset, int dat, int swap_rg)
+{
+    if( ws2812_buf && (offset<ws2812_length) )
+    {
+        /* the chip receives GRB format as default, but user applications use rgb as default */
+        if( ! swap_rg )
+        {
+            dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
+        }
+        *(ws2812_buf + offset) = dat;
+        return 1;
+    }
+    else
+        return 0; 
+}
+
+
+void ws2812_flush_pixel( int dat )
+{
+    int i;
+
+    portENTER_CRITICAL(); 
+    for( i=0; i<24; i++ )
+    {
+        if( dat & 0x00800000 )
+            hal_ws2812_write1();
+        else
+            hal_ws2812_write0();
+        dat <<= 1;
+    }
+    portEXIT_CRITICAL();
+}
+
+
+void ws2812_flush(void)
+{
+    int i, j, *p;
+
+    hal_ws2812_clr();
+    hal_delay_us(60);
+    for( i=0, p=ws2812_buf; i<ws2812_length; i++ )
+    {
+        for( j=0; j<ws2812_group_length; j++ )
+            ws2812_flush_pixel( *p );
+        p++;
+    }
+    hal_ws2812_clr();
+}
+
+
+int cmd_ws2812( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'l', shell_str_length, shell_str_length, "number of groups" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'G', shell_str_group, shell_str_group, "number of pixels per group" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'D', shell_str_deinit, 0, shell_str_deinit },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'w', shell_str_write, 0, shell_str_write },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'g', "grb", 0, "GRB instead of RGB" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'o', shell_str_offset, shell_str_offset, "data offset" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'p', shell_str_pin, shell_str_pin, "default 0.0" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'I', shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_data, 0, "data to be written" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t init_set=0, deinit_set=0, offset_set=0, write_set=0, length_set=0, grb_set=0, group_set=0;
+    int port=0, pin=0;
+    int length=0, offset=0, group=0;
+    int dat;
+    char *p2;
+    
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_init ) == 0 )
+                init_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_deinit ) == 0 )
+                deinit_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_write ) == 0 )
+                write_set = 1;
+            else if( strcmp( opt.spec->name, "grb" ) == 0 )
+                grb_set = 1;
+            else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
+            {
+                if( parse_int(opt.value, &length) )
+                    length_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_group ) == 0 )
+            {
+                if( parse_int(opt.value, &group) )
+                    group_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_offset ) == 0 )
+            {
+                if( parse_int(opt.value, &offset) )
+                    offset_set = 1;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_data ) == 0 )
+            {
+                parser.idx--;
+                break;
+            }
+            else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
+            {
+                port = strtol( opt.value, &p2, 10 );
+                if( !p2 || (*p2!='.') )
+                    goto err_port;
+                if( *(++p2) == 0 )
+                    goto err_port;
+                pin = strtol( p2, &p2, 10 );
+                if( p2 && *p2 )
+                    goto err_port;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    if( init_set )
+    {
+        if( ! group_set ) 
+            group = 1;
+        if( ! length_set ) 
+        {
+            shell_write_err( shell_str_length );
+            return -1;
+        }
+        return ws2812_init( length, group, port, pin ) ? 0 : 1;
+    }
+    
+    if( deinit_set )
+    {
+        ws2812_deinit();
+        return 0;
+    } 
+
+    /* update memory */
+    parser.idx++;
+    while( parser.idx < argc )
+    {
+        if( ! parse_int(argv[parser.idx], &dat) )
+        {
+            shell_write_str( "data err: " );
+            shell_write_line( argv[parser.idx] );
+            hal_ws2812_clr();
+            return 1;
+        }
+        ws2812_write( offset++, dat, grb_set );
+        parser.idx++;
+    }
+
+    /* write pixel by pixel */ 
+    if( write_set )
+    {
+        ws2812_flush();
+    } 
+
+    return 0;
+err_port:
+    shell_write_err( shell_str_port_bit );
+    return -1;
+}
 #endif

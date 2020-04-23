@@ -1,6 +1,7 @@
 #include "hal.h"
 
 /* PA8 - MCO */
+#if HAL_TEST_CLK_OUTPUT
 void _test_clk_output(void)
 {
     GPIO_InitTypeDef init;
@@ -13,6 +14,7 @@ void _test_clk_output(void)
     GPIO_Init(GPIOA, &init);
     RCC_MCOConfig(RCC_MCOSource_SYSCLK, RCC_MCOPrescaler_1);
 }
+#endif
 
 
 void hal_clk_init(void)
@@ -51,12 +53,8 @@ void hal_clk_init(void)
     {
         RCC_HSEConfig(RCC_HSE_OFF);
         RCC_ClockSecuritySystemCmd(DISABLE);
-#ifdef RCC_PLLSource_PREDIV1
-        RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_8);   /* 8M / 2 * 9 = 36M */
-#else
         //RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_8);   /* 8M / 2 * 8 = 32M */
-        RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);   /* 8M / 2 * 16 = 64M (Max) */
-#endif
+        RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);   /* 8M / 2 * 12 = 48M (Max) */
     }
     RCC_PLLCmd(ENABLE);
     while( RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET )

@@ -73,7 +73,7 @@ class F5520A( Instrument.SerialInstrument ):
         self.writeCommand( '*CLS' )
         ret = self.writeCommand( 'OUT ' + mode )
         if len(ret) >= 1:
-            print ret
+            print( ret )
             self.checkFaultLine( ret[-1] )
         self.writeCommand( 'OPER' )
         self.waitForOperationCompleted()

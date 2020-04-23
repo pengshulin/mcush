@@ -11,16 +11,21 @@ from . import Font
 class LEDS():
     '''WS2812 controller'''
     
-    def __init__( self, controller, length=None, swap_rg=None, pin=None ):
+    def __init__( self, controller, length=None, group_length=None, swap_rg=None, pin=None ):
         if length is None:
-            length = self.width * self.height
+            if group_length is None:
+                length = self.width * self.height
+            else:
+                length = 1  # whole strap share the same color
         self.length = length
         self.swap_rg = swap_rg
         self.controller = controller
-        if pin is None:
-            self.controller.writeCommand( "W -l%d -I"% length )
-        else:
-            self.controller.writeCommand( "W -l%d -I -p%s"% (length, pin) )
+        cmd = "W -I -l%d"% length
+        if group_length:
+            cmd += " -G%d"% group_length
+        if pin is not None:
+            cmd += " -p%s"% pin
+        self.controller.writeCommand( cmd )
 
     MEM_BUF_LINE_LIMIT = 50
     def write( self, mem, offset=0 ):

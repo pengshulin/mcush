@@ -32,6 +32,7 @@ extern int cmd_adc( int argc, char *argv[] );
 extern int cmd_daq( int argc, char *argv[] );
 extern int cmd_rtc( int argc, char *argv[] );
 extern int cmd_can( int argc, char *argv[] );
+extern int cmd_ws2812( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
 extern int cmd_fatfs( int argc, char *argv[] );
 extern int cmd_cat( int argc, char *argv[] );
@@ -220,6 +221,11 @@ const shell_cmd_t CMD_TAB[] = {
 #endif
 #endif
 #endif
+#endif
+#if USE_CMD_WS2812
+{   0, 'W',  "ws2812",  cmd_ws2812, 
+    "ws2812 led strap",
+    "ws2812 -w <dat1> <dat2> ..."  },
 #endif
 #if USE_CMD_PWM
 {   0, 0,  "pwm",  cmd_pwm, 

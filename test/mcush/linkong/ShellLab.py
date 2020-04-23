@@ -3,7 +3,7 @@ __doc__ = 'Shell Lab Series'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
-from .. import Mcush, Utils
+from .. import Mcush, Instrument, Utils
 import binascii
 import time
 
@@ -122,7 +122,7 @@ COLOR_TAB = {
 
 class ShellLabLamp(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLabLamp'
-    DEFAULT_IDN = re_compile( 'ShellLab(-L[0-9a-zA-Z\-]*)?,([0-9]+\.[0-9]+.*)' )
+    DEFAULT_IDN = re_compile( 'ShellLab-L1[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
     def lamp( self, color=None, red=None, green=None, blue=None, freq=None ):
         cmd = 'lamp'
@@ -157,6 +157,88 @@ class ShellLabLamp(Mcush.Mcush):
             c = COLOR_TAB[c]
         self.lamp( c, freq=freq ) 
 
+
+class ShellLabStrap(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLabStrap'
+    DEFAULT_IDN = re_compile( 'ShellLab-L2[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
+
+    def __init__( self, *args, **kwargs ):
+        if not 'length' in kwargs:
+            raise Exception('length not assigned')
+        Instrument.Instrument.__init__( self, *args, **kwargs )
+        self.length = kwargs['length']
+        self.strapLength( self.length )
+
+    def strapLength( self, length ):
+        cmd = 'strap -l%d'% length
+        self.writeCommand(cmd)
+ 
+    def strap( self, color=None, red=None, green=None, blue=None, freq=None ):
+        cmd = 'strap'
+        if color is not None:
+            cmd += ' -c 0x%X'% color
+        if red is not None:
+            cmd += ' -r %d'% red
+        if green is not None:
+            cmd += ' -g %d'% green
+        if blue is not None:
+            cmd += ' -b %d'% blue
+        if freq is not None:
+            cmd += ' -f %d'% freq
+        return self.writeCommand(cmd)
+
+    def reset( self, lamp_freq=1 ):
+        self.strap( 0, freq=lamp_freq )
+
+    def color( self, c, freq=None ):
+        if isinstance(c, str):
+            if not COLOR_TAB.has_key(c):
+                raise Exception('Unknown color name %s'% c)
+            c = COLOR_TAB[c]
+        self.strap( c, freq=freq ) 
+
+    def beep( self, freq=None, duration=0.05, times=1 ):
+        # not supported
+        pass
+
+    
+class ShellLabStaticStrap(ShellLabStrap):
+    def __init__( self, *args, **kwargs ):
+        ShellLabStrap.__init__(self, *args, **kwargs)
+        setting = Utils.parseKeyValueLines(self.strap())
+        if int(setting['freq']) != 0:
+            self.strap( freq=0 )
+        self._color = int(setting['color'], 16)
+        self._brightness = kwargs.get('brightness', 1.0)
+        
+    def reset( self ):
+        self.setColor( 0 )
+
+    def calcDimColor( self, c ):
+        r, g, b = (c>>16)&0xFF, (c>>8)&0xFF, c&0xFF
+        r = int(r*self._brightness)
+        g = int(g*self._brightness)
+        b = int(b*self._brightness)
+        return ((r&0xFF)<<16)|((g&0xFF)<<8)|(b&0xFF)
+
+    def color( self, c, brightness=None ):
+        self._color = c
+        if brightness is not None:
+            self._brightness = brightness
+        if c in COLOR_TAB:
+            c = COLOR_TAB[c]
+        self.strap(self.calcDimColor(c))
+
+    def brightness( self, b ):
+        self._brightness = b
+        c = self._color
+        if c in COLOR_TAB:
+            c = COLOR_TAB[c]
+        self.strap(self.calcDimColor(c))
+            
+    setColor = color
+    setBrightness = brightness
+   
 
 class ShellLabCAN(ShellLab):
     DEFAULT_NAME = 'ShellLabCAN'
