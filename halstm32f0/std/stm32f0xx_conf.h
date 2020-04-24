@@ -31,7 +31,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 /* Comment the line below to disable peripheral header file inclusion */
-//#include "stm32f0xx_adc.h"
+#include "stm32f0xx_adc.h"
 //#include "stm32f0xx_can.h"
 //#include "stm32f0xx_cec.h"
 //#include "stm32f0xx_crc.h"
@@ -39,7 +39,7 @@
 //#include "stm32f0xx_comp.h"
 //#include "stm32f0xx_dac.h"
 //#include "stm32f0xx_dbgmcu.h"
-//#include "stm32f0xx_dma.h"
+#include "stm32f0xx_dma.h"
 //#include "stm32f0xx_exti.h"
 #include "stm32f0xx_flash.h"
 #include "stm32f0xx_gpio.h"

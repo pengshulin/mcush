@@ -4,9 +4,13 @@
 #include "stm32f0xx.h"
 #include "stm32f0xx_conf.h"
 
-#define UNIQUE_ID0  0x1FFFF7AC
-#define UNIQUE_ID1  0x1FFFF7B0
-#define UNIQUE_ID2  0x1FFFF7B4
+/* NOTE: stm32f030 has no 96-bit Unique ID, use internal flash instead,
+   so the base address must be assigned correctly */
+#ifndef UNIQUE_ID0
+#define UNIQUE_ID0  0x0800FFF4  /* 12 bytes at the bottom of 64K flash */
+#endif
+#define UNIQUE_ID1  ((UNIQUE_ID0)+4)
+#define UNIQUE_ID2  ((UNIQUE_ID0)+8)
 
 
 #endif

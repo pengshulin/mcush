@@ -376,6 +376,14 @@ char emu_ds1w_read_byte( int ds1w_index );
 #endif
 
 
+#if USE_CMD_WS2812
+int ws2812_init( int length, int group_length, int port, int pin );
+void ws2812_deinit(void);
+int ws2812_write(int offset, int dat, int swap_rg);
+void ws2812_flush(void);
+#endif
+
+
 extern void mcush_init(void);
 extern void mcush_start(void);
 extern TaskHandle_t task_mcush;

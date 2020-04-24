@@ -1168,6 +1168,12 @@ int cmd_can( int argc, char *argv[] )
 
 
 #if USE_CMD_WS2812
+#ifndef HAL_WS2812_PORT
+#define HAL_WS2812_PORT  0
+#endif
+#ifndef HAL_WS2812_PIN
+#define HAL_WS2812_PIN  0
+#endif
 #define LENGTH_MAX  1000
 static int ws2812_length;
 static int ws2812_group_length;
@@ -1231,7 +1237,7 @@ int ws2812_write(int offset, int dat, int swap_rg)
 }
 
 
-void ws2812_flush_pixel( int dat )
+static void ws2812_flush_pixel( int dat )
 {
     int i;
 
@@ -1289,7 +1295,7 @@ int cmd_ws2812( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     uint8_t init_set=0, deinit_set=0, offset_set=0, write_set=0, length_set=0, grb_set=0, group_set=0;
-    int port=0, pin=0;
+    int port=HAL_WS2812_PORT, pin=HAL_WS2812_PIN;
     int length=0, offset=0, group=0;
     int dat;
     char *p2;
