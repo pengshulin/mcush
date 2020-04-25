@@ -34,6 +34,7 @@ void task_idle_counter_entry(void *p)
 }
 
 
+#if USE_CMD_SYSTEM_KERNEL
 static void _print_kernel_item_name(const char *name)
 {
     int len=strlen(name);
@@ -43,6 +44,7 @@ static void _print_kernel_item_name(const char *name)
     while( len++ < 21 )
         shell_write_char(' ');
 }
+#endif
 
 
 int cmd_system( int argc, char *argv[] )

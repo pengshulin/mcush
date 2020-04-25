@@ -1222,18 +1222,43 @@ void ws2812_deinit(void)
 
 int ws2812_write(int offset, int dat, int swap_rg)
 {
-    if( ws2812_buf && (offset<ws2812_length) )
+    if( ws2812_buf == NULL )
+        return 0; 
+
+    if( offset >= ws2812_length )
+        return 0; 
+    
+    /* swtich color between GRB and RGB */
+    if( ! swap_rg )
+        dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
+    *(ws2812_buf + offset) = dat;
+    return 1;
+}
+
+
+int ws2812_push(int forward, int dat, int swap_rg)
+{
+    int i;
+
+    if( ws2812_buf == NULL )
+        return 0;
+    
+    /* swtich color between GRB and RGB */
+    if( ! swap_rg )
+        dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
+    if( forward )
     {
-        /* the chip receives GRB format as default, but user applications use rgb as default */
-        if( ! swap_rg )
-        {
-            dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
-        }
-        *(ws2812_buf + offset) = dat;
-        return 1;
+        for( i=ws2812_length-1; i>=1; i-- )
+            *(ws2812_buf + i) = *(ws2812_buf + i - 1);
+        *ws2812_buf = dat;
     }
     else
-        return 0; 
+    {
+        for( i=0; i<ws2812_length-1; i++ )
+            *(ws2812_buf + i) = *(ws2812_buf + i + 1);
+        *(ws2812_buf + ws2812_length - 1) = dat;
+    }
+    return 1;
 }
 
 
@@ -1289,12 +1314,17 @@ int cmd_ws2812( int argc, char *argv[] )
           'p', shell_str_pin, shell_str_pin, "default 0.0" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'I', shell_str_init, 0, shell_str_init },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'f', "forward", 0, "push forward" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'b', "backward", 0, "push backward" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_data, 0, "data to be written" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     uint8_t init_set=0, deinit_set=0, offset_set=0, write_set=0, length_set=0, grb_set=0, group_set=0;
+    uint8_t pushf_set=0, pushb_set=0;
     int port=HAL_WS2812_PORT, pin=HAL_WS2812_PIN;
     int length=0, offset=0, group=0;
     int dat;
@@ -1345,6 +1375,10 @@ int cmd_ws2812( int argc, char *argv[] )
                 if( p2 && *p2 )
                     goto err_port;
             }
+            else if( strcmp( opt.spec->name, "forward" ) == 0 )
+                pushf_set = 1;
+            else if( strcmp( opt.spec->name, "backward" ) == 0 )
+                pushb_set = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -1359,7 +1393,12 @@ int cmd_ws2812( int argc, char *argv[] )
             shell_write_err( shell_str_length );
             return -1;
         }
-        return ws2812_init( length, group, port, pin ) ? 0 : 1;
+        if( ws2812_init( length, group, port, pin ) == 0 )
+        {
+            shell_write_err( shell_str_memory );
+            return 1;
+        }
+        return 0;
     }
     
     if( deinit_set )
@@ -1379,7 +1418,12 @@ int cmd_ws2812( int argc, char *argv[] )
             hal_ws2812_clr();
             return 1;
         }
-        ws2812_write( offset++, dat, grb_set );
+        if( pushf_set )
+            ws2812_push( 1, dat, grb_set );
+        else if( pushb_set )
+            ws2812_push( 0, dat, grb_set );
+        else
+            ws2812_write( offset++, dat, grb_set );
         parser.idx++;
     }
 

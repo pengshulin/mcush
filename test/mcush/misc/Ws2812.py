@@ -28,12 +28,17 @@ class LEDS():
         self.controller.writeCommand( cmd )
 
     MEM_BUF_LINE_LIMIT = 50
-    def write( self, mem, offset=0 ):
+    def write( self, mem, offset=0, push=None ):
         mem = mem[:self.length-offset]  # ignore the invalid portion
         if offset:
             membuf = 'W -o%d '% offset
         else:
             membuf = 'W '
+        if push is not None:
+            if push == 'f':
+                membuf += '-f '
+            elif push == 'b':
+                membuf += '-b '
         if self.swap_rg:
             membuf += '-g '
         count = 0
@@ -49,10 +54,20 @@ class LEDS():
                 offset += count
                 count = 0
                 membuf = 'W -o%d '% offset
+                if push is not None:
+                    if push == 'f':
+                        membuf += '-f '
+                    elif push == 'b':
+                        membuf += '-b '
                 if self.swap_rg:
                     membuf += '-g '
         self.controller.writeCommand( "W -w" )
 
+    def pushf( self, mem, offset=0 ):
+        self.write( mem, offset, 'f' )
+
+    def pushb( self, mem, offset=0 ):
+        self.write( mem, offset, 'b' )
 
 
 class LEDS8(LEDS):

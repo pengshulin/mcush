@@ -110,12 +110,12 @@ class ShellLab(Mcush.Mcush):
 
 COLOR_TAB = {
 'black'  : 0x000000,
-'red'    : 0x0000FF,
+'red'    : 0xFF0000,
 'green'  : 0x00FF00,
-'yellow' : 0x00FFFF,
-'blue'   : 0xFF0000,
+'blue'   : 0x0000FF,
+'yellow' : 0xFFFF00,
+'cyan'   : 0x00FFFF,
 'purple' : 0xFF00FF,
-'cyan'   : 0xFFFF00,
 'white'  : 0xFFFFFF,
 }
 
