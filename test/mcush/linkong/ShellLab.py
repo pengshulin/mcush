@@ -167,8 +167,7 @@ class ShellLabStrap(Mcush.Mcush):
             raise Exception('length not assigned')
         Instrument.Instrument.__init__( self, *args, **kwargs )
         self.length = kwargs['length']
-        self.strapLength( self.length )
-
+        self.strapLength( self.length ) 
     def strapLength( self, length ):
         cmd = 'strap -l%d'% length
         self.writeCommand(cmd)
@@ -187,12 +186,12 @@ class ShellLabStrap(Mcush.Mcush):
             cmd += ' -f %d'% freq
         return self.writeCommand(cmd)
 
-    def reset( self, lamp_freq=1 ):
-        self.strap( 0, freq=lamp_freq )
+    def reset( self, freq=1 ):
+        self.strap( 0, freq=freq )
 
     def color( self, c, freq=None ):
         if isinstance(c, str):
-            if not COLOR_TAB.has_key(c):
+            if not c in COLOR_TAB:
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
         self.strap( c, freq=freq ) 

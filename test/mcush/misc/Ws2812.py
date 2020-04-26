@@ -27,41 +27,49 @@ class LEDS():
             cmd += " -p%s"% pin
         self.controller.writeCommand( cmd )
 
-    MEM_BUF_LINE_LIMIT = 50
+    CMD_LINE_LIMIT = 110
+    CMD_ARGV_LIMIT = 20 
+
     def write( self, mem, offset=0, push=None ):
         mem = mem[:self.length-offset]  # ignore the invalid portion
+        cmd = 'W'
         if offset:
-            membuf = 'W -o%d '% offset
-        else:
-            membuf = 'W '
+            cmd += ' -o%d'% offset
+        if self.swap_rg:
+            cmd += ' -g'
         if push is not None:
             if push == 'f':
-                membuf += '-f '
+                cmd += ' -f'
             elif push == 'b':
-                membuf += '-b '
-        if self.swap_rg:
-            membuf += '-g '
-        count = 0
+                cmd += ' -b'
+        count_data = 0
+        count_argv = len(cmd.split())
         while True:
             if len(mem) == 0:
-                if count:
-                    self.controller.writeCommand( membuf )
+                if count_data:
+                    # the final line, add -w option
+                    self.controller.writeCommand( cmd.replace('W', 'W -w') )
                 break
-            membuf += '%d '% (mem.pop(0) & 0xFFFFFF)
-            count += 1
-            if len(membuf) >= self.MEM_BUF_LINE_LIMIT:
-                self.controller.writeCommand( membuf )
-                offset += count
-                count = 0
-                membuf = 'W -o%d '% offset
+            cmd += ' %d'% (mem.pop(0) & 0xFFFFFF)
+            count_data += 1
+            count_argv += 1
+            if (len(cmd) >= self.CMD_LINE_LIMIT) or (count_argv >= self.CMD_ARGV_LIMIT):
+                # split data into multiple lines
+                self.controller.writeCommand( cmd )
+                if not push:
+                    offset += count_data
+                cmd = 'W'
+                if offset:
+                    cmd += ' -o%d'% offset
+                if self.swap_rg:
+                    cmd += ' -g'
                 if push is not None:
                     if push == 'f':
-                        membuf += '-f '
+                        cmd += ' -f'
                     elif push == 'b':
-                        membuf += '-b '
-                if self.swap_rg:
-                    membuf += '-g '
-        self.controller.writeCommand( "W -w" )
+                        cmd += ' -b'
+                count_data = 0
+                count_argv = len(cmd.split())
 
     def pushf( self, mem, offset=0 ):
         self.write( mem, offset, 'f' )
