@@ -560,6 +560,26 @@ class Mcush( Instrument.SerialInstrument ):
             self.writeCommand( line.rstrip() )
         self.setPrompts()
         self.writeCommand( '' )
+    
+    def fcfsFormat( self ):
+        self.writeCommand( 'fcfs -c format' )
+ 
+    def fcfsProgram( self, mem ):
+        # append zero to be 4-bytes alignment
+        while len(mem) & 0x3:
+            mem += '\x00'
+        # prepare 32bit word list
+        words = [Utils.s2I(mem[4*i:4*(i+1)]) for i in range(len(mem)/4)]
+        offset = 0
+        while words:
+            cmd = 'fcfs -c program'
+            if offset:
+                cmd += ' -o %d'% (offset*4)
+            for i in range(10):
+                if words:
+                    cmd += ' %d'% (words.pop(0))
+                    offset += 1
+            self.writeCommand( cmd )
 
     def sgpioStop( self ):
         self.writeCommand( 'sgpio --stop' )

@@ -20,10 +20,13 @@ typedef struct {
 
 #define FCFS_FDS_NUM     3
 
+#define FCFS_UID_LEN     12
+
 
 
 int mcush_fcfs_mount( void );
 int mcush_fcfs_mounted( void );
+int mcush_fcfs_umount( void );
 int mcush_fcfs_info( int *total, int *used );
 int mcush_fcfs_format( void );
 int mcush_fcfs_check( void );

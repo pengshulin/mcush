@@ -9,8 +9,12 @@
 #ifndef UNIQUE_ID0
 #define UNIQUE_ID0  0x0800FFF4  /* 12 bytes at the bottom of 64K flash */
 #endif
+#ifndef UNIQUE_ID1
 #define UNIQUE_ID1  ((UNIQUE_ID0)+4)
+#endif
+#ifndef UNIQUE_ID2
 #define UNIQUE_ID2  ((UNIQUE_ID0)+8)
+#endif
 
 
 #endif

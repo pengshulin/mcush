@@ -53,7 +53,7 @@ def generate(directory, output_filename):
             newfile = File(f) 
             CONTENTS.append( newfile )
             HEAD.append( Node(newfile) )
-            print 'add file: %s, size %d'% (newfile.fname, newfile.size)
+            print( 'add file: %s, size %d'% (newfile.fname, newfile.size) )
     HEAD.append( Signature('\x00\x00\x00\x00') )  # end node
     HEAD.append( Signature(time.strftime('%y%m%d%H%M%S')) )  # timestamp
 
@@ -66,12 +66,12 @@ def generate(directory, output_filename):
     
     CONTENTS.append( Signature('END') )  # end
     OUTPUT = HEAD+CONTENTS
-    print 'HEAD:'
+    print( 'HEAD:' )
     for item in HEAD:
-        print ' ', binascii.hexlify(str(item))
-    print 'CONTENTS:'
+        print( ' ', binascii.hexlify(str(item)) )
+    print( 'CONTENTS:' )
     for item in CONTENTS:
-        print ' ', binascii.hexlify(str(item))
+        print( ' ', binascii.hexlify(str(item)) )
     output = ''.join([str(o) for o in OUTPUT])
     open(output_filename, 'w+').write(output)
     cmd = 'hd ' + output_filename
@@ -80,8 +80,8 @@ def generate(directory, output_filename):
 
 def main(argv=None):
     if len(argv) < 2:
-        print 'Usage: fcfs_generate directory [output_filename]'
-        print 'default output: fcfs.bin'
+        print( 'Usage: fcfs_generate directory [output_filename]' )
+        print( 'default output: fcfs.bin' )
         sys.exit(1)
     directory = argv[1].decode('utf8')
     try:
@@ -89,7 +89,7 @@ def main(argv=None):
     except:
         output_filename = 'fcfs.bin'
     if not os.path.isdir(directory):
-        print 'directory', directory, 'not exist'
+        print( 'directory', directory, 'not exist' )
         sys.exit(1)
     generate( directory, output_filename )
 

@@ -595,6 +595,85 @@ int cmd_crc( int argc, char *argv[] )
 #endif
 
 
+#if USE_CMD_FCFS
+#include "mcush_vfs_fcfs.h"
+int cmd_fcfs( int argc, char *argv[] )
+{
+    static const mcush_opt_spec const opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'o', shell_str_offset, shell_str_offset, shell_str_offset },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', shell_str_command, "cmd_name", "info|format|program" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_value, 0, shell_str_data },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    char *cmd=0;
+    void *offset=(void*)0;
+    int buf[32];
+    int len;
+    int i;
+
+    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_offset ) == 0 )
+                parse_int(opt.value, (int*)&offset);
+            else if( STRCMP( opt.spec->name, shell_str_command) == 0 )
+                cmd = (char*)opt.value;
+            else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
+            {
+                parser.idx--;
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !cmd || strcmp( cmd, shell_str_info ) == 0 )
+    {
+        shell_printf( "%s: 0x%08X\n", shell_str_address, FCFS_ADDR );
+        shell_printf( "uid: %s\n", hexlify((const char*)(FCFS_ADDR+4), (char*)buf, FCFS_UID_LEN, 1) );
+    }
+    else if( strcmp( cmd, shell_str_format ) == 0 )
+    {
+        mcush_fcfs_umount();
+        return mcush_fcfs_format() ? 0 : 1;
+    }
+    else if( strcmp( cmd, shell_str_program ) == 0 )
+    {
+        parser.idx++;
+        len = 0;
+        while( parser.idx < argc )
+        {
+            if( ! parse_int(argv[parser.idx], (int*)&i) )
+            {
+                shell_write_str( "data err: " );
+                shell_write_line( argv[parser.idx] );
+                return 1;
+            }
+            buf[len] = i;
+            parser.idx++;
+            len += 1;
+        }
+        if( len == 0 )
+            return -1;
+        return hal_fcfs_program( (int*)(FCFS_ADDR+(uint32_t)offset), buf, len ) ? 0 : 1;
+    } 
+    else
+    {
+        shell_write_err( shell_str_command );
+        return -1;
+    }
+    return 0;
+}
+#endif
+
+
 #if USE_CMD_SPIFFS
 #include "mcush_vfs_spiffs.h"
 #include "spi_flash.h"

@@ -16,8 +16,10 @@
  index --> ------------ --> ---------- --> ----------  ...
           | magic_code |   | fname    |   | fname    |
           |------------|   |----------|   |----------|
-          | file1      |   | contents |   | contents |
+          | uid        |   | contents |   | contents |
           |------------|    ----------     ----------
+          | file1      |
+          |------------|
           | file2      |
           |------------|
           | ...        |
@@ -56,7 +58,7 @@ int mcush_fcfs_info( int *total, int *used )
 
 int mcush_fcfs_format( void )
 {
-    return 0;
+    return hal_fcfs_erase( (int*)FCFS_ADDR ) ? 1 : 0;
 }
 
 
@@ -80,7 +82,7 @@ int mcush_fcfs_rename( const char *old, const char *newPath )
 
 int mcush_fcfs_open( const char *pathname, const char *mode )
 {
-    fcfs_file_t *f = (fcfs_file_t*)(FCFS_ADDR+4);
+    fcfs_file_t *f = (fcfs_file_t*)(FCFS_ADDR+4+FCFS_UID_LEN);
     int i, j;
     
     for( i=0; i<FCFS_FDS_NUM; i++ )
@@ -168,7 +170,7 @@ int mcush_fcfs_close( int fh )
 
 int mcush_fcfs_size( const char *name, int *size )
 {
-    fcfs_file_t *f = (fcfs_file_t *)(FCFS_ADDR+4);
+    fcfs_file_t *f = (fcfs_file_t *)(FCFS_ADDR+4+FCFS_UID_LEN);
     while( (f->offset != 0) && (f->offset != 0xFFFF) )
     {
         if( strcmp((char*)(FCFS_ADDR+f->offset), name) == 0 )
@@ -184,7 +186,7 @@ int mcush_fcfs_size( const char *name, int *size )
 
 int mcush_fcfs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) )
 {
-    fcfs_file_t *f = (fcfs_file_t *)(FCFS_ADDR+4);
+    fcfs_file_t *f = (fcfs_file_t *)(FCFS_ADDR+4+FCFS_UID_LEN);
 
     if( strcmp(pathname, "/") != 0 )
         return 0;

@@ -152,7 +152,7 @@ class ShellLabLamp(Mcush.Mcush):
 
     def color( self, c, freq=None ):
         if isinstance(c, str):
-            if not COLOR_TAB.has_key(c):
+            if not c in COLOR_TAB:
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
         self.lamp( c, freq=freq ) 

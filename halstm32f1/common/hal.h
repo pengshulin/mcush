@@ -51,6 +51,9 @@ void hal_wdg_enable(void);
 void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
+int hal_fcfs_erase(int *address);
+int hal_fcfs_program(int *address, int *buf, int len);
+
 
 typedef struct _sgpio_cfg_t
 {

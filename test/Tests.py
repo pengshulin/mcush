@@ -163,7 +163,7 @@ def log_mon( argv=None ):
     s.logEnter()
     while True:
         line = s.readLine()
-        print Utils.colored_log(line)
+        print( Utils.colored_log(line) )
 
 
 #############################################################################
@@ -370,6 +370,41 @@ def atf20e_single_a(argv=None):
         s.disconnect()
 
 
+############################################################################# 
+# MODEL/IDN
+def get_model_idn(argv=None):
+    Env.VERBOSE=False
+    Env.DEBUG=False
+    Env.INFO=False
+    s = Mcush(check_idn=False)
+    ret = s.writeCommand( '*idn?' )
+    model = ret[0].split(',')[0].strip()
+    if len(ret)>1:
+        sn = ret[1].strip()
+    result = '%s_%s'% (model, sn)
+    print( result.replace(' ','_') )
+
+
+############################################################################# 
+# FCFS
+def fcfs_generate(argv=None):
+    fcfs = Utils.FCFS()
+    fcfs.appendFile( "test1", "contents of test1" )
+    fcfs.appendFile( "test2", "contents of test2" )
+    fcfs.appendFile( "timestamp", time.strftime('%y%m%d%H%M%S') )
+    ret = fcfs.generate()
+    return ret
+
+def fcfs_format(argv=None):
+    s = Mcush(check_idn=False)
+    s.fcfsFormat()
+
+def fcfs_program(argv=None):
+    mem = fcfs_generate()
+    s = Mcush(check_idn=False)
+    s.fcfsFormat()
+    s.fcfsProgram(mem) 
+
 
 #############################################################################
 if __name__ == '__main__':
@@ -393,7 +428,7 @@ if __name__ == '__main__':
     except:
         print( 'invalid command %s'% test_command )
         sys.exit(1)
-    #print test_command, test_argv
+    #print( test_command, test_argv )
     command(test_argv) 
     
     

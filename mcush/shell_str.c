@@ -85,6 +85,7 @@ __attribute__((aligned(1))) const char shell_str_pattern[] = "pattern";
 __attribute__((aligned(1))) const char shell_str_pin[] = "pin";
 __attribute__((aligned(1))) const char shell_str_port[] = "port";
 __attribute__((aligned(1))) const char shell_str_port_bit[] = "port/bit";
+__attribute__((aligned(1))) const char shell_str_program[] = "program";
 __attribute__((aligned(1))) const char shell_str_pulldown[] = "pulldown";
 __attribute__((aligned(1))) const char shell_str_pullup[] = "pullup";
 __attribute__((aligned(1))) const char shell_str_query[] = "query";

@@ -70,6 +70,10 @@ extern "C" {
     #define MCUSH_ROMFS  0
 #endif
 
+#ifndef MCUSH_FCFS
+    #define MCUSH_FCFS  0
+#endif
+
 #ifndef MCUSH_SPIFFS
     #define MCUSH_SPIFFS  0
 #endif
@@ -83,6 +87,10 @@ extern "C" {
     #ifdef MCUSH_ROMFS
         #undef MCUSH_ROMFS
         #define MCUSH_ROMFS  0
+    #endif
+    #ifdef MCUSH_FCFS
+        #undef MCUSH_FCFS
+        #define MCUSH_RCFS  0
     #endif
     #ifdef MCUSH_SPIFFS
         #undef MCUSH_SPIFFS
@@ -218,6 +226,16 @@ extern "C" {
     #define USE_CMD_LOOP  1
 #endif
 
+#if MCUSH_FCFS
+    #ifndef USE_CMD_FCFS
+        #define USE_CMD_FCFS  1
+    #endif
+#else
+    #ifdef USE_CMD_FCFS
+        #undef USE_CMD_FCFS
+    #endif
+    #define USE_CMD_FCFS  0
+#endif
 
 #if MCUSH_SPIFFS
     #ifndef USE_CMD_SPIFFS

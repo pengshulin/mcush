@@ -398,3 +398,74 @@ def check_traceback_for_errline(e):
 
 
 
+class FCFS:
+    class Signature():
+        def __init__( self, info ):
+            self.info = info
+        def __len__( self ):
+            return len(self.info)
+        def __str__( self ):
+            return self.info
+    
+    class Node():
+        def __init__( self, file ):
+            self.file = file
+            self.offset = 0
+            self.size = file.size
+        def __len__( self ):
+            return 4
+        def __str__( self ):
+            return pack('H', self.offset) + pack('H', self.size)
+    
+    class File():
+        def __init__( self, fname, contents ):
+            self.fname = fname
+            self.contents = contents
+            self.size = len(self.contents)
+        def __len__( self ):
+            return len(self.fname.encode('utf8')) + 1 + self.size
+        def __str__( self ):
+            return self.fname.encode('utf8') + '\00' + self.contents
+
+    def __init__( self ):
+        self.reset()
+
+    def reset( self ):
+        self.head = [self.Signature('FCFS')]
+        uid = [chr(randint(0,255)) for i in range(12)]
+        self.uid = self.head.append( self.Signature(''.join(uid)) )
+        self.contents = []
+
+    def setUID( self, uid ):
+        while len(uid) < 12:
+            uid += '\x00'
+        self.uid.info = uid[:12]
+
+    def appendSignature( self, item ):
+        self.contents.append( item )
+
+    def appendFile( self, name, contents ):
+        f = self.File(name, contents)
+        self.contents.append( f )
+        self.head.append( self.Node(f) )
+
+    def generate( self ):
+        self.head.append( self.Signature('\x00\x00\x00\x00') )  # end node
+        self.head.append( self.Signature(strftime('<%y%m%d%H%M%S>')) )  # timestamp
+        # re-calculate the offsets
+        offset_counter = sum([len(h) for h in self.head])
+        for idx in range(len(self.contents)):
+            f = self.head[idx+2]
+            f.offset = offset_counter
+            offset_counter += len(f.file)
+        self.contents.append( self.Signature('END') )  # end
+        output = self.head + self.contents
+        output = ''.join([str(o) for o in output])
+        dumpMem( output )
+        return output
+ 
+
+
+
+
+

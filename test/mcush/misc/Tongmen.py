@@ -33,7 +33,7 @@ class ETM( Instrument.SerialInstrument ):
 
     def __init__( self, *args, **kwargs ):
         kwargs['baudrate'] = 9600  # this is fixed
-        if not kwargs.has_key('unit'):
+        if not 'unit' in kwargs:
             kwargs['unit'] = DEFAULT_UNIT
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
 

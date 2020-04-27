@@ -94,6 +94,7 @@ extern const char shell_str_pattern[];
 extern const char shell_str_pin[];
 extern const char shell_str_port[];
 extern const char shell_str_port_bit[];
+extern const char shell_str_program[];
 extern const char shell_str_pulldown[];
 extern const char shell_str_pullup[];
 extern const char shell_str_query[];

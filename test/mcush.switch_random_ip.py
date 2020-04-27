@@ -12,7 +12,7 @@ def main(argv=None):
     '''check current ip/subnet and change random ip'''
     s = Mcush.Mcush()
     ns = s.netstat()
-    if ns.has_key('ip'):
+    if 'ip' in ns:
         ip = ns['ip']
         netmask = ns['netmask']
         gateway = ns['gateway']

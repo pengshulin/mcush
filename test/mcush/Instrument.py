@@ -188,7 +188,7 @@ class Instrument:
                 if byte == self.DEFAULT_TERMINATOR_READ:
                     newline_str = newline_str.rstrip()
                     contents.append( newline_str )
-                    self.logger.debug( newline_str )
+                    #self.logger.debug( '[r] '+ newline_str )
                     if line_callback is not None:
                         # use this carefully
                         line_callback( newline_str )
@@ -206,7 +206,7 @@ class Instrument:
             match = self.prompts.match( newline_str )
             if match:
                 contents.append( newline_str )
-                self.logger.debug( newline_str )
+                #self.logger.debug( '[P] '+ newline_str )
                 return contents
 
     def readLine( self, eol='\n', timeout=None ):
@@ -240,11 +240,10 @@ class Instrument:
         '''write command and wait for prompts'''
         cmd = cmd.strip()
         self.writeLine( cmd )
-        self.logger.debug( cmd )
+        self.logger.debug( '[T] '+cmd )
         ret = self.readUntilPrompts()
         for line in [i.strip() for i in ret]:
-            if line:
-                self.logger.debug( line )
+            self.logger.debug( '[R] '+ line )
         self.checkReturnedPrompt( ret )
         if self.check_return_command:
             self.checkReturnedCommand( ret, cmd )
@@ -311,12 +310,12 @@ class Instrument:
         '''scpi reset'''
         self.writeCommand( '*rst' )
 
-    def scpiIdn( self ):
+    def scpiIdn( self, check=True ):
         '''get identify name'''
         ret = self.writeCommand( '*idn?' )
         self.idn = ret[0].strip()
         self.logger.info( 'IDN:%s', str(self.idn) )
-        if not Env.NO_IDN_CHECK:
+        if check and (not Env.NO_IDN_CHECK):
             if not self.DEFAULT_IDN.match( self.idn ):
                 raise IDNMatchError(self.idn.split(',')[0])
         return self.idn

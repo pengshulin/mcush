@@ -33,6 +33,7 @@ extern int cmd_daq( int argc, char *argv[] );
 extern int cmd_rtc( int argc, char *argv[] );
 extern int cmd_can( int argc, char *argv[] );
 extern int cmd_ws2812( int argc, char *argv[] );
+extern int cmd_fcfs( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
 extern int cmd_fatfs( int argc, char *argv[] );
 extern int cmd_cat( int argc, char *argv[] );
@@ -256,6 +257,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   0,  'b',  "beep",  cmd_beep, 
     "beep control",
     "beep [-f <freq>] [<ms>]"  },
+#endif
+#if USE_CMD_FCFS
+{   0, 0, "fcfs",  cmd_fcfs, 
+    "fcfs control",
+    "fcfs"  },
 #endif
 #if USE_CMD_SPIFFS
 {   0, 's', "spiffs",  cmd_spiffs, 
