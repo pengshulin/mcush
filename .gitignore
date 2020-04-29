@@ -30,6 +30,7 @@ __pycache__/
 bin/
 
 dist/
+app_dist/
 *.egg-info/
 
 test/fcfs/
