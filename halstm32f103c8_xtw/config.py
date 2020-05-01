@@ -63,7 +63,7 @@ env.appendDefineFlags( [
     'configTOTAL_HEAP_SIZE=10240',
     'configUSE_TRACE_FACILITY=0',
     #'MCUSH_STACK_SIZE=10240',
-    'SHELL_QUOTE_PARSE_ENALBE=0',
+    'SHELL_QUOTE_PARSE_ENABLE=0',
     'SUSPEND_ENABLED=0',
     'USE_CMD_BEEP=0',
     'USE_CMD_SGPIO=0',

@@ -21,6 +21,8 @@ class Mcush( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'MCUSH'
     DEFAULT_IDN = re.compile( 'mcush,([0-9]+\.[0-9]+.*)' )
     DEFAULT_MULTILINE_INPUT_LINE_LIMIT = 50
+    DEFAULT_CMD_LINE_LIMIT = 128
+    DEFAULT_CMD_ARGV_LIMIT = 20
 
     regs_by_name = {}
     regs_by_addr = {}
@@ -575,10 +577,17 @@ class Mcush( Instrument.SerialInstrument ):
             cmd = 'fcfs -c program'
             if offset:
                 cmd += ' -o %d'% (offset*4)
-            for i in range(10):
-                if words:
-                    cmd += ' %d'% (words.pop(0))
-                    offset += 1
+            count_argv = len(cmd.split(' '))
+            while words:
+                wr = ' %d'% words[0] 
+                if len(cmd + wr) > self.DEFAULT_CMD_LINE_LIMIT:
+                    break
+                words.pop(0)
+                cmd += wr
+                offset += 1
+                count_argv += 1
+                if count_argv >= self.DEFAULT_CMD_ARGV_LIMIT:
+                    break
             self.writeCommand( cmd )
 
     def sgpioStop( self ):

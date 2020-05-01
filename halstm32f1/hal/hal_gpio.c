@@ -99,7 +99,15 @@ void hal_gpio_clr(int port, int bits)
 
 void hal_gpio_toggle(int port, int bits)
 {
-    LL_GPIO_TogglePin((GPIO_TypeDef *)ports[port], bits<<8);
+    int reset, set;
+        
+    reset = LL_GPIO_ReadOututPort((GPIO_TypeDef *)ports[port]) & bits;
+    set = ~reset & bits;
+    
+    if( set )
+        LL_GPIO_SetOutputPin((GPIO_TypeDef *)ports[port], set<<8);
+    if( reset )
+        LL_GPIO_ResetOutputPin((GPIO_TypeDef *)ports[port], reset<<8);
 }
 
 

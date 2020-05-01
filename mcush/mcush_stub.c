@@ -57,7 +57,7 @@ void _halt(void)
     }
 }
 
-volatile char *halt_message;
+char *halt_message;
 void _halt_with_message(const char *message)
 {
     halt_message = (char*)message;

@@ -55,7 +55,7 @@ env.appendDefineFlags( [
     #'configCHECK_FOR_STACK_OVERFLOW=0',
     #'configTOTAL_HEAP_SIZE=10240',
     #'MCUSH_STACK_SIZE=10240',
-    #'SHELL_QUOTE_PARSE_ENALBE=0',
+    #'SHELL_QUOTE_PARSE_ENABLE=0',
     #'SUSPEND_ENABLED=0',
     ] )
 

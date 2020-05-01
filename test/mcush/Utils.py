@@ -4,7 +4,7 @@ __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from os import system, remove
 from sys import platform, stdout
-from binascii import hexlify, crc32
+from binascii import hexlify, unhexlify, crc32
 from random import randint
 from subprocess import Popen, PIPE
 from struct import pack, unpack
@@ -433,7 +433,8 @@ class FCFS:
     def reset( self ):
         self.head = [self.Signature('FCFS')]
         uid = [chr(randint(0,255)) for i in range(12)]
-        self.uid = self.head.append( self.Signature(''.join(uid)) )
+        self.uid = self.Signature(''.join(uid))
+        self.head.append( self.uid )
         self.contents = []
 
     def setUID( self, uid ):
@@ -441,6 +442,17 @@ class FCFS:
             uid += '\x00'
         self.uid.info = uid[:12]
 
+    def setIntegerUID( self, integer, msb=True ):
+        uid = I2s(integer&0xFFFFFFFF)
+        uid += I2s((integer>>32)&0xFFFFFFFF)
+        uid += I2s((integer>>64)&0xFFFFFFFF)
+        if msb:
+            uid = list(uid)
+            uid.reverse()
+            self.setUID( ''.join(uid) )
+        else:
+            self.setUID( uid )
+ 
     def appendSignature( self, item ):
         self.contents.append( item )
 
@@ -461,7 +473,6 @@ class FCFS:
         self.contents.append( self.Signature('END') )  # end
         output = self.head + self.contents
         output = ''.join([str(o) for o in output])
-        dumpMem( output )
         return output
  
 

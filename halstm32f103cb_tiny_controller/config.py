@@ -58,7 +58,7 @@ env.appendDefineFlags( [
     'configUSE_TIMERS=0',
     #'configUSE_MUTEX=0',
     #'configCHECK_FOR_STACK_OVERFLOW=0',
-    #'SHELL_QUOTE_PARSE_ENALBE=0',
+    #'SHELL_QUOTE_PARSE_ENABLE=0',
     #'SUSPEND_ENABLED=0',
     'MCUSH_FREERTOS_PEEK_API=1',
     'configUSE_TRACE_FACILITY=1',

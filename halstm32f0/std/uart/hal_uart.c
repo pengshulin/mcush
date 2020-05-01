@@ -34,10 +34,6 @@
     #define HAL_UARTx_RX_AF                 GPIO_AF_1
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
-    #define HAL_UARTx_BAUDRATE              9600
-    #define HAL_UART_QUEUE_RX_LEN           128
-    #define HAL_UART_QUEUE_TX_LEN           128
-    #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
 

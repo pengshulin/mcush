@@ -36,11 +36,6 @@ static i2c_cb_t *i2c_cb[1];
     //#define I2C_RW_BUF_LEN  128  /* 128*2*1=256 stack size */
 #endif
 
-#ifndef SPI_RW_BUF_LEN
-    //#define SPI_RW_BUF_LEN  256  /* 256*2*4=2K stack size */
-    #define SPI_RW_BUF_LEN  128  /* 128*2*4=1K stack size */
-    //#define SPI_RW_BUF_LEN  64  /* 64*2*4=512 stack size */
-#endif
 
 void emu_i2c_init_structure(i2c_cb_t *i2c_init)
 {
@@ -448,6 +443,12 @@ static spi_cb_t *spi_cb[3];
 static spi_cb_t *spi_cb[2];
 #else
 static spi_cb_t *spi_cb[1];
+#endif
+
+#ifndef SPI_RW_BUF_LEN
+    //#define SPI_RW_BUF_LEN  256  /* 256*2*4=2K stack size */
+    #define SPI_RW_BUF_LEN  128  /* 128*2*4=1K stack size */
+    //#define SPI_RW_BUF_LEN  64  /* 64*2*4=512 stack size */
 #endif
 
 

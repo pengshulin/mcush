@@ -5,7 +5,7 @@ __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
 import time
 import logging
-from . import Env
+from . import Env, Utils
 
 if Env.LOGGING_FORMAT:
     logging.BASIC_FORMAT = Env.LOGGING_FORMAT
@@ -110,6 +110,7 @@ class Instrument:
 
         # init/connect
         self.idn = None
+        self.serial_number = None
         self.port = self.PORT_TYPE(self, *args, **kwargs)
         if self._connect:
             self.connect()
@@ -314,6 +315,8 @@ class Instrument:
         '''get identify name'''
         ret = self.writeCommand( '*idn?' )
         self.idn = ret[0].strip()
+        if len(ret)>1:
+            self.serial_number = ret[1].strip()
         self.logger.info( 'IDN:%s', str(self.idn) )
         if check and (not Env.NO_IDN_CHECK):
             if not self.DEFAULT_IDN.match( self.idn ):
@@ -367,15 +370,25 @@ class Instrument:
             return ''
 
     def getSerialNumber( self ):
-        ret = self.writeCommand( '*idn?' )
-        try:
-            self.serial_number = ret[1].strip()
-            self.logger.info( 'SN:%s', str(self.serial_number) )
-            return self.serial_number
-        except IndexError:
-            self.serial_number = None
+        if self.serial_number is None:
+            ret = self.writeCommand( '*idn?' )
+            if len(ret) > 1:
+                self.serial_number = ret[1].strip()
+        self.logger.info( 'SN:%s', str(self.serial_number) )
+        if self.serial_number is None:
             return ''
+        return self.serial_number
 
+    def getIntegerSerialNumber( self, msb=True ):
+        sn = [Utils.s2B(b) for b in Utils.unhexlify(self.getSerialNumber())]
+        ret = 0 
+        while sn:
+            if msb:
+                ret = (ret<<8) | sn.pop(0)
+            else:
+                ret = (ret<<8) | sn.pop()
+        return ret
+ 
     def printInfo( self ):
         print( '%s, %s'% (self.getModel(), self.getVersion()) )
 

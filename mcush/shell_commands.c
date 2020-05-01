@@ -259,7 +259,7 @@ const shell_cmd_t CMD_TAB[] = {
     "beep [-f <freq>] [<ms>]"  },
 #endif
 #if USE_CMD_FCFS
-{   0, 0, "fcfs",  cmd_fcfs, 
+{   CMD_HIDDEN, 0, "fcfs",  cmd_fcfs, 
     "fcfs control",
     "fcfs"  },
 #endif

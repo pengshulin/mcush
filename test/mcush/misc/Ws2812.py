@@ -27,8 +27,7 @@ class LEDS():
             cmd += " -p%s"% pin
         self.controller.writeCommand( cmd )
 
-    CMD_LINE_LIMIT = 110
-    CMD_ARGV_LIMIT = 20 
+    DEFAULT_CMD_LINE_LIMIT = 110
 
     def write( self, mem, offset=0, push=None ):
         mem = mem[:self.length-offset]  # ignore the invalid portion
@@ -53,7 +52,7 @@ class LEDS():
             cmd += ' %d'% (mem.pop(0) & 0xFFFFFF)
             count_data += 1
             count_argv += 1
-            if (len(cmd) >= self.CMD_LINE_LIMIT) or (count_argv >= self.CMD_ARGV_LIMIT):
+            if (len(cmd) >= self.DEFAULT_CMD_LINE_LIMIT) or (count_argv >= self.controller.DEFAULT_CMD_ARGV_LIMIT):
                 # split data into multiple lines
                 self.controller.writeCommand( cmd )
                 if not push:

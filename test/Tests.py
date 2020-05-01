@@ -389,6 +389,8 @@ def get_model_idn(argv=None):
 # FCFS
 def fcfs_generate(argv=None):
     fcfs = Utils.FCFS()
+    fcfs.setIntegerUID( 1 )
+    #fcfs.setUID( Utils.I2s(1) + Utils.I2s(0) + Utils.I2s(0) )
     fcfs.appendFile( "test1", "contents of test1" )
     fcfs.appendFile( "test2", "contents of test2" )
     fcfs.appendFile( "timestamp", time.strftime('%y%m%d%H%M%S') )

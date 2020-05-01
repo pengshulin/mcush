@@ -81,8 +81,15 @@ void hal_gpio_clr(int port, int bits)
 
 void hal_gpio_toggle(int port, int bits)
 {
-    GPIO_Write((GPIO_TypeDef*)ports[port], \
-        GPIO_ReadInputData((GPIO_TypeDef*)ports[port]) ^ bits);
+    int reset, set;
+        
+    reset = GPIO_ReadOutputData((GPIO_TypeDef*)ports[port]) & bits;
+    set = ~reset & bits;
+    
+    if( set )
+        GPIO_SetBits((GPIO_TypeDef*)ports[port], set);
+    if( reset )
+        GPIO_ResetBits((GPIO_TypeDef*)ports[port], reset);
 }
 
 
