@@ -120,7 +120,8 @@ def enumPortsByClass( cls, callback=None ):
     ret = []
     for port in enumPorts():
         try:
-            obj = cls( port )
+            obj = cls( port, check_idn=False )
+            obj.scpiIdn()
             if callback:
                 callback( obj )
             ret.append(port)
