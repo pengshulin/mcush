@@ -135,7 +135,7 @@ class ShellLabLamp(Mcush.Mcush):
         if blue is not None:
             cmd += ' -b %d'% blue
         if freq is not None:
-            cmd += ' -f %d'% freq
+            cmd += ' -f %s'% freq
         return self.writeCommand(cmd)
 
     def alarm( self, count=None, freq=None ):
@@ -163,15 +163,15 @@ class ShellLabStrap(Mcush.Mcush):
     DEFAULT_IDN = re_compile( 'ShellLab-L2[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
     def __init__( self, *args, **kwargs ):
-        if not 'length' in kwargs:
-            raise Exception('length not assigned')
         Instrument.Instrument.__init__( self, *args, **kwargs )
-        self.length = kwargs['length']
-        self.strapLength( self.length ) 
+        self.length = kwargs.get('length', None)
+        if self.length is not None:
+            self.strapLength( self.length ) 
+
     def strapLength( self, length ):
         cmd = 'strap -l%d'% length
         self.writeCommand(cmd)
- 
+
     def strap( self, color=None, red=None, green=None, blue=None, freq=None ):
         cmd = 'strap'
         if color is not None:
@@ -183,7 +183,7 @@ class ShellLabStrap(Mcush.Mcush):
         if blue is not None:
             cmd += ' -b %d'% blue
         if freq is not None:
-            cmd += ' -f %d'% freq
+            cmd += ' -f %s'% freq
         return self.writeCommand(cmd)
 
     def reset( self, freq=1 ):
@@ -205,7 +205,7 @@ class ShellLabStaticStrap(ShellLabStrap):
     def __init__( self, *args, **kwargs ):
         ShellLabStrap.__init__(self, *args, **kwargs)
         setting = Utils.parseKeyValueLines(self.strap())
-        if int(setting['freq']) != 0:
+        if float(setting['freq']) > 0:
             self.strap( freq=0 )
         self._color = int(setting['color'], 16)
         self._brightness = kwargs.get('brightness', 1.0)

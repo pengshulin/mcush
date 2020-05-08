@@ -115,6 +115,38 @@ def enumPorts():
     return ports
 
 
+def enumPortsByClass( cls, callback=None ):
+    from . import Instrument
+    ret = []
+    for port in enumPorts():
+        try:
+            obj = cls( port )
+            if callback:
+                callback( obj )
+            ret.append(port)
+        except Instrument.PortNotFound:
+            pass
+        except Instrument.IDNMatchError:
+            pass
+        except Instrument.CommandTimeoutError:
+            pass
+        except Instrument.CommandSyntaxError:
+            pass
+        except Instrument.CommandExecuteError:
+            pass
+        except Instrument.ResponseError:
+            pass
+        except Instrument.UnknownPortError:
+            pass
+        finally:
+            try:
+                obj.disconnect()
+                del obj
+            except NameError:
+                pass
+    return ret
+
+
 def espeak( contents ):
     if Env.platform == 'linux2':
         system( 'espeak %s'% contents )
