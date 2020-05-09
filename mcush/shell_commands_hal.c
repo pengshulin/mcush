@@ -1059,7 +1059,7 @@ int cmd_can( int argc, char *argv[] )
             /* format: <filter_id> <enabled>  <can_id> <mask> */
             /* eg: can -c filter 5 0            (disable #5)   */
             /* eg: can -c filter 0 1 0x01 0x1F  (enable #0 as 0x1/0x1F) */
-            /* eg: can -e -r -c filter 1 1 0x01 0x1F  (enable #0 as 0x1/0x1F ext/rtr set) */
+            /* eg: can -e -r -c filter 0 1 0x01 0x1F  (enable #0 as 0x1/0x1F ext/rtr set) */
             memset( (void*)&filter, 0, sizeof(can_filter_t) );
             if( arg_idx + 2 > argc )
                 return 1;

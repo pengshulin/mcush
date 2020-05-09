@@ -978,6 +978,20 @@ class Mcush( Instrument.SerialInstrument ):
             ret.append( (id, ext, rtr, binascii.unhexlify(dat)) )
         return ret
 
+    def canFilterReset( self, add_default=True ):
+        # format: <filter_id> <enabled>  <can_id> <mask>
+        # eg: can -c filter 5 0            (disable #5)
+        # eg: can -c filter 0 1 0x01 0x1F  (enable #0 as 0x1/0x1F)
+        # eg: can -e -r -c filter 0 1 0x01 0x1F  (enable #0 as 0x1/0x1F ext/rtr set)
+        for line in self.can( 'filter' ):
+            index = int(line.split(': ')[0].lstrip('#'))
+            self.can( 'filter', args=[index, 0] )
+        if add_default:
+            self.can( 'filter', args=[0, 1, 0, 0] )
+
+    def canFilterSet( self, index, enable, can_id, mask, ext=None, rtr=None ):
+        self.can( 'filter', ext=ext, rtr=rtr, args=[index, int(enable), can_id, mask] )
+ 
     def env( self ):
         return Utils.parseKeyValueLines( self.writeCommand('env') )
 
