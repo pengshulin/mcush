@@ -114,9 +114,12 @@ int hal_can_init( void )
     can_filter_init.FilterIdHigh = 0;
     can_filter_init.FilterIdLow = 0;
     can_filter_init.FilterMaskIdHigh = 0;
-    can_filter_init.FilterMaskIdLow = 0;
+    can_filter_init.FilterMaskIdLow = 4;
     can_filter_init.FilterFIFOAssignment = CAN_FILTER_FIFO1;
     can_filter_init.FilterActivation = ENABLE;
+    HAL_CAN_ConfigFilter( &hcan, &can_filter_init );
+    can_filter_init.FilterBank = 1;
+    can_filter_init.FilterIdLow = 4;
     HAL_CAN_ConfigFilter( &hcan, &can_filter_init );
 
     /* Interrupt Enable */  
@@ -227,18 +230,18 @@ int hal_can_filter_set( int index, can_filter_t *filter, int enabled )
     if( filter->ext )
     {
         f = ((filter->ext_id & 0x1FFFFFFF)<<3) | 4;
-        m = ((filter->ext_id_mask & 0x1FFFFFFF)<<3) |4;
+        m = ((filter->ext_id_mask & 0x1FFFFFFF)<<3) | 4;
     }
     else
     {
         f = (filter->std_id & 0x7FF)<<21;
-        m = (filter->std_id_mask & 0x7FF)<<21;
+        m = ((filter->std_id_mask & 0x7FF)<<21) | 4;
     }
     if( filter->remote )
     {
         f |= 2;
         m |= 2;
-    }        
+    }
     can_filter_init.FilterIdHigh = (f>>16) & 0xFFFF;
     can_filter_init.FilterIdLow = f & 0xFFFF;
     can_filter_init.FilterMaskIdHigh = (m>>16) & 0xFFFF;
@@ -262,8 +265,8 @@ int hal_can_filter_get( int index, can_filter_t *filter, int *enabled )
         *enabled = 1;
         m = CAN1->sFilterRegister[index].FR2;
         f = CAN1->sFilterRegister[index].FR1 & m; 
-        filter->ext = (m & 4) ? 1 : 0;
-        filter->remote = (m & 2) ? 1 : 0;
+        filter->ext = (f & 4) ? 1 : 0;
+        filter->remote = (f & 2) ? 1 : 0;
         if( filter->ext )
         {
             filter->ext_id = (f >> 3) & 0x1FFFFFFF;
@@ -331,12 +334,12 @@ int hal_can_receive( can_message_t *msg )
     if( HAL_CAN_GetRxMessage( &hcan, CAN_RX_FIFO1, &rxmsg, data ) == HAL_ERROR )
         return 0;
     
-    msg->ext = (rxmsg.IDE == CAN_ID_EXT) ? 1 : 0;
+    msg->ext = (rxmsg.IDE == CAN_ID_STD) ? 0 : 1;
     if( msg->ext )
         msg->id = rxmsg.ExtId;
     else
         msg->id = rxmsg.StdId;
-    msg->remote = (rxmsg.RTR == CAN_RTR_REMOTE) ? 1 : 0;
+    msg->remote = (rxmsg.RTR == CAN_RTR_DATA) ? 0 : 1;
     msg->len = rxmsg.DLC;
     if( msg->len )
         memcpy( (void*)msg->data, data, msg->len );

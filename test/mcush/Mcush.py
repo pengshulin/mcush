@@ -987,7 +987,9 @@ class Mcush( Instrument.SerialInstrument ):
             index = int(line.split(': ')[0].lstrip('#'))
             self.can( 'filter', args=[index, 0] )
         if add_default:
+            # add two filters to receive all std/ext frames
             self.can( 'filter', args=[0, 1, 0, 0] )
+            self.can( 'filter', args=[1, 1, 0, 0], ext=True )
 
     def canFilterSet( self, index, enable, can_id, mask, ext=None, rtr=None ):
         self.can( 'filter', ext=ext, rtr=rtr, args=[index, int(enable), can_id, mask] )

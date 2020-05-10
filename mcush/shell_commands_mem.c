@@ -435,9 +435,11 @@ int cmd_dump( int argc, char *argv[] )
         }
         shell_write_str( "\r\n" );
         /* check if Ctrl-C is pressed */
-        if( shell_driver_read_char_blocked(&c, 0) != -1 )
+        while( shell_driver_read_char_blocked(&c, 0) != -1 )
+        {
             if( c == 0x03 ) /* Ctrl-C for stop */
                 return 0;
+        }
     }
     return 0;
 }

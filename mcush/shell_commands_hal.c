@@ -982,6 +982,7 @@ int cmd_can( int argc, char *argv[] )
     int dat;
     can_filter_t filter;
     int i, j, k, l;
+    char c;
 
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -1135,6 +1136,12 @@ int cmd_can( int argc, char *argv[] )
         {
             print_can_message( &msg );
             i--;
+            /* check for Ctrl-C to stop */
+            while( shell_driver_read_char_blocked(&c, 0) != -1 )
+            {
+                if( c == 0x03 ) /* Ctrl-C for stop */
+                    return 0;
+            }
         }
     }
     else if( strcmp(cmd, "write") == 0 )
