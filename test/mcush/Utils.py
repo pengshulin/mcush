@@ -43,7 +43,7 @@ def generateRandomFile( size ):
     FILE.close()    
 
 def diffFiles( file1, file2 ):
-    if Env.platform == 'linux2':
+    if Env.platform != 'win32':
         ret = system( 'colordiffbin %s %s'% (file1, file2) )
         return not bool(ret)
     else:
@@ -101,17 +101,17 @@ def parseKeyValueLines( lines ):
 
 def enumPorts():
     ports = []
-    if platform == 'linux2':
-        from glob import glob
-        ports += glob( '/dev/ttyACM*' )
-        ports += glob( '/dev/ttyUSB*' )
-    elif platform == 'win32':
+    if platform == 'win32':
         try:
             from serial.tools import list_ports
             for p in list_ports.comports():
                 ports.append( p[0] )
         except ImportError:
             pass 
+    else:
+        from glob import glob
+        ports += glob( '/dev/ttyACM*' )
+        ports += glob( '/dev/ttyUSB*' )
     return ports
 
 
@@ -149,7 +149,7 @@ def enumPortsByClass( cls, callback=None ):
 
 
 def espeak( contents ):
-    if Env.platform == 'linux2':
+    if Env.platform != 'win32':
         system( 'espeak %s'% contents )
 
 
@@ -264,7 +264,7 @@ def dt2s( dt, need_ms=False ):
 
 
 def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True ):
-    if Env.platform != 'linux2':
+    if Env.platform == 'win32':
         print( 'must run under linux' )
         return 
     # prepare source file with specified modules merged

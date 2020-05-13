@@ -960,7 +960,7 @@ int cmd_can( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', "cmd", shell_str_command, "info|(de)init|reset|baudrate|read|write|filter" },
+          'c', "cmd", shell_str_command, "info|(de)init|reset|baudrate|reset_input|read|write|filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'i', "idx", shell_str_index, "index param" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 

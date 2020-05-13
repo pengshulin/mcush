@@ -227,12 +227,12 @@ int hal_can_filter_set( int index, can_filter_t *filter, int enabled )
     if( filter->ext )
     {
         f = ((filter->ext_id & 0x1FFFFFFF)<<3) | 4;
-        m = ((filter->ext_id_mask & 0x1FFFFFFF)<<3) |4;
+        m = ((filter->ext_id_mask & 0x1FFFFFFF)<<3) | 4;
     }
     else
     {
         f = (filter->std_id & 0x7FF)<<21;
-        m = (filter->std_id_mask & 0x7FF)<<21;
+        m = ((filter->std_id_mask & 0x7FF)<<21) | 4;
     }
     if( filter->remote )
     {
@@ -262,8 +262,8 @@ int hal_can_filter_get( int index, can_filter_t *filter, int *enabled )
         *enabled = 1;
         m = CAN1->sFilterRegister[index].FR2;
         f = CAN1->sFilterRegister[index].FR1 & m; 
-        filter->ext = (m & 4) ? 1 : 0;
-        filter->remote = (m & 2) ? 1 : 0;
+        filter->ext = (f & 4) ? 1 : 0;
+        filter->remote = (f & 2) ? 1 : 0;
         if( filter->ext )
         {
             filter->ext_id = (f >> 3) & 0x1FFFFFFF;
