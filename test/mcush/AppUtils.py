@@ -83,11 +83,20 @@ class Task():
             self.info( _getStr('Stopping') )
             self.info( _getStr('Timeout'), 'error' )
         except Instrument.PortNotFound as e:
-            self.info( _getStr('Port not exist') + ': ' + unicode(e), 'error' )
+            if Env.PYTHON_V3:
+                self.info( _getStr('Port not exist') + ': ' + str(e), 'error' )
+            else:
+                self.info( _getStr('Port not exist') + ': ' + unicode(e), 'error' )
         except Instrument.UnknownPortError as e:
-            self.info( _getStr('Unknown port error') + ': ' + unicode(e), 'error' )
+            if Env.PYTHON_V3:
+                self.info( _getStr('Unknown port error') + ': ' + str(e), 'error' )
+            else:
+                self.info( _getStr('Unknown port error') + ': ' + unicode(e), 'error' )
         except Instrument.IDNMatchError as e:
-            self.info( _getStr('IDN not match') + ': ' + unicode(e), 'error' )
+            if Env.PYTHON_V3:
+                self.info( _getStr('IDN not match') + ': ' + str(e), 'error' )
+            else:
+                self.info( _getStr('IDN not match') + ': ' + unicode(e), 'error' )
         except Exception as e:
             if Env.VERBOSE:
                 print( type(e), str(e) )
@@ -96,16 +105,19 @@ class Task():
                 a,b = e.args
                 info += u'%d %s'% (a, b.decode(encoding='utf8'))
             else:
-                #for c in str(e):  # e string may not be Unicode
-                #    info += c if ord(c) <= 128 else 'x%X'% ord(c)
-                info = str(e).decode(encoding='utf8')
+                if Env.PYTHON_V3:
+                    info = str(e)
+                else:
+                    #for c in str(e):  # e string may not be Unicode
+                    #    info += c if ord(c) <= 128 else 'x%X'% ord(c)
+                    info = str(e).decode(encoding='utf8')
             self.info( info, 'error' )
      
     def listener( self ):
         if self.p.is_alive():
-            #print 'listener:alive'
+            #print( 'listener:alive' )
             self.p.join()
-            #print 'listener:end'
+            #print( 'listener:end' )
         self.end()
        
     def isStopped( self ):

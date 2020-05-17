@@ -165,10 +165,18 @@ void hal_can_deinit( void )
 
 void hal_can_reset( void )
 {
+    HAL_CAN_AbortTxRequest(&hcan, CAN_TX_MAILBOX0);
+    HAL_CAN_AbortTxRequest(&hcan, CAN_TX_MAILBOX1);
+    HAL_CAN_AbortTxRequest(&hcan, CAN_TX_MAILBOX2);
     HAL_CAN_Stop( &hcan );
+    xQueueReset( hal_can_queue_rx );
+    xQueueReset( hal_can_queue_tx );
     HAL_CAN_ResetError( &hcan );
     hal_can_tx_counter = 0;
     hal_can_rx_counter = 0;
+    __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP0);
+    __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP1);
+    __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP2);
     HAL_CAN_Start( &hcan );
 }
 
@@ -390,11 +398,11 @@ void HAL_CAN_TX_IRQHandler(void)
         {
             __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP0);
         }
-        else if ( tsrflags & CAN_TSR_RQCP1 )
+        else if( tsrflags & CAN_TSR_RQCP1 )
         {
-            __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP0);
+            __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP1);
         }
-        else if ( tsrflags & CAN_TSR_RQCP2 )
+        else if( tsrflags & CAN_TSR_RQCP2 )
         {
             __HAL_CAN_CLEAR_FLAG(&hcan, CAN_FLAG_RQCP2);
         }

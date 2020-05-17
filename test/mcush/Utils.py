@@ -297,6 +297,12 @@ def compact_cjson_str(obj):
     #print lst 
     return lst
 
+if Env.PYTHON_V3:
+    def cmp(a,b):
+        return 0 if a==b else (1 if a>b else -1) 
+else:
+    cmp = cmp
+
 
 def STR(s):
     try:
@@ -402,7 +408,7 @@ def colored_log( log_string ):
 
 def check_traceback_for_errline(e):
     if Env.DEBUG:
-        traceback.print_exc(stdout)
+        traceback.print_exc(file=stdout)
     err = []
     for line in traceback.format_exc().splitlines():
         line = line.rstrip()

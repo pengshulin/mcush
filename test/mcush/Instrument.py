@@ -380,7 +380,11 @@ class Instrument:
         return self.serial_number
 
     def getIntegerSerialNumber( self, msb=True ):
-        sn = [Utils.s2B(b) for b in Utils.unhexlify(self.getSerialNumber())]
+        _sn = Utils.unhexlify(self.getSerialNumber())
+        if Env.PYTHON_V3:
+            sn = list(_sn)
+        else:
+            sn = [Utils.s2B(b) for b in _sn]
         ret = 0 
         while sn:
             if msb:
