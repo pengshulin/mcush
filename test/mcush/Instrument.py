@@ -534,7 +534,7 @@ class SocketPort(Port):
     def connect( self ):
         if self._connected:
             return
-        self.s.connect( (self.ip, self.port) )
+        self.s.connect( (self.ip, int(self.port)) )
         self.s.settimeout( self.timeout )
         self._connected = True
 
@@ -552,10 +552,13 @@ class SocketPort(Port):
                 else:
                     break
             #print( 'read', ret )
-            return ''.join(ret)
+            return Env.EMPTY_BYTE.join(ret)
 
     def write( self, buf ):
         if self._connected:
+            if Env.PYTHON_V3:
+                if isinstance(buf, str):
+                    buf = buf.encode('utf8')
             self.s.sendall(buf)
  
 
