@@ -3,7 +3,7 @@ __doc__ = 'Shell Lab Series'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
-from .. import Mcush, Instrument, Utils
+from .. import Mcush, Instrument, Utils, Env
 import binascii
 import time
 
@@ -400,7 +400,7 @@ class ShellLabCANopen(ShellLabCAN):
                         responsed = True
                         break
             control ^= 0x10
-        return ''.join(read)
+        return Env.EMPTY_BYTE.join(read)
      
     def writeObject( self, id, index, subindex, val ):
         val_len = len(val)
@@ -409,7 +409,10 @@ class ShellLabCANopen(ShellLabCAN):
         if val_len <= 4:
             # expedited mode
             control |= 0x02
-            v = map(ord, val)
+            if Env.PYTHON_V3:
+                v = list(val)
+            else:
+                v = map(ord, val)
             if len(v) < 4:
                 control |= 0x01  # indicated 
                 control |= (4-len(v)) << 2 # not used bytes
@@ -442,7 +445,10 @@ class ShellLabCANopen(ShellLabCAN):
         # remaining segment request
         control = 0x00
         while bytes_written < val_len:
-            v = map(ord, val[bytes_written:bytes_written+7])
+            if Env.PYTHON_V3:
+                v = list(val[bytes_written:bytes_written+7])
+            else:
+                v = map(ord, val[bytes_written:bytes_written+7])
             bytes_written += len(v)
             if bytes_written >= val_len:
                 control |= 0x01  # no more flag

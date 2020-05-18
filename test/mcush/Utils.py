@@ -187,9 +187,13 @@ def s2d( val ):
     return unpack('d', val) [0]
 
 def s2b( val ):
-    return unpack('B', val) [0]
+    if Env.PYTHON_V3 and isinstance(val,int):
+        return unpack('b', bytes([val])) [0]
+    return unpack('b', val) [0]
  
 def s2B( val ):
+    if Env.PYTHON_V3 and isinstance(val,int):
+        return unpack('B', bytes([val])) [0]
     return unpack('B', val) [0]
  
 def s2h( val ):
