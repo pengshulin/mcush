@@ -9,8 +9,7 @@ import time
 
 
 class OpenOCD( Instrument.SocketInstrument ):
-    DEFAULT_PROMPTS = re_compile( '\x00\x0d> ' )
-    DEFAULT_TERMINATOR_RESET = '\n'  # new-line
+    DEFAULT_PROMPTS = re_compile( '\x00?\x0d> ' )
         
     def __init__( self, *args, **kwargs ):
         kwargs['ip'] = kwargs.get('ip','localhost')
@@ -39,4 +38,52 @@ class OpenOCD( Instrument.SocketInstrument ):
         if addr is not None:
             cmd += ' 0x%X'% addr
         self.writeCommand( cmd )
+
+    def mdb( self, addr, count=None ):
+        cmd = 'mdb 0x%X'% addr
+        if count:
+            cmd += ' %d'% count
+        ret = self.writeCommand( cmd )
+        mem = []
+        for line in ret:
+            for b in line.split(': ')[1].split(' '):
+                mem.append(int(b,16))
+        if Env.PYTHON_V3:
+            return bytes(mem)
+        else:
+            return Env.EMPTY_BYTE.join(map(chr,mem))  
+
+    def mdh( self, addr, count=1 ):
+        cmd = 'mdh 0x%X'% addr
+        if count:
+            cmd += ' %d'% count
+        ret = self.writeCommand( cmd )
+        mem = []
+        for line in ret:
+            for b in line.split(': ')[1].split(' '):
+                intb = int(b,16)
+                mem.append( intb & 0xFF )
+                mem.append( (intb>>8) & 0xFF )
+        if Env.PYTHON_V3:
+            return bytes(mem)
+        else:
+            return Env.EMPTY_BYTE.join(map(chr,mem))  
+
+    def mdw( self, addr, count=1 ):
+        cmd = 'mdw 0x%X'% addr
+        if count:
+            cmd += ' %d'% count
+        ret = self.writeCommand( cmd )
+        mem = []
+        for line in ret:
+            for b in line.split(': ')[1].split(' '):
+                intb = int(b,16)
+                mem.append( intb & 0xFF )
+                mem.append( (intb>>8) & 0xFF )
+                mem.append( (intb>>16) & 0xFF )
+                mem.append( (intb>>24) & 0xFF )
+        if Env.PYTHON_V3:
+            return bytes(mem)
+        else:
+            return Env.EMPTY_BYTE.join(map(chr,mem))  
 
