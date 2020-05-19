@@ -106,4 +106,13 @@ class OpenOCD( Instrument.SocketInstrument ):
             cmd = 'reg %s 0x%X'% (reg, val)
         self.writeCommand( cmd )
 
-
+    def program( self, filename, address=None, verify=None, reset=None ):
+        cmd = 'program %s'% filename
+        if address:
+            cmd += ' 0x%X'% address
+        if verify:
+            cmd += ' verify'
+        if reset:
+            cmd += ' reset'
+        self.writeCommand( cmd )
+         

@@ -12,9 +12,12 @@ from . import Register
 from . import Mcush
 from . import AppUtils
 
-from .android import *
-from .misc import *
-from .linkong import *
-from .fluke import *
-from .uni_trend import *
-from .rigol import *
+try:
+    from .android import *
+    from .misc import *
+    from .linkong import *
+    from .fluke import *
+    from .uni_trend import *
+    from .rigol import *
+except ImportError as e:
+    print( 'import error:', e )
