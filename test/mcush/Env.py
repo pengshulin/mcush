@@ -104,8 +104,10 @@ LANGUAGE = getenv( 'LANGUAGE', 'en' ).split(':')[0].lower()
 PYTHON_V3 = bool(version_info > (3, 0))
 if PYTHON_V3:
     EMPTY_BYTE = b''
+    ZERO_BYTE = b'\x00'
 else:
     EMPTY_BYTE = ''
+    ZERO_BYTE = '\x00'
 
 LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
 LOG_FORMAT = '%(asctime)s %(name)s %(levelname)s %(message)s'

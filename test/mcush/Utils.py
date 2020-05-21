@@ -444,32 +444,34 @@ def check_traceback_for_errline(e):
 class FCFS:
     class Signature():
         def __init__( self, info ):
-            self.info = info
+            if isinstance(info, bytes):
+                self.info = info
+            else:
+                self.info = info.encode('utf8')
         def __len__( self ):
             return len(self.info)
-        def __str__( self ):
+        def __bytes__( self ):
             return self.info
-    
+     
     class Node():
         def __init__( self, file ):
             self.file = file
+            self.size = len(file.contents)
             self.offset = 0
-            self.size = file.size
         def __len__( self ):
             return 4
-        def __str__( self ):
+        def __bytes__( self ):
             return pack('H', self.offset) + pack('H', self.size)
-    
+ 
     class File():
         def __init__( self, fname, contents ):
-            self.fname = fname
-            self.contents = contents
-            self.size = len(self.contents)
+            self.fname = fname.encode('utf8')
+            self.contents = contents.encode('utf8')
         def __len__( self ):
-            return len(self.fname.encode('utf8')) + 1 + self.size
-        def __str__( self ):
-            return self.fname.encode('utf8') + '\00' + self.contents
-
+            return len(self.fname) + 1 + len(self.contents)
+        def __bytes__( self ):
+            return self.fname + b'\00' + self.contents
+ 
     def __init__( self ):
         self.reset()
 
@@ -492,7 +494,10 @@ class FCFS:
         if msb:
             uid = list(uid)
             uid.reverse()
-            self.setUID( ''.join(uid) )
+            if Env.PYTHON_V3:
+                self.setUID( bytes(uid) )
+            else:
+                self.setUID( ''.join(uid) )
         else:
             self.setUID( uid )
  
@@ -515,7 +520,10 @@ class FCFS:
             offset_counter += len(f.file)
         self.contents.append( self.Signature('END') )  # end
         output = self.head + self.contents
-        output = ''.join([str(o) for o in output])
+        if Env.PYTHON_V3:
+            output = Env.EMPTY_BYTE.join([bytes(o) for o in output])
+        else:
+            output = Env.EMPTY_BYTE.join([o.__bytes__() for o in output])
         return output
  
 

@@ -569,9 +569,9 @@ class Mcush( Instrument.SerialInstrument ):
     def fcfsProgram( self, mem ):
         # append zero to be 4-bytes alignment
         while len(mem) & 0x3:
-            mem += '\x00'
+            mem += Env.ZERO_BYTE
         # prepare 32bit word list
-        words = [Utils.s2I(mem[4*i:4*(i+1)]) for i in range(len(mem)/4)]
+        words = [Utils.s2I(mem[4*i:4*(i+1)]) for i in range(int(len(mem)/4))]
         offset = 0
         while words:
             cmd = 'fcfs -c program'
