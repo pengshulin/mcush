@@ -1243,28 +1243,37 @@ int ws2812_write(int offset, int dat, int swap_rg)
 }
 
 
-int ws2812_push(int forward, int dat, int swap_rg)
+int ws2812_push(int forward, int dat, int swap_rg, int offset, int length)
 {
     int i;
 
     if( ws2812_buf == NULL )
         return 0;
-    
+   
     /* swtich color between GRB and RGB */
     if( ! swap_rg )
         dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
+    if( length < 0 )
+        length = ws2812_length; 
     if( forward )
     {
-        for( i=ws2812_length-1; i>=1; i-- )
+        if( offset < 0 )
+            offset = 0;
+        if( offset + length > ws2812_length )
+            length = ws2812_length - offset;
+        for( i=offset+length-1; i>offset; i-- )
             *(ws2812_buf + i) = *(ws2812_buf + i - 1);
-        *ws2812_buf = dat;
     }
     else
     {
-        for( i=0; i<ws2812_length-1; i++ )
+        if( offset < 0 )
+            offset = ws2812_length - 1;
+        if( offset - length < 0 )
+            length = offset;
+        for( i=offset-length+1; i<offset; i++ )
             *(ws2812_buf + i) = *(ws2812_buf + i + 1);
-        *(ws2812_buf + ws2812_length - 1) = dat;
     }
+    *(ws2812_buf + offset) = dat;
     return 1;
 }
 
@@ -1325,16 +1334,18 @@ int cmd_ws2812( int argc, char *argv[] )
           'f', "forward", 0, "push forward" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'b', "backward", 0, "push backward" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'F', "fill", 0, "fill pattern" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_data, 0, "data to be written" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     uint8_t init_set=0, deinit_set=0, offset_set=0, write_set=0, length_set=0, grb_set=0, group_set=0;
-    uint8_t pushf_set=0, pushb_set=0;
+    uint8_t pushf_set=0, pushb_set=0, fill_set=0;
     int port=HAL_WS2812_PORT, pin=HAL_WS2812_PIN;
     int length=0, offset=0, group=0;
-    int dat;
+    int dat, i, j;
     char *p2;
     
     mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
@@ -1386,6 +1397,8 @@ int cmd_ws2812( int argc, char *argv[] )
                 pushf_set = 1;
             else if( strcmp( opt.spec->name, "backward" ) == 0 )
                 pushb_set = 1;
+            else if( strcmp( opt.spec->name, "fill" ) == 0 )
+                fill_set = 1;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -1415,7 +1428,15 @@ int cmd_ws2812( int argc, char *argv[] )
     } 
 
     /* update memory */
+    if( fill_set || pushf_set || pushb_set )
+    {
+        if( ! offset_set )
+            offset = -1;
+        if( ! length_set )
+            length = -1;
+    }
     parser.idx++;
+    j = argc - parser.idx;  /* data length */
     while( parser.idx < argc )
     {
         if( ! parse_int(argv[parser.idx], &dat) )
@@ -1425,10 +1446,16 @@ int cmd_ws2812( int argc, char *argv[] )
             hal_ws2812_clr();
             return 1;
         }
-        if( pushf_set )
-            ws2812_push( 1, dat, grb_set );
-        else if( pushb_set )
-            ws2812_push( 0, dat, grb_set );
+        if( pushf_set || pushb_set )
+        {
+            ws2812_push( pushf_set ? 1 : 0, dat, grb_set, offset, length );
+        }
+        else if( fill_set )
+        {
+            for( i=0; (i<length) && (i+offset<ws2812_length); i+=j )
+                ws2812_write( i+offset, dat, grb_set );
+            offset++;
+        }
         else
             ws2812_write( offset++, dat, grb_set );
         parser.idx++;

@@ -29,8 +29,8 @@ class LEDS():
 
     DEFAULT_CMD_LINE_LIMIT = 110
 
-    def write( self, mem, offset=0, push=None ):
-        mem = mem[:self.length-offset]  # ignore the invalid portion
+    def write( self, mem, offset=0, push=None, fill=None, length=None ):
+        #mem = mem[:self.length-offset]  # ignore the invalid portion
         cmd = 'W'
         if offset:
             cmd += ' -o%d'% offset
@@ -41,6 +41,10 @@ class LEDS():
                 cmd += ' -f'
             elif push == 'b':
                 cmd += ' -b'
+        if fill is not None:
+            cmd += ' -F'
+        if length is not None:
+            cmd += ' -l%d'% length
         count_data = 0
         count_argv = len(cmd.split())
         while True:
@@ -70,11 +74,15 @@ class LEDS():
                 count_data = 0
                 count_argv = len(cmd.split())
 
-    def pushf( self, mem, offset=0 ):
-        self.write( mem, offset, 'f' )
+    def pushf( self, mem, offset=None, length=None ):
+        self.write( mem, offset=offset, push='f', length=length )
 
-    def pushb( self, mem, offset=0 ):
-        self.write( mem, offset, 'b' )
+    def pushb( self, mem, offset=None, length=None ):
+        self.write( mem, offset=offset, push='b', length=length )
+
+    def fill( self, mem, offset=None, length=None ):
+        self.write( mem, offset=offset, fill=True, length=length )
+
 
 
 class LEDS8(LEDS):

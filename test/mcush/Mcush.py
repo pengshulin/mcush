@@ -432,7 +432,10 @@ class Mcush( Instrument.SerialInstrument ):
             self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
             self.writeCommand( cmd )
             if b64:
-                buf = base64.encodestring(buf)
+                if Env.PYTHON_V3:
+                    buf = base64.encodebytes(buf).decode('utf8')
+                else:
+                    buf = base64.encodestring(buf)
             buf = buf.splitlines()
             for l in buf:
                 self.writeCommand( l.rstrip() )

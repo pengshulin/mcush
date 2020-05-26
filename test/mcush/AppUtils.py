@@ -41,6 +41,12 @@ class Task():
         self.manual_stop = False
         self.started = True
 
+    def pre_target( self, args ):
+        pass
+
+    def post_target( self, args ):
+        pass
+
     def target( self, args ):
         raise NotImplementedError
 
@@ -78,7 +84,9 @@ class Task():
     def monitor( self ):
         try:
             self.queue.put( ('lock', True) )
+            self.pre_target( self.args )
             self.target( self.args )
+            self.post_target( self.args )
         except Instrument.CommandTimeoutError:
             self.info( _getStr('Stopping') )
             self.info( _getStr('Timeout'), 'error' )

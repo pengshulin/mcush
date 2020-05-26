@@ -344,6 +344,12 @@ msgstr "信息"
 msgid "log"
 msgstr "日志"
 
+msgid "debug"
+msgstr "调试"
+
+msgid "console"
+msgstr "控制台"
+
 msgid "Basic"
 msgstr "基础"
 
