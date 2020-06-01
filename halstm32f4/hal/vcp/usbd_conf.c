@@ -53,6 +53,7 @@
 #include "hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
+#include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -96,62 +97,50 @@ void SystemClock_Config(void);
 
 void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if(pcdHandle->Instance==USB_OTG_FS)
-  {
-  /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
-    /* pull the DM/DP low, disconnect with the host */
-    hal_gpio_set_output( 0, (3<<11) );
-    hal_gpio_clr( 0, (3<<11) );
-    hal_delay_ms( 1 );
-  /* USER CODE END USB_OTG_FS_MspInit 0 */
-  
-    /**USB_OTG_FS GPIO Configuration    
-    PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitTypeDef GPIO_InitStruct;
 
-    /* Peripheral clock enable */
-    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+    if(pcdHandle->Instance==USB_OTG_FS)
+    {
+#if HAL_RESET_VCP_PIN
+        /* pull the DM/DP low, disconnect with the host */
+        hal_gpio_set_output( 0, (3<<11) );
+        hal_gpio_clr( 0, (3<<11) );
+        hal_delay_ms( 1 );
+#endif
+        /* PA11 --- USB_OTG_FS_DM
+           PA12 --- USB_OTG_FS_DP */
+        GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+        GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(OTG_FS_IRQn, 10, 0);
-    HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
-  /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
+        /* Peripheral clock enable */
+        __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
-  /* USER CODE END USB_OTG_FS_MspInit 1 */
-  }
+        /* Peripheral interrupt init */
+        HAL_NVIC_SetPriority(OTG_FS_IRQn, 10, 0);
+        HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+    }
 }
 
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 {
-  if(pcdHandle->Instance==USB_OTG_FS)
-  {
-  /* USER CODE BEGIN USB_OTG_FS_MspDeInit 0 */
+    if(pcdHandle->Instance==USB_OTG_FS)
+    {
+        /* Peripheral clock disable */
+        __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
+    
+        /**USB_OTG_FS GPIO Configuration    
+        PA11     ------> USB_OTG_FS_DM
+        PA12     ------> USB_OTG_FS_DP 
+        */
+        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
 
-  /* USER CODE END USB_OTG_FS_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
-  
-    /**USB_OTG_FS GPIO Configuration    
-    PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
-    */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
-
-    /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
-
-  /* USER CODE BEGIN USB_OTG_FS_MspDeInit 1 */
-
-  /* USER CODE END USB_OTG_FS_MspDeInit 1 */
-  }
+        /* Peripheral interrupt Deinit*/
+        HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+    }
 }
 
 /**
@@ -375,7 +364,7 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
 }
 
 /**
-  * @brief  Starts the low level portion of the device driver. 
+  * @brief  Starts the low level portion of the device driver.
   * @param  pdev: Device handle
   * @retval USBD status
   */
@@ -690,7 +679,6 @@ USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef *pdev, uint8_t ep_addr, u
       usb_status = USBD_FAIL;
     break;
   }
-
   return usb_status;    
 }
 
@@ -788,7 +776,26 @@ void USBD_LL_Delay(uint32_t Delay)
     hal_delay_ms( Delay );
 }
 
+/**
+  * @brief  Static single allocation.
+  * @param  size: Size of allocated memory
+  * @retval None
+  */
+void *USBD_static_malloc(uint32_t size)
+{
+  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+  return mem;
+}
 
+/**
+  * @brief  Dummy memory free
+  * @param  p: Pointer to allocated  memory address
+  * @retval None
+  */
+void USBD_static_free(void *p)
+{
+
+}
 
 /**
 * @brief This function handles USB On The Go FS global interrupt.

@@ -35,7 +35,7 @@
 #include "usb_prop.h"
 #include "usb_desc.h"
 #include "usb_pwr.h"
-
+#include "task_blink.h"
 
 extern QueueHandle_t hal_vcp_queue_rx;
 extern QueueHandle_t hal_vcp_queue_tx;
@@ -58,6 +58,47 @@ uint8_t  USB_Tx_State = 0;
 
 extern LINE_CODING linecoding;
 
+
+/* PA11  --- USB_DM
+   PA12  --- USB_DP 
+*/
+void init_usb_pins_at_startup(void)
+{
+    GPIO_InitTypeDef gpio_init;
+
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR, ENABLE );
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA, ENABLE );
+    gpio_init.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
+    //gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+    gpio_init.GPIO_Mode = GPIO_Mode_IPD;
+    //gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
+    gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+    //gpio_init.GPIO_Speed = GPIO_Speed_10MHz;
+    GPIO_Init( GPIOA, &gpio_init );
+    //GPIO_ResetBits( GPIOA, GPIO_Pin_11 | GPIO_Pin_12 );
+}
+
+
+void init_usb_pins(void)
+{
+    //GPIO_InitTypeDef gpio_init;
+
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
+    //gpio_init.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
+    //gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
+    //gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+    //GPIO_Init( GPIOA, &gpio_init );
+}
+
+
+void hal_pre_init(void)
+{
+    /* prepare DP/DM pins before hal_init */
+    //init_usb_pins_at_startup();
+}
+
+
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 /*******************************************************************************
@@ -68,23 +109,13 @@ extern LINE_CODING linecoding;
 *******************************************************************************/
 void Set_System(void)
 {
-    GPIO_InitTypeDef gpio_init;
-
-    /* PA11  ---> USB_DM
-       PA12  ---> USB_DP 
-    */
 #if HAL_RESET_VCP_PIN
     /* pull DM/DP low to reset */
     hal_gpio_set_output( 0, 3<<11 );  
     hal_gpio_clr( 0, 3<<11 );  
     hal_delay_ms( 5 );
 #endif
-
-    /* set to USB DM/DP */
-    gpio_init.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
-    gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
-    gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init( GPIOA, &gpio_init );
+    init_usb_pins(); 
 }
 
 /*******************************************************************************
@@ -110,6 +141,7 @@ void Set_USBClock(void)
 *******************************************************************************/
 void Enter_LowPowerMode(void)
 {
+    hal_led_clr(3);
     /* Set the device state to suspend */
     bDeviceState = SUSPENDED;
 }
@@ -124,6 +156,7 @@ void Leave_LowPowerMode(void)
 {
     DEVICE_INFO *pInfo = &Device_Info;
 
+    hal_led_set(3);
     /* Set the device state to the correct state */
     if (pInfo->Current_Configuration != 0)
     {
@@ -280,7 +313,7 @@ void USART_To_USB_Send_Data(void)
     while( xQueueReceiveFromISR( hal_vcp_queue_tx, &c, 0 ) == pdTRUE )
     {
         USART_Rx_Buffer[USART_Rx_ptr_in] = c;
-  
+     
         USART_Rx_ptr_in++;
   
         if(USART_Rx_ptr_in == USART_RX_DATA_SIZE)
@@ -289,6 +322,8 @@ void USART_To_USB_Send_Data(void)
         if( USART_Rx_ptr_in == USART_Rx_ptr_out )
             break;
     }
+    //set_errno(USART_Rx_ptr_in);
+    //hal_led_toggle(0);
 }
 
 /*******************************************************************************

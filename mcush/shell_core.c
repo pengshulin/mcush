@@ -850,8 +850,10 @@ fail:
 
 void shell_run( void )
 {
+#if ! SHELL_NO_PROMPT_AT_STARTUP
     shell_write_str("\r\n");
     shell_write_str( shell_get_prompt() );
+#endif
     
     while( 1 )
     {

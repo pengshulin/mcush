@@ -17,8 +17,6 @@ void _test_clk_output(void)
 
 void hal_clk_init(void)
 {  
-    //int timeout;
-
     RCC_DeInit();
     RCC_ClearFlag();
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR, ENABLE);
@@ -40,7 +38,7 @@ void hal_clk_init(void)
         RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);   /* 8M / 1 * 9 = 72M */
     #endif
 #elif HSE_VALUE == 12000000
-        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);   /* 12M / 1 * 6 = 72M */
+        RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_6);   /* 12M / 1 * 6 = 72M */
 #elif HSE_VALUE == 16000000
         RCC_PLLConfig(RCC_PLLSource_HSE_Div2, RCC_PLLMul_9);   /* 16M / 2 * 9 = 72M */
 #else
@@ -55,7 +53,8 @@ void hal_clk_init(void)
         RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_8);   /* 8M / 2 * 9 = 36M */
 #else
         //RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_8);   /* 8M / 2 * 8 = 32M */
-        RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);   /* 8M / 2 * 16 = 64M (Max) */
+        RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_12);   /* 8M / 2 * 12 = 48M */
+        //RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);   /* 8M / 2 * 16 = 64M (Max) */
 #endif
     }
     RCC_PLLCmd(ENABLE);

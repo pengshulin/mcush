@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : usbd_conf.c
-  * @version        : v1.0_Cube
+  * @version        : v2.0_Cube
   * @brief          : This file implements the board support package for the USB device library
   ******************************************************************************
   * This notice applies to any and all portions of this file
@@ -11,7 +11,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2020 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -53,6 +53,7 @@
 #include "hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
+#include "usbd_cdc.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -67,12 +68,8 @@
 
 /* USER CODE END PV */
 
-PCD_HandleTypeDef hpcd_USB_OTG_FS;
-
+PCD_HandleTypeDef hpcd_USB_FS;
 void _Error_Handler(char * file, int line);
-
-/* External functions --------------------------------------------------------*/
-void SystemClock_Config(void);
 
 /* USER CODE BEGIN 0 */
 
@@ -89,6 +86,8 @@ void SystemClock_Config(void);
 
 /* USER CODE END 1 */
 
+void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
+
 /*******************************************************************************
                        LL Driver Callbacks (PCD -> USB Device Library)
 *******************************************************************************/
@@ -96,56 +95,49 @@ void SystemClock_Config(void);
 
 void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
-  GPIO_InitTypeDef GPIO_InitStruct;
-  /* USER CODE BEGIN USB_OTG_FS_MspInit 0 */
-    /* pull the DM/DP low, disconnect with the host */
-    hal_gpio_set_output( 0, (3<<11) );
-    hal_gpio_clr( 0, (3<<11) );
-    hal_delay_ms( 1 );
-  /* USER CODE END USB_OTG_FS_MspInit 0 */
-  
-    /**USB_OTG_FS GPIO Configuration    
-    PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    //GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    if(pcdHandle->Instance==USB)
+    {
+#if HAL_RESET_VCP_PIN
+        GPIO_InitTypeDef GPIO_InitStruct;
+        /* pull the DM/DP low, disconnect with the host */
+        hal_gpio_set_output( 0, (3<<11) );
+        hal_gpio_clr( 0, (3<<11) );
+        hal_delay_ms( 5 );
+        /* PA11 --- USB_FS_DM
+           PA12 --- USB_FS_DP */
+        GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#endif
 
-    /* Peripheral clock enable */
-    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_OTGFS);
+        /* Peripheral clock enable */
+        __HAL_RCC_USB_CLK_ENABLE();
 
-    /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 10, 0);
-    HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
-  /* USER CODE BEGIN USB_OTG_FS_MspInit 1 */
-
-  /* USER CODE END USB_OTG_FS_MspInit 1 */
+        /* Peripheral interrupt init */
+        HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 10, 0);
+        HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+    }
 }
 
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 {
-  /* USER CODE BEGIN USB_OTG_FS_MspDeInit 0 */
+  if(pcdHandle->Instance==USB)
+  {
+  /* USER CODE BEGIN USB_MspDeInit 0 */
 
-  /* USER CODE END USB_OTG_FS_MspDeInit 0 */
+  /* USER CODE END USB_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
-  
-    /**USB_OTG_FS GPIO Configuration    
-    PA11     ------> USB_OTG_FS_DM
-    PA12     ------> USB_OTG_FS_DP 
-    */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
+    __HAL_RCC_USB_CLK_DISABLE();
 
     /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+    HAL_NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
 
-  /* USER CODE BEGIN USB_OTG_FS_MspDeInit 1 */
+  /* USER CODE BEGIN USB_MspDeInit 1 */
 
-  /* USER CODE END USB_OTG_FS_MspDeInit 1 */
+  /* USER CODE END USB_MspDeInit 1 */
+  }
 }
 
 /**
@@ -202,9 +194,6 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
   /* Set USB current speed. */
   switch (hpcd->Init.speed)
   {
-  case PCD_SPEED_HIGH:
-    speed = USBD_SPEED_HIGH;
-    break;
   case PCD_SPEED_FULL:
     speed = USBD_SPEED_FULL;
     break;
@@ -229,7 +218,6 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 {
   /* Inform USB library that core enters in suspend Mode. */
   USBD_LL_Suspend((USBD_HandleTypeDef*)hpcd->pData);
-  __HAL_PCD_GATE_PHYCLOCK(hpcd);
   /* Enter in STOP mode. */
   /* USER CODE BEGIN 2 */
   if (hpcd->Init.low_power_enable)
@@ -308,31 +296,27 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
 {
   /* Init USB Ip. */
-  if (pdev->id == DEVICE_FS) {
   /* Link the driver to the stack. */
-  hpcd_USB_OTG_FS.pData = pdev;
-  pdev->pData = &hpcd_USB_OTG_FS;
-  
-  hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
-  hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
-  hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
-  hpcd_USB_OTG_FS.Init.dma_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.ep0_mps = DEP0CTL_MPS_64;
-  hpcd_USB_OTG_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
-  hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.lpm_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.vbus_sensing_enable = DISABLE;
-  hpcd_USB_OTG_FS.Init.use_dedicated_ep1 = DISABLE;
-  if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+  hpcd_USB_FS.pData = pdev;
+  pdev->pData = &hpcd_USB_FS;
+
+  hpcd_USB_FS.Instance = USB;
+  hpcd_USB_FS.Init.dev_endpoints = 8;
+  hpcd_USB_FS.Init.speed = PCD_SPEED_FULL;
+  hpcd_USB_FS.Init.ep0_mps = DEP0CTL_MPS_8;
+  hpcd_USB_FS.Init.low_power_enable = DISABLE;
+  hpcd_USB_FS.Init.lpm_enable = DISABLE;
+  hpcd_USB_FS.Init.battery_charging_enable = DISABLE;
+  if (HAL_PCD_Init(&hpcd_USB_FS) != HAL_OK)
   {
      halt("usb_init");//_Error_Handler(__FILE__, __LINE__);
   }
 
-  HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_FS, 0x80);
-  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 0, 0x40);
-  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 1, 0x80);
-  }
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0xC0);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x01 , PCD_SNG_BUF, 0x110);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , PCD_SNG_BUF, 0x100);
   return USBD_OK;
 }
 
@@ -369,7 +353,7 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
 }
 
 /**
-  * @brief  Starts the low level portion of the device driver. 
+  * @brief  Starts the low level portion of the device driver.
   * @param  pdev: Device handle
   * @retval USBD status
   */
@@ -733,46 +717,8 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
   return HAL_PCD_EP_GetRxCount((PCD_HandleTypeDef*) pdev->pData, ep_addr);
 }
 
-#if (USBD_LPM_ENABLED == 1)
 /**
-  * @brief  Send LPM message to user layer
-  * @param  hpcd: PCD handle
-  * @param  msg: LPM message
-  * @retval None
-  */
-void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg)
-{
-  switch (msg)
-  {
-  case PCD_LPM_L0_ACTIVE:
-    if (hpcd->Init.low_power_enable)
-    {
-      SystemClock_Config();
-      
-      /* Reset SLEEPDEEP bit of Cortex System Control Register. */
-      SCB->SCR &= (uint32_t)~((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-    }
-    __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
-    USBD_LL_Resume(hpcd->pData);
-    break;
-    
-  case PCD_LPM_L1_ACTIVE:
-    __HAL_PCD_GATE_PHYCLOCK(hpcd);
-    USBD_LL_Suspend(hpcd->pData);
-    
-    /* Enter in STOP mode. */
-    if (hpcd->Init.low_power_enable)
-    {   
-      /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
-      SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-    }
-    break;   
-  }
-}
-#endif /* (USBD_LPM_ENABLED == 1) */
-
-/**
-  * @brief  Delays routine for the USB Device Library.
+  * @brief  Delays routine for the USB device library.
   * @param  Delay: Delay in ms
   * @retval None
   */
@@ -781,18 +727,69 @@ void USBD_LL_Delay(uint32_t Delay)
     hal_delay_ms( Delay );
 }
 
-
+/**
+  * @brief  Static single allocation.
+  * @param  size: Size of allocated memory
+  * @retval None
+  */
+void *USBD_static_malloc(uint32_t size)
+{
+  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+  return mem;
+}
 
 /**
-* @brief This function handles USB On The Go FS global interrupt.
-*/
-void OTG_FS_IRQHandler(void)
+  * @brief  Dummy memory free
+  * @param  p: Pointer to allocated  memory address
+  * @retval None
+  */
+void USBD_static_free(void *p)
 {
-    HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
-    portEND_SWITCHING_ISR( pdTRUE );
+
+}
+
+/**
+  * @brief Software Device Connection
+  * @param hpcd: PCD handle
+  * @param state: Connection state (0: disconnected / 1: connected)
+  * @retval None
+  */
+void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
+{
+  /* USER CODE BEGIN 6 */
+  if (state == 1)
+  {
+    /* Configure Low connection state. */
+
+  }
+  else
+  {
+    /* Configure High connection state. */
+
+  }
+  /* USER CODE END 6 */
 }
 
 
+/**
+* @brief This function handles USB low priority or CAN RX0 interrupts.
+*/
+void USB_LP_CAN1_RX0_IRQHandler(void)
+{
+  /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 0 */
+
+  /* USER CODE END USB_LP_CAN1_RX0_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_FS);
+    portEND_SWITCHING_ISR( pdTRUE );
+  /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 1 */
+
+  /* USER CODE END USB_LP_CAN1_RX0_IRQn 1 */
+}
+
+
+void USBWakeUp_IRQHandler(void)
+{
+}
 
 
 

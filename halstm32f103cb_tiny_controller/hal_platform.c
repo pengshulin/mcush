@@ -4,7 +4,6 @@
 /* platform related reset */
 void hal_platform_reset(void)
 {
-
 }
 
 

@@ -31,6 +31,7 @@
 #include "usb_conf.h"
 #include "usb_pwr.h"
 #include "hw_config.h"
+#include "hal.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -130,6 +131,7 @@ void Suspend(void)
 	/* suspend preparation */
 	/* ... */
 	
+    hal_led_toggle(2);
 	/*Store CNTR value */
 	wCNTR = _GetCNTR();  
 

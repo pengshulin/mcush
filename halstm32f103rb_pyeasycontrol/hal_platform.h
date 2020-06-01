@@ -22,17 +22,28 @@ void hal_beep_off( void );
    ----------------------------- 
 */
 #define HAL_BEEP_DEFINE 
-#define HAL_BEEP_RCC_GPIO_ENABLE_CMD    RCC_APB2PeriphClockCmd
-#define HAL_BEEP_RCC_GPIO_ENABLE_BIT    RCC_APB2Periph_GPIOA
-#define HAL_BEEP_RCC_TIMER_ENABLE_CMD   RCC_APB1PeriphClockCmd
-#define HAL_BEEP_RCC_TIMER_ENABLE_BIT   RCC_APB1Periph_TIM2
+//(hal)
+#define HAL_BEEP_RCC_GPIO_ENABLE_CMD    LL_APB2_GRP1_EnableClock
+#define HAL_BEEP_RCC_GPIO_ENABLE_BIT    LL_APB1_GRP1_PERIPH_GPIOA
+#define HAL_BEEP_RCC_TIMER_ENABLE_CMD   LL_APB1_GRP1_EnableClock
+#define HAL_BEEP_RCC_TIMER_ENABLE_BIT   LL_APB1_GRP1_PERIPH_TIM2
 #define HAL_BEEP_TIMER                  TIM2
-#define HAL_BEEP_TIMER_OC_INIT_CMD      TIM_OC3Init
-#define HAL_BEEP_TIMER_OC_SETCMP_CMD    TIM_SetCompare3
+#define HAL_BEEP_TIMER_CHANNEL          LL_TIM_CHANNEL_CH3
+#define HAL_BEEP_TIMER_OC_SETCMP_CMD    LL_TIM_OC_SetCompareCH3
 #define HAL_BEEP_PORT                   GPIOA
-#define HAL_BEEP_PIN                    GPIO_Pin_2
-#define HAL_BEEP_PINSRC                 GPIO_PinSource2
-#define HAL_BEEP_AF                     GPIO_AF_TIMER2
+#define HAL_BEEP_PIN                    GPIO_PIN_2
+//(std)
+//#define HAL_BEEP_RCC_GPIO_ENABLE_CMD    RCC_APB2PeriphClockCmd
+//#define HAL_BEEP_RCC_GPIO_ENABLE_BIT    RCC_APB2Periph_GPIOA
+//#define HAL_BEEP_RCC_TIMER_ENABLE_CMD   RCC_APB1PeriphClockCmd
+//#define HAL_BEEP_RCC_TIMER_ENABLE_BIT   RCC_APB1Periph_TIM2
+//#define HAL_BEEP_TIMER                  TIM2
+//#define HAL_BEEP_TIMER_OC_INIT_CMD      TIM_OC3Init
+//#define HAL_BEEP_TIMER_OC_SETCMP_CMD    TIM_SetCompare3
+//#define HAL_BEEP_PORT                   GPIOA
+//#define HAL_BEEP_PIN                    GPIO_Pin_2
+//#define HAL_BEEP_PINSRC                 GPIO_PinSource2
+//#define HAL_BEEP_AF                     GPIO_AF_TIMER2
  
 
 #define HAL_POWER_PORT  1

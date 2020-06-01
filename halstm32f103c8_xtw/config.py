@@ -1,6 +1,14 @@
 from Arm.Stm32 import *
 
-env = Stm32f1md( use_hal_driver=hal_config.use_hal_driver )
+if hal_config.use_hal_driver is None:
+    hal_config.use_hal_driver = True  # use hal_driver as default
+if hal_config.use_vcp is None:
+    hal_config.use_vcp = True  # use vcp as default
+
+if hal_config.use_hal_driver:
+    env = Stm32f103xb( use_hal_driver=True )
+else:
+    env = Stm32f1md( use_hal_driver=False )
 env.setLinkfile( '/ld/stm32f103x8_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
@@ -24,10 +32,16 @@ if hal_config.use_vcp:
         env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
     else:
         env.appendDriver(STM32_USB_DEVICE_CDC_Driver())
+    #env.appendDefineFlags( ['HAL_RESET_VCP_PIN=1'] )
 else:
     hal_config.paths += [hal_dir+'/uart']
     hal_config.sources += [hal_dir+'/uart/*.c']
 
+
+hal_config.freertos_heap = 4  # use heap_4.c instead of newlib
+#env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=8*1024'] )
+env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=7*1024'] )
+#env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=4*1024'] )
 
 
 
@@ -37,6 +51,8 @@ else:
     env.appendDefineFlags( ['BLACK_BOARD'] )
 
 env.appendDefineFlags( [
+    'configSUPPORT_STATIC_ALLOCATION=1',
+    'MCUSH_VFS_STATISTICS=0',
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
     #'USE_CMD_SCPI_RST=0',
@@ -50,6 +66,7 @@ env.appendDefineFlags( [
     'USE_CMD_ECHO=0',
     'USE_CMD_UPTIME=0',
     'USE_CMD_SYSTEM=0',
+    'USE_CMD_CAT_WRITE=0',
     'USE_CMD_RM=0',
     'USE_CMD_RENAME=0',
     'USE_CMD_CP=0',
@@ -60,7 +77,6 @@ env.appendDefineFlags( [
     'configUSE_TIMERS=0',
     'configUSE_MUTEX=0',
     'configCHECK_FOR_STACK_OVERFLOW=0',
-    'configTOTAL_HEAP_SIZE=10240',
     'configUSE_TRACE_FACILITY=0',
     #'MCUSH_STACK_SIZE=10240',
     'SHELL_QUOTE_PARSE_ENABLE=0',

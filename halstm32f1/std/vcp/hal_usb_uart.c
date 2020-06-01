@@ -27,7 +27,6 @@ uint8_t hal_vcp_queue_tx_buffer[HAL_VCP_QUEUE_TX_LEN];
 
 signed portBASE_TYPE hal_vcp_putc( char c, TickType_t xBlockTime )
 {
-
     if( xQueueSend( hal_vcp_queue_tx, &c, xBlockTime ) == pdPASS )
     {
         return pdPASS;

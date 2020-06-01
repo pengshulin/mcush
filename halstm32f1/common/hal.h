@@ -103,7 +103,7 @@ int hal_adc_get_num( void );
 int hal_adc_in_use( void );
 float hal_adc_get( int index );
 
-#if USE_CMD_WS2812
+#if SUPPORT_WS2812
 int hal_ws2812_init(int port, int pin);
 void hal_ws2812_deinit(void);
 void hal_ws2812_clr(void);

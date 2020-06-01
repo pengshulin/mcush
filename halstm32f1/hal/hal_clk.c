@@ -22,9 +22,8 @@ void hal_clk_init(void)
     /* SysTick_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 
-    /* DISABLE: JTAG-DP Disabled and SW-DP Disabled */
-    //__HAL_AFIO_REMAP_SWJ_DISABLE();
-
+    /* Disable JTAG, use SWJ only */
+    __HAL_AFIO_REMAP_SWJ_NOJTAG();
 
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
 
@@ -32,6 +31,7 @@ void hal_clk_init(void)
     {
         while(1);  // Error_Handler();  
     }
+    LL_RCC_HSE_EnableCSS();
     LL_RCC_HSE_Enable();
 
     /* Wait till HSE is ready */
@@ -39,7 +39,16 @@ void hal_clk_init(void)
     {
       
     }
-    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
+
+#if HSE_VALUE == 8000000
+    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);   /* 8M / 1 * 9 = 72M */
+#elif HSE_VALUE == 12000000
+    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_6);   /* 12M / 1 * 6 = 72M */
+#elif HSE_VALUE == 16000000
+    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_2, LL_RCC_PLL_MUL_9);   /* 16M / 2 * 9 = 72M */
+#else
+    #error "HSE_VALUE not defined"
+#endif
 
     LL_RCC_PLL_Enable();
 

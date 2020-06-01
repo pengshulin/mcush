@@ -1174,7 +1174,7 @@ int cmd_can( int argc, char *argv[] )
 #endif
 
 
-#if USE_CMD_WS2812
+#if SUPPORT_WS2812
 #ifndef HAL_WS2812_PORT
 #define HAL_WS2812_PORT  0
 #endif
@@ -1311,6 +1311,7 @@ void ws2812_flush(void)
 }
 
 
+#if USE_CMD_WS2812
 int cmd_ws2812( int argc, char *argv[] )
 {
     static const mcush_opt_spec const opt_spec[] = {
@@ -1472,4 +1473,5 @@ err_port:
     shell_write_err( shell_str_port_bit );
     return -1;
 }
+#endif
 #endif

@@ -1,4 +1,4 @@
-//* MCUSH designed by Peng Shulin, all rights reserved. */
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "usbd_def.h"
 #include "usbd_core.h"

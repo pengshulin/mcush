@@ -46,11 +46,18 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];  /* for heap_4 */
 TaskHandle_t  task_mcush;
 static uint8_t mcush_inited = 0;
 
+
+__attribute__((weak)) void hal_pre_init(void)
+{
+}
+
+
 void mcush_init(void)
 {
     if( mcush_inited )
         return;
 
+    hal_pre_init();
     if( !hal_init() )
         halt("hal init");
 

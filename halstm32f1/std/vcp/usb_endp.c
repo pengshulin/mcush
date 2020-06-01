@@ -128,7 +128,8 @@ void EP3_OUT_Callback(void)
 void SOF_Callback(void)
 {
   static uint32_t FrameCount = 0;
-  
+     
+  hal_led_toggle(0); 
   if(bDeviceState == CONFIGURED)
   {
     if (FrameCount++ == VCOMPORT_IN_FRAME_INTERVAL)

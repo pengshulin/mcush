@@ -101,7 +101,7 @@ void hal_gpio_toggle(int port, int bits)
 {
     int reset, set;
         
-    reset = LL_GPIO_ReadOututPort((GPIO_TypeDef *)ports[port]) & bits;
+    reset = LL_GPIO_ReadOutputPort((GPIO_TypeDef *)ports[port]) & bits;
     set = ~reset & bits;
     
     if( set )
