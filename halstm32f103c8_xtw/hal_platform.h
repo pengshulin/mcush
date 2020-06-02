@@ -19,7 +19,7 @@
 
 
 #ifndef USE_CMD_SGPIO
-    #define USE_CMD_SGPIO   1
+    #define USE_CMD_SGPIO   0
 #endif
 
 

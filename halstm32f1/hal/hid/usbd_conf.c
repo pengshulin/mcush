@@ -50,10 +50,11 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "mcush.h"
-#include "hal.h"
+#include "stm32f1xx.h"
+#include "stm32f1xx_hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
-#include "usbd_cdc.h"
+#include "usbd_hid.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -123,21 +124,14 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 {
-  if(pcdHandle->Instance==USB)
-  {
-  /* USER CODE BEGIN USB_MspDeInit 0 */
+    if(pcdHandle->Instance==USB)
+    {
+        /* Peripheral clock disable */
+        __HAL_RCC_USB_CLK_DISABLE();
 
-  /* USER CODE END USB_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_USB_CLK_DISABLE();
-
-    /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
-
-  /* USER CODE BEGIN USB_MspDeInit 1 */
-
-  /* USER CODE END USB_MspDeInit 1 */
-  }
+        /* Peripheral interrupt Deinit*/
+        HAL_NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
+    }
 }
 
 /**
@@ -309,14 +303,12 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_FS.Init.battery_charging_enable = DISABLE;
   if (HAL_PCD_Init(&hpcd_USB_FS) != HAL_OK)
   {
-     halt("usb_init");//_Error_Handler(__FILE__, __LINE__);
+    halt("usb_hid_init");  //_Error_Handler(__FILE__, __LINE__);
   }
 
   HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
   HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0xC0);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x01 , PCD_SNG_BUF, 0x110);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , PCD_SNG_BUF, 0x100);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0x100);
   return USBD_OK;
 }
 
@@ -734,7 +726,7 @@ void USBD_LL_Delay(uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+  static uint32_t mem[(sizeof(USBD_HID_HandleTypeDef)/4)+1];/* On 32-bit boundary */
   return mem;
 }
 
@@ -776,19 +768,9 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 */
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
-  /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 0 */
-
-  /* USER CODE END USB_LP_CAN1_RX0_IRQn 0 */
     HAL_PCD_IRQHandler(&hpcd_USB_FS);
-    portEND_SWITCHING_ISR( pdTRUE );
-  /* USER CODE BEGIN USB_LP_CAN1_RX0_IRQn 1 */
-
-  /* USER CODE END USB_LP_CAN1_RX0_IRQn 1 */
-}
-
-
-void USBWakeUp_IRQHandler(void)
-{
+    if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
+        portEND_SWITCHING_ISR( pdTRUE );
 }
 
 

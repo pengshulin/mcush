@@ -1,9 +1,9 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 /**
   ******************************************************************************
-  * @file           : usbd_conf.h
-  * @version        : v1.0_Cube
-  * @brief          : Header for usbd_conf.c file.
+  * @file           : usbd_desc.h
+  * @version        : v2.0_Cube
+  * @brief          : Header for usbd_desc.c file.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -11,7 +11,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2020 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -49,142 +49,92 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_CONF__H__
-#define __USBD_CONF__H__
+#ifndef __USBD_DESC__H__
+#define __USBD_DESC__H__
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "hal.h"
-//#include "stm32f4xx.h"
-//#include "stm32f4xx_hal.h"
+#include "usbd_def.h"
 
 /* USER CODE BEGIN INCLUDE */
 
 /* USER CODE END INCLUDE */
 
-/** @addtogroup USBD_OTG_DRIVER
-  * @brief Driver for Usb device.
+/** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
 
-/** @defgroup USBD_CONF USBD_CONF
-  * @brief Configuration file for Usb otg low level driver.
+/** @defgroup USBD_DESC USBD_DESC
+  * @brief Usb device descriptors module.
   * @{
   */
 
-/** @defgroup USBD_CONF_Exported_Variables USBD_CONF_Exported_Variables
-  * @brief Public variables.
+/** @defgroup USBD_DESC_Exported_Defines USBD_DESC_Exported_Defines
+  * @brief Defines.
   * @{
   */
+
+/* USER CODE BEGIN EXPORTED_DEFINES */
+
+/* USER CODE END EXPORTED_DEFINES */
 
 /**
   * @}
   */
 
-/** @defgroup USBD_CONF_Exported_Defines USBD_CONF_Exported_Defines
-  * @brief Defines for configuration of the Usb device.
-  * @{
-  */
-
-/*---------- -----------*/
-#define USBD_MAX_NUM_INTERFACES     1
-/*---------- -----------*/
-#define USBD_MAX_NUM_CONFIGURATION     1
-/*---------- -----------*/
-#define USBD_MAX_STR_DESC_SIZ     512
-/*---------- -----------*/
-#define USBD_SUPPORT_USER_STRING     0
-/*---------- -----------*/
-#define USBD_DEBUG_LEVEL     0
-/*---------- -----------*/
-#define USBD_LPM_ENABLED     0
-/*---------- -----------*/
-#define USBD_SELF_POWERED     1
-
-/****************************************/
-/* #define for FS and HS identification */
-#define DEVICE_FS           0
-#define DEVICE_HS           1
-
-/**
-  * @}
-  */
-
-/** @defgroup USBD_CONF_Exported_Macros USBD_CONF_Exported_Macros
-  * @brief Aliases.
-  * @{
-  */
-
-/* Memory management macros */
-
-/** Alias for memory allocation. */
-extern void *USBD_static_malloc(uint32_t size);
-#define USBD_malloc         USBD_static_malloc
-
-/** Alias for memory release. */
-extern void USBD_static_free(void *p);
-#define USBD_free           USBD_static_free
-
-/** Alias for memory set. */
-#define USBD_memset         memset
-
-/** Alias for memory copy. */
-#define USBD_memcpy         memcpy
-
-/** Alias for delay. */
-#define USBD_Delay          HAL_Delay
-
-/* DEBUG macros */
-
-#if (USBD_DEBUG_LEVEL > 0)
-#define USBD_UsrLog(...)    printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_UsrLog(...)
-#endif
-
-#if (USBD_DEBUG_LEVEL > 1)
-
-#define USBD_ErrLog(...)    printf("ERROR: ") ;\
-                            printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_ErrLog(...)
-#endif
-
-#if (USBD_DEBUG_LEVEL > 2)
-#define USBD_DbgLog(...)    printf("DEBUG : ") ;\
-                            printf(__VA_ARGS__);\
-                            printf("\n");
-#else
-#define USBD_DbgLog(...)
-#endif
-
-/**
-  * @}
-  */
-
-/** @defgroup USBD_CONF_Exported_Types USBD_CONF_Exported_Types
+/** @defgroup USBD_DESC_Exported_TypesDefinitions USBD_DESC_Exported_TypesDefinitions
   * @brief Types.
   * @{
   */
 
+/* USER CODE BEGIN EXPORTED_TYPES */
+
+/* USER CODE END EXPORTED_TYPES */
+
 /**
   * @}
   */
 
-/** @defgroup USBD_CONF_Exported_FunctionsPrototype USBD_CONF_Exported_FunctionsPrototype
-  * @brief Declaration of public functions for Usb device.
+/** @defgroup USBD_DESC_Exported_Macros USBD_DESC_Exported_Macros
+  * @brief Aliases.
   * @{
   */
 
-/* Exported functions -------------------------------------------------------*/
+/* USER CODE BEGIN EXPORTED_MACRO */
+
+/* USER CODE END EXPORTED_MACRO */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DESC_Exported_Variables USBD_DESC_Exported_Variables
+  * @brief Public variables.
+  * @{
+  */
+
+/** Descriptor for the Usb device. */
+extern USBD_DescriptorsTypeDef FS_Desc;
+
+/* USER CODE BEGIN EXPORTED_VARIABLES */
+
+/* USER CODE END EXPORTED_VARIABLES */
+
+/**
+  * @}
+  */
+
+/** @defgroup USBD_DESC_Exported_FunctionsPrototype USBD_DESC_Exported_FunctionsPrototype
+  * @brief Public functions declaration.
+  * @{
+  */
+
+/* USER CODE BEGIN EXPORTED_FUNCTIONS */
+
+/* USER CODE END EXPORTED_FUNCTIONS */
 
 /**
   * @}
@@ -202,6 +152,6 @@ extern void USBD_static_free(void *p);
 }
 #endif
 
-#endif /* __USBD_CONF__H__ */
+#endif /* __USBD_DESC__H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

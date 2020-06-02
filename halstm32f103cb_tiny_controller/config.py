@@ -27,6 +27,7 @@ if hal_config.use_vcp:
         env.appendDriver(STM32_USB_FS_Driver() )
         env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
     #env.appendDefineFlags( ['HAL_RESET_VCP_PIN=1'] )
+    env.appendDefineFlags( ['SHELL_NO_PROMPT_AT_STARTUP=1'] )
 else:
     hal_config.paths += [hal_dir+'/uart']
     hal_config.sources += [hal_dir+'/uart/*.c']
@@ -37,7 +38,6 @@ hal_config.freertos_heap = 4  # use heap_4.c instead of newlib
 env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=4*1024'] )
 
 env.appendDefineFlags( [
-    'SHELL_NO_PROMPT_AT_STARTUP=1',
     'configSUPPORT_STATIC_ALLOCATION=1',
     'MCUSH_VFS_STATISTICS=0',
     #'MCUSH_STACK_SIZE=3*1024',

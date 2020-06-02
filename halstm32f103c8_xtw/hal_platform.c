@@ -19,5 +19,8 @@ void hal_platform_reset(void)
 /* platform related init */
 void hal_platform_init(void)
 {
-
+#if SUPPORT_HID
+    extern int hal_hid_init(void);
+    hal_hid_init();
+#endif
 }

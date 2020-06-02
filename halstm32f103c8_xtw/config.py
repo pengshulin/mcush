@@ -37,6 +37,13 @@ else:
     hal_config.paths += [hal_dir+'/uart']
     hal_config.sources += [hal_dir+'/uart/*.c']
 
+if hal_config.use_hid:
+    if hal_config.use_hal_driver:
+        hal_config.paths += [hal_dir+'/hid']
+        hal_config.sources += [hal_dir+'/hid/*.c']
+        env.appendDriver(STM32_USB_DEVICE_HID_Driver())
+        env.appendDefineFlags( ['SUPPORT_HID=1'] )
+        env.appendDefineFlags( ['USE_ST_VID_PID=1'] )
 
 hal_config.freertos_heap = 4  # use heap_4.c instead of newlib
 #env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=8*1024'] )
@@ -45,10 +52,10 @@ env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=7*1024'] )
 
 
 
-if env.getBoolEnv('BLUE_BOARD'):
-    env.appendDefineFlags( ['BLUE_BOARD'] )
-else:
+if env.getBoolEnv('BLACK_BOARD'):
     env.appendDefineFlags( ['BLACK_BOARD'] )
+else:
+    env.appendDefineFlags( ['BLUE_BOARD'] )
 
 env.appendDefineFlags( [
     'configSUPPORT_STATIC_ALLOCATION=1',
@@ -65,7 +72,9 @@ env.appendDefineFlags( [
     'USE_CMD_WDG=0',
     'USE_CMD_ECHO=0',
     'USE_CMD_UPTIME=0',
-    'USE_CMD_SYSTEM=0',
+    #'USE_CMD_SYSTEM=0',
+    'USE_CMD_SYSTEM_KERNEL=0',
+    'USE_CMD_SYSTEM_IDLE=0',
     'USE_CMD_CAT_WRITE=0',
     'USE_CMD_RM=0',
     'USE_CMD_RENAME=0',
@@ -73,11 +82,11 @@ env.appendDefineFlags( [
     'USE_CMD_LOAD=0',
     'USE_CMD_MAPI=0',
     'USE_CMD_MKBUF=0',
-    'MCUSH_FREERTOS_PEEK_API=0',
     'configUSE_TIMERS=0',
     'configUSE_MUTEX=0',
     'configCHECK_FOR_STACK_OVERFLOW=0',
-    'configUSE_TRACE_FACILITY=0',
+    'MCUSH_FREERTOS_PEEK_API=1',
+    'configUSE_TRACE_FACILITY=1',
     #'MCUSH_STACK_SIZE=10240',
     'SHELL_QUOTE_PARSE_ENABLE=0',
     'SUSPEND_ENABLED=0',
