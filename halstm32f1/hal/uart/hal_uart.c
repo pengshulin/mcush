@@ -28,7 +28,6 @@
     #define HAL_UARTx_TX_PIN                GPIO_PIN_9
     #define HAL_UARTx_RX_PORT               GPIOA
     #define HAL_UARTx_RX_PIN                GPIO_PIN_10
-    #define HAL_UARTx_AF                    L_GPIO_AF_7
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
     #define HAL_UARTx_BAUDRATE              9600
@@ -60,8 +59,8 @@ int hal_uart_init( uint32_t baudrate )
     GPIO_InitTypeDef gpio_init;
     LL_USART_InitTypeDef usart_init;
 
-    hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
-    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
+    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
     if( !hal_uart_queue_rx || !hal_uart_queue_tx )
         return 0;
 

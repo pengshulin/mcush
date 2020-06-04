@@ -1,1 +1,0 @@
-../../halstm32f1/hal/hal_chip.h

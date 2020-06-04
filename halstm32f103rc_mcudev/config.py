@@ -1,10 +1,15 @@
 from Arm.Stm32 import *
-env = Stm32f103xb( use_hal_driver=hal_config.use_hal_driver )
+
+if hal_config.use_hal_driver is None:
+    hal_config.use_hal_driver = True  # use hal_driver as default
+if hal_config.use_vcp is None:
+    hal_config.use_vcp = True  # use vcp as default
+if hal_config.use_hal_driver:
+    env = Stm32f103xb( use_hal_driver=True )
+else:
+    env = Stm32f1md( use_hal_driver=False )
 env.setLinkfile( '/ld/stm32f103xc_min.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
-
-if env.getBoolEnv('USE_UART'):
-    hal_config.use_vcp = False  # use PA9/10 UART1
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']
@@ -12,16 +17,17 @@ hal_dir = 'hal' if hal_config.use_hal_driver else 'std'
 hal_config.paths += [hal_dir]
 hal_config.sources += [hal_dir+'/*.c']
 
-if hal_config.use_vcp is None:
-    hal_config.use_vcp = True  # use vcp as default
-
+if env.getBoolEnv('USE_UART'):
+    hal_config.use_vcp = False  # use UART
 if hal_config.use_vcp:
     hal_config.paths += [hal_dir+'/vcp']
     hal_config.sources += [hal_dir+'/vcp/*.c']
     if hal_dir == 'std':
         env.appendDriver(STM32_USB_FS_Driver() )
+        env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
     else:
         env.appendDriver(STM32_USB_DEVICE_CDC_Driver())
+    #env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
 else:
     hal_config.paths += [hal_dir+'/uart']
     hal_config.sources += [hal_dir+'/uart/*.c']

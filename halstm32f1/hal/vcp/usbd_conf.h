@@ -109,8 +109,8 @@
 
 /****************************************/
 /* #define for FS and HS identification */
-#define DEVICE_FS 		0
-#define DEVICE_HS 		1
+#define DEVICE_FS           0
+#define DEVICE_HS           1
 
 /**
   * @}
@@ -124,10 +124,12 @@
 /* Memory management macros */
 
 /** Alias for memory allocation. */
-#define USBD_malloc         malloc
+extern void *USBD_static_malloc(uint32_t size);
+#define USBD_malloc         USBD_static_malloc
 
 /** Alias for memory release. */
-#define USBD_free           free
+extern void USBD_static_free(void *p);
+#define USBD_free           USBD_static_free
 
 /** Alias for memory set. */
 #define USBD_memset         memset
