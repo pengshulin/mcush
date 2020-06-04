@@ -22,7 +22,7 @@ if hal_config.use_vcp:
     hal_config.paths += [hal_dir+'/vcp']
     hal_config.sources += [hal_dir+'/vcp/*.c']
     if hal_dir == 'std':
-        env.appendDefineFlags( ['HAL_RESET_VCP_PIN=1'] )
+        env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
         env.appendDriver(STM32_USB_FS_Driver() )
     else:
         env.appendDriver(STM32_USB_DEVICE_CDC_Driver())

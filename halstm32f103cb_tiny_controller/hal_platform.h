@@ -47,6 +47,6 @@ float hal_adc_get( int index );
 void hal_power_set(int enable);
 int hal_is_power_set(void);
 
-//#define HAL_RESET_VCP_PIN  1
+//#define HAL_RESET_USB_PINS  1
 
 #endif

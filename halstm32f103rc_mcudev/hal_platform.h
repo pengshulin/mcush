@@ -66,7 +66,7 @@ int hal_is_power_set(void);
 #define sFLASH_CS_GPIO_CLK                   RCC_AHB1Periph_GPIOB
 
 
-#define HAL_RESET_VCP_PIN  1
+#define HAL_RESET_USB_PINS  1
 
 
 #endif

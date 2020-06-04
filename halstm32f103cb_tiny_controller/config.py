@@ -26,7 +26,7 @@ if hal_config.use_vcp:
     else:
         env.appendDriver(STM32_USB_FS_Driver() )
         env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
-    #env.appendDefineFlags( ['HAL_RESET_VCP_PIN=1'] )
+    #env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
     env.appendDefineFlags( ['SHELL_NO_PROMPT_AT_STARTUP=1'] )
 else:
     hal_config.paths += [hal_dir+'/uart']

@@ -32,7 +32,7 @@ if hal_config.use_vcp:
         env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
     else:
         env.appendDriver(STM32_USB_DEVICE_CDC_Driver())
-    #env.appendDefineFlags( ['HAL_RESET_VCP_PIN=1'] )
+    #env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
 else:
     hal_config.paths += [hal_dir+'/uart']
     hal_config.sources += [hal_dir+'/uart/*.c']
@@ -44,6 +44,7 @@ if hal_config.use_hid:
         env.appendDriver(STM32_USB_DEVICE_HID_Driver())
         env.appendDefineFlags( ['SUPPORT_HID=1'] )
         env.appendDefineFlags( ['USE_ST_VID_PID=1'] )
+        env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
 
 hal_config.freertos_heap = 4  # use heap_4.c instead of newlib
 #env.appendDefineFlags( ['configTOTAL_HEAP_SIZE=8*1024'] )

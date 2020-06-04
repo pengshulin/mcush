@@ -101,7 +101,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 
     if(pcdHandle->Instance==USB_OTG_FS)
     {
-#if HAL_RESET_VCP_PIN
+#if HAL_RESET_USB_PINS
         /* pull the DM/DP low, disconnect with the host */
         hal_gpio_set_output( 0, (3<<11) );
         hal_gpio_clr( 0, (3<<11) );

@@ -98,7 +98,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
     if(pcdHandle->Instance==USB)
     {
-#if HAL_RESET_VCP_PIN
+#if HAL_RESET_USB_PINS
         GPIO_InitTypeDef GPIO_InitStruct;
         /* pull the DM/DP low, disconnect with the host */
         hal_gpio_set_output( 0, (3<<11) );

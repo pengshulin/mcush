@@ -109,7 +109,7 @@ void hal_pre_init(void)
 *******************************************************************************/
 void Set_System(void)
 {
-#if HAL_RESET_VCP_PIN
+#if HAL_RESET_USB_PINS
     /* pull DM/DP low to reset */
     hal_gpio_set_output( 0, 3<<11 );  
     hal_gpio_clr( 0, 3<<11 );  
