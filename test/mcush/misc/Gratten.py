@@ -73,13 +73,15 @@ def getWaveformIndex( name ):
 
 class ATF20E( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'ATF20E'
+    DEFAULT_TERMINAL_RESET = False
+    DEFAULT_CHECK_IDN = False
 
     def __init__( self, *args, **kwargs ):
         if not 'address' in kwargs:
             kwargs['address'] = Env.getenv_int('ADDRESS', 88) 
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
         
-    def connect( self, check_idn=False ):
+    def connect( self ):
         '''connect'''
         self.port.parity = 'M'
         self.port.timeout = 1

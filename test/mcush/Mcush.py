@@ -23,6 +23,8 @@ class Mcush( Instrument.SerialInstrument ):
     DEFAULT_MULTILINE_INPUT_LINE_LIMIT = 50
     DEFAULT_CMD_LINE_LIMIT = 128
     DEFAULT_CMD_ARGV_LIMIT = 20
+    DEFAULT_REBOOT_RETRY = 10
+    DEFAULT_DELAY_AFTER_REBOOT = 1
 
     regs_by_name = {}
     regs_by_addr = {}
@@ -340,6 +342,46 @@ class Mcush( Instrument.SerialInstrument ):
     def sysQueue( self ):
         ret = self.writeCommand('sys q')
         return ret
+
+    def reboot( self, delay=None ):
+        '''reboot controller'''
+        sync = False
+        retry = 0
+        try:
+            self.writeCommand( 'reboot' )
+            self.connect()
+            sync = True
+        except Instrument.ResponseError:
+            pass
+        except Instrument.CommandTimeoutError:
+            pass
+        while not sync: 
+            try:
+                self.connect()
+                sync = True
+            except:
+                retry = retry + 1
+                if retry > self.DEFAULT_REBOOT_RETRY:
+                    raise Instrument.CommandTimeoutError()
+        self.scpiIdn()
+        if delay is None:
+            time.sleep( self.DEFAULT_DELAY_AFTER_REBOOT )
+        else:
+            time.sleep( delay )
+
+
+    def getRebootCounter( self ):
+        cmd = 'reboot -c'
+        ret = self.writeCommand( cmd )
+        return int(ret[0])
+
+    def resetRebootCounter( self ):
+        cmd = 'reboot -r'
+        self.writeCommand( cmd )
+
+    def checkCommand( self, name ):
+        cmd = '? -c %s'% name
+        return bool(int(self.writeCommand(cmd)[0])) 
 
     def errnoStop( self ):
         '''stop errno blink'''

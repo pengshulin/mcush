@@ -34,11 +34,7 @@ class F8808A( Instrument.SerialInstrument ):
         # write command and wait for prompts
         cmd = cmd.upper()
         self.writeLine( cmd )
-        self.logger.debug( cmd )
         ret = self.readUntilPrompts()
-        for line in [i.strip() for i in ret]:
-            if line:
-                self.logger.debug( line )
         if not ret[0]:
             ret = ret[1:]
         self.checkReturnedPrompt( ret )

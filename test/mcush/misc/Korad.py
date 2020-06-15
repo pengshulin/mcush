@@ -7,8 +7,11 @@ from .. import Env, Instrument
 
 
 class KA3000( Instrument.SerialInstrument ):
-    DEFAULT_CHECK_RETURN_COMMAND = False
     DEFAULT_IDN = re.compile( 'KORAD KA3[0-9]+P V[0-9]+.[0-9]+ SN:[0-9]+' )
+    DEFAULT_TERMINAL_RESET = False
+    DEFAULT_CHECK_IDN = False
+    DEFAULT_READ_UNTIL_PROMPTS = False
+    DEFAULT_CHECK_RETURN_COMMAND = False
 
     # eg: *IDN?
     #     KORAD KA3005P V5.5 SN:16072670
@@ -17,31 +20,21 @@ class KA3000( Instrument.SerialInstrument ):
         kwargs['baudrate'] = 9600  # this is fixed
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
 
-    def readUntilPrompts( self, line_callback=None ):
-        pass
-
-    def connect( self, check_idn=True ):
-        Instrument.SerialInstrument.connect( self, check_idn=False )
-        idn = self.writeCommand('*IDN?', need_response=True)
-        brand, model, ver, sn = idn.split(' ')
-        sn = sn.split(':')[1]
-        self.model = model
-        self.ver = ver
-        self.sn = sn
-        self.idn = ','.join([model,ver])
-
-    def getSerialNumber( self ):
-        return self.sn 
-
     def writeCommand( self, cmd, need_response=False ):
         # write command and wait for response
-        cmd = cmd.strip().upper()
+        cmd = cmd.strip().upper()  # upper case only
         self.writeLine( cmd )
-        self.logger.debug( cmd )
         if need_response:
-            line = self.readLine()
-            self.logger.debug( line )
-            return line
+            return self.readLine()
+
+    def connect( self ):
+        Instrument.SerialInstrument.connect( self )
+        idn = self.writeCommand('*IDN?', need_response=True)
+        brand, model, ver, sn = idn.split(' ')
+        self.model = model
+        self.ver = ver
+        self.idn = ','.join([model,ver])
+        self.serial_number = sn.split(':')[1]
 
     def output( self, volt=None, amp=None, channel=1, enable=True ):
         if volt is not None:

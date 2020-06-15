@@ -80,7 +80,7 @@ def dumpMem( mem, method=2 ):
         stdout.flush()
 
 
-def parseKeyValueLines( lines ):
+def parseKeyValueLines( lines, splitter=': ' ):
     # parse lines in format:
     #   key1: val1
     #   key2:       <-- treat as empty string 
@@ -89,12 +89,13 @@ def parseKeyValueLines( lines ):
     # return k-v dictionary, evaluate k/v as trimmed case-sensitive string
     # if two or more keys are the same, preserve the last one
     var = {}
+    splitter_len = len(splitter)
     for l in lines:
-        idx = l.find(': ')
+        idx = l.find(splitter)
         if idx <= 0:
             continue
         a = l[:idx]
-        b = l[idx+2:]
+        b = l[idx+splitter_len:]
         var[a.strip()] = b.strip()
     return var
 
@@ -265,6 +266,17 @@ def dt2s( dt, need_ms=False ):
     else:
         return '%d:%02d:%02d'% (hour, minute, sec)
 
+
+def checksum( string ):
+    if Env.PYTHON_V3:
+        if isinstance( string, str ):
+            string = string.encode('utf8')
+    else:
+        if isinstance( string, unicode ):
+            string = string.encode('utf8')
+        if isinstance( string, str ):
+            string = map(ord, list(string))
+    return sum(string)
 
 
 def pyobfuscate( pyin, pyout, merged_modules=[], tmpfile=None, remove_tmp=True ):

@@ -37,7 +37,7 @@ class ETM( Instrument.SerialInstrument ):
             kwargs['unit'] = DEFAULT_UNIT
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
 
-    def connect( self, check_idn=True ):
+    def connect( self ):
         self.client = ModbusSerialClient('rtu', port=self.port.port, baudrate=self.baudrate, timeout=self.port.timeout)
         self.client.connect()
          

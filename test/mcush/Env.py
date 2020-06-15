@@ -64,7 +64,6 @@ TIMEOUT = getenv_int('TIMEOUT', 5)
 COMMAND_FAIL_RETRY = getenv_int( 'COMMAND_FAIL_RETRY', 3 )
 
 DELAY = getenv_float( 'DELAY', 1 )
-DELAY_AFTER_REBOOT = getenv_float( 'DELAY_AFTER_REBOOT', 1 )
 RETRY = getenv_int( 'RETRY', 1000 )
 NO_ECHO_CHECK = getenv_bool( 'NO_ECHO_CHECK' )
 NO_IDN_CHECK = getenv_bool( 'NO_IDN_CHECK' )

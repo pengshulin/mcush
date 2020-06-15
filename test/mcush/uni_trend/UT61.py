@@ -108,18 +108,18 @@ class UT61E( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'UT61'
     DEFAULT_PROMPTS = re_compile( '\x0A' )
     DEFAULT_IDN = re_compile( '.*' )
+    DEFAULT_TERMINAL_RESET = False
+    DEFAULT_CHECK_IDN = False
 
     def __init__( self, *args, **kwargs ):
         kwargs['baudrate'] = 19200  # this is fixed
-        kwargs['check_idn'] = False  # not support scpi commands
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
 
-    def connect( self, check_idn=False ):
+    def connect( self ):
         self.port.connect()
         if not self.port.connected:
             return
         self.port.ser.setRTS( 0 )  # power up the opto-isolated circuit
-        #self.readUntilPrompts()
 
     def writeCommand( self, cmd ):
         # UT61X only receives serial packets
@@ -131,25 +131,30 @@ class UT61E( Instrument.SerialInstrument ):
     def getReading( self ):
         # read measure value, function, range, flags
         while True:
-            line = self.readLine( eol='\x0D', timeout=self.DEFAULT_TIMEOUT )
+            line = self.readLine( eol='\x0D', timeout=self.DEFAULT_TIMEOUT, decode_utf8=False )
             if len(line) == 0:
                 #raise Exception("Timeout")
                 raise Instrument.CommandTimeoutError()
-            if (len(line) != 13) or ((ord(line[0])&0x7F) != 0x0A):
+            # convert into integer list
+            if Env.PYTHON_V3:
+                line = list(line)
+            else:
+                line = map( ord, list(line) )
+            if (len(line) != 13) or ((line[0]&0x7F) != 0x0A):
                 continue  # ignore invalid packet
             # parse packet
-            function = ord(line[7]) & 0x7F 
+            function = line[7] & 0x7F 
             if function in FUNCTIONS:
                 function = FUNCTIONS[function]
             else:
                 continue  # ignore invalid function
-            rng = ord(line[1]) & 0x7F 
-            reading = ''.join([chr(ord(d)&0x7F) for d in line[2:7]])
-            status = ord(line[8]) & 0x7F 
-            opt1 = ord(line[9]) & 0x7F 
-            opt2 = ord(line[10]) & 0x7F 
-            opt3 = ord(line[11]) & 0x7F 
-            opt4 = ord(line[12]) & 0x7F 
+            rng = line[1] & 0x7F 
+            reading = ''.join([chr(d&0x7F) for d in line[2:7]])
+            status = line[8] & 0x7F 
+            opt1 = line[9] & 0x7F 
+            opt2 = line[10] & 0x7F 
+            opt3 = line[11] & 0x7F 
+            opt4 = line[12] & 0x7F 
             # search for valid range list 
             rng_lst = None
             vahz = opt3 & 0x01

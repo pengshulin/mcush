@@ -16,7 +16,6 @@ from . import Max7219
 from . import Ssd1306
 from . import Ws2812
 from . import Motion 
-from . import Dallas1W
 from . import Aosong
 from . import Max6675
 from . import Max31865
@@ -32,6 +31,6 @@ from . import Ads1115
 from . import Hmc5883
 from . import Korad
 from . import Yaohua
-from . import Tongmen
 from . import OpenOCD
-
+from . import Dallas1W
+from . import Tongmen  # require pymodbus

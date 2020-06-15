@@ -49,9 +49,12 @@ class Instrument:
     DEFAULT_TIMEOUT = 5
     DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
     DEFAULT_PROMPTS_MULTILINE = re_compile( '[=#?!]?>' )
-    DEFAULT_IDN = None
-    DEFAULT_REBOOT_RETRY = 10
     DEFAULT_LINE_LIMIT = 128
+    DEFAULT_IDN = re_compile( '.*' )
+
+    DEFAULT_TERMINAL_RESET = True
+    DEFAULT_CHECK_IDN = True
+    DEFAULT_READ_UNTIL_PROMPTS = True
     DEFAULT_CHECK_RETURN_COMMAND = True
    
 
@@ -72,7 +75,6 @@ class Instrument:
             level = logging.FATAL
         logging.basicConfig( level=level, format=Env.LOG_FORMAT, datefmt=Env.LOG_DATEFMT )
         self.logger = logging.getLogger( self.DEFAULT_NAME )
-        self.check_return_command = self.DEFAULT_CHECK_RETURN_COMMAND
         self.returned_cmd = None
         self.returned_prompt = None
 
@@ -96,10 +98,10 @@ class Instrument:
             kwargs['prompts'] = self.DEFAULT_PROMPTS
         if not 'timeout' in kwargs:
             kwargs['timeout'] = self.DEFAULT_TIMEOUT
-        if not 'check_idn' in kwargs:
-            kwargs['check_idn'] = True
-        if not 'terminal_reset' in kwargs:
-            kwargs['terminal_reset'] = True
+        if 'terminal_reset' in kwargs:
+            self.DEFAULT_TERMINAL_RESET = bool(kwargs['terminal_reset'])
+        if 'check_idn' in kwargs:
+            self.DEFAULT_CHECK_IDN = bool(kwargs['check_idn'])
         # some attributes 'connect', ...  need to be renamed for method conflict
         for n in ['connect', 'timeout']:
             kwargs['_'+n] = kwargs.pop(n)
@@ -154,16 +156,18 @@ class Instrument:
         self.port.timeout = new
         return old
 
-    def connect( self, check_idn=True ):
+    def connect( self ):
         '''connect'''
         self.port.connect()
         if not self.port.connected:
             return
-        if self.terminal_reset and self.DEFAULT_TERMINATOR_RESET:
+        if self.DEFAULT_TERMINAL_RESET:
+            self.logger.debug( '[RST]' )
             self.port.write( self.DEFAULT_TERMINATOR_RESET )
             self.port.flush()
-            self.readUntilPrompts()
-        if check_idn and self.check_idn and self.DEFAULT_IDN is not None:
+            if self.DEFAULT_READ_UNTIL_PROMPTS:
+                self.readUntilPrompts()
+        if self.DEFAULT_CHECK_IDN:
             self.scpiIdn()
 
     def disconnect( self ):
@@ -189,7 +193,7 @@ class Instrument:
                 if byte == self.DEFAULT_TERMINATOR_READ:
                     newline_str = newline_str.rstrip()
                     contents.append( newline_str )
-                    #self.logger.debug( '[r] '+ newline_str )
+                    self.logger.debug( '[R] '+ newline_str )
                     if line_callback is not None:
                         # use this carefully
                         line_callback( newline_str )
@@ -199,6 +203,7 @@ class Instrument:
                     newline_str += byte
             else:
                 contents.append( newline_str )
+                self.logger.debug( '[R] '+ newline_str )
                 if contents:
                     raise CommandTimeoutError( ' | '.join(contents) )
                 else:
@@ -210,9 +215,11 @@ class Instrument:
                 #self.logger.debug( '[P] '+ newline_str )
                 return contents
 
-    def readLine( self, eol='\n', timeout=None ):
+    def readLine( self, eol='\n', timeout=None, decode_utf8=True ):
         chars = []
         t0 = time.time()
+        if Env.PYTHON_V3:
+            eol = bytes(eol, encoding='utf8')
         while True:
             char = self.port.read(1) 
             if char:
@@ -222,17 +229,24 @@ class Instrument:
             elif timeout:
                 if time.time() > t0 + timeout:
                     break
-        return ''.join(chars).rstrip()
-
-    def writeLine( self, dat ):
-        self.assertIsOpen() 
-        #print(type(dat), dat)
-        if Env.PYTHON_V3:
-            if isinstance( dat, str ):
-                dat = dat.encode('utf8')
+        ret = Env.EMPTY_BYTE.join(chars).rstrip()
+        if decode_utf8:
+            ret = ret.decode('utf8')
+            self.logger.debug( '[R] '+ ret )
         else:
-            if isinstance( dat, unicode ):
-                dat = dat.encode('utf8')
+            self.logger.debug( '[R] '+ str(ret) )
+        return ret
+
+    def writeLine( self, dat, encode_utf8=True ):
+        self.assertIsOpen() 
+        self.logger.debug( '[T] '+dat )
+        if encode_utf8:
+            if Env.PYTHON_V3:
+                if isinstance( dat, str ):
+                    dat = dat.encode('utf8')
+            else:
+                if isinstance( dat, unicode ):
+                    dat = dat.encode('utf8')
         self.port.write( dat )
         self.port.write( self.DEFAULT_TERMINATOR_WRITE )
         self.port.flush()
@@ -241,14 +255,16 @@ class Instrument:
         '''write command and wait for prompts'''
         cmd = cmd.strip()
         self.writeLine( cmd )
-        self.logger.debug( '[T] '+cmd )
-        ret = self.readUntilPrompts()
-        for line in [i.strip() for i in ret]:
-            self.logger.debug( '[R] '+ line )
-        self.checkReturnedPrompt( ret )
-        if cmd and self.check_return_command and not Env.NO_ECHO_CHECK:
-            self.checkReturnedCommand( ret, cmd )
-        return ret[1:-1] 
+        if self.DEFAULT_READ_UNTIL_PROMPTS:
+            ret = self.readUntilPrompts()
+            #for line in [i.strip() for i in ret]:
+            #    self.logger.debug( '[R] '+ line )
+            self.checkReturnedPrompt( ret )
+            if cmd and self.DEFAULT_CHECK_RETURN_COMMAND and not Env.NO_ECHO_CHECK:
+                self.checkReturnCommand( ret, cmd )
+            return ret[1:-1] 
+        else:
+            return []
     
     def writeCommandRetry( self, cmd, retry=None ):
         '''write command with retry '''
@@ -264,7 +280,7 @@ class Instrument:
                     print( e )
         return self.writeCommand( cmd )
   
-    def checkReturnedCommand( self, ret, cmd ):
+    def checkReturnCommand( self, ret, cmd ):
         '''assert command returned is valid'''
         cmdret = ret[0]
         if Env.PYTHON_V3 and isinstance(cmd, bytes):
@@ -299,9 +315,6 @@ class Instrument:
     # 2. scpi reset
     #    =>*rst
     # 
-    # 3. reboot cpu core
-    #    =>reboot
-    # 
 
     def scpiRst( self ):
         '''scpi reset'''
@@ -318,36 +331,6 @@ class Instrument:
             if not self.DEFAULT_IDN.match( self.idn ):
                 raise IDNMatchError(self.idn.split(',')[0])
         return self.idn
-
-    def reboot( self, delay=None ):
-        '''reboot command'''
-        sync = False
-        retry = 0
-        try:
-            self.writeCommand( 'reboot' )
-            self.connect()
-            sync = True
-        except ResponseError:
-            pass
-        except CommandTimeoutError:
-            pass
-        while not sync: 
-            try:
-                SerialInstrument.connect( self )
-                sync = True
-            except:
-                retry = retry + 1
-                if retry > self.DEFAULT_REBOOT_RETRY:
-                    raise CommandTimeoutError()
-        self.scpiIdn()
-        if delay is None:
-            time.sleep( Env.DELAY_AFTER_REBOOT )
-        else:
-            time.sleep( delay )
-
-    def getRebootTimes( self ):
-        cmd = 'reboot -c'
-        self.writeCommand( cmd )
 
     def getModel( self ):
         if self.idn is None:
@@ -391,20 +374,6 @@ class Instrument:
  
     def printInfo( self ):
         print( '%s, %s'% (self.getModel(), self.getVersion()) )
-
-    # NOTE: reboot counter is not supported in some platform   
-    def getRebootCounter( self ):
-        cmd = 'reboot -c'
-        ret = self.writeCommand( cmd )
-        return int(ret[0])
-
-    def resetRebootCounter( self ):
-        cmd = 'reboot -r'
-        self.writeCommand( cmd )
-
-    def checkCommand( self, name ):
-        cmd = '? -c %s'% name
-        return bool(int(self.writeCommand(cmd)[0])) 
 
 
 class Port(object):

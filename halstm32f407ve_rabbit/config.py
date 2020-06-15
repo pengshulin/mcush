@@ -1,9 +1,16 @@
 from Arm.Stm32 import *
 
 if hal_config.use_hal_driver is None:
-    hal_config.use_hal_driver = False  # use std_driver as default
-    if hal_config.use_vcp is None:
-        hal_config.use_vcp = False  # use uart as default
+    hal_config.use_hal_driver = True# False  # use std_driver as default
+#    if hal_config.use_vcp is None:
+#        hal_config.use_vcp = False  # use uart as default
+if hal_config.use_vcp is None:
+    if hal_config.use_hal_driver:
+        hal_config.use_vcp = True  # use vcp as default
+
+if (not hal_config.use_hal_driver) and hal_config.use_vcp:
+    hal_config.use_vcp = False  # vcp does not support in std mode
+
 
 env = Stm32f407xx( use_hal_driver=hal_config.use_hal_driver  )
 env.setLinkfile( '/ld/stm32f407xe_ccmsram.ld' )
@@ -17,12 +24,6 @@ hal_config.sources += ['common/*.c']
 hal_dir = 'hal' if hal_config.use_hal_driver else 'std'
 hal_config.paths += [hal_dir]
 hal_config.sources += [hal_dir+'/*.c']
-
-if hal_config.use_vcp is None:
-    hal_config.use_vcp = True  # use vcp as default
-
-if hal_dir == 'std' and hal_config.use_vcp:
-    hal_config.use_vcp = False  # does not support in std mode
 
 if hal_config.use_vcp:
     hal_config.paths += [hal_dir+'/vcp']
@@ -41,4 +42,8 @@ if hal_config.use_eth:
     env.appendDefineFlags( [ 'USE_ETH=1' ] )
     hal_config.paths += [hal_dir+'/LAN8742A']
     hal_config.sources += [hal_dir+'/LAN8742A/*.c']
+
+if hal_config.use_can:
+    env.appendDefineFlags( [ 'HAL_CAN=1' ] )
+
 

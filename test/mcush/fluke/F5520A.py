@@ -36,8 +36,8 @@ class F5520A( Instrument.SerialInstrument ):
             raise CommandSequenceError(err)
         self.promptIndex += 1
 
-    def connect( self, check_idn=True ):
-        Instrument.SerialInstrument.connect( self, check_idn )
+    def connect( self ):
+        Instrument.SerialInstrument.connect( self )
         self.setStandby()
         self.setRemote( True )
 

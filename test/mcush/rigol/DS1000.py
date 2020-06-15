@@ -18,26 +18,21 @@ B2S = {0:'OFF', 1:'ON', True:'ON', False:'OFF', None:'OFF'}
 
 class DS1000( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'DS1000'
-    DEFAULT_TERMINATOR_RESET = ''
     DEFAULT_IDN = re_compile( 'Rigol Technologies,DS1.*' )
+    DEFAULT_TERMINAL_RESET = False
+    DEFAULT_READ_UNTIL_PROMPTS = False
     DEFAULT_CHECK_RETURN_COMMAND = False
 
     # eg: *IDN?
     #     Rigol Technologies,DS1102E,DS1ET162359072,00.04.01.00.02
 
-    def readUntilPrompts( self, line_callback=None ):
-        pass
-
     def writeCommand( self, cmd, need_response=False ):
         # write command and wait for response
         cmd = cmd.strip().upper()
         self.writeLine( cmd )
-        self.logger.debug( cmd )
         time.sleep(0.2)
         if need_response:
-            line = self.readLine()
-            self.logger.debug( line )
-            return line
+            return self.readLine()
 
     def scpiIdn( self ):
         self.idn = self.writeCommand('*idn?', need_response=True)

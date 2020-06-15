@@ -3,15 +3,26 @@ __doc__ = 'Dallas 1-wire bus controller'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from .. import Mcush, Utils
-import crcmod
-import crcmod.predefined
+
+
+def maxim_crc( dat ):
+    L = [0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83,
+         0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41]
+    H = [0x00, 0x9d, 0x23, 0xbe, 0x46, 0xdb, 0x65, 0xf8,
+         0x8c, 0x11, 0xaf, 0x32, 0xca, 0x57, 0xe9, 0x74]
+    crc = 0
+    # dat list already converted into integer
+    for d in dat:
+        i = crc ^ d
+        crc = L[i & 0x0F] ^ H[i >> 4]
+    return crc
+
 
 
 class Dallas1W():
         
     def __init__( self, controller, pin=None ):
         self.controller = controller
-        self.crc = crcmod.predefined.mkPredefinedCrcFun('crc-8-maxim')
         if pin:
             self.controller.writeCommand('ds1w -I -p%s'% pin)
         else:
@@ -94,7 +105,7 @@ class Dallas1W():
         for r in result:
             if r[0] != self.FAMILY_CODE:
                 continue
-            crc = self.crc(''.join([chr(i) for i in r[:-1]]))
+            crc = maxim_crc([int(i) for i in r[:-1]])
             if crc == r[-1]:
                 sn.append( r[1:-1] )
                 sn[-1].reverse()
@@ -105,7 +116,7 @@ class Dallas1W():
         self.reset()
         self.write( 0x33 )
         r = self.read(8)
-        crc_calc = self.crc(''.join([chr(i) for i in r[:7]]))
+        crc_calc = maxim_crc([int(i) for i in r[:7]])
         if r[7] != crc_calc:
             code = '-'.join(['%02X'%i for i in r])
             raise Exception("Crc error:%s"% code )
@@ -125,7 +136,7 @@ class Dallas1W():
         sn2i = [int('0x'+sn[i*2:i*2+2], 16) for i in range(5,-1,-1)]
         for i in sn2i:
             self.write( i )
-        crc = self.crc(''.join([chr(i) for i in [self.FAMILY_CODE]+sn2i]))
+        crc = maxim_crc([int(i) for i in [self.FAMILY_CODE]+sn2i])
         self.write( crc )
 
 
@@ -160,7 +171,7 @@ class DS18B20( Dallas1W ):
         th = Utils.s2b(chr(r[2]))
         tl = Utils.s2b(chr(r[3]))
         res = 9 + ((Utils.s2B(chr(r[4])) >> 5) & 0x03)
-        crc_calc = self.crc(''.join([chr(i) for i in r[:8]]))
+        crc_calc = maxim_crc([int(i) for i in r[:8]])
         if r[8] != crc_calc:
             raise Exception("Crc error")
         return [round(t*0.0625, 1), th, tl, res]

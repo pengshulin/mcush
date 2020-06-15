@@ -99,19 +99,16 @@ class FY6900( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'FY6900'
     DEFAULT_TERMINATOR_READ = '\x0A'
     DEFAULT_TERMINATOR_WRITE = '\x0A'
-    DEFAULT_TERMINATOR_RESET = 'UMO\x0A'
+    DEFAULT_TERMINAL_RESET = False
+    DEFAULT_CHECK_IDN = False
     DEFAULT_CHECK_RETURN_COMMAND = False
 
     def __init__( self, *args, **kwargs ):
         kwargs['baudrate'] = 115200  # this is fixed
-        kwargs['check_idn'] = False  # not support scpi commands
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
 
-    def connect( self, check_idn=False ):
-        Instrument.SerialInstrument.connect( self, check_idn=False )
-        self.readUntilPrompts()
-        self.readUntilPrompts()
-        self.readUntilPrompts()
+    def connect( self ):
+        Instrument.SerialInstrument.connect( self )
         # read model/id
         model = self.getModel()
         sn = self.getSerialNumber()
@@ -127,7 +124,7 @@ class FY6900( Instrument.SerialInstrument ):
                     byte = chr(ord(byte))
                 if byte == self.DEFAULT_TERMINATOR_READ:
                     newline_str = newline_str.rstrip()
-                    self.logger.debug( newline_str )
+                    self.logger.debug( '[R] '+ newline_str )
                     return [newline_str]
                 else:
                     newline_str += byte
@@ -141,11 +138,7 @@ class FY6900( Instrument.SerialInstrument ):
         # write command and wait for response
         cmd = cmd.strip()
         self.writeLine( cmd )
-        self.logger.debug( cmd )
         ret = self.readUntilPrompts()
-        for line in [i.strip() for i in ret]:
-            if line:
-                self.logger.debug( line )
         return ret
  
     def getModel( self ):

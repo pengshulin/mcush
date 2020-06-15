@@ -32,22 +32,15 @@ FORMATTER = {
 class XK3190A12( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'XK3190'
     DEFAULT_PACKET_FORMAT = re_compile( 'w[wnt]-?[0-9]*.[0-9]*(kg|lb)' )
-
-    def __init__( self, *args, **kwargs ):
-        kwargs['check_idn'] = False  # not support scpi commands
-        Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
-
-    def connect( self, check_idn=False ):
-        self.port.connect()
-        if not self.port.connected:
-            return
+    DEFAULT_CHECK_IDN = False
+    DEFAULT_TERMINAL_RESET = False
+    DEFAULT_READ_UNTIL_PROMPTS = False
+    DEFAULT_CHECK_RETURN_COMMAND = False
 
     def writeCommand( self, cmd ):
-        # only receives serial packets
         if cmd not in ['R', 'T', 'Z']:
             raise Exception('Invalid command')
-        self.port.write(cmd)
-        self.port.flush()
+        Instrument.SerialInstrument.writeCommand( self, cmd )
 
     def formatReading( self, reading, precision ):
         return FORMATTER[precision]% reading
