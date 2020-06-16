@@ -103,7 +103,7 @@ class Instrument:
         if 'check_idn' in kwargs:
             self.DEFAULT_CHECK_IDN = bool(kwargs['check_idn'])
         # some attributes 'connect', ...  need to be renamed for method conflict
-        for n in ['connect', 'timeout']:
+        for n in ['connect', 'baudrate', 'timeout']:
             kwargs['_'+n] = kwargs.pop(n)
         # attached as attributes
         for k, v in kwargs.items():
@@ -229,13 +229,16 @@ class Instrument:
             elif timeout:
                 if time.time() > t0 + timeout:
                     break
-        ret = Env.EMPTY_BYTE.join(chars).rstrip()
-        if decode_utf8:
-            ret = ret.decode('utf8')
-            self.logger.debug( '[R] '+ ret )
+        if chars:
+            ret = Env.EMPTY_BYTE.join(chars).rstrip()
+            if decode_utf8:
+                ret = ret.decode('utf8')
+                self.logger.debug( '[R] '+ ret )
+            else:
+                self.logger.debug( '[R] '+ str(ret) )
+            return ret
         else:
-            self.logger.debug( '[R] '+ str(ret) )
-        return ret
+            return ''
 
     def writeLine( self, dat, encode_utf8=True ):
         self.assertIsOpen() 
@@ -409,8 +412,20 @@ class Port(object):
     def readall( self ):
         raise
 
+    def update_baudrate( self, baudrate ):
+        pass
+ 
     def update_timeout( self, timeout ):
         pass 
+
+    @property
+    def baudrate( self ):
+        return self._baudrate
+
+    @baudrate.setter
+    def baudrate( self, val ):
+        self._baudrate = val
+        self.update_baudrate( val )
 
     @property
     def timeout( self ):
@@ -461,6 +476,9 @@ class SerialPort(Port):
             self.ser.close()
             self._connected = False
  
+    def update_baudrate( self, baudrate ):
+        self.ser.baudrate = baudrate
+
     def update_timeout( self, timeout ):
         self.ser.timeout = timeout
         
