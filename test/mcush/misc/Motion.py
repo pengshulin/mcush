@@ -2,7 +2,7 @@
 __doc__ = 'motion sensors'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
-from .. import Mcush, Utils
+from .. import Mcush, Utils, Env
 
 MPU6050_REGS_BY_IDX = {
     1: 'AUX_VDDIO',
@@ -206,15 +206,24 @@ class Adxl345():
 
     def getAccelX( self ):
         a,b = self.controller.i2c( [0x32], 2 )
-        return Utils.s2h( chr(a) + chr(b) ) / 25.0
+        if Env.PYTHON_V3:
+            return Utils.s2h( bytes([a, b]) ) / 25.0
+        else:
+            return Utils.s2h( chr(a) + chr(b) ) / 25.0
  
     def getAccelY( self ):
         a,b = self.controller.i2c( [0x34], 2 )
-        return Utils.s2h( chr(a) + chr(b) ) / 25.0
+        if Env.PYTHON_V3:
+            return Utils.s2h( bytes([a, b]) ) / 25.0
+        else:
+            return Utils.s2h( chr(a) + chr(b) ) / 25.0
  
     def getAccelZ( self ):
         a,b = self.controller.i2c( [0x36], 2 )
-        return Utils.s2h( chr(a) + chr(b) ) / 25.0
+        if Env.PYTHON_V3:
+            return Utils.s2h( bytes([a, b]) ) / 25.0
+        else:
+            return Utils.s2h( chr(a) + chr(b) ) / 25.0
  
 
 class Adxl313(Adxl345):

@@ -217,18 +217,21 @@ class Instrument:
 
     def readLine( self, eol='\n', timeout=None, decode_utf8=True ):
         chars = []
-        t0 = time.time()
         if Env.PYTHON_V3:
             eol = bytes(eol, encoding='utf8')
+        if timeout is not None:
+            old_timeout = self.port.timeout
+            self.port.timeout = timeout
         while True:
             char = self.port.read(1) 
             if char:
                 if char == eol:
                     break
                 chars.append( char )
-            elif timeout:
-                if time.time() > t0 + timeout:
-                    break
+            else:
+                break
+        if timeout is not None:
+            self.port.timeout = old_timeout
         if chars:
             ret = Env.EMPTY_BYTE.join(chars).rstrip()
             if decode_utf8:

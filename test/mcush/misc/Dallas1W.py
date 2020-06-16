@@ -2,7 +2,7 @@
 __doc__ = 'Dallas 1-wire bus controller'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
-from .. import Mcush, Utils
+from .. import Mcush, Utils, Env
 
 
 def maxim_crc( dat ):
@@ -154,7 +154,10 @@ class DS18B20( Dallas1W ):
         else:
             self.write( 0xCC )
         self.write( 0xBE )
-        t = Utils.s2h(chr(self.read()) + chr(self.read()))
+        if Env.PYTHON_V3:
+            t = Utils.s2h( bytes([self.read(), self.read()]) )
+        else:
+            t = Utils.s2h(chr(self.read()) + chr(self.read()))
         return round(t*0.0625, 1)
 
     def getScratchpad( self, sn=None ):
@@ -167,10 +170,16 @@ class DS18B20( Dallas1W ):
             self.write( 0xCC )
         self.write( 0xBE )
         r = self.read(9)
-        t = Utils.s2h(chr(r[0]) + chr(r[1]))
-        th = Utils.s2b(chr(r[2]))
-        tl = Utils.s2b(chr(r[3]))
-        res = 9 + ((Utils.s2B(chr(r[4])) >> 5) & 0x03)
+        if Env.PYTHON_V3:
+            t = Utils.s2h(bytes([r[0], r[1]]))
+            th = Utils.s2b(bytes([r[2]]))
+            tl = Utils.s2b(bytes([r[3]]))
+            res = 9 + ((Utils.s2B(bytes([r[4]])) >> 5) & 0x03)
+        else:
+            t = Utils.s2h(chr(r[0]) + chr(r[1]))
+            th = Utils.s2b(chr(r[2]))
+            tl = Utils.s2b(chr(r[3]))
+            res = 9 + ((Utils.s2B(chr(r[4])) >> 5) & 0x03)
         crc_calc = maxim_crc([int(i) for i in r[:8]])
         if r[8] != crc_calc:
             raise Exception("Crc error")

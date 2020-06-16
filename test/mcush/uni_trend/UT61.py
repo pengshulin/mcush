@@ -131,9 +131,8 @@ class UT61E( Instrument.SerialInstrument ):
     def getReading( self ):
         # read measure value, function, range, flags
         while True:
-            line = self.readLine( eol='\x0D', timeout=self.DEFAULT_TIMEOUT, decode_utf8=False )
+            line = self.readLine( eol='\x0D', decode_utf8=False )
             if len(line) == 0:
-                #raise Exception("Timeout")
                 raise Instrument.CommandTimeoutError()
             # convert into integer list
             if Env.PYTHON_V3:
