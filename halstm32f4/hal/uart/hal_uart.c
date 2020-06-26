@@ -14,7 +14,7 @@
    ----------------------------- 
    (MCU)                  (PC)
    PA9  USART1_TX ------> RXD
-   PA10 USART1_RX <-----> TXD 
+   PA10 USART1_RX <------ TXD 
    ----------------------------- 
  */
 
@@ -26,9 +26,10 @@
     #define HAL_UARTx                       USART1
     #define HAL_UARTx_TX_PORT               GPIOA
     #define HAL_UARTx_TX_PIN                LL_GPIO_PIN_9
+    #define HAL_UARTx_TX_AF                 LL_GPIO_AF_7
     #define HAL_UARTx_RX_PORT               GPIOA
     #define HAL_UARTx_RX_PIN                LL_GPIO_PIN_10
-    #define HAL_UARTx_AF                    LL_GPIO_AF_7
+    #define HAL_UARTx_RX_AF                 LL_GPIO_AF_7
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
     #define HAL_UARTx_BAUDRATE              9600
@@ -114,12 +115,13 @@ int hal_uart_init( uint32_t baudrate )
     gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
     gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     gpio_init.Pull = LL_GPIO_PULL_NO;
-    gpio_init.Alternate = HAL_UARTx_AF;
     gpio_init.Speed = LL_GPIO_SPEED_FREQ_HIGH;
     gpio_init.Pin = HAL_UARTx_TX_PIN;
+    gpio_init.Alternate = HAL_UARTx_TX_AF;
     LL_GPIO_Init( HAL_UARTx_TX_PORT, &gpio_init);
     gpio_init.Pin = HAL_UARTx_RX_PIN;
     gpio_init.Pull = LL_GPIO_PULL_UP;
+    gpio_init.Alternate = HAL_UARTx_RX_AF;
     LL_GPIO_Init( HAL_UARTx_RX_PORT, &gpio_init);
 
     /* USART configuration */

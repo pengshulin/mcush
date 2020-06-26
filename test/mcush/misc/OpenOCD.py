@@ -11,7 +11,6 @@ WIDTH_TYPE = {8:'b', 16:'h', 32:'w'}
 class OpenOCD( Instrument.SocketInstrument ):
     DEFAULT_NAME = 'OpenOCD'
     DEFAULT_PROMPTS = re_compile( '\x00?\x0d> ' )
-    DEFAULT_TERMINAL_RESET = False
     DEFAULT_CHECK_IDN = False
         
     def __init__( self, *args, **kwargs ):

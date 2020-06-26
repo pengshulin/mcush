@@ -14,7 +14,7 @@
    ----------------------------- 
    (MCU)                  (PC)
    PA9  USART1_TX ------> RXD
-   PA10 USART1_RX <-----> TXD 
+   PA10 USART1_RX <------ TXD 
    ----------------------------- 
  */
 
@@ -27,10 +27,11 @@
     #define HAL_UARTx_TX_PORT               GPIOA
     #define HAL_UARTx_TX_PIN                GPIO_Pin_9
     #define HAL_UARTx_TX_PINSRC             GPIO_PinSource9
+    #define HAL_UARTx_TX_AF                 GPIO_AF_USART1
     #define HAL_UARTx_RX_PORT               GPIOA
     #define HAL_UARTx_RX_PIN                GPIO_Pin_10
     #define HAL_UARTx_RX_PINSRC             GPIO_PinSource10
-    #define HAL_UARTx_AF                    GPIO_AF_USART1
+    #define HAL_UARTx_RX_AF                 GPIO_AF_USART1
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
     #define HAL_UARTx_BAUDRATE              9600
@@ -91,8 +92,8 @@ int hal_uart_init( uint32_t baudrate )
     gpio_init.GPIO_Mode = GPIO_Mode_AF;
     GPIO_Init( HAL_UARTx_TX_PORT, &gpio_init );
     /* Connect AF */
-    GPIO_PinAFConfig( HAL_UARTx_RX_PORT, HAL_UARTx_RX_PINSRC, HAL_UARTx_AF );
-    GPIO_PinAFConfig( HAL_UARTx_TX_PORT, HAL_UARTx_TX_PINSRC, HAL_UARTx_AF );
+    GPIO_PinAFConfig( HAL_UARTx_RX_PORT, HAL_UARTx_RX_PINSRC, HAL_UARTx_RX_AF );
+    GPIO_PinAFConfig( HAL_UARTx_TX_PORT, HAL_UARTx_TX_PINSRC, HAL_UARTx_TX_AF );
     /* USART configuration */
     usart_init.USART_BaudRate = baudrate ? baudrate : HAL_UARTx_BAUDRATE;
     usart_init.USART_WordLength = USART_WordLength_8b;

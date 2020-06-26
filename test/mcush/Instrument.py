@@ -215,7 +215,7 @@ class Instrument:
                 #self.logger.debug( '[P] '+ newline_str )
                 return contents
 
-    def readLine( self, eol='\n', timeout=None, decode_utf8=True ):
+    def readLine( self, eol='\n', timeout=None, decode_utf8=True, strip=True ):
         chars = []
         if Env.PYTHON_V3:
             eol = bytes(eol, encoding='utf8')
@@ -233,7 +233,9 @@ class Instrument:
         if timeout is not None:
             self.port.timeout = old_timeout
         if chars:
-            ret = Env.EMPTY_BYTE.join(chars).rstrip()
+            ret = Env.EMPTY_BYTE.join(chars)
+            if strip:
+                ret = ret.strip()
             if decode_utf8:
                 ret = ret.decode('utf8')
                 self.logger.debug( '[R] '+ ret )
@@ -244,8 +246,10 @@ class Instrument:
             return ''
 
     def writeLine( self, dat, encode_utf8=True ):
-        self.assertIsOpen() 
-        self.logger.debug( '[T] '+dat )
+        if isinstance( dat, bytes ):
+            self.logger.debug( '[T] '+str(dat) )
+        else:
+            self.logger.debug( '[T] '+dat )
         if encode_utf8:
             if Env.PYTHON_V3:
                 if isinstance( dat, str ):
@@ -257,9 +261,10 @@ class Instrument:
         self.port.write( self.DEFAULT_TERMINATOR_WRITE )
         self.port.flush()
    
-    def writeCommand( self, cmd ):
+    def writeCommand( self, cmd, strip=True ):
         '''write command and wait for prompts'''
-        cmd = cmd.strip()
+        if strip:
+            cmd = cmd.strip()
         self.writeLine( cmd )
         if self.DEFAULT_READ_UNTIL_PROMPTS:
             ret = self.readUntilPrompts()
@@ -289,7 +294,7 @@ class Instrument:
     def checkReturnCommand( self, ret, cmd ):
         '''assert command returned is valid'''
         cmdret = ret[0]
-        if Env.PYTHON_V3 and isinstance(cmd, bytes):
+        if Env.PYTHON_V3 and isinstance(cmdret, bytes):
             cmdret = cmdret.encode('utf8')
         if cmd != cmdret:
             raise ResponseError('Command %s, but returned %s'% (cmd, cmdret))
