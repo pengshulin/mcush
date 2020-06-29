@@ -18,6 +18,7 @@ extern const char shell_str_ascii[];
 extern const char shell_str_attach[];
 extern const char shell_str_backup[];
 extern const char shell_str_base_address[];
+extern const char shell_str_baudrate[];
 extern const char shell_str_check[];
 extern const char shell_str_clear[];
 extern const char shell_str_clr[];

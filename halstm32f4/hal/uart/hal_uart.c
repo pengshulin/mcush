@@ -103,7 +103,7 @@ int hal_uart_init( uint32_t baudrate )
 #if HAL_UART_QUEUE_RX_LEN
     vQueueAddToRegistry( hal_uart_queue_rx, "rxQ" );
 #endif
-#if HAL_UART_QUEUE_RX_LEN
+#if HAL_UART_QUEUE_TX_LEN
     vQueueAddToRegistry( hal_uart_queue_tx, "txQ" );
 #endif
 #endif

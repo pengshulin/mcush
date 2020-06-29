@@ -9,6 +9,7 @@ __attribute__((aligned(1))) const char shell_str_ascii[] = "ascii";
 __attribute__((aligned(1))) const char shell_str_attach[] = "attach";
 __attribute__((aligned(1))) const char shell_str_backup[] = "backup";
 __attribute__((aligned(1))) const char shell_str_base_address[] = "base address";
+__attribute__((aligned(1))) const char shell_str_baudrate[] = "baudrate";
 __attribute__((aligned(1))) const char shell_str_check[] = "check";
 __attribute__((aligned(1))) const char shell_str_clear[] = "clear";
 __attribute__((aligned(1))) const char shell_str_clr[] = "clr";
