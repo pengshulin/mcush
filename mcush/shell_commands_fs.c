@@ -56,7 +56,7 @@ int do_test_file( const char *mount_point )
 #endif
 int cmd_cat( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
 #if _SUPPORT_B64
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'b', "b64", 0, "base 64 code" },
@@ -152,14 +152,14 @@ int cmd_cat( int argc, char *argv[] )
         i = strlen(input);
         if( !i )
         {
-            vPortFree(input);
+            os_free(input);
             return 1;
         }
         
         fd = mcush_open( fname, append ? "a+" : "w+" );
         if( fd == 0 )
         {
-            vPortFree(input);
+            os_free(input);
             return 1;
         }
 #if _SUPPORT_B64
@@ -187,7 +187,7 @@ int cmd_cat( int argc, char *argv[] )
                     if( j != mcush_write( fd, buf, j ) )
                     {
                         mcush_close(fd);
-                        vPortFree(input);
+                        os_free(input);
                         return 1;
                     } 
                 }
@@ -199,12 +199,12 @@ int cmd_cat( int argc, char *argv[] )
             if( i != mcush_write( fd, input, i ) )
             {
                 mcush_close(fd);
-                vPortFree(input);
+                os_free(input);
                 return 1;
             } 
         }
         mcush_close(fd);
-        vPortFree(input);
+        os_free(input);
     }
     else
 #endif
@@ -281,7 +281,7 @@ int cmd_cat( int argc, char *argv[] )
             }
 
 #if _SUPPORT_DELAY
-            while( shell_driver_read_char_blocked(&c, delay*configTICK_RATE_HZ/1000) != -1 )
+            while( shell_driver_read_char_blocked(&c, OS_TICKS_MS(delay)) != -1 )
 #else
             while( shell_driver_read_char_blocked(&c, 0) != -1 )
 #endif
@@ -305,7 +305,7 @@ int cmd_cat( int argc, char *argv[] )
 #if USE_CMD_RM
 int cmd_rm( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
         { MCUSH_OPT_NONE } };
@@ -336,7 +336,7 @@ int cmd_rm( int argc, char *argv[] )
 #if USE_CMD_RENAME
 int cmd_rename( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, "old -> new" },
         { MCUSH_OPT_NONE } };
@@ -372,7 +372,7 @@ int cmd_rename( int argc, char *argv[] )
 #if USE_CMD_CP
 int cmd_copy( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, "src -> dst" },
         { MCUSH_OPT_NONE } };
@@ -447,7 +447,7 @@ extern mcush_vfs_volume_t vfs_vol_tab[MCUSH_VFS_VOLUME_NUM];
 
 int cmd_list( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_path, 0, shell_str_path_name },
         { MCUSH_OPT_NONE } };
@@ -495,7 +495,7 @@ int cmd_list( int argc, char *argv[] )
 #if USE_CMD_LOAD
 int cmd_load( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
         { MCUSH_OPT_NONE } };
@@ -527,7 +527,7 @@ int cmd_load( int argc, char *argv[] )
     if( !size )
         return 0;
 
-    buf = pvPortMalloc( size + 1 );
+    buf = os_malloc( size + 1 );
     if( !buf )
     {
         shell_write_err( shell_str_script );
@@ -537,7 +537,7 @@ int cmd_load( int argc, char *argv[] )
     fd = mcush_open( fname, "r" );
     if( fd == 0 )
     {
-        vPortFree(buf);
+        os_free(buf);
         return 1;
     }
     
@@ -547,7 +547,7 @@ int cmd_load( int argc, char *argv[] )
     if( i != size )
     {
         shell_write_err( shell_str_script );
-        vPortFree(buf);
+        os_free(buf);
         return 1;
     }
   
@@ -561,7 +561,7 @@ int cmd_load( int argc, char *argv[] )
 #if USE_CMD_CRC
 int cmd_crc( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
         { MCUSH_OPT_NONE } };
@@ -679,7 +679,7 @@ int cmd_fcfs( int argc, char *argv[] )
 #include "spi_flash.h"
 int cmd_spiffs( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -781,7 +781,7 @@ int cmd_spiffs( int argc, char *argv[] )
         {
             len *= 2;
             sFLASH_WritePage( (uint8_t*)p, (int)addr, len > 256 ? 256 : len );
-            vPortFree( p );
+            os_free( p );
         }
         else
             return 1;

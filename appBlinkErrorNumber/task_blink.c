@@ -12,11 +12,6 @@
 
 static int _errno = 0;
 
-#if configSUPPORT_STATIC_ALLOCATION
-StaticTask_t task_blink_data;
-StackType_t task_blink_buffer[TASK_BLINK_STACK_SIZE/sizeof(portSTACK_TYPE)];
-#endif
-
 int get_errno(void)
 {
     return _errno;
@@ -92,10 +87,10 @@ const shell_cmd_t cmd_tab_blink[] = {
 {   CMD_END  } };
 
 
-#define DELAY_A   200*configTICK_RATE_HZ/1000  /* on for 1~9 */
-#define DELAY_B   500*configTICK_RATE_HZ/1000  /* off for 1~9 */
-#define DELAY_C  1000*configTICK_RATE_HZ/1000  /* on for 0 */
-#define DELAY_D  1000*configTICK_RATE_HZ/1000  /* delay cycle */
+#define DELAY_A  OS_TICKS_MS(200)  /* on for 1~9 */
+#define DELAY_B  OS_TICKS_MS(500)  /* off for 1~9 */
+#define DELAY_C  OS_TICKS_MS(1000)  /* on for 0 */
+#define DELAY_D  OS_TICKS_MS(1000)  /* delay cycle */
 
 void blink_digit( int digit, int led )
 {
@@ -109,9 +104,9 @@ void blink_digit( int digit, int led )
         for( i=digit; i; i-- )
         {
             hal_led_set(led);
-            vTaskDelay(DELAY_A);
+            os_task_delay(DELAY_A);
             hal_led_clr(led);
-            vTaskDelay(DELAY_A);
+            os_task_delay(DELAY_A);
             /* NOTE:  if the blink task is the only running task, in release mode,
             cpu may reboot by the wdg (especially for long digits error code),
             so clear the wdg on every blink */
@@ -121,7 +116,7 @@ void blink_digit( int digit, int led )
     else
     {
         hal_led_set(led);
-        vTaskDelay(DELAY_C);
+        os_task_delay(DELAY_C);
         hal_led_clr(led);
         hal_wdg_clear();
     }
@@ -161,29 +156,26 @@ void task_blink_entry(void *p)
                     blink_digit( digit, LED_ERROR );
                     skip = 0;
                     if( pos != 1 )
-                        vTaskDelay(DELAY_B);
+                        os_task_delay(DELAY_B);
                 }
             }
         }
-        vTaskDelay( DELAY_D );
+        os_task_delay( DELAY_D );
     }
 }
 
 
 void task_blink_init(void)
 {
-    TaskHandle_t task_blink;
+    os_task_handle_t task;
 
-#if configSUPPORT_STATIC_ALLOCATION
-    task_blink = xTaskCreateStatic((TaskFunction_t)task_blink_entry, (const char *)"blinkT", 
-                TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_BLINK_PRIORITY, task_blink_buffer, &task_blink_data);
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( blink, TASK_BLINK_STACK_SIZE );
+    task = os_task_create_static( "blinkT", task_blink_entry, 0, TASK_BLINK_STACK_SIZE, TASK_BLINK_PRIORITY, &static_task_buffer_blink );
 #else
-    (void)xTaskCreate(task_blink_entry, (const char *)"blinkT",
-                      TASK_BLINK_STACK_SIZE / sizeof(portSTACK_TYPE),
-                      NULL, TASK_BLINK_PRIORITY, &task_blink);
+    task = os_task_create( "blinkT", task_blink_entry, 0, TASK_BLINK_STACK_SIZE, TASK_BLINK_PRIORITY );
 #endif
-    if( task_blink == NULL )
+    if( task == NULL )
         halt("create blink task");
 
     shell_add_cmd_table( cmd_tab_blink );

@@ -66,12 +66,12 @@ extern "C" {
 #define LOOP_CHECK \
         if( loop ) \
         { \
-            if( loop_delay < 1000/configTICK_RATE_HZ )  \
-                loop_delay = 1000/configTICK_RATE_HZ;  \
-            loop_tick = xTaskGetTickCount(); \
-            while( xTaskGetTickCount() < loop_tick + loop_delay*configTICK_RATE_HZ/1000 ) \
+            if( loop_delay < 1000/OS_TICK_RATE )  \
+                loop_delay = 1000/OS_TICK_RATE;  \
+            loop_tick = os_tick(); \
+            while( os_tick() < loop_tick + OS_TICKS_MS(loop_delay) ) \
             { \
-                if( shell_driver_read_char_blocked(&c, 10*configTICK_RATE_HZ/1000) != -1 ) \
+                if( shell_driver_read_char_blocked(&c, OS_TICKS_MS(10)) != -1 ) \
                 { \
                     if( c == 0x03 ) /* Ctrl-C for stop */ \
                         return 0; \
@@ -154,7 +154,7 @@ extern int  shell_driver_init( void );
 extern void shell_driver_reset( void );
 extern int  shell_driver_read( char *buffer, int len );
 extern int  shell_driver_read_char( char *c );
-extern int  shell_driver_read_char_blocked( char *c, int block_time );
+extern int  shell_driver_read_char_blocked( char *c, int block_ticks );
 extern int  shell_driver_read_is_empty( void );
 extern int  shell_driver_read_feed( char *buffer, int len );
 extern int  shell_driver_write( const char *buffer, int len );

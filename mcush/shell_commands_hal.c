@@ -7,7 +7,7 @@
 int cmd_reboot( int argc, char *argv[] )
 {
 #ifdef HAL_REBOOT_COUNTER
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'c', shell_str_count, 0, "print counter" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -81,11 +81,11 @@ int cmd_upgrade( int argc, char *argv[] )
         return 1;
 
     shell_printf("Loading firmware from %s...\n", fname);
-    vTaskDelay(configTICK_RATE_HZ/5);  // 0.2s to confirm the uart output
+    os_task_delay_ms( 200 );  // 0.2s to confirm the uart output
     if( !hal_upgrade_prepare_swap( fname, 0 ) )
         return 1; 
     shell_printf("Upgrading...\n");
-    vTaskDelay(configTICK_RATE_HZ/5);  // 0.2s to confirm the uart output
+    os_task_delay_ms( 200 );  // 0.2s to confirm the uart output
     hal_upgrade_run_stage2();
     //while( 1 );
     return 0;
@@ -96,7 +96,7 @@ int cmd_upgrade( int argc, char *argv[] )
 #if USE_CMD_GPIO
 int cmd_gpio( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED, 
           'l', shell_str_loop, "loop_delay_ms", "default 1000ms" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
@@ -293,7 +293,7 @@ parm_error:
 #if USE_CMD_LED
 int cmd_led( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           's', shell_str_set, 0, shell_str_on },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -346,7 +346,7 @@ int cmd_led( int argc, char *argv[] )
         test_on = 0;
         while( 1 )
         {
-            if( (shell_driver_read_char_blocked(&c, 250*configTICK_RATE_HZ/1000) != -1 ) && (c == 0x03) )  /* Ctrl-C for quit */
+            if( (shell_driver_read_char_blocked(&c, OS_TICKS_MS(250)) != -1 ) && (c == 0x03) )  /* Ctrl-C for quit */
                 break;
             for( index=0; index<led_num; index++ )
             {
@@ -384,7 +384,7 @@ int cmd_led( int argc, char *argv[] )
 #if USE_CMD_WDG
 int cmd_wdg( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
           0, shell_str_command, 0, "enable|disable|clear|reset" },
         { MCUSH_OPT_NONE } };
@@ -436,7 +436,7 @@ int cmd_wdg( int argc, char *argv[] )
 #if USE_CMD_BEEP
 int cmd_beep( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'f', shell_str_frequency, shell_str_frequency, "20~10000(default 4000)hz" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
@@ -471,7 +471,7 @@ int cmd_beep( int argc, char *argv[] )
         STOP_AT_INVALID_ARGUMENT  
    
     hal_beep_on( freq );
-    vTaskDelay(ms*configTICK_RATE_HZ/1000);
+    os_task_delay_ms( ms );
     hal_beep_off();
     
     return 0;
@@ -615,7 +615,7 @@ int cmd_sgpio( int argc, char *argv[] )
                 return -1;
             }
         }
-        buf_in = pvPortMalloc( buf_len * 2 );
+        buf_in = os_malloc( buf_len * 2 );
     }
 
     return hal_sgpio_setup( loop, port, output, input, buf_out, buf_in, buf_len, freq_val ) ? 0 : 1;
@@ -669,7 +669,7 @@ int cmd_power( int argc, char *argv[] )
 #if USE_CMD_PWM
 int cmd_pwm( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'i', shell_str_index, "pwm_index", shell_str_index_from_0 },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -871,7 +871,7 @@ int cmd_rtc( int argc, char *argv[] )
 {
     mcush_opt_parser parser;
     mcush_opt opt;
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           's', shell_str_set, 0, "set rtc" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
@@ -1124,9 +1124,9 @@ int cmd_can( int argc, char *argv[] )
     {
         /* timeout, may be modified by '-v value' */
         if( value_set )
-            value = value*configTICK_RATE_HZ/1000;
+            value = OS_TICKS_MS(value);
         else
-            value = DEFAULT_CAN_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000;
+            value = OS_TICKS_MS(DEFAULT_CAN_READ_TIMEOUT_MS);
         /* max number of output lines */
         if( index_set )
             i = index;
@@ -1194,10 +1194,10 @@ int ws2812_init( int length, int group_length, int port, int pin )
 
     if( ws2812_buf )
     {
-        vPortFree( ws2812_buf );
+        os_free( ws2812_buf );
         ws2812_length = 0;
     }
-    ws2812_buf = (int*)pvPortMalloc( 4*length ); 
+    ws2812_buf = (int*)os_malloc( 4*length ); 
     if( ws2812_buf == NULL )
     {
         return 0;
@@ -1209,7 +1209,7 @@ int ws2812_init( int length, int group_length, int port, int pin )
         return 1;
     else
     {
-        vPortFree( ws2812_buf );
+        os_free( ws2812_buf );
         return 0;
     }
 }
@@ -1219,7 +1219,7 @@ void ws2812_deinit(void)
 {
     if( ws2812_buf )
     {
-        vPortFree( ws2812_buf );
+        os_free( ws2812_buf );
         ws2812_buf = 0;
         ws2812_length = 0;
         hal_ws2812_deinit();

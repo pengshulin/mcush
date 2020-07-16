@@ -7,7 +7,7 @@
 #include <malloc.h>
 int cmd_mapi( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           't', shell_str_test, 0, "test heap memory" },
 #if USE_CMD_MAPI_INFO
@@ -84,7 +84,7 @@ int cmd_mapi( int argc, char *argv[] )
         i = 0;
         while( i < MAPI_MLIST_LEN )
         {
-            mlist[i] = pvPortMalloc( j );
+            mlist[i] = os_malloc( j );
             if( mlist[i] )
             {
                 k += j;
@@ -102,7 +102,7 @@ int cmd_mapi( int argc, char *argv[] )
         for( i=0; i<MAPI_MLIST_LEN; i++ )
         {
             if( mlist[i] )
-                vPortFree((void*)mlist[i]);
+                os_free((void*)mlist[i]);
         }
         return 0;
     }
@@ -133,7 +133,7 @@ int cmd_mapi( int argc, char *argv[] )
         else
 #endif
         {
-            addr = pvPortMalloc( length );
+            addr = os_malloc( length );
         }
         shell_printf( "0x%08X\n", (unsigned int)addr );
     }
@@ -144,7 +144,7 @@ int cmd_mapi( int argc, char *argv[] )
             shell_write_err( shell_str_address );
             return -1;
         }
-        vPortFree( addr );
+        os_free( addr );
     }
 #if USE_CMD_MAPI_INFO
     else
@@ -170,7 +170,7 @@ usage_error:
 #if USE_CMD_MKBUF
 int cmd_mkbuf( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'f', shell_str_float, 0, "float mode" },
         { MCUSH_OPT_NONE } };
@@ -212,7 +212,7 @@ int cmd_mkbuf( int argc, char *argv[] )
 #if USE_CMD_DUMP
 int cmd_dump( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -449,7 +449,7 @@ int cmd_dump( int argc, char *argv[] )
 #if USE_CMD_WRITE
 int cmd_write( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -528,7 +528,7 @@ int cmd_write( int argc, char *argv[] )
 #if USE_CMD_MFILL
 int cmd_mfill( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 

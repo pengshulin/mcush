@@ -14,13 +14,13 @@ uint32_t hal_rng_get(void);
 #define USE_CMD_SGPIO  0
 #endif
 
-#include "mcush_vfs.h"
-
 #ifndef MCUSH_SPIFFS
 #define MCUSH_SPIFFS  1
 #endif
 
 #include "hal_platform_spiffs.h"
+
+#include "mcush_vfs.h"
 
 
 

@@ -11,23 +11,17 @@
 
 #define DEBUG_WRITE_LED  0
 
-SemaphoreHandle_t semaphore_logger;
+os_semaphore_handle_t semaphore_logger;
 
-QueueHandle_t queue_logger;
-QueueHandle_t queue_logger_monitor;
+os_queue_handle_t queue_logger;
+os_queue_handle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
 
 static const char _fname[] = LOGGER_FNAME;
 static uint8_t _enable = LOGGER_ENABLE;
 static uint8_t _busy;
 
-#if configSUPPORT_STATIC_ALLOCATION
-StaticTask_t logger_task_data;
-StackType_t logger_task_buffer[TASK_LOGGER_STACK_SIZE/sizeof(portSTACK_TYPE)];
-StaticQueue_t logger_queue_data;
-StaticQueue_t logger_monitor_queue_data;
-uint8_t logger_queue_buffer[TASK_LOGGER_QUEUE_SIZE*sizeof(logger_event_t)];
-uint8_t logger_monitor_queue_buffer[TASK_LOGGER_MONITOR_QUEUE_SIZE*sizeof(logger_event_t)];
+#if OS_SUPPORT_STATIC_ALLOCATION
 StaticSemaphore_t logger_semaphore_data;
 #endif
 
@@ -101,7 +95,7 @@ static int _logger_module_str( int type, const char *module, const char *str, in
 
     if( !( flag & LOG_FLAG_CONST ) )
     {
-        buf = (char*)pvPortMalloc(length+1);
+        buf = (char*)os_malloc(length+1);
         if( buf == NULL )
             return 0;
     }
@@ -129,14 +123,14 @@ static int _logger_module_str( int type, const char *module, const char *str, in
     }
     else
     {
-        if( xQueueSend( queue_logger, &evt, 0 ) != pdPASS )
+        if( os_queue_put( queue_logger, &evt, 0 ) == 0 )
             err = 1;
     }
 
     if( err )
     {
         if( !( flag & LOG_FLAG_CONST ) )
-            vPortFree( (void*)buf );
+            os_free( (void*)buf );
     }
     return err ? 0 : 1;
 }
@@ -531,16 +525,16 @@ static void post_process_event( logger_event_t *evt )
     if( monitoring_mode )
     {
         /* forward the event */
-        if( xQueueSend( queue_logger_monitor, evt, 0 ) != pdPASS )
+        if( os_queue_put( queue_logger_monitor, evt, 0 ) == 0 )
         {
             if( !( evt->flag & LOG_FLAG_CONST ) )
-                vPortFree(evt->str);
+                os_free(evt->str);
         }
     }
     else
     {
         if( !( evt->flag & LOG_FLAG_CONST ) )
-            vPortFree(evt->str);
+            os_free(evt->str);
     }
 }
 
@@ -558,7 +552,7 @@ void task_logger_entry(void *p)
     while( 1 )
     {
         hal_wdg_clear();
-        if( xQueueReceive( queue_logger, &evt, portMAX_DELAY ) != pdPASS )
+        if( os_queue_get( queue_logger, &evt, -1 ) == 0 )
             continue;
 
         if( ! _enable )
@@ -610,8 +604,8 @@ void task_logger_entry(void *p)
             j = j > 0 ? j : 0;
             size = size < 0 ? j : size + j;
             /* write the remaining (if exists) in one cycle */
-            while( xQueueReceive( queue_logger, &evt, \
-                                  TASK_LOGGER_LAZY_CLOSE_MS * configTICK_RATE_HZ / 1000 ) == pdPASS )
+            while( os_queue_get( queue_logger, &evt, \
+                    OS_TICKS_MS(TASK_LOGGER_LAZY_CLOSE_MS) ) == 1 )
             {
                 if( ! _enable )
                 {
@@ -641,7 +635,7 @@ void task_logger_entry(void *p)
             set_errno( ERRNO_FILE_READ_WRITE_ERROR );
             /* stop writing remaining events */
             post_process_event( &evt );
-            while( xQueueReceive( queue_logger, &evt, 0 ) == pdPASS )
+            while( os_queue_get( queue_logger, &evt, 0 ) == 1 )
                 post_process_event( &evt );
         }
         xSemaphoreGive( semaphore_logger );
@@ -666,9 +660,9 @@ const shell_cmd_t cmd_tab_logger[] = {
 
 void task_logger_init(void)
 {
-    TaskHandle_t task_logger;
+    os_task_handle_t task;
 
-#if configSUPPORT_STATIC_ALLOCATION
+#if OS_SUPPORT_STATIC_ALLOCATION
     semaphore_logger = xSemaphoreCreateMutexStatic(&logger_semaphore_data);
 #else
     semaphore_logger = xSemaphoreCreateMutex();
@@ -676,38 +670,38 @@ void task_logger_init(void)
     if( !semaphore_logger )
         halt("logger semphr create");
 
-#if configSUPPORT_STATIC_ALLOCATION
-    queue_logger = xQueueCreateStatic(TASK_LOGGER_QUEUE_SIZE,
-                            (unsigned portBASE_TYPE)sizeof(logger_event_t),
-                            logger_queue_buffer, &logger_queue_data );
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( logger, TASK_LOGGER_QUEUE_SIZE, sizeof(logger_event_t) );
+    queue_logger = os_queue_create_static( "logQ", TASK_LOGGER_QUEUE_SIZE,
+                            sizeof(logger_event_t), &static_queue_buffer_logger );
 #else
-    queue_logger = xQueueCreate(TASK_LOGGER_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));
+    queue_logger = os_queue_create( "logQ", TASK_LOGGER_QUEUE_SIZE, sizeof(logger_event_t) );
 #endif
     if( queue_logger == NULL )
         halt("create logger queue");
-    vQueueAddToRegistry( queue_logger, "logQ" );
 
-#if configSUPPORT_STATIC_ALLOCATION
-    queue_logger_monitor = xQueueCreateStatic(TASK_LOGGER_MONITOR_QUEUE_SIZE,
-                            (unsigned portBASE_TYPE)sizeof(logger_event_t),
-                            logger_monitor_queue_buffer, &logger_monitor_queue_data );
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( logger_monitor, TASK_LOGGER_MONITOR_QUEUE_SIZE, sizeof(logger_event_t) );
+    queue_logger_monitor = os_queue_create_static( "logMQ", 
+                    TASK_LOGGER_MONITOR_QUEUE_SIZE, sizeof(logger_event_t),
+                    &static_queue_buffer_logger_monitor );
 #else
-    queue_logger_monitor = xQueueCreate(TASK_LOGGER_MONITOR_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(logger_event_t));
+    queue_logger_monitor = os_queue_create( "logMQ", 
+                    TASK_LOGGER_MONITOR_QUEUE_SIZE, sizeof(logger_event_t) );
 #endif
     if( queue_logger_monitor == NULL )
         halt("create logger monitor queue");
-    vQueueAddToRegistry( queue_logger_monitor, "logMQ" );
 
-#if configSUPPORT_STATIC_ALLOCATION
-    task_logger = xTaskCreateStatic((TaskFunction_t)task_logger_entry, (const char *)"logT", 
-                TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_LOGGER_PRIORITY, logger_task_buffer, &logger_task_data);
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( logger, TASK_LOGGER_STACK_SIZE );
+    task = os_task_create_static( "logT", task_logger_entry, NULL,
+                TASK_LOGGER_STACK_SIZE, TASK_LOGGER_PRIORITY,
+                &static_task_buffer_logger);
 #else
-    xTaskCreate(task_logger_entry, (const char *)"logT",
-                TASK_LOGGER_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_LOGGER_PRIORITY, &task_logger);
+    task = os_task_create( "logT", task_logger_entry, NULL,
+                TASK_LOGGER_STACK_SIZE, TASK_LOGGER_PRIORITY);
 #endif
-    if( task_logger == NULL )
+    if( task == NULL )
         halt("create logger task");
 
     shell_add_cmd_table( cmd_tab_logger );
@@ -871,8 +865,8 @@ int cmd_logger( int argc, char *argv[] )
                 {
                     if( len > tail_len[i] )
                     {
-                        vPortFree( tail[i] );
-                        tail[i] = pvPortMalloc( len + 1 );
+                        os_free( tail[i] );
+                        tail[i] = os_malloc( len + 1 );
                         if( tail[i] == NULL )
                             break;
                         tail_len[i] = len;
@@ -880,7 +874,7 @@ int cmd_logger( int argc, char *argv[] )
                 }
                 else
                 {
-                    tail[i] = pvPortMalloc( len + 1 );
+                    tail[i] = os_malloc( len + 1 );
                     if( tail[i] == NULL )
                         break;
                     tail_len[i] = len;
@@ -896,7 +890,7 @@ int cmd_logger( int argc, char *argv[] )
                 if( tail[i] )
                 {
                     shell_write_line( tail[i] );
-                    vPortFree( tail[i] );
+                    os_free( tail[i] );
                 }
                 i = (i+1) % LOGGER_TAIL_NUM;
             }
@@ -935,7 +929,7 @@ int cmd_logger( int argc, char *argv[] )
                     }
                 }
                 if( !( evt.flag & LOG_FLAG_CONST ) )
-                    vPortFree( evt.str );
+                    os_free( evt.str );
             }
 
             do
@@ -951,10 +945,10 @@ int cmd_logger( int argc, char *argv[] )
         }
         monitoring_mode = 0;
         /* free all remaining event */
-        while( xQueueReceive( queue_logger_monitor, &evt, 0 ) == pdPASS )
+        while( os_queue_get( queue_logger_monitor, &evt, 0 ) )
         {
             if( !( evt.flag & LOG_FLAG_CONST ) )
-                vPortFree( evt.str );
+                os_free( evt.str );
         }
     }
     return 0;

@@ -32,7 +32,7 @@ extern uint32_t SystemCoreClock;
 #endif
 
 #ifndef configSUPPORT_STATIC_ALLOCATION
-    #define configSUPPORT_STATIC_ALLOCATION     1
+    #define configSUPPORT_STATIC_ALLOCATION    0 
 #endif
 
 #ifndef configAPPLICATION_ALLOCATED_HEAP

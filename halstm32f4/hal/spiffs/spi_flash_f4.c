@@ -587,7 +587,7 @@ void sFLASH_LowLevel_Init(void)
 
     gpio_init.Mode = GPIO_MODE_AF_PP;
     gpio_init.Speed = GPIO_SPEED_HIGH;
-    gpio_init.Pull = GPIO_PULLDOWN;
+    gpio_init.Pull = GPIO_NOPULL;
     gpio_init.Alternate = sFLASH_SPI_SCK_AF;
 
     /*!< SPI SCK pin configuration */
@@ -602,6 +602,7 @@ void sFLASH_LowLevel_Init(void)
     /*!< SPI MISO pin configuration */
     gpio_init.Alternate = sFLASH_SPI_MISO_AF;
     gpio_init.Pin =  sFLASH_SPI_MISO_PIN;
+    gpio_init.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(sFLASH_SPI_MISO_GPIO_PORT, &gpio_init);
 
     /*!< Configure sFLASH Card CS pin in output pushpull mode ********************/

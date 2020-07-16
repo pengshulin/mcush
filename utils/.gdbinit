@@ -163,6 +163,12 @@ chip_mem_configs = {
 [ 0xA0000000, 0xA0000FFE, 'rw', 16, False, 'FMC control register', ],
 ],
 
+'stm32f767': [
+[ 0x08000000, 0x081FFFFC, 'ro', 32, True,  'Flash 2M', ],
+[ 0x20000000, 0x20080000, 'rw', 32, False, 'SRAM 512k', ],
+[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
+],
+
 'lpc4337': [
 [ 0x1A000000, 0x1A07FFFC, 'ro', 32, True,   'FLASH A', ],
 [ 0x1B000000, 0x1B07FFFC, 'ro', 32, True,   'FLASH B', ],

@@ -7,12 +7,8 @@
 #include <string.h>
 #include <ctype.h>
 #include "hal.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
-#include "mcush_freertos_api.h"
 #include "shell.h"
+#include "mcush_os.h"
 #include "shell_str.h"
 #include "mcush_ver.h"
 #include "mcush_opt.h"
@@ -39,7 +35,8 @@ extern "C" {
  * 0 -- lowest (idle task)
  */
 #ifndef MCUSH_PRIORITY
-    #define MCUSH_PRIORITY  (3)
+    //#define MCUSH_PRIORITY  (3)
+    #define MCUSH_PRIORITY  (OS_PRIORITY_NORMAL)
 #endif
 
 #ifndef MCUSH_STACK_SIZE

@@ -133,7 +133,7 @@ int mcush_fatfs_open( const char *path, const char *mode )
     if( fil_idx < 0 )
         return 0;
 
-    pfil = pvPortMalloc( sizeof(FIL) );
+    pfil = os_malloc( sizeof(FIL) );
     if( pfil == NULL )
         return 0;
 
@@ -141,7 +141,7 @@ int mcush_fatfs_open( const char *path, const char *mode )
     if( ret != FR_OK )
     {
         mcush_fatfs_driver_errno = ret;
-        vPortFree(pfil);
+        os_free(pfil);
         return 0;
     }
 
@@ -191,7 +191,7 @@ int mcush_fatfs_close( int fh )
         return 0;
     pfil = _fds[--fh];
     ret = f_close( pfil );
-    vPortFree( pfil );
+    os_free( pfil );
     _fds[fh] = 0;
     return 1;
 }

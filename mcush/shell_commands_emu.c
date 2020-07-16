@@ -157,7 +157,7 @@ void emu_i2c_deinit(int i2c_index)
         return;
     hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit );
     hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit );
-    vPortFree( (void*)i2c );
+    os_free( (void*)i2c );
     i2c_cb[i2c_index] = 0;
 }
 
@@ -175,7 +175,7 @@ int emu_i2c_init(int i2c_index, i2c_cb_t *i2c_init)
     }
     else
     {
-        i2c = pvPortMalloc( sizeof(i2c_cb_t) );
+        i2c = os_malloc( sizeof(i2c_cb_t) );
         if( i2c == 0 )
             return 0;  /* fail */
         i2c_cb[i2c_index] = i2c;
@@ -248,7 +248,7 @@ err_ack:
 
 int cmd_i2c( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           0, shell_str_delay, "delay_us", "default 5" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -480,7 +480,7 @@ void emu_spi_deinit( int spi_index )
     hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
     hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
     hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
-    vPortFree( (void*)spi );
+    os_free( (void*)spi );
     spi_cb[spi_index] = 0;
 }
 
@@ -500,7 +500,7 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init )
     }
     else
     {
-        spi = pvPortMalloc( sizeof(spi_cb_t) );
+        spi = os_malloc( sizeof(spi_cb_t) );
         if( spi == 0 )
             return 0;  /* fail */
         spi_cb[spi_index] = spi;
@@ -643,7 +643,7 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int length
 
 int cmd_spi( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'w', shell_str_width, "bits", "default 8" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -886,7 +886,7 @@ void emu_pulse_deinit(int pulse_index)
     if( pulse==0 )
         return;
     hal_gpio_set_input( pulse->port, pulse->pin_bit );
-    vPortFree( (void*)pulse );
+    os_free( (void*)pulse );
     pulse_cb[pulse_index] = 0;
 }
 
@@ -903,7 +903,7 @@ int emu_pulse_init(int pulse_index, pulse_cb_t *pulse_init)
     }
     else
     {
-        pulse = pvPortMalloc( sizeof(pulse_cb_t) );
+        pulse = os_malloc( sizeof(pulse_cb_t) );
         if( pulse == 0 )
             return 0;  /* fail */
         pulse_cb[pulse_index] = pulse;
@@ -939,8 +939,8 @@ int emu_pulse_generate(int pulse_index, int number)
             hal_gpio_set( pulse->port, pulse->pin_bit );
         else
             hal_gpio_clr( pulse->port, pulse->pin_bit );
-        hal_delay_us( pulse->delay_us );
         portEXIT_CRITICAL();
+        hal_delay_us( pulse->delay_us );
     } 
     return 1;
 }
@@ -948,7 +948,7 @@ int emu_pulse_generate(int pulse_index, int number)
 
 int cmd_pulse( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           0, shell_str_delay, "delay_us", "default 5" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
@@ -1164,7 +1164,7 @@ char emu_ds1w_read_byte( int ds1w_index )
 
 int cmd_ds1w( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'r', shell_str_read, 0, shell_str_read },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 

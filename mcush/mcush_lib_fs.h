@@ -20,4 +20,6 @@ int mcush_file_write_int( const char *fname, int val );
 int mcush_file_load_float( const char *fname, float *val );
 int mcush_file_write_float( const char *fname, float val );
 
+int mcush_file_write_memory( const char *fname, void *memory, int bytes );
+
 #endif

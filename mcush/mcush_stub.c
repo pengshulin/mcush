@@ -140,10 +140,10 @@ int _gettimeofday(struct timeval *tv, struct timezone *tz)
     }
     else
     {
-        tick = xTaskGetTickCount();
-        s = tick / configTICK_RATE_HZ;
-        tick = tick - s * configTICK_RATE_HZ;
-        tick = tick * 1000000 / configTICK_RATE_HZ; 
+        tick = os_tick();
+        s = tick / OS_TICK_RATE;
+        tick = tick - s * OS_TICK_RATE;
+        tick = tick * 1000000 / OS_TICK_RATE; 
         tv->tv_sec = s;
         tv->tv_usec = tick;
     }

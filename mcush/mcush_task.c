@@ -96,6 +96,6 @@ void mcush_start(void)
 {
     if( !mcush_inited )
         mcush_init();
-    vTaskStartScheduler();
+    os_start(); //vTaskStartScheduler();
     halt("stopped");
 }

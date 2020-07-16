@@ -258,5 +258,18 @@ int mcush_file_write_float( const char *fname, float val )
 }
 
 
+/* write memory */
+int mcush_file_write_memory( const char *fname, void *memory, int bytes )
+{
+    int fd = mcush_open( fname, "w+" );
+    int r;
+
+    if( fd == 0 )
+        return 0;
+    r = mcush_write( fd, memory, bytes );
+    mcush_close( fd );
+    return (r==bytes) ? 1 : 0;
+}
+
 
 #endif

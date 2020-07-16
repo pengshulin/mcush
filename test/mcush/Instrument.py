@@ -272,7 +272,7 @@ class Instrument:
             #    self.logger.debug( '[R] '+ line )
             self.checkReturnedPrompt( ret )
             if cmd and self.DEFAULT_CHECK_RETURN_COMMAND and not Env.NO_ECHO_CHECK:
-                self.checkReturnCommand( ret, cmd )
+                self.checkReturnedCommand( ret, cmd )
             return ret[1:-1] 
         else:
             return []
@@ -291,7 +291,7 @@ class Instrument:
                     print( e )
         return self.writeCommand( cmd )
   
-    def checkReturnCommand( self, ret, cmd ):
+    def checkReturnedCommand( self, ret, cmd ):
         '''assert command returned is valid'''
         cmdret = ret[0]
         if Env.PYTHON_V3 and isinstance(cmdret, bytes):

@@ -266,6 +266,39 @@ def dt2s( dt, need_ms=False ):
     else:
         return '%d:%02d:%02d'% (hour, minute, sec)
 
+# array convert 
+def s2fa( val ):
+    length = int(len(val)/4)
+    return [unpack('f', val[i*4:(i+1)*4]) for i in range(length)]
+
+def s2da( val ):
+    length = int(len(val)/8)
+    return [unpack('d', val[i*8:(i+1)*8]) for i in range(length)]
+
+def s2Ia( val ):
+    length = int(len(val)/4)
+    return [unpack('I', val[i*4:(i+1)*4]) for i in range(length)]
+
+def s2ia( val ):
+    length = int(len(val)/4)
+    return [unpack('i', val[i*4:(i+1)*4]) for i in range(length)]
+
+def s2Ha( val ):
+    length = int(len(val)/2)
+    return [unpack('H', val[i*2:(i+1)*2]) for i in range(length)]
+
+def s2ha( val ):
+    length = int(len(val)/2)
+    return [unpack('h', val[i*2:(i+1)*2]) for i in range(length)]
+
+def s2Ba( val ):
+    length = len(val)
+    return [unpack('B', val[i]) for i in range(length)]
+
+def s2ba( val ):
+    length = len(val)
+    return [unpack('b', val[i]) for i in range(length)]
+
 
 def checksum( string ):
     if Env.PYTHON_V3:

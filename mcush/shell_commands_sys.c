@@ -6,7 +6,7 @@
 #if USE_CMD_UPTIME
 int cmd_uptime( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -49,7 +49,7 @@ static void _print_kernel_item_name(const char *name)
 
 int cmd_system( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_type, 0, "(t)ask|(q)ueue"
 #if USE_CMD_SYSTEM_KERNEL
@@ -81,11 +81,7 @@ int cmd_system( int argc, char *argv[] )
     TaskStatus_t *task_status_array;
 #if USE_CMD_SYSTEM_IDLE
     uint32_t idle_counter, idle_counter_last, idle_counter_max;
-    TaskHandle_t task_idle_counter;
-#if configSUPPORT_STATIC_ALLOCATION
-    StaticTask_t task_idle_counter_data;
-    StackType_t task_idle_counter_buffer[configMINIMAL_STACK_SIZE];
-#endif
+    os_task_handle_t task_idle_counter;
 #endif
 #if USE_CMD_SYSTEM_STACK
     char *p;
@@ -213,32 +209,33 @@ int cmd_system( int argc, char *argv[] )
         /* create counter task to check the maximum count value available */
         /* NOTE: the task runs at top priority and may involve side-effects */
         idle_counter = 0;
-        vTaskPrioritySet( NULL, configMAX_PRIORITIES-1 );
-#if configSUPPORT_STATIC_ALLOCATION
-        task_idle_counter = xTaskCreateStatic((TaskFunction_t)task_idle_counter_entry,
-                (const char *)"idleCntT", configMINIMAL_STACK_SIZE,
-                &idle_counter, configMAX_PRIORITIES-1,
-                task_idle_counter_buffer, &task_idle_counter_data);
+        os_task_priority_set( NULL, OS_PRIORITY_HIGHEST );
+#if OS_SUPPORT_STATIC_ALLOCATION
+        DEFINE_STATIC_TASK_BUFFER( idle_cnt, OS_STACK_SIZE_MIN );
+        task_idle_counter = os_task_create_static( "idleCntT",
+                task_idle_counter_entry, &idle_counter,
+                OS_STACK_SIZE_MIN, OS_PRIORITY_HIGHEST,
+                &static_task_buffer_idle_cnt );
 #else
-        xTaskCreate((TaskFunction_t)task_idle_counter_entry, (const char *)"idleCntT", 
-                configMINIMAL_STACK_SIZE,
-                &idle_counter, configMAX_PRIORITIES-1, &task_idle_counter);
+        task_idle_counter = os_task_create( "idleCntT",
+                task_idle_counter_entry, &idle_counter,
+                OS_STACK_SIZE_MIN, OS_PRIORITY_HIGHEST );
 #endif
         if( task_idle_counter == NULL )
         {
-            vTaskPrioritySet( NULL, MCUSH_PRIORITY );
+            os_task_priority_set( NULL, MCUSH_PRIORITY );
             return 1; 
         }
         /* check for continuous 0.5 second */
         idle_counter_last = idle_counter;
         hal_wdg_clear();
-        while( shell_driver_read_char_blocked(&c, configTICK_RATE_HZ / 2) != -1 )
+        while( shell_driver_read_char_blocked(&c, OS_TICKS_MS(500)) != -1 )
         {
             hal_wdg_clear();
             if( c == 0x03 ) /* Ctrl-C for stop */
             {
-                vTaskDelete( task_idle_counter );
-                vTaskPrioritySet( NULL, MCUSH_PRIORITY );
+                os_task_delete( task_idle_counter );
+                os_task_priority_set( NULL, MCUSH_PRIORITY );
                 return 0; 
             }
             else
@@ -247,18 +244,18 @@ int cmd_system( int argc, char *argv[] )
         hal_wdg_clear();
         idle_counter_max = idle_counter - idle_counter_last;
         idle_counter_max *= 2;
-        vTaskPrioritySet( task_idle_counter, TASK_IDLE_PRIORITY );
-        vTaskPrioritySet( NULL, MCUSH_PRIORITY );
+        os_task_priority_set( task_idle_counter, TASK_IDLE_PRIORITY );
+        os_task_priority_set( NULL, MCUSH_PRIORITY );
 
         /* loop check cpu idle rate at low priority */
         idle_counter_last = idle_counter;
         while( 1 )
         {
-            while( shell_driver_read_char_blocked(&c, configTICK_RATE_HZ) != -1 )
+            while( shell_driver_read_char_blocked(&c, OS_TICK_RATE) != -1 )
             {
                 if( c == 0x03 ) /* Ctrl-C for stop */
                 {
-                    vTaskDelete( task_idle_counter );
+                    os_task_delete( task_idle_counter );
                     return 0; 
                 }
             }

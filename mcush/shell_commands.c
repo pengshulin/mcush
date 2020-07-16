@@ -320,7 +320,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_HELP
 int cmd_help( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'a', "all", 0, "show all" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -362,7 +362,7 @@ int cmd_help( int argc, char *argv[] )
 #if USE_CMD_LOOP
 int cmd_loop( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'l', shell_str_loop, "loop_delay_ms", "default 1000ms" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
@@ -437,7 +437,7 @@ loop_start:
 #if USE_CMD_WAIT
 int cmd_wait( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_time, 0, "default 1000ms" },
         { MCUSH_OPT_NONE } };
@@ -457,7 +457,7 @@ int cmd_wait( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
-    vTaskDelay( ms * configTICK_RATE_HZ / 1000  );
+    os_task_delay_ms( ms );
     return 0;
 }
 #endif

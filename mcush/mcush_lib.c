@@ -165,11 +165,11 @@ void test_delay_ms(void)
 
 char *get_tick_time_str(char *buf, uint32_t tick, int ms)
 {
-    unsigned int s = tick / configTICK_RATE_HZ;
+    unsigned int s = tick / OS_TICK_RATE;
     if( ms )
     {
-        tick = tick - s * configTICK_RATE_HZ;
-        tick = tick * 1000 / configTICK_RATE_HZ; 
+        tick = tick - s * OS_TICK_RATE;
+        tick = tick * 1000 / OS_TICK_RATE; 
         sprintf(buf, "%u:%02u:%02u.%03u", s/3600, (s/60)%60, s%60, (unsigned int)tick);
     }
     else
@@ -180,7 +180,7 @@ char *get_tick_time_str(char *buf, uint32_t tick, int ms)
 
 char *get_uptime_str(char *buf, int ms)
 {
-    return get_tick_time_str( buf, xTaskGetTickCount(), ms );
+    return get_tick_time_str( buf, os_tick(), ms );
 }
 
 
@@ -207,7 +207,7 @@ char *get_rtc_tick_str(char *buf, uint32_t tick)
 
     if( get_rtc_tick( &rt ) )
     {
-        s = (xTaskGetTickCount() - tick) / configTICK_RATE_HZ;
+        s = (os_tick() - tick) / OS_TICK_RATE;
         rt = rt + 8*60*60 - s;
         t = gmtime( (const time_t*)&rt );
         t->tm_mon += 1;

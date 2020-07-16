@@ -29,7 +29,8 @@ if hal_config.use_spiffs:
     env.appendDefineFlags( [ 'SPIFLASH_AUTO_DETECT=1' ] )
     hal_config.paths += [hal_dir+'/spiffs']
     hal_config.sources += [hal_dir+'/spiffs/*.c']
-
+    #env.appendDefineFlags( [ 'WEACT_BOARD_VER=20' ] )
+    
 hal_config.use_fatfs = False
  
 env.appendDefineFlags( [
