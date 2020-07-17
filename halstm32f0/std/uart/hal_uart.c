@@ -50,18 +50,8 @@
     #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
-QueueHandle_t hal_uart_queue_rx, hal_uart_queue_tx;
+os_queue_handle_t hal_uart_queue_rx, hal_uart_queue_tx;
 
-#if configSUPPORT_STATIC_ALLOCATION
-#if HAL_UART_QUEUE_RX_LEN
-static StaticQueue_t hal_uart_queue_rx_data;
-uint8_t hal_uart_queue_rx_buffer[HAL_UART_QUEUE_RX_LEN];
-#endif
-#if HAL_UART_QUEUE_TX_LEN
-static StaticQueue_t hal_uart_queue_tx_data;
-uint8_t hal_uart_queue_tx_buffer[HAL_UART_QUEUE_TX_LEN];
-#endif
-#endif
 
 int hal_uart_init( uint32_t baudrate )
 {
@@ -69,41 +59,34 @@ int hal_uart_init( uint32_t baudrate )
     USART_InitTypeDef usart_init;
     NVIC_InitTypeDef nvic_init;
 
-#if configSUPPORT_STATIC_ALLOCATION
+#if OS_SUPPORT_STATIC_ALLOCATION
 #if HAL_UART_QUEUE_RX_LEN
-    hal_uart_queue_rx = xQueueCreateStatic( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ),
-                                            hal_uart_queue_rx_buffer, &hal_uart_queue_rx_data );
+    DEFINE_STATIC_QUEUE_BUFFER( uart_rx, HAL_UART_QUEUE_RX_LEN, 1 );
+    hal_uart_queue_rx = os_queue_create_static( "rxQ", HAL_UART_QUEUE_RX_LEN, 1,
+                                            &static_queue_buffer_uart_rx );
     if( hal_uart_queue_rx == NULL )
         return 0;
 #endif
 #if HAL_UART_QUEUE_TX_LEN
-    hal_uart_queue_tx = xQueueCreateStatic( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ),
-                                            hal_uart_queue_tx_buffer, &hal_uart_queue_tx_data );
+    DEFINE_STATIC_QUEUE_BUFFER( uart_tx, HAL_UART_QUEUE_TX_LEN, 1 );
+    hal_uart_queue_tx = os_queue_create_static( "txQ", HAL_UART_QUEUE_TX_LEN, 1,
+                                            &static_queue_buffer_uart_tx );
     if( hal_uart_queue_tx == NULL )
         return 0;
 #endif
 #else
 #if HAL_UART_QUEUE_RX_LEN
-    hal_uart_queue_rx = xQueueCreate( HAL_UART_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_uart_queue_rx = os_queue_create( "rxQ", HAL_UART_QUEUE_RX_LEN, 1 );
     if( hal_uart_queue_rx == NULL )
         return 0;
 #endif
 #if HAL_UART_QUEUE_TX_LEN
-    hal_uart_queue_tx = xQueueCreate( HAL_UART_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof( signed char ) );
+    hal_uart_queue_tx = os_queue_create( "txQ", HAL_UART_QUEUE_TX_LEN, 1 );
     if( hal_uart_queue_tx == NULL )
         return 0;
 #endif
 #endif
 
-#if HAL_UART_QUEUE_ADD_TO_REG
-#if HAL_UART_QUEUE_RX_LEN
-    vQueueAddToRegistry( hal_uart_queue_rx, "rxQ" );
-#endif
-#if HAL_UART_QUEUE_TX_LEN
-    vQueueAddToRegistry( hal_uart_queue_tx, "txQ" );
-#endif
-#endif
- 
     USART_ClearFlag( HAL_UARTx, USART_FLAG_CTS | USART_FLAG_LBD | USART_FLAG_TC | USART_FLAG_RXNE );	
     USART_ITConfig( HAL_UARTx, USART_IT_CTS | USART_IT_LBD | USART_IT_TXE | USART_IT_TC | \
                     USART_IT_RXNE | USART_IT_IDLE | USART_IT_PE | USART_IT_ERR, DISABLE );
@@ -150,19 +133,19 @@ int hal_uart_init( uint32_t baudrate )
 
 void HAL_UARTx_IRQHandler(void)
 {
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     char c;
 
     if( USART_GetITStatus( HAL_UARTx, USART_IT_TXE ) == SET )
     {
 #if HAL_UART_QUEUE_TX_LEN
-        if( xQueueReceiveFromISR( hal_uart_queue_tx, &c, &xHigherPriorityTaskWoken ) == pdTRUE )
+        if( os_queue_get_isr( hal_uart_queue_tx, &c ) )
         {
             USART_SendData( HAL_UARTx, c );
         }
         else
-        {
 #endif
+        {
             USART_ITConfig( HAL_UARTx, USART_IT_TXE, DISABLE );        
         }       
     }
@@ -171,7 +154,7 @@ void HAL_UARTx_IRQHandler(void)
     {
         c = USART_ReceiveData( HAL_UARTx );
 #if HAL_UART_QUEUE_RX_LEN
-        xQueueSendFromISR( hal_uart_queue_rx, &c, &xHigherPriorityTaskWoken );
+        os_queue_put_isr( hal_uart_queue_rx, &c );
 #endif
         USART_ClearITPendingBit( HAL_UARTx, USART_IT_RXNE );
     }   
@@ -182,17 +165,17 @@ void HAL_UARTx_IRQHandler(void)
         USART_ClearITPendingBit( HAL_UARTx, USART_IT_ORE );
     }
 
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 
 void hal_uart_reset(void)
 {
 #if HAL_UART_QUEUE_RX_LEN
-    xQueueReset( hal_uart_queue_rx );
+    os_queue_reset( hal_uart_queue_rx );
 #endif
 #if HAL_UART_QUEUE_TX_LEN
-    xQueueReset( hal_uart_queue_tx );
+    os_queue_reset( hal_uart_queue_tx );
 #endif
 }
 
@@ -203,44 +186,44 @@ void hal_uart_enable(uint8_t enable)
 }
 
 
-signed portBASE_TYPE hal_uart_putc( char c, TickType_t xBlockTime )
+int hal_uart_putc( char c, os_tick_t block_ticks )
 {
 #if HAL_UART_QUEUE_TX_LEN
-    if( xQueueSend( hal_uart_queue_tx, &c, xBlockTime ) == pdPASS )
+    if( os_queue_put( hal_uart_queue_tx, &c, block_ticks ) )
     {
         USART_ITConfig( HAL_UARTx, USART_IT_TXE, ENABLE );
-        return pdPASS;
+        return 1;
     }
     else
 #endif
-        return pdFAIL;
+        return 0;
 }
 
 
-signed portBASE_TYPE hal_uart_getc( char *c, TickType_t xBlockTime )
+int hal_uart_getc( char *c, os_tick_t block_ticks )
 {
 #if HAL_UART_QUEUE_RX_LEN
-    return xQueueReceive( hal_uart_queue_rx, c, xBlockTime );
+    return os_queue_get( hal_uart_queue_rx, c, block_ticks );
 #else
-    return pdFAIL;
+    return 0;
 #endif
 }
 
 
-signed portBASE_TYPE hal_uart_feedc( char c, TickType_t xBlockTime )
+int hal_uart_feedc( char c, os_tick_t block_ticks )
 {
 #if HAL_UART_QUEUE_RX_LEN
-    if( xQueueSend( hal_uart_queue_rx, &c, xBlockTime ) == pdPASS )
-        return pdPASS;
+    if( os_queue_put( hal_uart_queue_rx, &c, block_ticks ) )
+        return 1;
     else
 #endif
-        return pdFAIL;
+        return 0;
 }
 
 
 
 /****************************************************************************/
-/* APIs                                                                     */
+/* shell APIs                                                               */
 /****************************************************************************/
 
 int shell_driver_init( void )
@@ -260,8 +243,8 @@ int  shell_driver_read_feed( char *buffer, int len )
     int bytes=0;
     while( bytes < len )
     {
-        while( hal_uart_feedc( *(char*)((int)buffer + bytes), portMAX_DELAY ) == pdFAIL )
-            vTaskDelay(1);
+        while( hal_uart_feedc( *(char*)((int)buffer + bytes), portMAX_DELAY ) == 0 )
+            os_task_delay(1);
         bytes += 1;
     }
     return bytes;
@@ -283,9 +266,9 @@ int  shell_driver_read_char( char *c )
 }
 
 
-int  shell_driver_read_char_blocked( char *c, int block_time )
+int  shell_driver_read_char_blocked( char *c, int block_ticks )
 {
-    if( hal_uart_getc( c, block_time ) == pdFAIL )
+    if( hal_uart_getc( c, block_ticks ) == 0 )
         return -1;
     else
         return (int)c;
@@ -304,8 +287,8 @@ int  shell_driver_write( const char *buffer, int len )
 
     while( written < len )
     {
-        while( hal_uart_putc( *(char*)((int)buffer + written) , portMAX_DELAY ) == pdFAIL )
-            vTaskDelay(1);
+        while( hal_uart_putc( *(char*)((int)buffer + written), -1 ) == 0 )
+            os_task_delay(1);
         written += 1;
     }
     return written;
@@ -314,8 +297,8 @@ int  shell_driver_write( const char *buffer, int len )
 
 void shell_driver_write_char( char c )
 {
-    while( hal_uart_putc( c, portMAX_DELAY ) == pdFAIL )
-        vTaskDelay(1);
+    while( hal_uart_putc( c, -1 ) == 0 )
+        os_task_delay(1);
 }
 
 

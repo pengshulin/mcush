@@ -1314,7 +1314,7 @@ void ws2812_flush(void)
 #if USE_CMD_WS2812
 int cmd_ws2812( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'l', shell_str_length, shell_str_length, "number of groups" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 

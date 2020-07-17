@@ -35,13 +35,7 @@
 
 extern const GPIO_TypeDef * const ports[];
 
-QueueHandle_t hal_can_queue_rx, hal_can_queue_tx;
-#if configSUPPORT_STATIC_ALLOCATION
-StaticQueue_t hal_can_queue_rx_data;
-uint8_t hal_can_queue_rx_buffer[HAL_CAN_QUEUE_RX_LEN*sizeof(can_message_t)];
-StaticQueue_t hal_can_queue_tx_data;
-uint8_t hal_can_queue_tx_buffer[HAL_CAN_QUEUE_TX_LEN*sizeof(can_message_t)];
-#endif
+os_queue_handle_t hal_can_queue_rx, hal_can_queue_tx;
 
 uint32_t hal_can_tx_counter;
 uint32_t hal_can_rx_counter;
@@ -72,19 +66,19 @@ int hal_can_init( void )
     if( _inited )
         return 1;
 
-#if configSUPPORT_STATIC_ALLOCATION
-    hal_can_queue_rx = xQueueCreateStatic( HAL_CAN_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t),
-                                           hal_can_queue_rx_buffer, &hal_can_queue_rx_data );
-    hal_can_queue_tx = xQueueCreateStatic( HAL_CAN_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(can_message_t),
-                                           hal_can_queue_tx_buffer, &hal_can_queue_tx_data );
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( can_rx, HAL_CAN_QUEUE_RX_LEN, sizeof(can_message_t) );
+    DEFINE_STATIC_QUEUE_BUFFER( can_tx, HAL_CAN_QUEUE_TX_LEN, sizeof(can_message_t) );
+    hal_can_queue_rx = os_queue_create_static( "canRxQ", HAL_CAN_QUEUE_RX_LEN, sizeof(can_message_t),
+                                            &static_queue_buffer_can_rx );
+    hal_can_queue_tx = os_queue_create_static( "canTxQ", HAL_CAN_QUEUE_TX_LEN, sizeof(can_message_t),
+                                            &static_queue_buffer_can_tx );
 #else
-    hal_can_queue_rx = xQueueCreate( HAL_CAN_QUEUE_RX_LEN, ( unsigned portBASE_TYPE ) sizeof(can_message_t) );
-    hal_can_queue_tx = xQueueCreate( HAL_CAN_QUEUE_TX_LEN, ( unsigned portBASE_TYPE ) sizeof(can_message_t) );
+    hal_can_queue_rx = os_queue_create( "canRxQ", HAL_CAN_QUEUE_RX_LEN, sizeof(can_message_t) );
+    hal_can_queue_tx = os_queue_create( "canTxQ", HAL_CAN_QUEUE_TX_LEN, sizeof(can_message_t) );
 #endif
-    if( !hal_can_queue_rx || !hal_can_queue_tx )
+    if( (hal_can_queue_rx == NULL) || (hal_can_queue_tx == NULL) )
         return 0;
-    vQueueAddToRegistry( hal_can_queue_rx, "canrxQ" );
-    vQueueAddToRegistry( hal_can_queue_tx, "cantxQ" );
 
     //RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC, ENABLE);
 
@@ -148,8 +142,8 @@ void hal_can_deinit( void )
 
     if( _inited )
     {
-        vQueueDelete( hal_can_queue_rx );
-        vQueueDelete( hal_can_queue_tx );
+        os_queue_delete( hal_can_queue_rx );
+        os_queue_delete( hal_can_queue_tx );
         hal_can_queue_rx = 0;
         hal_can_queue_tx = 0;
 
@@ -341,9 +335,9 @@ int hal_can_receive( can_message_t *msg )
 }
 
 
-int hal_can_read( can_message_t *msg, int block_time )
+int hal_can_read( can_message_t *msg, int block_ticks )
 {
-    if( xQueueReceive( hal_can_queue_rx, msg, block_time ) == pdPASS )
+    if( os_queue_get( hal_can_queue_rx, msg, block_ticks ) )
         return 1;
     else
         return 0;
@@ -355,7 +349,7 @@ int hal_can_write( can_message_t *msg )
     if( hal_can_send( msg ) >= 0 )
         return 1;
     /* mailbox busy, cache to queue */
-    if( xQueueSend( hal_can_queue_tx, msg, 0 ) == pdPASS )
+    if( os_queue_put( hal_can_queue_tx, msg, 0 ) )
         return 1;
     else
         return 0;
@@ -374,7 +368,7 @@ int hal_can_get_counter( uint32_t *tx_counter, uint32_t *rx_counter )
 
 void HAL_CAN_TX_IRQHandler(void)
 {
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     can_message_t msg;
 
     if( CAN_GetITStatus( HAL_CANx, CAN_IT_TME) == SET )
@@ -382,30 +376,30 @@ void HAL_CAN_TX_IRQHandler(void)
         CAN_ClearITPendingBit( HAL_CANx, CAN_IT_TME );
         hal_can_tx_counter += 1;
         /* send remaining */ 
-        while( xQueueReceiveFromISR( hal_can_queue_tx, &msg, &xHigherPriorityTaskWoken ) == pdTRUE )
+        while( os_queue_get_isr( hal_can_queue_tx, &msg ) )
         {
             if( hal_can_send( &msg ) < 0 )
                 break;
             hal_can_tx_counter += 1;
         }
     }
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 
 void HAL_CAN_RX_IRQHandler(void)
 {
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     can_message_t msg;
 
     while( hal_can_receive( &msg ) )
     {
         hal_can_rx_counter += 1;
-        if( xQueueSendFromISR( hal_can_queue_rx, &msg, &xHigherPriorityTaskWoken ) != pdTRUE )
+        if( os_queue_put_isr( hal_can_queue_rx, &msg ) == 0 )
             break;
     }
     
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 

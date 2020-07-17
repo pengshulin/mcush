@@ -11,13 +11,13 @@
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
 #define TASK_VCP_TX_READ_TIMEOUT_MS    5  /* timeout for the last byte, actual cycle timeout will be doubled */
-#define TASK_VCP_TX_READ_TIMEOUT_TICK  (TASK_VCP_TX_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
+#define TASK_VCP_TX_READ_TIMEOUT_TICK  OS_TICKS_MS(5)
 
 #define HAL_VCP_QUEUE_RX_LEN   128  /* memory consumption: RX_LEN x 2 */
 #define HAL_VCP_QUEUE_TX_LEN   63  /* memory consumption: TX_LEN x 3 */
 
 #define VCP_WRITE_BLOCK_AUTO_ADAPTED  1
-#define VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK  (1000*configTICK_RATE_HZ/1000)
+#define VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK  OS_TICKS_MS(1000)
 
 
 USBD_HandleTypeDef hUsbDeviceFS;
@@ -29,25 +29,16 @@ char hal_vcp_tx_buf1[HAL_VCP_QUEUE_TX_LEN];
 char hal_vcp_tx_buf2[HAL_VCP_QUEUE_TX_LEN];
 int hal_vcp_tx_buf1_len, hal_vcp_tx_buf2_len;
 int8_t hal_vcp_tx_use_buf2;
-QueueHandle_t hal_vcp_queue_rx;
-QueueHandle_t hal_vcp_queue_tx;
-SemaphoreHandle_t hal_vcp_sem_tx;
-#if configSUPPORT_STATIC_ALLOCATION
-StaticQueue_t hal_vcp_queue_rx_data;
-uint8_t hal_vcp_queue_rx_buffer[HAL_VCP_QUEUE_RX_LEN];
-StaticQueue_t hal_vcp_queue_tx_data;
-uint8_t hal_vcp_queue_tx_buffer[HAL_VCP_QUEUE_TX_LEN];
-StaticSemaphore_t hal_vcp_sem_tx_data;
-StaticTask_t hal_vcp_tx_task_data;
-StackType_t hal_vcp_tx_task_buffer[TASK_VCP_TX_STACK_SIZE/sizeof(portSTACK_TYPE)];
-#endif
 
+os_queue_handle_t hal_vcp_queue_rx;
+os_queue_handle_t hal_vcp_queue_tx;
+os_semaphore_handle_t hal_vcp_sem_tx;
 
 
 /* NOTE: call this hook in ST/USB_Device_Library/usbd_cdc.c/USBD_CDC_DataIn function */
 void hal_vcp_tx_done_isr_hook(void)
 {
-    xSemaphoreGiveFromISR( hal_vcp_sem_tx, 0 );
+    os_semaphore_put_isr( hal_vcp_sem_tx );
 }
 
 
@@ -56,7 +47,7 @@ void task_vcp_tx_entry(void *p)
     char c;
     char *next_buf;
     int *next_buf_len;
-    TickType_t timeout;
+    os_tick_t timeout;
 
     while(1)
     {
@@ -64,28 +55,28 @@ void task_vcp_tx_entry(void *p)
         next_buf_len = hal_vcp_tx_use_buf2 ? &hal_vcp_tx_buf2_len : &hal_vcp_tx_buf1_len;
         
         /* get the first item from the queue */ 
-        if( xQueueReceive( hal_vcp_queue_tx, &c, portMAX_DELAY ) != pdPASS )
+        if( os_queue_get( hal_vcp_queue_tx, &c, -1 ) == 0 )
             continue;
-        timeout = xTaskGetTickCount() + TASK_VCP_TX_READ_TIMEOUT_TICK;
+        timeout = os_tick() + TASK_VCP_TX_READ_TIMEOUT_TICK;
         *next_buf = c;
         *next_buf_len = 1;
 
         /* read as much as possible from the queue with time limit */
         while( *next_buf_len < HAL_VCP_QUEUE_TX_LEN )
         {
-            if( xQueueReceive( hal_vcp_queue_tx, &c, TASK_VCP_TX_READ_TIMEOUT_TICK ) == pdPASS )
+            if( os_queue_get( hal_vcp_queue_tx, &c, TASK_VCP_TX_READ_TIMEOUT_TICK ) )
             {
                 *(next_buf + *next_buf_len) = c;
                 *next_buf_len += 1;
             }
-            if( xTaskGetTickCount() > timeout )
+            if( os_tick() > timeout )
                 break;
         }
 
         /* try to send */
         while( hUsbDeviceFS.dev_config )
         {
-            if( xSemaphoreTake( hal_vcp_sem_tx, portMAX_DELAY ) == pdTRUE )
+            if( os_semaphore_get( hal_vcp_sem_tx, -1 ) )
             {
                 if( CDC_Transmit_FS( (uint8_t*)next_buf, *next_buf_len ) == USBD_OK )
                 {
@@ -93,14 +84,14 @@ void task_vcp_tx_entry(void *p)
                 }
                 else
                 {
-                    xSemaphoreGive( hal_vcp_sem_tx );
-                    //taskYIELD();
-                    vTaskDelay(1);
+                    os_semaphore_put( hal_vcp_sem_tx );
+                    //os_task_switch();
+                    os_task_delay(1);
                 }
             }
             else
-                //taskYIELD();
-                vTaskDelay(1);
+                //os_task_switch();
+                os_task_delay(1);
         }
 
         /* switch to next bank */
@@ -111,35 +102,33 @@ void task_vcp_tx_entry(void *p)
 
 int hal_uart_init(uint32_t baudrate)
 {
-    TaskHandle_t task_vcp_tx;
+    os_task_handle_t task;
 
-#if configSUPPORT_STATIC_ALLOCATION
-    hal_vcp_queue_rx = xQueueCreateStatic( HAL_VCP_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(signed char),
-                                           hal_vcp_queue_rx_buffer, &hal_vcp_queue_rx_data );
-    hal_vcp_queue_tx = xQueueCreateStatic( HAL_VCP_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(signed char),
-                                           hal_vcp_queue_tx_buffer, &hal_vcp_queue_tx_data );
-    hal_vcp_sem_tx = xSemaphoreCreateBinaryStatic(&hal_vcp_sem_tx_data);
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( vcprx, HAL_VCP_QUEUE_RX_LEN, 1 );
+    DEFINE_STATIC_QUEUE_BUFFER( vcptx, HAL_VCP_QUEUE_TX_LEN, 1 );
+    hal_vcp_queue_rx = os_queue_create_static( "vcpRxQ", HAL_VCP_QUEUE_RX_LEN, 1, &static_queue_buffer_vcprx );
+    hal_vcp_queue_tx = os_queue_create_static( "vcpTxQ", HAL_VCP_QUEUE_TX_LEN, 1, &static_queue_buffer_vcptx );
+    DEFINE_STATIC_SEMAPHORE_BUFFER( vcptx );
+    hal_vcp_sem_tx = os_semaphore_create_binary_static( &static_semaphore_buffer_vcptx );
 #else
-    hal_vcp_queue_rx = xQueueCreate( HAL_VCP_QUEUE_RX_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
-    hal_vcp_queue_tx = xQueueCreate( HAL_VCP_QUEUE_TX_LEN, (unsigned portBASE_TYPE)sizeof(signed char) );
-    hal_vcp_sem_tx = xSemaphoreCreateBinary();
+    hal_vcp_queue_rx = os_queue_create( "vcpRxQ", HAL_VCP_QUEUE_RX_LEN, 1 );
+    hal_vcp_queue_tx = os_queue_create( "vcpTxQ", HAL_VCP_QUEUE_TX_LEN, 1 );
+    hal_vcp_sem_tx = os_semaphore_create_binary( );
 #endif
-    if( !hal_vcp_queue_rx || !hal_vcp_queue_tx || !hal_vcp_sem_tx )
+    if( (hal_vcp_queue_rx == NULL) || (hal_vcp_queue_tx == NULL) || (hal_vcp_sem_tx == NULL) )
         return 0;
-    xSemaphoreGive(hal_vcp_sem_tx);
+    os_semaphore_put( hal_vcp_sem_tx );
     hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
 
     /* create vcp/tx task */
-#if configSUPPORT_STATIC_ALLOCATION
-    task_vcp_tx = xTaskCreateStatic(task_vcp_tx_entry, (const char *)"vcp/txT", 
-                TASK_VCP_TX_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_VCP_TX_PRIORITY, hal_vcp_tx_task_buffer, &hal_vcp_tx_task_data);
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( vcp, TASK_VCP_TX_STACK_SIZE );
+    task = os_task_create_static("vcp/txT", task_vcp_tx_entry, NULL, TASK_VCP_TX_STACK_SIZE, TASK_VCP_TX_PRIORITY, &static_task_buffer_vcp);
 #else
-    xTaskCreate(task_vcp_tx_entry, (const char *)"vcp/txT", 
-                TASK_VCP_TX_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_VCP_TX_PRIORITY, &task_vcp_tx);
+    task = os_task_create("vcp/txT", task_vcp_tx_entry, NULL, TASK_VCP_TX_STACK_SIZE, TASK_VCP_TX_PRIORITY);
 #endif
-    if( task_vcp_tx == NULL )
+    if( task == NULL )
         halt("create vcp/tx task");
 
     USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
@@ -158,9 +147,8 @@ int  shell_driver_init( void )
 
 void shell_driver_reset( void )
 {
-    xQueueReset( hal_vcp_queue_rx );
+    os_queue_reset( hal_vcp_queue_rx );
     hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
-
 }
 
 
@@ -169,7 +157,7 @@ int  shell_driver_read( char *buffer, int len )
     int bytes=0;
     while( bytes < len )
     {
-        if( xQueueReceive( hal_vcp_queue_rx, buffer, portMAX_DELAY ) == pdPASS )
+        if( os_queue_get( hal_vcp_queue_rx, buffer, -1 ) )
         {
             buffer++;
             bytes++;
@@ -181,19 +169,19 @@ int  shell_driver_read( char *buffer, int len )
 
 int  shell_driver_read_char( char *c )
 {
-    if( xQueueReceive( hal_vcp_queue_rx, c, portMAX_DELAY ) != pdPASS )
-        return -1;
-    else
+    if( os_queue_get( hal_vcp_queue_rx, c, -1 ) )
         return (int)c;
+    else
+        return -1;
 }
 
 
-int  shell_driver_read_char_blocked( char *c, int block_time )
+int  shell_driver_read_char_blocked( char *c, int block_ticks )
 {
-    if( xQueueReceive( hal_vcp_queue_rx, c, block_time ) != pdPASS )
-        return -1;
-    else
+    if( os_queue_get( hal_vcp_queue_rx, c, block_ticks ) )
         return (int)c;
+    else
+        return -1;
 }
 
 
@@ -213,12 +201,12 @@ int  shell_driver_write( const char *buffer, int len )
     {
         if( broken )
         {
-            if( xQueueSend( hal_vcp_queue_tx, (void*)(buffer), 0 ) == pdPASS )
+            if( os_queue_put( hal_vcp_queue_tx, (void*)(buffer), 0 ) )
                 broken = 0; 
         } 
         else
         {
-            if( xQueueSend( hal_vcp_queue_tx, (void*)(buffer), VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK ) != pdPASS )
+            if( os_queue_put( hal_vcp_queue_tx, (void*)(buffer), VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK ) == 0 )
                 broken = 1; 
         }
         written ++;
@@ -228,7 +216,7 @@ int  shell_driver_write( const char *buffer, int len )
     /* always blocked, this will make the running task blocked (if connection is broken) */
     while( written < len )
     {
-        if( xQueueSend( hal_vcp_queue_tx, (void*)(buffer), portMAX_DELAY ) == pdPASS )
+        if( os_queue_put( hal_vcp_queue_tx, (void*)(buffer), -1 ) )
         {
             written ++;
             buffer ++;

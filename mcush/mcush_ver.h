@@ -3,8 +3,8 @@
 #define __MCUSH_VER_H__
 
 #define MCUSH_VERSION_MAJOR    1
-#define MCUSH_VERSION_MINOR    1
-#define MCUSH_VERSION_STRING   "1.1"
+#define MCUSH_VERSION_MINOR    2
+#define MCUSH_VERSION_STRING   "1.2"
 
 #endif
 

@@ -599,7 +599,7 @@ int cmd_crc( int argc, char *argv[] )
 #include "mcush_vfs_fcfs.h"
 int cmd_fcfs( int argc, char *argv[] )
 {
-    static const mcush_opt_spec const opt_spec[] = {
+    static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'o', shell_str_offset, shell_str_offset, shell_str_offset },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 

@@ -12,7 +12,6 @@
 #define DEBUG_WRITE_LED  0
 
 os_semaphore_handle_t semaphore_logger;
-
 os_queue_handle_t queue_logger;
 os_queue_handle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
@@ -20,10 +19,6 @@ static uint8_t monitoring_mode=0;
 static const char _fname[] = LOGGER_FNAME;
 static uint8_t _enable = LOGGER_ENABLE;
 static uint8_t _busy;
-
-#if OS_SUPPORT_STATIC_ALLOCATION
-StaticSemaphore_t logger_semaphore_data;
-#endif
 
 
 void logger_enable(void)
@@ -91,7 +86,7 @@ static int _logger_module_str( int type, const char *module, const char *str, in
     uint32_t length = strlen(str);
     char *buf;
     int err=0;
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
     if( !( flag & LOG_FLAG_CONST ) )
     {
@@ -101,14 +96,13 @@ static int _logger_module_str( int type, const char *module, const char *str, in
     }
 
     evt.type = type;
-    evt.time = (uint32_t)xTaskGetTickCount();
+    evt.time = (uint32_t)os_tick();
     evt.flag = flag;
     evt.module = module;
     if( !( flag & LOG_FLAG_CONST ) )
     {
         evt.str = buf;
-        strncpy( buf, str, length );
-        buf[length] = 0;
+        strcpy( buf, str );
         buf = rstrip(buf);
     }
     else
@@ -116,10 +110,10 @@ static int _logger_module_str( int type, const char *module, const char *str, in
 
     if( isr_mode )
     {
-        if( xQueueSendFromISR( queue_logger, &evt, &xHigherPriorityTaskWoken ) != pdPASS )
+        if( os_queue_put_isr( queue_logger, &evt ) == 0 )
             err = 1;
-        else
-            portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+        //else
+        //    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     }
     else
     {
@@ -382,12 +376,12 @@ static char *_join_log_fname( char *buf, int level )
 
 int delete_all_log_files( int delete_backup )
 {
-    char fname[20];
-    char fname_bak[20];
+    char fname[30];
+    char fname_bak[30];
     int i=0;
     int succ=1;
 
-    xSemaphoreTake( semaphore_logger, portMAX_DELAY );
+    os_semaphore_get( semaphore_logger, -1 );
     /* remove all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
     {
@@ -431,19 +425,19 @@ int delete_all_log_files( int delete_backup )
             }
         }
     }
-    xSemaphoreGive( semaphore_logger );
+    os_semaphore_put( semaphore_logger );
     return succ;
 }
 
 
 int backup_all_log_files( void )
 {
-    char fname[20];
-    char fname_bak[20];
+    char fname[30];
+    char fname_bak[30];
     int i=0;
     int succ=1;
 
-    xSemaphoreTake( semaphore_logger, portMAX_DELAY );
+    os_semaphore_get( semaphore_logger, -1 );
     /* rename all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
     {
@@ -483,7 +477,7 @@ int backup_all_log_files( void )
         shell_printf( "rename %s -> %s\n", fname, fname_bak+3 );
 #endif
     }
-    xSemaphoreGive( semaphore_logger );
+    os_semaphore_put( semaphore_logger );
     return succ;
 }
 
@@ -492,7 +486,7 @@ int backup_all_log_files( void )
 static int rotate_log_files( const char *src_fname, int level )
 {
     int size;
-    char fname[20];
+    char fname[30];
 
     _join_log_fname(fname, level+1);
 
@@ -565,7 +559,7 @@ void task_logger_entry(void *p)
         _busy = 1;
         hal_wdg_clear();
 
-        xSemaphoreTake( semaphore_logger, portMAX_DELAY );
+        os_semaphore_get( semaphore_logger, -1 );
 
         /* check file size from filesystem only once */
         if( size < 0 )
@@ -585,7 +579,7 @@ void task_logger_entry(void *p)
         /* recheck after check_size/rotate_log execution */
         if( ! _enable )
         {
-            xSemaphoreGive( semaphore_logger );
+            os_semaphore_put( semaphore_logger );
             post_process_event( &evt );
             continue;
         }
@@ -638,7 +632,7 @@ void task_logger_entry(void *p)
             while( os_queue_get( queue_logger, &evt, 0 ) == 1 )
                 post_process_event( &evt );
         }
-        xSemaphoreGive( semaphore_logger );
+        os_semaphore_put( semaphore_logger );
         _busy = 0;
 #else
         post_process_event( &evt );  /* spiffs not support */
@@ -663,11 +657,12 @@ void task_logger_init(void)
     os_task_handle_t task;
 
 #if OS_SUPPORT_STATIC_ALLOCATION
-    semaphore_logger = xSemaphoreCreateMutexStatic(&logger_semaphore_data);
+    DEFINE_STATIC_SEMAPHORE_BUFFER( logger );
+    semaphore_logger = os_semaphore_create_mutex_static(&static_semaphore_buffer_logger);
 #else
-    semaphore_logger = xSemaphoreCreateMutex();
+    semaphore_logger = os_semaphore_create_mutex();
 #endif
-    if( !semaphore_logger )
+    if( semaphore_logger == NULL )
         halt("logger semphr create");
 
 #if OS_SUPPORT_STATIC_ALLOCATION
@@ -848,7 +843,7 @@ int cmd_logger( int argc, char *argv[] )
             tail_len[i] = 0;
             tail[i] = 0;
         }
-        if( xSemaphoreTake( semaphore_logger, configTICK_RATE_HZ ) == pdFAIL )
+        if( os_semaphore_get( semaphore_logger, OS_TICKS_MS(1000) ) == 0 )
         {
             return 1;  /* file locked, stop */
         }
@@ -883,7 +878,7 @@ int cmd_logger( int argc, char *argv[] )
                 i = (i+1) % LOGGER_TAIL_NUM;
             }
             mcush_close( fd );
-            xSemaphoreGive( semaphore_logger );
+            os_semaphore_put( semaphore_logger );
             /* print out */
             for( j=0; j<LOGGER_TAIL_NUM; j++ )
             {
@@ -897,7 +892,7 @@ int cmd_logger( int argc, char *argv[] )
         }
         else
         {
-            xSemaphoreGive( semaphore_logger );
+            os_semaphore_put( semaphore_logger );
             /* TODO: find better solution for logger file switched */
             return 0;
         }
@@ -917,7 +912,7 @@ int cmd_logger( int argc, char *argv[] )
             filter_mode = LOG_DEBUG | LOG_INFO | LOG_WARN | LOG_ERROR;  /* all messages allowed */
         while( 1 )
         {
-            if( xQueueReceive( queue_logger_monitor, &evt, 100*configTICK_RATE_HZ/1000 ) == pdPASS )
+            if( os_queue_get( queue_logger_monitor, &evt, OS_TICKS_MS(100) ) )
             {
                 if( evt.type & filter_mode )
                 {

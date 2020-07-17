@@ -8,43 +8,7 @@ __attribute__((section(".mcush_signature")))
 __attribute__((used))
 static const char mcush_signature[] = "<mcush>";
 
-
-#if configSUPPORT_STATIC_ALLOCATION
-StaticTask_t task_mcush_data;
-StackType_t task_mcush_buffer[MCUSH_STACK_SIZE/sizeof(portSTACK_TYPE)];
-
-StaticTask_t task_idle_data;
-StackType_t task_idle_buffer[configMINIMAL_STACK_SIZE];
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
-{
-    *ppxIdleTaskTCBBuffer = &task_idle_data;
-    *ppxIdleTaskStackBuffer = task_idle_buffer;
-    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
-}
-
-#if configUSE_TIMERS
-StaticTask_t task_timer_data;
-StackType_t task_timer_buffer[configTIMER_TASK_STACK_DEPTH];
-void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
-{
-    *ppxTimerTaskTCBBuffer = &task_timer_data;
-    *ppxTimerTaskStackBuffer = task_timer_buffer;
-    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
-}
-#endif
-
-
-#if configAPPLICATION_ALLOCATED_HEAP
-/* TODO: Fix this, link ucHeap into .userheap area.
-         Currently, the objcopy will generate incorrect 
-         binary file attached with unecessary zero data */
-//__attribute__((section(".userheap")))
-uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];  /* for heap_4 */
-#endif
-#endif
-
-TaskHandle_t  task_mcush;
-static uint8_t mcush_inited = 0;
+os_task_handle_t task_mcush;
 
 
 __attribute__((weak)) void hal_pre_init(void)
@@ -54,7 +18,7 @@ __attribute__((weak)) void hal_pre_init(void)
 
 void mcush_init(void)
 {
-    if( mcush_inited )
+    if( task_mcush != NULL )
         return;
 
     hal_pre_init();
@@ -77,24 +41,23 @@ void mcush_init(void)
     mcush_mount( "f", &mcush_fatfs_driver );
 #endif
 
-#if configSUPPORT_STATIC_ALLOCATION
-    task_mcush = xTaskCreateStatic((TaskFunction_t)shell_run, (const char *)"mcushT", 
-                MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, MCUSH_PRIORITY, task_mcush_buffer, &task_mcush_data);
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( mcush, MCUSH_STACK_SIZE );
+    task_mcush = os_task_create_static( "mcushT", shell_run, NULL,
+                MCUSH_STACK_SIZE, MCUSH_PRIORITY, 
+                &static_task_buffer_mcush );
 #else
-    xTaskCreate((TaskFunction_t)shell_run, (const char *)"mcushT", 
-                MCUSH_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, MCUSH_PRIORITY, &task_mcush);
+    task_mcush = os_task_create( "mcushT", shell_run, NULL,
+                MCUSH_STACK_SIZE, MCUSH_PRIORITY );
 #endif
-    if( !task_mcush )
+    if( task_mcush == NULL )
         halt("mcush task create");
-    mcush_inited = 1;
 }
 
 
 void mcush_start(void)
 {
-    if( !mcush_inited )
+    if( task_mcush == NULL )
         mcush_init();
     os_start(); //vTaskStartScheduler();
     halt("stopped");

@@ -403,7 +403,7 @@ void ws2812_flush(void);
 
 extern void mcush_init(void);
 extern void mcush_start(void);
-extern TaskHandle_t task_mcush;
+extern os_task_handle_t task_mcush;
 
 
 #ifndef NULL

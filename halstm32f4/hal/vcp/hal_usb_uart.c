@@ -11,13 +11,13 @@
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
 #define TASK_VCP_TX_READ_TIMEOUT_MS    5  /* timeout for the last byte, actual cycle timeout will be doubled */
-#define TASK_VCP_TX_READ_TIMEOUT_TICK  (TASK_VCP_TX_READ_TIMEOUT_MS*configTICK_RATE_HZ/1000)
+#define TASK_VCP_TX_READ_TIMEOUT_TICK  OS_TICKS_MS(5)
 
 #define HAL_VCP_QUEUE_RX_LEN   128  /* memory consumption: RX_LEN x 2 */
 #define HAL_VCP_QUEUE_TX_LEN   63  /* memory consumption: TX_LEN x 3 */
 
 #define VCP_WRITE_BLOCK_AUTO_ADAPTED  1
-#define VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK  (1000*configTICK_RATE_HZ/1000)
+#define VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK  OS_TICKS_MS(1000)
 
 
 USBD_HandleTypeDef hUsbDeviceFS;
@@ -32,19 +32,13 @@ int8_t hal_vcp_tx_use_buf2;
 
 os_queue_handle_t hal_vcp_queue_rx;
 os_queue_handle_t hal_vcp_queue_tx;
-//os_semaphore_handle_t hal_vcp_sem_tx;
-SemaphoreHandle_t hal_vcp_sem_tx;
-#if OS_SUPPORT_STATIC_ALLOCATION
-StaticSemaphore_t hal_vcp_sem_tx_data;
-#endif
-
+os_semaphore_handle_t hal_vcp_sem_tx;
 
 
 /* NOTE: call this hook in ST/USB_Device_Library/usbd_cdc.c/USBD_CDC_DataIn function */
 void hal_vcp_tx_done_isr_hook(void)
 {
-    xSemaphoreGiveFromISR( hal_vcp_sem_tx, 0 );
-    //hal_led_toggle(1);
+    os_semaphore_put_isr( hal_vcp_sem_tx );
 }
 
 
@@ -53,7 +47,7 @@ void task_vcp_tx_entry(void *p)
     char c;
     char *next_buf;
     int *next_buf_len;
-    TickType_t timeout;
+    os_tick_t timeout;
 
     while(1)
     {
@@ -82,7 +76,7 @@ void task_vcp_tx_entry(void *p)
         /* try to send */
         while( hUsbDeviceFS.dev_config )
         {
-            if( xSemaphoreTake( hal_vcp_sem_tx, portMAX_DELAY ) == pdTRUE )
+            if( os_semaphore_get( hal_vcp_sem_tx, -1 ) )
             {
                 if( CDC_Transmit_FS( (uint8_t*)next_buf, *next_buf_len ) == USBD_OK )
                 {
@@ -90,13 +84,13 @@ void task_vcp_tx_entry(void *p)
                 }
                 else
                 {
-                    xSemaphoreGive( hal_vcp_sem_tx );
-                    //taskYIELD();
+                    os_semaphore_put( hal_vcp_sem_tx );
+                    //os_task_switch();
                     os_task_delay(1);
                 }
             }
             else
-                //taskYIELD();
+                //os_task_switch();
                 os_task_delay(1);
         }
 
@@ -115,20 +109,20 @@ int hal_uart_init(uint32_t baudrate)
     DEFINE_STATIC_QUEUE_BUFFER( vcptx, HAL_VCP_QUEUE_TX_LEN, 1 );
     hal_vcp_queue_rx = os_queue_create_static( "vcpRxQ", HAL_VCP_QUEUE_RX_LEN, 1, &static_queue_buffer_vcprx );
     hal_vcp_queue_tx = os_queue_create_static( "vcpTxQ", HAL_VCP_QUEUE_TX_LEN, 1, &static_queue_buffer_vcptx );
-    hal_vcp_sem_tx = xSemaphoreCreateBinaryStatic(&hal_vcp_sem_tx_data);
+    DEFINE_STATIC_SEMAPHORE_BUFFER( vcptx );
+    hal_vcp_sem_tx = os_semaphore_create_binary_static( &static_semaphore_buffer_vcptx );
 #else
     hal_vcp_queue_rx = os_queue_create( "vcpRxQ", HAL_VCP_QUEUE_RX_LEN, 1 );
     hal_vcp_queue_tx = os_queue_create( "vcpTxQ", HAL_VCP_QUEUE_TX_LEN, 1 );
-    //hal_vcp_sem_tx = os_semaphore_create( "vcpTxS" );
-    hal_vcp_sem_tx = xSemaphoreCreateBinary();
+    hal_vcp_sem_tx = os_semaphore_create_binary( );
 #endif
-    if( (hal_vcp_queue_rx == NULL) || (hal_vcp_queue_tx == NULL) || !hal_vcp_sem_tx )
+    if( (hal_vcp_queue_rx == NULL) || (hal_vcp_queue_tx == NULL) || (hal_vcp_sem_tx == NULL) )
         return 0;
-    xSemaphoreGive(hal_vcp_sem_tx);
+    os_semaphore_put( hal_vcp_sem_tx );
     hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
 
     /* create vcp/tx task */
-#if configSUPPORT_STATIC_ALLOCATION
+#if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_TASK_BUFFER( vcp, TASK_VCP_TX_STACK_SIZE );
     task = os_task_create_static("vcp/txT", task_vcp_tx_entry, NULL, TASK_VCP_TX_STACK_SIZE, TASK_VCP_TX_PRIORITY, &static_task_buffer_vcp);
 #else
@@ -175,19 +169,19 @@ int  shell_driver_read( char *buffer, int len )
 
 int  shell_driver_read_char( char *c )
 {
-    if( os_queue_get( hal_vcp_queue_rx, c, -1 ) == 0 )
-        return -1;
-    else
+    if( os_queue_get( hal_vcp_queue_rx, c, -1 ) )
         return (int)c;
+    else
+        return -1;
 }
 
 
 int  shell_driver_read_char_blocked( char *c, int block_ticks )
 {
-    if( os_queue_get( hal_vcp_queue_rx, c, block_ticks ) == 0 )
-        return -1;
-    else
+    if( os_queue_get( hal_vcp_queue_rx, c, block_ticks ) )
         return (int)c;
+    else
+        return -1;
 }
 
 
