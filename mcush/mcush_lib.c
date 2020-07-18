@@ -460,7 +460,7 @@ char *strdup2( const char *s )
 
     if( s != NULL )
     {
-         p = (char *)pvPortMalloc( strlen(s) + 1 );
+         p = (char *)os_malloc( strlen(s) + 1 );
          strcpy( p, s );
     }
     return p;

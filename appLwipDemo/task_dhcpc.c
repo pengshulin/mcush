@@ -1,6 +1,5 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-#include "timers.h"
 #include "task_logger.h"
 #include "lwip_config.h"
 #include "task_dhcpc.h"
@@ -39,8 +38,8 @@ LOGGER_MODULE_NAME("dhcpc");
  
 #define DHCPC_TIMER_PERIOD_MS   2000 
 
-QueueHandle_t queue_dhcpc;
-TimerHandle_t timer_dhcpc;
+os_queue_handle_t queue_dhcpc;
+os_timer_handle_t timer_dhcpc;
 
 uint8_t dhcp_state, ip_manual;
 struct netif gnetif;
@@ -92,18 +91,16 @@ int load_ip_from_conf_file(const char *fname, ip_addr_t *ipaddr, ip_addr_t *netm
 
 int send_dhcpc_event( uint8_t event )
 {
-    if( xQueueSend( queue_dhcpc, &event, 0 ) == pdPASS )
-        return 1;
-    return 0;
+    return os_queue_put( queue_dhcpc, &event, 0 ) )
 }
 
 
-void timer_dhcpc_callback(TimerHandle_t *handle)
+void timer_dhcpc_callback( os_timer_handle_t timer )
 {
-    portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     const int8_t evt = DHCPC_EVENT_CHECK_TIMER;
-    xQueueSendFromISR( queue_dhcpc, (void*)&evt, &xHigherPriorityTaskWoken );
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    os_queue_put_isr( queue_dhcpc, (void*)&evt );
+    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
  
@@ -180,10 +177,11 @@ void task_dhcpc_entry(void *p)
     int i;
 
     do_lwip_init();
-    xTimerStart( timer_dhcpc, 0 );
+    os_timer_start( timer_dhcpc );
+
     while(1)
     {
-        if( pdPASS != xQueueReceive( queue_dhcpc, &evt, portMAX_DELAY ) )
+        if( os_queue_get( queue_dhcpc, &evt, -1 ) == 0 )
             continue;
 
         switch( evt )
@@ -437,24 +435,33 @@ const shell_cmd_t cmd_tab_lwip[] = {
 
 void task_dhcpc_init(void)
 {
-    TaskHandle_t  task_dhcpc;
+    os_task_handle_t task;
 
     shell_add_cmd_table( cmd_tab_lwip );
-    queue_dhcpc = xQueueCreate( TASK_DHCPC_QUEUE_SIZE, (unsigned portBASE_TYPE)sizeof(uint8_t) );
-    if( !queue_dhcpc )
-        halt( "create dhdpc queue" );
-    vQueueAddToRegistry( queue_dhcpc, "dhcpcQ" );
 
-    timer_dhcpc = xTimerCreate( (const char * const)"dhcpc", 
-                                DHCPC_TIMER_PERIOD_MS / portTICK_RATE_MS,
-                                pdTRUE, 0, (TimerCallbackFunction_t)timer_dhcpc_callback );
-    if( !timer_dhcpc )
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( dhcpc, TASK_DHCPC_QUEUE_SIZE, 1 );
+    queue_dhcpc = os_queue_create_static( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1,
+                                    &static_queue_buffer_dhcpc );
+#else
+    queue_dhcpc = os_queue_create( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1 );
+#endif
+    if( queue_dhcpc == NULL )
+        halt( "create dhdpc queue" );
+
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TIMER_BUFFER( dhcpc );
+    timer_dhcpc = os_timer_create_static( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, 
+                    timer_dhcpc_callback, &static_timer_buffer_dhcpc );
+#else
+    timer_dhcpc = os_timer_create( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, timer_dhcpc_callback );
+#endif
+    if( timer_dhcpc == NULL )
         halt( "create dhdpc timer" );
-    
-    xTaskCreate(task_dhcpc_entry, (const char *)"dhcpcT", 
-                TASK_DHCPC_STACK_SIZE/sizeof(portSTACK_TYPE), NULL, TASK_DHCPC_PRIORITY, &task_dhcpc);
-    if( !task_dhcpc )
+   
+    task = os_task_create( "dhcpcT", task_dhcpc_entry, NULL, 
+                TASK_DHCPC_STACK_SIZE, TASK_DHCPC_PRIORITY );
+    if( task == NULL )
         halt("create dhcpc task");
 }
-
 

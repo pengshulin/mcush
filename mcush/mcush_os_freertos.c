@@ -1,6 +1,6 @@
-/* OS Abstract Layer for FreeRTOS 
+/* RTOS Abstract Layer for FreeRTOS 
  * only most frequently used APIs are ported, including
- * task/queue/semaphore/memory
+ * task/queue/semaphore/memory/timer
  */ 
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush_os.h"
@@ -313,6 +313,56 @@ int os_semaphore_get_isr( os_semaphore_handle_t semaphore )
         return 0;
     else
         return 1;
+}
+
+
+os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback )
+{
+    return xTimerCreate( name, period_ticks, repeat_mode, 0, (TimerCallbackFunction_t)callback );
+}
+
+
+os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer )
+{
+#if OS_SUPPORT_STATIC_ALLOCATION
+    return xTimerCreateStatic( name, period_ticks, repeat_mode, 0, (TimerCallbackFunction_t)callback, (StaticTimer_t *)buffer );
+#else
+    return NULL;
+#endif
+}
+
+
+
+int os_timer_start( os_timer_handle_t timer )
+{
+    if( xTimerStart( timer, 0 ) == pdPASS )
+        return 1;
+    else
+        return 0;
+}
+
+
+int os_timer_stop( os_timer_handle_t timer )
+{
+    if( xTimerStop( timer, 0 ) == pdPASS )
+        return 1;
+    else
+        return 0;
+}
+
+
+int os_timer_reset( os_timer_handle_t timer )
+{
+    if( xTimerReset( timer, 0 ) == pdPASS )
+        return 1;
+    else
+        return 0;
+}
+
+
+void os_timer_delete( os_timer_handle_t timer )
+{
+    xTimerDelete( timer, 0 );
 }
 
 

@@ -6,6 +6,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "timers.h"
 #include "mcush_freertos_api.h"
 
 #define OS_NAME          "FreeRTOS"
@@ -31,10 +32,14 @@
 #define OS_TICK_RATE     (configTICK_RATE_HZ)
 #define OS_TICKS_MS(ms)  (ms*configTICK_RATE_HZ/1000)
 #define OS_TICKS_S(s)    (s*configTICK_RATE_HZ)
+
 typedef TickType_t os_tick_t;
 typedef TaskHandle_t os_task_handle_t;
 typedef QueueHandle_t os_queue_handle_t;
 typedef SemaphoreHandle_t os_semaphore_handle_t;
+typedef TimerHandle_t os_timer_handle_t;
+typedef void (*os_timer_callback_t)( os_timer_handle_t timer );
+
 
 typedef struct
 {
@@ -42,12 +47,12 @@ typedef struct
     StackType_t *stack;
 } static_task_buffer_t;
 
-#define DEFINE_STATIC_TASK_BUFFER( name, stack_bytes )    \
+#define DEFINE_STATIC_TASK_BUFFER( name, stack_bytes )  \
     static StaticTask_t _static_task_control_##name;  \
     static StackType_t _static_task_stack_##name[stack_bytes/sizeof(portSTACK_TYPE)];  \
-    static const static_task_buffer_t static_task_buffer_##name = {\
-        .control = &_static_task_control_##name, \
-        .stack = _static_task_stack_##name }; 
+    static const static_task_buffer_t static_task_buffer_##name = {  \
+        .control = &_static_task_control_##name,  \
+        .stack = _static_task_stack_##name }
         
 typedef struct
 {
@@ -55,20 +60,26 @@ typedef struct
     uint8_t *data;
 } static_queue_buffer_t;
 
-#define DEFINE_STATIC_QUEUE_BUFFER( name, queue_length, item_bytes )    \
+#define DEFINE_STATIC_QUEUE_BUFFER( name, queue_length, item_bytes )  \
     static StaticQueue_t _static_queue_control_##name;  \
     static uint8_t _static_queue_data_##name[queue_length*item_bytes];  \
-    static const static_queue_buffer_t static_queue_buffer_##name = {\
-        .control = &_static_queue_control_##name, \
-        .data = _static_queue_data_##name }; 
+    static const static_queue_buffer_t static_queue_buffer_##name = {  \
+        .control = &_static_queue_control_##name,  \
+        .data = _static_queue_data_##name } 
 
 typedef StaticSemaphore_t static_semaphore_buffer_t;
 
-#define DEFINE_STATIC_SEMAPHORE_BUFFER( name )    \
-    static static_semaphore_buffer_t static_semaphore_buffer_##name;
+#define DEFINE_STATIC_SEMAPHORE_BUFFER( name )  \
+    static static_semaphore_buffer_t static_semaphore_buffer_##name
         
 
-       
+typedef StaticTimer_t static_timer_buffer_t;
+
+#define DEFINE_STATIC_TIMER_BUFFER( name )  \
+    static static_timer_buffer_t static_timer_buffer_##name
+        
+
+      
 
 
 void os_init(void);
@@ -117,6 +128,16 @@ int os_semaphore_put( os_semaphore_handle_t semaphore );
 int os_semaphore_put_isr( os_semaphore_handle_t semaphore );
 int os_semaphore_get( os_semaphore_handle_t semaphore, int block_ticks );
 int os_semaphore_get_isr( os_semaphore_handle_t semaphore );
+
+/* timer */
+os_timer_handle_t os_timer_create( const char *name, int period_ticks,
+         int repeat_mode, os_timer_callback_t callback );
+os_timer_handle_t os_timer_create_static( const char *name, int period_ticks,
+         int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer );
+int os_timer_start( os_timer_handle_t timer );
+int os_timer_stop( os_timer_handle_t timer );
+int os_timer_reset( os_timer_handle_t timer );
+void os_timer_delete( os_timer_handle_t timer );
 
 /* memory */
 void *os_malloc( size_t bytes );
