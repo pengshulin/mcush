@@ -929,7 +929,7 @@ int emu_pulse_generate(int pulse_index, int number)
         return 0;
     while( number-- )
     {
-        portENTER_CRITICAL();
+        os_enter_critical();
         if( pulse->invert )
             hal_gpio_clr( pulse->port, pulse->pin_bit );
         else
@@ -939,7 +939,7 @@ int emu_pulse_generate(int pulse_index, int number)
             hal_gpio_set( pulse->port, pulse->pin_bit );
         else
             hal_gpio_clr( pulse->port, pulse->pin_bit );
-        portEXIT_CRITICAL();
+        os_exit_critical();
         hal_delay_us( pulse->delay_us );
     } 
     return 1;
@@ -1095,11 +1095,11 @@ int emu_ds1w_reset( int ds1w_index )
 
     hal_gpio_clr( ds1w->port, ds1w->pin_bit ); 
     hal_delay_us( 500 );
-    portENTER_CRITICAL(); 
+    os_enter_critical(); 
     hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
     hal_delay_us( 60 );
     present = hal_gpio_get( ds1w->port, ds1w->pin_bit );
-    portEXIT_CRITICAL();
+    os_exit_critical();
     hal_delay_us( 300 );
     return present ? 0 : 1;
 }
@@ -1109,11 +1109,11 @@ void emu_ds1w_write_bit( int ds1w_index, int val )
 {
     ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
 
-    portENTER_CRITICAL(); 
+    os_enter_critical(); 
     hal_gpio_clr( ds1w->port, ds1w->pin_bit ); 
     hal_delay_us( val ? 15 : 60 );
     hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
-    portEXIT_CRITICAL();
+    os_exit_critical();
     hal_delay_us( val ? 45 : 0 );
 }
 
@@ -1135,13 +1135,13 @@ int emu_ds1w_read_bit( int ds1w_index )
     ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
     int val;
 
-    portENTER_CRITICAL(); 
+    os_enter_critical(); 
     hal_gpio_clr( ds1w->port, ds1w->pin_bit ); 
     hal_delay_us( 1 );
     hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
     hal_delay_us( 9 );
     val = hal_gpio_get( ds1w->port, ds1w->pin_bit );
-    portEXIT_CRITICAL();
+    os_exit_critical();
     hal_delay_us( 50 );
     return val ? 1 : 0;
 }

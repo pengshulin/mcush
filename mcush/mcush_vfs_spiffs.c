@@ -1,8 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "mcush_vfs.h"
-#include "FreeRTOS.h"
-#include "semphr.h"
 
 #if MCUSH_SPIFFS
 #include "spiffs_nucleus.h"

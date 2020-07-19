@@ -71,7 +71,7 @@ int cmd_system( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    QueueHandle_t xQueue;
+    os_queue_handle_t queue;
     mcush_queue_info_t qinfo;
     mcush_kern_info_t kinfo;
     const char *name=0;
@@ -136,11 +136,11 @@ int cmd_system( int argc, char *argv[] )
     {
         for( i=0; i<configQUEUE_REGISTRY_SIZE; i++ )
         {
-            if( mcushGetQueueRegistered( i, (void**)&xQueue, &name ) )
+            if( mcushGetQueueRegistered( i, (void**)&queue, &name ) )
             {
-                if( mcushGetQueueInfo( xQueue, &qinfo ) )
+                if( mcushGetQueueInfo( queue, &qinfo ) )
                 {
-                    shell_printf( "%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)xQueue, 
+                    shell_printf( "%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)queue, 
                         qinfo.uxLength, qinfo.uxItemSize, qinfo.uxMessagesWaiting, 
                         (int)qinfo.pcHead, (int)qinfo.pcTail, ((int)qinfo.pcTail-(int)qinfo.pcHead) );
                 }

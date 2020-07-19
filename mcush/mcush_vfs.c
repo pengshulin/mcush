@@ -186,7 +186,7 @@ int mcush_open( const char *pathname, const char *mode )
         goto err;
     if( ! vol )
         goto err;
-    portENTER_CRITICAL();
+    os_enter_critical();
     for( i=0; i<MCUSH_VFS_FILE_DESCRIPTOR_NUM; i++ )
     {
         if( vfs_fd_tab[i].driver == NULL ) 
@@ -195,7 +195,7 @@ int mcush_open( const char *pathname, const char *mode )
             break;
         }
     }
-    portEXIT_CRITICAL();
+    os_exit_critical();
     if( i >= MCUSH_VFS_FILE_DESCRIPTOR_NUM )
     {  
         *vol->driver->err = MCUSH_VFS_RESOURCE_LIMIT;
@@ -356,10 +356,10 @@ int mcush_close( int fd )
     if( driver )
     {
         *driver->err = driver->close( vfs_fd_tab[fd].handle );
-        portENTER_CRITICAL();
+        os_enter_critical();
         vfs_fd_tab[fd].driver = NULL;
         vfs_fd_tab[fd].handle = 0;
-        portEXIT_CRITICAL();
+        os_exit_critical();
         return 1;
     }
 err:

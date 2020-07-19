@@ -100,7 +100,7 @@ extern "C" {
 #endif
 
 #ifndef TASK_IDLE_PRIORITY
-    #define TASK_IDLE_PRIORITY  (tskIDLE_PRIORITY)
+    #define TASK_IDLE_PRIORITY  OS_PRIORITY_IDLE
 #endif
 
 

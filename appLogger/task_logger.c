@@ -11,7 +11,7 @@
 
 #define DEBUG_WRITE_LED  0
 
-os_semaphore_handle_t semaphore_logger;
+os_mutex_handle_t mutex_logger;
 os_queue_handle_t queue_logger;
 os_queue_handle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
@@ -381,7 +381,7 @@ int delete_all_log_files( int delete_backup )
     int i=0;
     int succ=1;
 
-    os_semaphore_get( semaphore_logger, -1 );
+    os_mutex_get( mutex_logger, -1 );
     /* remove all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
     {
@@ -425,7 +425,7 @@ int delete_all_log_files( int delete_backup )
             }
         }
     }
-    os_semaphore_put( semaphore_logger );
+    os_mutex_put( mutex_logger );
     return succ;
 }
 
@@ -437,7 +437,7 @@ int backup_all_log_files( void )
     int i=0;
     int succ=1;
 
-    os_semaphore_get( semaphore_logger, -1 );
+    os_mutex_get( mutex_logger, -1 );
     /* rename all */
     for( i=0; i<=LOGGER_ROTATE_LEVEL; i++ )
     {
@@ -477,7 +477,7 @@ int backup_all_log_files( void )
         shell_printf( "rename %s -> %s\n", fname, fname_bak+3 );
 #endif
     }
-    os_semaphore_put( semaphore_logger );
+    os_mutex_put( mutex_logger );
     return succ;
 }
 
@@ -559,7 +559,7 @@ void task_logger_entry(void *p)
         _busy = 1;
         hal_wdg_clear();
 
-        os_semaphore_get( semaphore_logger, -1 );
+        os_mutex_get( mutex_logger, -1 );
 
         /* check file size from filesystem only once */
         if( size < 0 )
@@ -579,7 +579,7 @@ void task_logger_entry(void *p)
         /* recheck after check_size/rotate_log execution */
         if( ! _enable )
         {
-            os_semaphore_put( semaphore_logger );
+            os_mutex_put( mutex_logger );
             post_process_event( &evt );
             continue;
         }
@@ -632,7 +632,7 @@ void task_logger_entry(void *p)
             while( os_queue_get( queue_logger, &evt, 0 ) == 1 )
                 post_process_event( &evt );
         }
-        os_semaphore_put( semaphore_logger );
+        os_mutex_put( mutex_logger );
         _busy = 0;
 #else
         post_process_event( &evt );  /* spiffs not support */
@@ -657,13 +657,13 @@ void task_logger_init(void)
     os_task_handle_t task;
 
 #if OS_SUPPORT_STATIC_ALLOCATION
-    DEFINE_STATIC_SEMAPHORE_BUFFER( logger );
-    semaphore_logger = os_semaphore_create_mutex_static(&static_semaphore_buffer_logger);
+    DEFINE_STATIC_MUTEX_BUFFER( logger );
+    mutex_logger = os_mutex_create_static( &static_mutex_buffer_logger );
 #else
-    semaphore_logger = os_semaphore_create_mutex();
+    mutex_logger = os_mutex_create();
 #endif
-    if( semaphore_logger == NULL )
-        halt("logger semphr create");
+    if( mutex_logger == NULL )
+        halt("logger mutex create");
 
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_QUEUE_BUFFER( logger, TASK_LOGGER_QUEUE_SIZE, sizeof(logger_event_t) );
@@ -843,7 +843,7 @@ int cmd_logger( int argc, char *argv[] )
             tail_len[i] = 0;
             tail[i] = 0;
         }
-        if( os_semaphore_get( semaphore_logger, OS_TICKS_MS(1000) ) == 0 )
+        if( os_mutex_get( mutex_logger, OS_TICKS_MS(1000) ) == 0 )
         {
             return 1;  /* file locked, stop */
         }
@@ -878,7 +878,7 @@ int cmd_logger( int argc, char *argv[] )
                 i = (i+1) % LOGGER_TAIL_NUM;
             }
             mcush_close( fd );
-            os_semaphore_put( semaphore_logger );
+            os_mutex_put( mutex_logger );
             /* print out */
             for( j=0; j<LOGGER_TAIL_NUM; j++ )
             {
@@ -892,7 +892,7 @@ int cmd_logger( int argc, char *argv[] )
         }
         else
         {
-            os_semaphore_put( semaphore_logger );
+            os_mutex_put( mutex_logger );
             /* TODO: find better solution for logger file switched */
             return 0;
         }

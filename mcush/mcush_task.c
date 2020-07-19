@@ -20,13 +20,16 @@ void mcush_init(void)
 {
     if( task_mcush != NULL )
         return;
+    
+    os_init();
 
     hal_pre_init();
     if( !hal_init() )
-        halt("hal init");
+        ;//halt("hal init");
 
     if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
         halt("shell init");
+
 
 #if MCUSH_ROMFS
     mcush_mount( "r", &mcush_romfs_driver );
@@ -59,6 +62,7 @@ void mcush_start(void)
 {
     if( task_mcush == NULL )
         mcush_init();
-    os_start(); //vTaskStartScheduler();
+
+    os_start();
     halt("stopped");
 }

@@ -803,7 +803,7 @@ void USBD_static_free(void *p)
 void OTG_FS_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_FS);
-    portEND_SWITCHING_ISR( pdTRUE );
+    //portEND_SWITCHING_ISR( pdTRUE );
 }
 
 

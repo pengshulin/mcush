@@ -3,7 +3,7 @@
  * task/queue/semaphore/memory/timer
  */ 
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#include "mcush_os.h"
+#include "mcush.h"
 
 #if MCUSH_OS == OS_FREERTOS
 
@@ -29,6 +29,26 @@ int os_is_running(void)
 }
 
 
+os_tick_t os_tick( void )
+{
+    return xTaskGetTickCount();
+}
+
+
+void os_enter_critical(void)
+{
+    portENTER_CRITICAL();
+}
+
+
+void os_exit_critical(void)
+{
+    portEXIT_CRITICAL();
+}
+
+
+/* TASK */
+
 void os_task_delay( os_tick_t ticks )
 {
     vTaskDelay( ticks );
@@ -52,11 +72,6 @@ void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks )
     vTaskDelayUntil( old_tick, inc_ticks );
 }
 
-
-os_tick_t os_tick( void )
-{
-    return xTaskGetTickCount();
-}
 
 
 os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size_t stack_bytes, int priority )
@@ -129,6 +144,8 @@ int os_task_priority_get( os_task_handle_t task )
     return uxTaskPriorityGet( task );
 }
 
+
+/* QUEUE */
 
 os_queue_handle_t os_queue_create( const char *name, size_t queue_length, size_t item_bytes )
 {
@@ -224,13 +241,15 @@ int os_queue_get_isr( os_queue_handle_t queue, void *data )
 //}
 
 
-os_semaphore_handle_t os_semaphore_create_mutex( void )
+/* MUTEX */
+
+os_mutex_handle_t os_mutex_create( void )
 {
     return xSemaphoreCreateMutex();
 }
 
 
-os_semaphore_handle_t os_semaphore_create_mutex_static( static_semaphore_buffer_t *buf )
+os_mutex_handle_t os_mutex_create_static( static_mutex_buffer_t *buf )
 {
 #if OS_SUPPORT_STATIC_ALLOCATION
     return xSemaphoreCreateMutexStatic( (StaticSemaphore_t*)buf );
@@ -240,29 +259,59 @@ os_semaphore_handle_t os_semaphore_create_mutex_static( static_semaphore_buffer_
 }
 
 
-os_semaphore_handle_t os_semaphore_create_binary( void )
+void os_mutex_delete( os_mutex_handle_t *mutex )
 {
-    return xSemaphoreCreateBinary();
+    vSemaphoreDelete( mutex );
 }
 
 
-os_semaphore_handle_t os_semaphore_create_binary_static( static_semaphore_buffer_t *buf )
+int os_mutex_put( os_mutex_handle_t mutex )
 {
-#if OS_SUPPORT_STATIC_ALLOCATION
-    return xSemaphoreCreateBinaryStatic( (StaticSemaphore_t*)buf );
-#else
-    return NULL;
-#endif
+    if( xSemaphoreGive( mutex ) == pdFAIL )
+        return 0;
+    else
+        return 1;
 }
 
 
-os_semaphore_handle_t os_semaphore_create_count( int max_count, int init_count )
+int os_mutex_put_isr( os_mutex_handle_t mutex )
+{
+    if( xSemaphoreGiveFromISR( mutex, NULL ) == pdTRUE )
+        return 1;
+    else
+        return 0;
+}
+
+
+int os_mutex_get( os_mutex_handle_t mutex, int block_ticks )
+{
+    if( block_ticks < 0 )
+        block_ticks = portMAX_DELAY;
+    if( xSemaphoreTake( mutex, block_ticks ) == pdFAIL )
+        return 0;
+    else
+        return 1;
+}
+
+
+int os_mutex_get_isr( os_mutex_handle_t mutex )
+{
+    if( xSemaphoreTakeFromISR( mutex, NULL ) == pdFAIL )
+        return 0;
+    else
+        return 1;
+}
+
+
+/* SEMAPHORE */
+
+os_semaphore_handle_t os_semaphore_create( int max_count, int init_count )
 {
     return xSemaphoreCreateCounting( max_count, init_count );
 }
 
 
-os_semaphore_handle_t os_semaphore_create_count_static( int max_count, int init_count, static_semaphore_buffer_t *buf )
+os_semaphore_handle_t os_semaphore_create_static( int max_count, int init_count, static_semaphore_buffer_t *buf )
 {
 #if OS_SUPPORT_STATIC_ALLOCATION
     return xSemaphoreCreateCountingStatic( max_count, init_count, (StaticSemaphore_t*)buf );
@@ -315,6 +364,8 @@ int os_semaphore_get_isr( os_semaphore_handle_t semaphore )
         return 1;
 }
 
+
+/* TIMER */
 
 os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback )
 {
@@ -416,5 +467,25 @@ uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];  /* for heap_4 */
 #endif
 
 
+void vApplicationTickHook(void) 
+{
+}
+
+
+void vApplicationIdleHook(void) 
+{
+}
+
+
+void vApplicationMallocFailedHook(void) 
+{
+    halt("malloc fail");
+}
+
+
+void vApplicationStackOverflowHook( xTaskHandle xTask, signed portCHAR *pcTaskName )
+{
+    halt("stack overflow");
+}
 
 #endif

@@ -7,7 +7,7 @@
 #include "usbd_cdc_if.h"
 
 
-#define TASK_VCP_TX_STACK_SIZE  (300)
+#define TASK_VCP_TX_STACK_SIZE  (304)
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
 #define TASK_VCP_TX_READ_TIMEOUT_MS    5  /* timeout for the last byte, actual cycle timeout will be doubled */
@@ -110,15 +110,14 @@ int hal_uart_init(uint32_t baudrate)
     hal_vcp_queue_rx = os_queue_create_static( "vcpRxQ", HAL_VCP_QUEUE_RX_LEN, 1, &static_queue_buffer_vcprx );
     hal_vcp_queue_tx = os_queue_create_static( "vcpTxQ", HAL_VCP_QUEUE_TX_LEN, 1, &static_queue_buffer_vcptx );
     DEFINE_STATIC_SEMAPHORE_BUFFER( vcptx );
-    hal_vcp_sem_tx = os_semaphore_create_binary_static( &static_semaphore_buffer_vcptx );
+    hal_vcp_sem_tx = os_semaphore_create_static( 1, 1, &static_semaphore_buffer_vcptx );
 #else
     hal_vcp_queue_rx = os_queue_create( "vcpRxQ", HAL_VCP_QUEUE_RX_LEN, 1 );
     hal_vcp_queue_tx = os_queue_create( "vcpTxQ", HAL_VCP_QUEUE_TX_LEN, 1 );
-    hal_vcp_sem_tx = os_semaphore_create_binary( );
+    hal_vcp_sem_tx = os_semaphore_create( 1, 1 );
 #endif
     if( (hal_vcp_queue_rx == NULL) || (hal_vcp_queue_tx == NULL) || (hal_vcp_sem_tx == NULL) )
         return 0;
-    os_semaphore_put( hal_vcp_sem_tx );
     hal_vcp_tx_buf1_len = hal_vcp_tx_buf2_len = 0;
 
     /* create vcp/tx task */
