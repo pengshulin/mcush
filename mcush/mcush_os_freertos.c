@@ -1,6 +1,6 @@
 /* RTOS Abstract Layer for FreeRTOS 
  * only most frequently used APIs are ported, including
- * task/queue/semaphore/memory/timer
+ * task/queue/mutex/semaphore/timer/memory
  */ 
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
@@ -229,6 +229,12 @@ int os_queue_get_isr( os_queue_handle_t queue, void *data )
 }
 
 
+int os_queue_count( os_queue_handle_t queue )
+{
+    /* NOTE: don't call it in ISR */
+    return uxQueueMessagesWaiting( queue );
+}
+
 //int os_queue_is_empty( os_queue_handle_t queue )
 //{
 //
@@ -416,6 +422,8 @@ void os_timer_delete( os_timer_handle_t timer )
     xTimerDelete( timer, 0 );
 }
 
+
+/* MEMORY */
 
 void *os_malloc( size_t bytes )
 {

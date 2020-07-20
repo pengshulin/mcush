@@ -7,12 +7,12 @@ void initTimer(void)
 
 }
 
-TickType_t t0;
+os_tick_t t0;
 TIMEVAL tmr;
 
 void setTimer(TIMEVAL value)
 {
-    t0 = xTaskGetTickCount();
+    t0 = os_tick();
     tmr = value;
 #if DEBUG_WAR_CONSOLE_ON
     canopen_debug_msg( 0, 0, "setTimer : ", value );
@@ -23,7 +23,8 @@ void setTimer(TIMEVAL value)
 TIMEVAL getElapsedTime(void)
 {
     unsigned int dt;
-    dt = xTaskGetTickCount() - t0;
+
+    dt = os_tick() - t0;
 #if DEBUG_WAR_CONSOLE_ON
     canopen_debug_msg( 0, 0, "getElapsedTime : ", dt );
 #endif

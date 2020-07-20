@@ -116,6 +116,7 @@ int os_queue_put( os_queue_handle_t queue, void *data, int block_ticks );
 int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks ); 
 int os_queue_put_isr( os_queue_handle_t queue, void *data ); 
 int os_queue_get_isr( os_queue_handle_t queue, void *data ); 
+int os_queue_count( os_queue_handle_t queue );
 //int os_queue_is_empty( os_queue_handle_t queue ); 
 //int os_queue_is_full( os_queue_handle_t queue ); 
 

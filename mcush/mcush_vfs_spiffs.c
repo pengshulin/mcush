@@ -20,23 +20,22 @@ static char _work_buf[2*SPIFLASH_CFG_LOG_PAGE_SZ];
 static char _fds[SPIFFS_FD_NUM * sizeof(spiffs_fd)];
 static char _cache_buf[sizeof(spiffs_cache) + SPIFFS_CACHE_NUM * 
                      (sizeof(spiffs_cache_page)+SPIFLASH_CFG_LOG_PAGE_SZ)];
-SemaphoreHandle_t semaphore_spiffs;
-#if configSUPPORT_STATIC_ALLOCATION
-StaticSemaphore_t semaphore_spiffs_data;
-#endif
+
+os_mutex_handle_t mutex_spiffs;
 
 
 static void _lock_check(void)
 {
-    if( !semaphore_spiffs )
+    if( mutex_spiffs == NULL )
     {
-#if configSUPPORT_STATIC_ALLOCATION
-        semaphore_spiffs = xSemaphoreCreateMutexStatic(&semaphore_spiffs_data);
+#if OS_SUPPORT_STATIC_ALLOCATION
+        DEFINE_STATIC_MUTEX_BUFFER( spiffs );
+        mutex_spiffs = os_mutex_create_static( &static_mutex_buffer_spiffs );
 #else
-        semaphore_spiffs = xSemaphoreCreateMutex();
+        mutex_spiffs = os_mutex_create();
 #endif
-        if( !semaphore_spiffs )
-            halt("spiffs semphr create"); 
+        if( mutex_spiffs == NULL )
+            halt("spiffs mutex create"); 
     }
 }
 
@@ -44,14 +43,14 @@ static void _lock_check(void)
 void mcush_spiffs_lock(struct spiffs_t *fs)
 {
     _lock_check();
-    xSemaphoreTake( semaphore_spiffs, portMAX_DELAY );
+    os_mutex_get( mutex_spiffs, -1 );
 }
 
 
 void mcush_spiffs_unlock(struct spiffs_t *fs)
 {
     _lock_check();
-    xSemaphoreGive( semaphore_spiffs );
+    os_mutex_put( mutex_spiffs );
 }
 
 

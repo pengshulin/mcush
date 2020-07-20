@@ -246,7 +246,7 @@ int  shell_driver_read_feed( char *buffer, int len )
     int bytes=0;
     while( bytes < len )
     {
-        while( hal_uart_feedc( *(char*)((int)buffer + bytes), portMAX_DELAY ) == 0 )
+        while( hal_uart_feedc( *(char*)((int)buffer + bytes), -1 ) == 0 )
             os_task_delay(1);
         bytes += 1;
     }
@@ -262,7 +262,7 @@ int  shell_driver_read( char *buffer, int len )
 
 int  shell_driver_read_char( char *c )
 {
-    if( hal_uart_getc( c, portMAX_DELAY ) == pdFAIL )
+    if( hal_uart_getc( c, -1 ) == 0 )
         return -1;
     else
         return (int)c;

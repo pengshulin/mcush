@@ -8,7 +8,6 @@
 
 #define OS_SUPPORT_STATIC_ALLOCATION  1
 
-#define OS_STACK_SIZE_MIN       (128)
 
 #define OS_PRIORITY_MAX         (osPriorityISR)
 #define OS_PRIORITY_HIGHEST     (osPriorityRealtime)
@@ -51,9 +50,11 @@ typedef struct
     osRtxMessageQueue_t *control;
     uint8_t *data;
 } static_queue_buffer_t;
+/* size conversion needed, refer to svcRtxMessageQueueNew */
+#define ITEM_SIZE_TO_BLOCK_SIZE(m)  (((m+3)&~3)+sizeof(osRtxMessage_t))
 #define DEFINE_STATIC_QUEUE_BUFFER( name, queue_length, item_bytes )  \
     static osRtxMessageQueue_t _static_queue_control_##name;  \
-    static uint8_t _static_queue_data_##name[queue_length*item_bytes];  \
+    static uint8_t _static_queue_data_##name[queue_length*ITEM_SIZE_TO_BLOCK_SIZE(item_bytes)];  \
     static const static_queue_buffer_t static_queue_buffer_##name = {  \
         .control = &_static_queue_control_##name,  \
         .data = _static_queue_data_##name } 
@@ -107,6 +108,7 @@ int os_queue_put( os_queue_handle_t queue, void *data, int block_ticks );
 int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks ); 
 int os_queue_put_isr( os_queue_handle_t queue, void *data ); 
 int os_queue_get_isr( os_queue_handle_t queue, void *data ); 
+int os_queue_count( os_queue_handle_t queue );
 //int os_queue_is_empty( os_queue_handle_t queue ); 
 //int os_queue_is_full( os_queue_handle_t queue ); 
 

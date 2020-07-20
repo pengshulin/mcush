@@ -25,7 +25,7 @@ void mcush_init(void)
 
     hal_pre_init();
     if( !hal_init() )
-        ;//halt("hal init");
+        halt("hal init");
 
     if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
         halt("shell init");

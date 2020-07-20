@@ -79,8 +79,8 @@ int hal_can_init( void )
     hal_can_queue_tx = os_queue_create_static( "canTxQ", HAL_CAN_QUEUE_TX_LEN, sizeof(can_message_t),
                                            &static_queue_buffer_can_tx );
 #else
-    hal_can_queue_rx = os_queue_create_static( "canRxQ", HAL_CAN_QUEUE_RX_LEN, sizeof(can_message_t) );
-    hal_can_queue_tx = os_queue_create_static( "canTxQ", HAL_CAN_QUEUE_TX_LEN, sizeof(can_message_t) );
+    hal_can_queue_rx = os_queue_create( "canRxQ", HAL_CAN_QUEUE_RX_LEN, sizeof(can_message_t) );
+    hal_can_queue_tx = os_queue_create( "canTxQ", HAL_CAN_QUEUE_TX_LEN, sizeof(can_message_t) );
 #endif
     if( (hal_can_queue_rx == NULL) || (hal_can_queue_tx == NULL) )
         return 0;

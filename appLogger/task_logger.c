@@ -2,7 +2,6 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include "mcush.h"
-#include "semphr.h"
 #include "task_logger.h"
 #include "task_blink.h"
 
@@ -41,7 +40,7 @@ int logger_is_enabled(void)
 
 int logger_is_busy(void)
 {
-    return (_busy || uxQueueMessagesWaiting( queue_logger ) != 0) ? 1 : 0;
+    return (_busy || os_queue_count( queue_logger ) != 0) ? 1 : 0;
 }
 
 
