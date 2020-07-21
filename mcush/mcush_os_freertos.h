@@ -17,7 +17,7 @@
     #define OS_SUPPORT_STATIC_ALLOCATION  0
 #endif
 
-#define OS_STACK_SIZE_MIN        (configMINIMAL_STACK_SIZE*sizeof(portBASE_TYPE))
+#define OS_STACK_SIZE_MIN        (configMINIMAL_STACK_SIZE*sizeof(portSTACK_TYPE))
 
 #define OS_PRIORITY_MAX          (configMAX_PRIORITIES-1)
 #define OS_PRIORITY_HIGHEST      (configMAX_PRIORITIES-1)
@@ -88,6 +88,7 @@ void os_start(void);
 int os_is_running(void);
 void os_enter_critical(void);
 void os_exit_critical(void);
+void os_disable_interrupts(void);
 
 os_tick_t os_tick( void );
 
@@ -102,8 +103,6 @@ void os_task_delete( os_task_handle_t task );
 void os_task_suspend( os_task_handle_t task );
 void os_task_resume( os_task_handle_t task );
 void os_task_switch( void );
-void os_task_enter_critical( void );
-void os_task_exit_critical( void );
 void os_task_priority_set( os_task_handle_t task, int new_priority );
 int os_task_priority_get( os_task_handle_t task );
 

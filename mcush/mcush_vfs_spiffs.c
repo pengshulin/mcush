@@ -24,33 +24,31 @@ static char _cache_buf[sizeof(spiffs_cache) + SPIFFS_CACHE_NUM *
 os_mutex_handle_t mutex_spiffs;
 
 
-static void _lock_check(void)
+static int _lock_check(void)
 {
-    if( mutex_spiffs == NULL )
-    {
+    if( mutex_spiffs != NULL )
+        return 1;
 #if OS_SUPPORT_STATIC_ALLOCATION
-        DEFINE_STATIC_MUTEX_BUFFER( spiffs );
-        mutex_spiffs = os_mutex_create_static( &static_mutex_buffer_spiffs );
+    DEFINE_STATIC_MUTEX_BUFFER( spiffs );
+    mutex_spiffs = os_mutex_create_static( &static_mutex_buffer_spiffs );
 #else
-        mutex_spiffs = os_mutex_create();
+    mutex_spiffs = os_mutex_create();
 #endif
-        if( mutex_spiffs == NULL )
-            halt("spiffs mutex create"); 
-    }
+    return (mutex_spiffs != NULL) ? 1 : 0;
 }
 
 
 void mcush_spiffs_lock(struct spiffs_t *fs)
 {
-    _lock_check();
-    os_mutex_get( mutex_spiffs, -1 );
+    if( _lock_check() )
+        os_mutex_get( mutex_spiffs, os_is_running() ? -1 : 0 );
 }
 
 
 void mcush_spiffs_unlock(struct spiffs_t *fs)
 {
-    _lock_check();
-    os_mutex_put( mutex_spiffs );
+    if( _lock_check() )
+        os_mutex_put( mutex_spiffs );
 }
 
 

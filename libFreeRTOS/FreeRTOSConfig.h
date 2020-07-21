@@ -28,7 +28,11 @@ extern uint32_t SystemCoreClock;
 #endif
 
 #ifndef configMINIMAL_STACK_SIZE
-    #define configMINIMAL_STACK_SIZE            (128/sizeof(portSTACK_TYPE))
+    /* NOTE:
+       idle task stack memory == MINIMAL_STACK_SIZE by default,
+       the task is also responsible to free TCB/Stack left by deleted tasks,
+       calling vPortFree may cause StackOverflow exception */
+    #define configMINIMAL_STACK_SIZE            (256/sizeof(portSTACK_TYPE))
 #endif
 
 #ifndef configSUPPORT_STATIC_ALLOCATION

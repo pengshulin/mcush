@@ -34,17 +34,9 @@ void task_idle_counter_entry(void *p)
 }
 
 
-#if USE_CMD_SYSTEM_KERNEL
-static void _print_kernel_item_name(const char *name)
-{
-    int len=strlen(name);
-
-    shell_write_str(name);
-    shell_write_char(':');
-    while( len++ < 21 )
-        shell_write_char(' ');
-}
-#endif
+extern void os_task_info_print(void);
+extern void os_queue_info_print(void);
+extern void os_kernel_info_print(void);
 
 
 int cmd_system( int argc, char *argv[] )
@@ -71,14 +63,9 @@ int cmd_system( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    os_queue_handle_t queue;
-    mcush_queue_info_t qinfo;
-    mcush_kern_info_t kinfo;
-    const char *name=0;
-    int i, j;
     const char *type=0;
+    int i;
     char c;
-    TaskStatus_t *task_status_array;
 #if USE_CMD_SYSTEM_IDLE
     uint32_t idle_counter, idle_counter_last, idle_counter_max;
     os_task_handle_t task_idle_counter;
@@ -86,7 +73,6 @@ int cmd_system( int argc, char *argv[] )
 #if USE_CMD_SYSTEM_STACK
     char *p;
 #endif
-    char buf[1024];
     
     mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -106,83 +92,16 @@ int cmd_system( int argc, char *argv[] )
     }
     else if( (strcmp( type, "t" ) == 0) || (strcmp( type, "task" ) == 0) )
     {
-        mcushGetKernInfo(&kinfo);
-        task_status_array = (TaskStatus_t *)buf;
-        i = uxTaskGetSystemState( task_status_array, kinfo.uxCurrentNumberOfTasks, NULL );
-        for( j=0; j<i; j++ )
-        {
-            /* status */
-            switch( task_status_array[j].eCurrentState )
-            {
-            case eRunning: c = 'X'; break;
-            case eReady: c = 'R'; break;
-            case eBlocked: c = 'B'; break;
-            case eSuspended: c = 'S'; break;
-            case eDeleted: c = 'D'; break;
-            default: c = '?'; break;
-            } 
-            
-            shell_printf( "%2d %8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n",
-                        task_status_array[j].xTaskNumber,
-                        task_status_array[j].pcTaskName, c, 
-                        task_status_array[j].xHandle,
-                        task_status_array[j].uxCurrentPriority, task_status_array[j].uxBasePriority, 
-                        task_status_array[j].pxStackBase,
-                        (uint32_t*)mcushGetTaskStackTop( task_status_array[j].xHandle ),
-                        task_status_array[j].usStackHighWaterMark * sizeof(portSTACK_TYPE) );
-        } 
+        os_task_info_print();
     }
     else if( (strcmp( type, "q" ) == 0 ) || (strcmp( type, "queue" ) == 0 ) )
     {
-        for( i=0; i<configQUEUE_REGISTRY_SIZE; i++ )
-        {
-            if( mcushGetQueueRegistered( i, (void**)&queue, &name ) )
-            {
-                if( mcushGetQueueInfo( queue, &qinfo ) )
-                {
-                    shell_printf( "%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)queue, 
-                        qinfo.uxLength, qinfo.uxItemSize, qinfo.uxMessagesWaiting, 
-                        (int)qinfo.pcHead, (int)qinfo.pcTail, ((int)qinfo.pcTail-(int)qinfo.pcHead) );
-                }
-            }
-        }
+        os_queue_info_print();
     }
 #if USE_CMD_SYSTEM_KERNEL
     else if( (strcmp( type, "k" ) == 0 ) || (strcmp( type, "kern" ) == 0 ) )
     {
-        _print_kernel_item_name( "SystemCoreClock" );
-        shell_printf( "%d\n", SystemCoreClock );
-        _print_kernel_item_name( "TickRate" );
-        shell_printf( "%d\n", configTICK_RATE_HZ );
-        mcushGetKernInfo(&kinfo);
-        _print_kernel_item_name( "CurrentNumberOfTasks" );
-        shell_printf( "%d\n", kinfo.uxCurrentNumberOfTasks );
-        _print_kernel_item_name( "TopReadyPriority" );
-        shell_printf( "%d\n", kinfo.uxTopReadyPriority );
-        _print_kernel_item_name( "PendedTicks" );
-        shell_printf( "%d\n", kinfo.uxPendedTicks );
-        _print_kernel_item_name( "NumOfOverflows" );
-        shell_printf( "%d\n", kinfo.uxNumOfOverflows );
-        _print_kernel_item_name( "CurrentTCB" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxCurrentTCB, mcushGetTaskNameFromTCB(kinfo.pxCurrentTCB) );
-        for( i=configMAX_PRIORITIES-1; i>=0; i-- )
-        {
-            shell_printf( "ReadyTaskLists[%d]:    0x%08X %s\n", i, (uint32_t)kinfo.pxReadyTaskLists[i], mcushGetTaskNamesFromTaskList(kinfo.pxReadyTaskLists[i], buf) );
-        }
-        _print_kernel_item_name( "DelayedTaskList1" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList1, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList1, buf) );
-        _print_kernel_item_name( "DelayedTaskList2" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList2, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList2, buf) );
-        _print_kernel_item_name( "DelayedTaskList" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList, buf) );
-        _print_kernel_item_name( "OverflowDelayedTList" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxOverflowDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxOverflowDelayedTaskList, buf) );
-        _print_kernel_item_name( "PendingReadyList" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxPendingReadyList, mcushGetTaskNamesFromTaskList(kinfo.pxPendingReadyList, buf) );
-#if ( INCLUDE_vTaskSuspend == 1 )
-        _print_kernel_item_name( "SuspendedTaskList" );
-        shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
-#endif
+        os_kernel_info_print();
     }
 #endif
 #if USE_CMD_SYSTEM_HEAP
@@ -210,17 +129,9 @@ int cmd_system( int argc, char *argv[] )
         /* NOTE: the task runs at top priority and may involve side-effects */
         idle_counter = 0;
         os_task_priority_set( NULL, OS_PRIORITY_HIGHEST );
-#if OS_SUPPORT_STATIC_ALLOCATION
-        DEFINE_STATIC_TASK_BUFFER( idle_cnt, OS_STACK_SIZE_MIN );
-        task_idle_counter = os_task_create_static( "idleCntT",
-                task_idle_counter_entry, &idle_counter,
-                OS_STACK_SIZE_MIN, OS_PRIORITY_HIGHEST,
-                &static_task_buffer_idle_cnt );
-#else
         task_idle_counter = os_task_create( "idleCntT",
                 task_idle_counter_entry, &idle_counter,
                 OS_STACK_SIZE_MIN, OS_PRIORITY_HIGHEST );
-#endif
         if( task_idle_counter == NULL )
         {
             os_task_priority_set( NULL, MCUSH_PRIORITY );

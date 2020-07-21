@@ -47,6 +47,12 @@ void os_exit_critical(void)
 }
 
 
+void os_disable_interrupts(void)
+{
+    portDISABLE_INTERRUPTS();
+}
+
+
 /* TASK */
 
 void os_task_delay( os_tick_t ticks )
@@ -118,18 +124,6 @@ void os_task_resume( os_task_handle_t task )
 void os_task_switch( void )
 {
     taskYIELD();
-}
-
-
-void os_task_enter_critical( void )
-{
-    portENTER_CRITICAL();
-}
-
-
-void os_task_exit_critical( void )
-{
-    portEXIT_CRITICAL();
 }
 
 
@@ -389,7 +383,6 @@ os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, in
 }
 
 
-
 int os_timer_start( os_timer_handle_t timer )
 {
     if( xTimerStart( timer, 0 ) == pdPASS )
@@ -444,20 +437,18 @@ void os_free( void *mem )
 
 
 #if OS_SUPPORT_STATIC_ALLOCATION
-DEFINE_STATIC_TASK_BUFFER( idle, (configMINIMAL_STACK_SIZE*sizeof(portBASE_TYPE)) );
-
 void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize )
 {
+    DEFINE_STATIC_TASK_BUFFER( idle, (configMINIMAL_STACK_SIZE*sizeof(portSTACK_TYPE)) );
     *ppxIdleTaskTCBBuffer = static_task_buffer_idle.control;
     *ppxIdleTaskStackBuffer = static_task_buffer_idle.stack;
     *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
 }
 
 #if configUSE_TIMERS
-DEFINE_STATIC_TASK_BUFFER( timer, (configTIMER_TASK_STACK_DEPTH*sizeof(portBASE_TYPE)) );
-
 void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
 {
+    DEFINE_STATIC_TASK_BUFFER( timer, (configTIMER_TASK_STACK_DEPTH*sizeof(portSTACK_TYPE)) );
     *ppxTimerTaskTCBBuffer = static_task_buffer_timer.control;
     *ppxTimerTaskStackBuffer = static_task_buffer_timer.stack;
     *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
@@ -495,5 +486,118 @@ void vApplicationStackOverflowHook( xTaskHandle xTask, signed portCHAR *pcTaskNa
 {
     halt("stack overflow");
 }
+
+
+#define TASKS_LIMIT  50
+void os_task_info_print(void)
+{
+    /* sizeof(TaskStatus_t) = 36 bytes */
+    TaskStatus_t task_status_array[TASKS_LIMIT];  /* 50*36=1800 bytes */
+    int i, count;
+    char c;
+
+    count = uxTaskGetSystemState( task_status_array, TASKS_LIMIT, NULL );
+    for( i=0; i<count; i++ )
+    {
+        /* status */
+        switch( task_status_array[i].eCurrentState )
+        {
+        case eRunning: c = 'X'; break;
+        case eReady: c = 'R'; break;
+        case eBlocked: c = 'B'; break;
+        case eSuspended: c = 'S'; break;
+        case eDeleted: c = 'D'; break;
+        default: c = '?'; break;
+        } 
+        
+        shell_printf( "%2d %8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n",
+                    task_status_array[i].xTaskNumber,
+                    task_status_array[i].pcTaskName, c, 
+                    task_status_array[i].xHandle,
+                    task_status_array[i].uxCurrentPriority, task_status_array[i].uxBasePriority, 
+                    task_status_array[i].pxStackBase,
+                    *(uint32_t*)task_status_array[i].xHandle,  /* pxTopOfStack is at the begining of TCB_t */
+                    //(uint32_t*)mcushGetTaskStackTop( task_status_array[i].xHandle ),
+                    task_status_array[i].usStackHighWaterMark * sizeof(portSTACK_TYPE) );
+    } 
+}
+
+
+void os_queue_info_print(void)
+{
+    mcush_queue_info_t qinfo;
+    os_queue_handle_t queue;
+    const char *name=0;
+    int i;
+
+    for( i=0; i<configQUEUE_REGISTRY_SIZE; i++ )
+    {
+        if( mcushGetQueueRegistered( i, (void**)&queue, &name ) )
+        {
+            if( mcushGetQueueInfo( queue, &qinfo ) )
+            {
+                shell_printf( "%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)queue, 
+                    qinfo.uxLength, qinfo.uxItemSize, qinfo.uxMessagesWaiting, 
+                    (int)qinfo.pcHead, (int)qinfo.pcTail, ((int)qinfo.pcTail-(int)qinfo.pcHead) );
+            }
+        }
+    }
+}
+
+
+void _print_kernel_item_name(const char *name)
+{
+    int len=strlen(name);
+
+    shell_write_str(name);
+    shell_write_char(':');
+    while( len++ < 21 )
+        shell_write_char(' ');
+}
+
+
+void os_kernel_info_print(void)
+{
+    //mcush_kern_info_t kinfo;
+    //int i;
+    //char buf[1024];
+
+    _print_kernel_item_name( "OS" );
+    shell_printf( "%s\n", OS_NAME );
+    _print_kernel_item_name( "SystemCoreClock" );
+    shell_printf( "%d\n", SystemCoreClock );
+    _print_kernel_item_name( "TickRate" );
+    shell_printf( "%d\n", OS_TICK_RATE );
+    _print_kernel_item_name( "CurrentNumberOfTasks" );
+    shell_printf( "%d\n", uxTaskGetNumberOfTasks() );
+    //mcushGetKernInfo(&kinfo);
+    //_print_kernel_item_name( "TopReadyPriority" );
+    //shell_printf( "%d\n", kinfo.uxTopReadyPriority );
+    //_print_kernel_item_name( "PendedTicks" );
+    //shell_printf( "%d\n", kinfo.uxPendedTicks );
+    //_print_kernel_item_name( "NumOfOverflows" );
+    //shell_printf( "%d\n", kinfo.uxNumOfOverflows );
+    //_print_kernel_item_name( "CurrentTCB" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxCurrentTCB, mcushGetTaskNameFromTCB(kinfo.pxCurrentTCB) );
+    //for( i=configMAX_PRIORITIES-1; i>=0; i-- )
+    //{
+    //    shell_printf( "ReadyTaskLists[%d]:    0x%08X %s\n", i, (uint32_t)kinfo.pxReadyTaskLists[i], mcushGetTaskNamesFromTaskList(kinfo.pxReadyTaskLists[i], buf) );
+    //}
+    //_print_kernel_item_name( "DelayedTaskList1" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList1, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList1, buf) );
+    //_print_kernel_item_name( "DelayedTaskList2" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList2, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList2, buf) );
+    //_print_kernel_item_name( "DelayedTaskList" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList, buf) );
+    //_print_kernel_item_name( "OverflowDelayedTList" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxOverflowDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxOverflowDelayedTaskList, buf) );
+    //_print_kernel_item_name( "PendingReadyList" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxPendingReadyList, mcushGetTaskNamesFromTaskList(kinfo.pxPendingReadyList, buf) );
+    //_print_kernel_item_name( "SuspendedTaskList" );
+    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
+}
+
+
+
 
 #endif

@@ -37,13 +37,6 @@
 
 os_queue_handle_t hal_can_queue_rx, hal_can_queue_tx;
 
-//#if configSUPPORT_STATIC_ALLOCATION
-//StaticQueue_t hal_can_queue_rx_data;
-//uint8_t hal_can_queue_rx_buffer[HAL_CAN_QUEUE_RX_LEN*sizeof(can_message_t)];
-//StaticQueue_t hal_can_queue_tx_data;
-//uint8_t hal_can_queue_tx_buffer[HAL_CAN_QUEUE_TX_LEN*sizeof(can_message_t)];
-//#endif
-
 uint32_t hal_can_tx_counter;
 uint32_t hal_can_rx_counter;
 

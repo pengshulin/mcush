@@ -46,7 +46,7 @@ void _halt(void)
 {
     int i, led_num=hal_led_get_num();
 
-    os_enter_critical(); //os_disable_interrupts();
+    os_disable_interrupts();
     for( i=0; i<led_num; i++ )
         hal_led_clr(i);
     while(1)

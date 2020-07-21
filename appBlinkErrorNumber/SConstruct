@@ -14,7 +14,8 @@ if haldir is None:
     haldir = 'stm32f429ig_challenger'
     haldir = 'stm32f103cb_tiny_controller'
 
-env = loadHalConfig( haldir ).env
+#env = loadHalConfig( haldir ).env
+env = loadHalConfig( haldir, append_rtos='RTX' ).env
 #env = loadHalConfig( haldir, use_vcp=True ).env
 #env = loadHalConfig( haldir, use_vcp=False ).env
 #env = loadHalConfig( haldir, use_spiffs=True ).env

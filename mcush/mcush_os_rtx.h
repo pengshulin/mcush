@@ -8,6 +8,7 @@
 
 #define OS_SUPPORT_STATIC_ALLOCATION  1
 
+#define OS_STACK_SIZE_MIN       (128)
 
 #define OS_PRIORITY_MAX         (osPriorityISR)
 #define OS_PRIORITY_HIGHEST     (osPriorityRealtime)
@@ -50,11 +51,9 @@ typedef struct
     osRtxMessageQueue_t *control;
     uint8_t *data;
 } static_queue_buffer_t;
-/* size conversion needed, refer to svcRtxMessageQueueNew */
-#define ITEM_SIZE_TO_BLOCK_SIZE(m)  (((m+3)&~3)+sizeof(osRtxMessage_t))
 #define DEFINE_STATIC_QUEUE_BUFFER( name, queue_length, item_bytes )  \
     static osRtxMessageQueue_t _static_queue_control_##name;  \
-    static uint8_t _static_queue_data_##name[queue_length*ITEM_SIZE_TO_BLOCK_SIZE(item_bytes)];  \
+    static uint8_t _static_queue_data_##name[osRtxMessageQueueMemSize(queue_length,item_bytes)];  \
     static const static_queue_buffer_t static_queue_buffer_##name = {  \
         .control = &_static_queue_control_##name,  \
         .data = _static_queue_data_##name } 
@@ -80,6 +79,7 @@ void os_start(void);
 int os_is_running(void);
 void os_enter_critical(void);
 void os_exit_critical(void);
+void os_disable_interrupts(void);
 
 os_tick_t os_tick( void );
 
@@ -94,8 +94,6 @@ void os_task_delete( os_task_handle_t task );
 void os_task_suspend( os_task_handle_t task );
 void os_task_resume( os_task_handle_t task );
 void os_task_switch( void );
-void os_task_enter_critical( void );
-void os_task_exit_critical( void );
 void os_task_priority_set( os_task_handle_t task, int new_priority );
 int os_task_priority_get( os_task_handle_t task );
 

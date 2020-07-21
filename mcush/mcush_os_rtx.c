@@ -32,14 +32,22 @@ int os_is_running(void)
 
 void os_enter_critical(void)
 {
-
+    osKernelLock();
 }
 
 
 void os_exit_critical(void)
 {
-
+    osKernelUnlock();
 }
+
+
+void os_disable_interrupts(void)
+{
+    
+}
+
+
 
 
 os_tick_t os_tick( void )
@@ -134,18 +142,6 @@ void os_task_switch( void )
 }
 
 
-void os_task_enter_critical( void )
-{
-    osKernelLock();
-}
-
-
-void os_task_exit_critical( void )
-{
-    osKernelUnlock();
-}
-
-
 void os_task_priority_set( os_task_handle_t task, int new_priority )
 {
     osThreadSetPriority( task, (osPriority_t)new_priority );
@@ -179,7 +175,7 @@ os_queue_handle_t os_queue_create_static( const char *name, size_t queue_length,
     attr.cb_mem = (void*)buf->control;
     attr.cb_size = sizeof(osRtxMessageQueue_t);
     attr.mq_mem = (void*)buf->data;
-    attr.mq_size = queue_length*ITEM_SIZE_TO_BLOCK_SIZE(item_bytes);
+    attr.mq_size = osRtxMessageQueueMemSize(queue_length,item_bytes);
     return osMessageQueueNew( queue_length, item_bytes, (const osMessageQueueAttr_t*)&attr);
 }
 
@@ -391,7 +387,6 @@ os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, in
 }
 
 
-
 int os_timer_start( os_timer_handle_t timer )
 {
     if( osTimerStart( timer, 0 ) == osOK )
@@ -437,7 +432,12 @@ void *os_malloc( size_t bytes )
 
 void *os_realloc( void *old_mem, size_t bytes )
 {
-    return old_mem;
+    void *p;
+
+    osKernelLock();
+    p = realloc( old_mem, bytes );
+    osKernelUnlock();
+    return p;
 }
 
 
@@ -451,6 +451,77 @@ void os_free( void *mem )
     }
 }
 
+
+#define THREADS_LIMIT  100
+void os_task_info_print(void)
+{
+    osThreadId_t threads[THREADS_LIMIT], id;
+    os_thread_t *thread;
+    int i, count;
+    char c;
+
+    count = osThreadEnumerate(threads, THREADS_LIMIT);
+    for( i=0; i<; i++ )
+    {
+        id = threads[i];
+        thread = osRtxThreadId(id);
+        switch( thread->state & osRtxThreadStateMask )
+        {
+        case osThreadInactive: c='I'; break;
+        case osThreadReady: c='R'; break;
+        case osThreadRunning: c='X'; break;
+        case osThreadBlocked: c='B'; break;
+        case osThreadTerminated: c='T'; break;
+        default: c='?'; break;
+        }
+        //shell_printf( "%02X%02X %8s %c 0x%08X %02d/%02d 0x%08X[+%05X] 0x%08X"
+        shell_printf( "%8s %c 0x%08X %02d/%02d 0x%08X[+%05X] 0x%08X"
+#if OS_STACK_WATERMARK
+                      " (free %d)"
+#endif
+                    "\n",
+                    //thread->attr, thread->flags,
+                    thread->name,
+                    c, 
+                    (int)thread,
+                    thread->priority, thread->priority_base,
+                    thread->stack_mem, thread->stack_size,
+                    thread->sp
+#if OS_STACK_WATERMARK
+                    ,osThreadGetStackSpace(id)
+#endif
+                    );
+    }
+}
+
+
+void os_queue_info_print(void)
+{
+}
+
+ 
+void _print_kernel_item_name(const char *name)
+{
+    int len=strlen(name);
+
+    shell_write_str(name);
+    shell_write_char(':');
+    while( len++ < 21 )
+        shell_write_char(' ');
+}
+
+
+void os_kernel_info_print(void)
+{
+    _print_kernel_item_name( "OS" );
+    shell_printf( "%s\n", OS_NAME );
+    _print_kernel_item_name( "SystemCoreClock" );
+    shell_printf( "%d\n", SystemCoreClock );
+    _print_kernel_item_name( "TickRate" );
+    shell_printf( "%d\n", OS_TICK_RATE );
+    _print_kernel_item_name( "ThreadCount" );
+    shell_printf( "%d\n", osThreadGetCount() );
+}
 
 
 #endif
