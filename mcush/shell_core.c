@@ -473,7 +473,7 @@ static int shell_process_char( char c )
                 scb.cmdline_len--;
             }
             strcpy( scb.cmdline, p );
-            scb.cmdline_cursor = scb.cmdline_len = strlen(scb.cmdline);
+            scb.cmdline_cursor = scb.cmdline_len = (uint8_t)strlen(scb.cmdline);
             shell_write_str( scb.cmdline );
         }
     }
@@ -564,7 +564,7 @@ static int shell_process_char( char c )
 static int shell_process_command( void )
 {
     int (*cmd)(int argc, char *argv[]);
-    int i, j;
+    int i=-1, j;
 
     if( shell_split_cmdline_into_argvs( scb.cmdline, &scb.argc, &scb.argv[0] ) )
     {
@@ -770,7 +770,7 @@ int shell_make_16bits_data_buffer( void **pbuf, int *len )
     p2 = (char*)buf;
     while( *p2 )
     {
-        r = strtol( p2, &p3, 0 );
+        r = (uint16_t)strtol( p2, &p3, 0 );
         if( !p3 || !*p3 )
             break;
         if( p2==p3 )
@@ -785,9 +785,9 @@ int shell_make_16bits_data_buffer( void **pbuf, int *len )
     }
     if( !buf_len )
         goto fail;
-    p2 = (char*)os_realloc( buf, buf_len * 2 );
-    if( p2 )
-        buf = (uint16_t*)p2;
+    p = (uint16_t*)os_realloc( buf, buf_len * 2 );
+    if( p )
+        buf = p;
     *pbuf = buf;
     *len = buf_len;
     return 1;
@@ -848,8 +848,10 @@ fail:
 }
 
 
-void shell_run( void )
+void shell_run( void *p )
 {
+    (void)p;
+
 #if ! SHELL_NO_PROMPT_AT_STARTUP
     shell_write_str("\r\n");
     shell_write_str( shell_get_prompt() );

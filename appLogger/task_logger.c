@@ -10,9 +10,9 @@
 
 #define DEBUG_WRITE_LED  0
 
-os_mutex_handle_t mutex_logger;
-os_queue_handle_t queue_logger;
-os_queue_handle_t queue_logger_monitor;
+static os_mutex_handle_t mutex_logger;
+static os_queue_handle_t queue_logger;
+static os_queue_handle_t queue_logger_monitor;
 static uint8_t monitoring_mode=0;
 
 static const char _fname[] = LOGGER_FNAME;
@@ -44,7 +44,7 @@ int logger_is_busy(void)
 }
 
 
-char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
+static char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 {
     char tp[2];
 
@@ -73,7 +73,7 @@ char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
         strcat( buf, evt->module);
         strcat( buf, ": " );
     }
-    strcat( buf, evt->str );
+    strcat( buf, (const char*)evt->mem );
     strcat( buf, "\n" );
     return buf;
 }
@@ -83,7 +83,7 @@ static int _logger_module_str( int type, const char *module, const char *str, in
 {
     logger_event_t evt;
     uint32_t length = strlen(str);
-    char *buf;
+    char *buf=NULL;
     int err=0;
     //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
@@ -94,18 +94,20 @@ static int _logger_module_str( int type, const char *module, const char *str, in
             return 0;
     }
 
-    evt.type = type;
+    evt.type = (uint8_t)type;
     evt.time = (uint32_t)os_tick();
-    evt.flag = flag;
+    evt.flag = (uint8_t)flag;
     evt.module = module;
     if( !( flag & LOG_FLAG_CONST ) )
     {
-        evt.str = buf;
+        evt.mem = buf;
         strcpy( buf, str );
         buf = rstrip(buf);
     }
     else
-        evt.str = (char*)str;
+	{
+        evt.mem = (void*)str;
+	}
 
     if( isr_mode )
     {
@@ -132,7 +134,7 @@ static int _logger_module_str( int type, const char *module, const char *str, in
 /* const buffer from isr APIs */
 int logger_module_const_str_isr( int type, const char *module, const char *str )
 {
-    return _logger_module_str( type, module, str, 1,  LOG_FLAG_CONST );
+    return _logger_module_str( type, module, str, 1, LOG_FLAG_CONST );
 }
 
 int logger_module_const_debug_isr( const char *module, const char *str )
@@ -211,12 +213,11 @@ int logger_module_const_error( const char *module, const char *str )
 
 
 /* printf APIs */
-static int _logger_module_printf_args( int type, const char *module, char *fmt, va_list ap )
+static int _logger_module_printf_args( int type, const char *module, const char *fmt, va_list ap )
 {
-    int n;
     char buf[LOGGER_LINE_BUF_SIZE];
 
-    n = vsprintf( buf, fmt, ap );
+    vsprintf( buf, fmt, ap );
     return logger_module_str( type, module, buf );
 }
 
@@ -348,7 +349,7 @@ void logger_module_buffer( const char *module, const char *buf, int len )
         while( p < log+(LOGGER_BUFFER_LINE_BYTES*2+1) )
             *p++ = ' ';
         *p++ = '|';
-        memcpy( (void*)p, (void*)(buf+i), j );
+        memcpy( (void*)p, (const void*)(buf+i), j );
         p[j] = '|';
         p[j+1] = 0;
         i += j;
@@ -521,13 +522,13 @@ static void post_process_event( logger_event_t *evt )
         if( os_queue_put( queue_logger_monitor, evt, 0 ) == 0 )
         {
             if( !( evt->flag & LOG_FLAG_CONST ) )
-                os_free(evt->str);
+                os_free( evt->mem );
         }
     }
     else
     {
         if( !( evt->flag & LOG_FLAG_CONST ) )
-            os_free(evt->str);
+            os_free( evt->mem );
     }
 }
 
@@ -541,6 +542,8 @@ void task_logger_entry(void *p)
     int i, j;
     char buf[LOGGER_LINE_BUF_SIZE];
 #endif
+    
+    (void)p;
 
     while( 1 )
     {
@@ -568,7 +571,7 @@ void task_logger_entry(void *p)
         }
 
         /* log files rotate if needed */
-        if( size > LOGGER_FSIZE_LIMIT )
+        if( size > (signed)LOGGER_FSIZE_LIMIT )
         {
             hal_wdg_clear();
             rotate_log_files( _fname, 0 );
@@ -611,7 +614,7 @@ void task_logger_entry(void *p)
                 j = mcush_write( fd, buf, i );
                 j = j > 0 ? j : 0;
                 size = size < 0 ? j : size + j;
-                if( size > LOGGER_FSIZE_LIMIT )
+                if( size > (signed)LOGGER_FSIZE_LIMIT )
                     break;
             }
             mcush_flush( fd );
@@ -642,7 +645,7 @@ void task_logger_entry(void *p)
 
 
 int cmd_logger( int argc, char *argv[] );
-const shell_cmd_t cmd_tab_logger[] = {
+static const shell_cmd_t cmd_tab_logger[] = {
     {   0, 0, "log",  cmd_logger,
         "logger",
         "log [-e|d|t|b|D|I|W|E]"
@@ -732,10 +735,10 @@ int cmd_logger( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int8_t enable, enable_set=0, tail_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
+    int8_t enable=0, enable_set=0, tail_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
     int8_t filter_mode=0;
     const char *msg=0, *head=0, *module=0;
-    uint8_t head_len=0;
+    size_t head_len=0;
     logger_event_t evt;
     char c;
     char *tail[LOGGER_TAIL_NUM];
@@ -743,7 +746,7 @@ int cmd_logger( int argc, char *argv[] )
     int i, j, fd;
     char buf[LOGGER_LINE_BUF_SIZE];
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -915,7 +918,7 @@ int cmd_logger( int argc, char *argv[] )
             {
                 if( evt.type & filter_mode )
                 {
-                    if( ((head==0) || (strncmp(evt.str, head, head_len) == 0)) &&
+                    if( ((head==0) || (strncmp((const char*)evt.mem, head, head_len) == 0)) &&
                         ((module==0) || (strcmp(evt.module, module) == 0)) )
                     {
                         convert_logger_event_to_str( &evt, buf );
@@ -923,7 +926,7 @@ int cmd_logger( int argc, char *argv[] )
                     }
                 }
                 if( !( evt.flag & LOG_FLAG_CONST ) )
-                    os_free( evt.str );
+                    os_free( evt.mem );
             }
 
             do
@@ -942,7 +945,7 @@ int cmd_logger( int argc, char *argv[] )
         while( os_queue_get( queue_logger_monitor, &evt, 0 ) )
         {
             if( !( evt.flag & LOG_FLAG_CONST ) )
-                os_free( evt.str );
+                os_free( evt.mem );
         }
     }
     return 0;

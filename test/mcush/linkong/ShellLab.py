@@ -81,12 +81,14 @@ class ShellLab(Mcush.Mcush):
     daqDone = daq_done
     daqRead = daq_read
 
-    def measure( self, cmd, index=None, value=None ):
+    def measure( self, cmd, index=None, value=None, fvalue=None ):
         cmd = 'measure -c %s'% cmd
         if index is not None:
             cmd += ' -i %d'% index
         if value is not None:
             cmd += ' -v %d'% value
+        if fvalue is not None:
+            cmd += ' -V %f'% fvalue
         return self.writeCommand( cmd )
 
     def measure_start( self ):

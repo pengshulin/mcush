@@ -49,6 +49,8 @@ void task_vcp_tx_entry(void *p)
     int *next_buf_len;
     os_tick_t timeout;
 
+    (void)p;
+
     while(1)
     {
         next_buf = hal_vcp_tx_use_buf2 ? hal_vcp_tx_buf2 : hal_vcp_tx_buf1;
@@ -104,6 +106,7 @@ int hal_uart_init(uint32_t baudrate)
 {
     os_task_handle_t task;
 
+    (void)baudrate;
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_QUEUE_BUFFER( vcprx, HAL_VCP_QUEUE_RX_LEN, 1 );
     DEFINE_STATIC_QUEUE_BUFFER( vcptx, HAL_VCP_QUEUE_TX_LEN, 1 );

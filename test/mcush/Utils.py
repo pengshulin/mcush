@@ -181,8 +181,8 @@ def f2I( val ):
     return unpack('I', pack('f', val)) [0]
 
 # memory convert 
-def s2f( val ):
-    return unpack('f', val) [0]
+def s2f( val, big_endian=False ):
+    return unpack('>f' if big_endian else '<f', val) [0]
 
 def s2d( val ):
     return unpack('d', val) [0]
@@ -522,8 +522,11 @@ class FCFS:
 
     def reset( self ):
         self.head = [self.Signature('FCFS')]
-        uid = [chr(randint(0,255)) for i in range(12)]
-        self.uid = self.Signature(''.join(uid))
+        if Env.PYTHON_V3:
+            uid = bytes([randint(0,255) for i in range(12)])
+        else:
+            uid = ''.join([chr(randint(0,255)) for i in range(12)])
+        self.uid = self.Signature(uid)
         self.head.append( self.uid )
         self.contents = []
 

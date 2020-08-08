@@ -148,7 +148,7 @@ void CEC_Init(CEC_InitTypeDef* CEC_InitStruct)
      
   /*---------------------------- CEC CFGR Configuration -----------------*/
   /* Get the CEC CFGR value */
-  tmpreg = CEC->CFGR;
+  tmpreg = (uint16_t)CEC->CFGR;
   
   /* Clear BTEM and BPEM bits */
   tmpreg &= CFGR_CLEAR_Mask;

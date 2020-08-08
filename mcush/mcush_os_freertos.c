@@ -80,7 +80,7 @@ void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks )
 
 
 
-os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size_t stack_bytes, int priority )
+os_task_handle_t os_task_create( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority )
 {
     TaskHandle_t task;
 
@@ -91,7 +91,7 @@ os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size
 }
 
 
-os_task_handle_t os_task_create_static( const char *name, void *entry,
+os_task_handle_t os_task_create_static( const char *name, os_task_function_t entry,
          void *parm, size_t stack_bytes, int priority,
          const static_task_buffer_t *buf )
 {
@@ -484,15 +484,17 @@ void vApplicationMallocFailedHook(void)
 
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed portCHAR *pcTaskName )
 {
+    (void)xTask;
+    (void)pcTaskName;
     halt("stack overflow");
 }
 
 
-#define TASKS_LIMIT  50
+#define TASKS_LIMIT  30
 void os_task_info_print(void)
 {
     /* sizeof(TaskStatus_t) = 36 bytes */
-    TaskStatus_t task_status_array[TASKS_LIMIT];  /* 50*36=1800 bytes */
+    TaskStatus_t task_status_array[TASKS_LIMIT];  /* 30*36=1080 bytes */
     int i, count;
     char c;
 
@@ -545,7 +547,7 @@ void os_queue_info_print(void)
 }
 
 
-void _print_kernel_item_name(const char *name)
+static void _print_kernel_item_name(const char *name)
 {
     int len=strlen(name);
 

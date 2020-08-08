@@ -10,9 +10,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_IDLE_HOOK                     1
 #define configUSE_TICK_HOOK                     1
 #define configCPU_CLOCK_HZ                      ((unsigned long)SystemCoreClock)
-#ifdef CONFIG_TICK_RATE_HZ
-    #define configTICK_RATE_HZ                  ((TickType_t)CONFIG_TICK_RATE_HZ)
-#else
+#ifndef configTICK_RATE_HZ
     /* uptime counter overflow period:
        @100 Hz:  (4*1024*1024*1024) * (1/100) / (24*60*60)  = 497.10 days = 16.6 months
        @200 Hz:  (4*1024*1024*1024) * (1/200) / (24*60*60)  = 248.55 days =  8.3 months
@@ -20,7 +18,7 @@ extern uint32_t SystemCoreClock;
        @500 Hz:  (4*1024*1024*1024) * (1/500) / (24*60*60)  =  99.42 days =  3.3 months
        @1000 Hz: (4*1024*1024*1024) * (1/1000) / (24*60*60) =  47.71 days =  1.7 months
      */
-    #define configTICK_RATE_HZ                  ((TickType_t)250)
+    #define configTICK_RATE_HZ                  250
 #endif
 
 #ifndef configMAX_PRIORITIES

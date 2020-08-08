@@ -467,17 +467,13 @@ class SerialPort(Port):
         try:
             self.ser.open()
             self._connected = True
+            self.ser.reset_output_buffer()
+            self.ser.reset_input_buffer()
         except IOError:
             raise PortNotFound( self.port )
         except Exception as e:
             #print( e )
             raise UnknownPortError( e )
-        if self._connected:
-            try:
-                self.ser.reset_input_buffer()
-                self.ser.reset_output_buffer()
-            except:
-                pass
 
     def disconnect( self ):
         if self._connected:

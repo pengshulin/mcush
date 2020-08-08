@@ -73,9 +73,9 @@ float adc_int12_to_voltage(int val)
 {
     float ret = val;
 #if defined(HAL_ADC_VREF)
-    ret = HAL_ADC_VREF * ret / 4096;
+    ret = HAL_ADC_VREF * ret / 4096.0f;
 #else
-    ret = 3.3 * ret / 4096;
+    ret = 3.3f * ret / 4096.0f;
 #endif
     return ret;
 }
@@ -97,7 +97,7 @@ void hal_adc_init( void )
     LL_ADC_InitTypeDef adc_init;
     LL_ADC_REG_InitTypeDef adc_reg_init;
     LL_DMA_InitTypeDef dma_init;
-    int i;
+    unsigned int i;
 
     /* pins init */
     gpio_init.Speed = LL_GPIO_SPEED_FREQ_LOW;

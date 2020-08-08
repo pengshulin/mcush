@@ -74,7 +74,7 @@ s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 #if USE_LOCK
     xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
 #endif
-    sFLASH_ReadBuffer(dst, addr, size);
+    sFLASH_ReadBuffer(dst, addr, (uint8_t)size);
 #if USE_LOCK
     xSemaphoreGive( semaphore_spiflash );
 #endif
@@ -87,7 +87,7 @@ s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
 #if USE_LOCK
     xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
 #endif
-    sFLASH_WriteBuffer(src, addr, size);
+    sFLASH_WriteBuffer(src, addr, (uint8_t)size);
 #if USE_LOCK
     xSemaphoreGive( semaphore_spiflash );
 #endif
@@ -97,6 +97,7 @@ s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
 
 s32_t *hal_spiffs_flash_erase(u32_t addr, u32_t size)
 {
+    (void)size;
 #if USE_LOCK
     xSemaphoreTake( semaphore_spiflash, portMAX_DELAY );
 #endif

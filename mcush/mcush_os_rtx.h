@@ -32,6 +32,7 @@ typedef osMutexId_t os_mutex_handle_t;
 typedef osSemaphoreId_t os_semaphore_handle_t;
 typedef osTimerId_t os_timer_handle_t;
 typedef void (*os_timer_callback_t)( os_timer_handle_t timer );
+typedef void (*os_task_function_t)( void *arg );
 
 
 typedef struct
@@ -88,8 +89,8 @@ void os_task_delay( os_tick_t tick );
 void os_task_delay_ms( unsigned int ms );
 void os_task_delay_s( unsigned int s );
 void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks );
-os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size_t stack_bytes, int priority );
-os_task_handle_t os_task_create_static( const char *name, void *entry, void *parm, size_t stack_bytes, int priority, const static_task_buffer_t *buf );
+os_task_handle_t os_task_create( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority );
+os_task_handle_t os_task_create_static( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority, const static_task_buffer_t *buf );
 void os_task_delete( os_task_handle_t task );
 void os_task_suspend( os_task_handle_t task );
 void os_task_resume( os_task_handle_t task );
@@ -143,6 +144,10 @@ void *os_malloc( size_t bytes );
 void *os_realloc( void *old_mem, size_t bytes );
 void os_free( void *mem );
 
+/* misc */
+void os_task_info_print(void);
+void os_queue_info_print(void);
+void os_kernel_info_print(void);
 
 
 #endif

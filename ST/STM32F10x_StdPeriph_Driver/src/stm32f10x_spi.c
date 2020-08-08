@@ -497,7 +497,7 @@ void SPI_I2S_ITConfig(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT, FunctionalState New
   itpos = SPI_I2S_IT >> 4;
 
   /* Set the IT mask */
-  itmask = (uint16_t)1 << (uint16_t)itpos;
+  itmask = (uint16_t)(1 << (uint16_t)itpos);
 
   if (NewState != DISABLE)
   {
@@ -842,13 +842,13 @@ ITStatus SPI_I2S_GetITStatus(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT)
   assert_param(IS_SPI_I2S_GET_IT(SPI_I2S_IT));
 
   /* Get the SPI/I2S IT index */
-  itpos = 0x01 << (SPI_I2S_IT & 0x0F);
+  itpos = (uint16_t)(0x01 << (SPI_I2S_IT & 0x0F));
 
   /* Get the SPI/I2S IT mask */
   itmask = SPI_I2S_IT >> 4;
 
   /* Set the IT mask */
-  itmask = 0x01 << itmask;
+  itmask = (uint16_t)(0x01 << itmask);
 
   /* Get the SPI_I2S_IT enable bit status */
   enablestatus = (SPIx->CR2 & itmask) ;
@@ -894,7 +894,7 @@ void SPI_I2S_ClearITPendingBit(SPI_TypeDef* SPIx, uint8_t SPI_I2S_IT)
   assert_param(IS_SPI_I2S_CLEAR_IT(SPI_I2S_IT));
 
   /* Get the SPI IT index */
-  itpos = 0x01 << (SPI_I2S_IT & 0x0F);
+  itpos = (int16_t)(0x01 << (SPI_I2S_IT & 0x0F));
 
   /* Clear the selected SPI CRC Error (CRCERR) interrupt pending bit */
   SPIx->SR = (uint16_t)~itpos;

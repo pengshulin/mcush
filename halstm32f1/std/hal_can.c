@@ -173,11 +173,11 @@ void hal_can_reset( void )
 int hal_can_set_baudrate( int baudrate )
 {
     CAN_InitTypeDef can_init;
-    int i;
+    unsigned int i;
 
     for( i=0; i<sizeof(baudrate_config)/sizeof(can_baudrate_config_t); i++ )
     {
-        if( baudrate_config[i].bps == baudrate )
+        if( baudrate_config[i].bps == (uint32_t)baudrate )
         {
             CAN_ClearFlag( HAL_CANx, CAN_FLAG_LEC );
             can_init.CAN_Mode = CAN_Mode_Normal;  // normal mode
@@ -215,7 +215,7 @@ int hal_can_filter_set( int index, can_filter_t *filter, int enabled )
 
     if( (index < 0) || (index >= 14) )
         return 0;
-    can_filter_init.CAN_FilterNumber = index;
+    can_filter_init.CAN_FilterNumber = (uint8_t)index;
     can_filter_init.CAN_FilterMode = CAN_FilterMode_IdMask;
     can_filter_init.CAN_FilterScale = CAN_FilterScale_32bit;
     if( filter->ext )
@@ -287,7 +287,7 @@ int hal_can_send( can_message_t *msg )
     CanTxMsg txmsg;
     int i;
 
-    if( (msg->len < 0) || (msg->len > 8) )
+    if( msg->len > 8 )
         return -1;
 
     /* transmit */
@@ -308,7 +308,7 @@ int hal_can_send( can_message_t *msg )
 
 void hal_can_cancel( int id )
 {
-    CAN_CancelTransmit( HAL_CANx, id );
+    CAN_CancelTransmit( HAL_CANx, (uint8_t)id );
 }
 
 

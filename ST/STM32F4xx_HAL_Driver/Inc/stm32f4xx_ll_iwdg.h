@@ -159,6 +159,7 @@ extern "C" {
   */
 __STATIC_INLINE void LL_IWDG_Enable(IWDG_TypeDef *IWDGx)
 {
+  (void)IWDGx;
   WRITE_REG(IWDG->KR, LL_IWDG_KEY_ENABLE);
 }
 
@@ -170,6 +171,7 @@ __STATIC_INLINE void LL_IWDG_Enable(IWDG_TypeDef *IWDGx)
   */
 __STATIC_INLINE void LL_IWDG_ReloadCounter(IWDG_TypeDef *IWDGx)
 {
+  (void)IWDGx;
   WRITE_REG(IWDG->KR, LL_IWDG_KEY_RELOAD);
 }
 
@@ -181,6 +183,7 @@ __STATIC_INLINE void LL_IWDG_ReloadCounter(IWDG_TypeDef *IWDGx)
   */
 __STATIC_INLINE void LL_IWDG_EnableWriteAccess(IWDG_TypeDef *IWDGx)
 {
+  (void)IWDGx;
   WRITE_REG(IWDG->KR, LL_IWDG_KEY_WR_ACCESS_ENABLE);
 }
 
@@ -192,6 +195,7 @@ __STATIC_INLINE void LL_IWDG_EnableWriteAccess(IWDG_TypeDef *IWDGx)
   */
 __STATIC_INLINE void LL_IWDG_DisableWriteAccess(IWDG_TypeDef *IWDGx)
 {
+  (void)IWDGx;
   WRITE_REG(IWDG->KR, LL_IWDG_KEY_WR_ACCESS_DISABLE);
 }
 

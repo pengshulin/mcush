@@ -3,11 +3,11 @@
 #include "task_blink.h"
 
 #ifndef LED_NORMAL
-#define LED_NORMAL  0
+    #define LED_NORMAL  0
 #endif
 
 #ifndef LED_ERROR
-#define LED_ERROR   LED_NORMAL
+    #define LED_ERROR   LED_NORMAL
 #endif
 
 static int _errno = 0;
@@ -38,7 +38,7 @@ int cmd_error( int argc, char *argv[] )
     int new = -1;
     uint8_t stop=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -80,7 +80,7 @@ int cmd_error( int argc, char *argv[] )
     return 0;
 }
 
-const shell_cmd_t cmd_tab_blink[] = {
+static const shell_cmd_t cmd_tab_blink[] = {
 {   0, 'e', "error",  cmd_error,
     "error number",
     "e <num>"  },
@@ -92,7 +92,7 @@ const shell_cmd_t cmd_tab_blink[] = {
 #define DELAY_C  OS_TICKS_MS(1000)  /* on for 0 */
 #define DELAY_D  OS_TICKS_MS(1000)  /* delay cycle */
 
-void blink_digit( int digit, int led )
+static void blink_digit( int digit, int led )
 {
     int i;
 
@@ -123,11 +123,11 @@ void blink_digit( int digit, int led )
 }
 
 
-
 void task_blink_entry(void *p)
 {
     int i, digit, pos, skip;
 
+    (void)p;
     while( 1 )
     {
         hal_wdg_clear();

@@ -1,7 +1,8 @@
 #include "hal.h"
 
+#if HAL_TEST_CLK_OUTPUT
 /* PA8 - MCO */
-void _test_clk_output(void)
+static void _test_clk_output(void)
 {
     GPIO_InitTypeDef init;
 
@@ -13,6 +14,7 @@ void _test_clk_output(void)
     GPIO_Init(GPIOA, &init);
     RCC_MCOConfig(RCC_MCO_SYSCLK);
 }
+#endif
 
 
 void hal_clk_init(void)

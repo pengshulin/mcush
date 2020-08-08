@@ -1047,7 +1047,7 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT)
   }   
   
   bitpos = USART_IT >> 0x08;
-  itmask = ((uint16_t)0x01 << (uint16_t)bitpos);
+  itmask = (uint16_t)(0x01 << (uint16_t)bitpos);
   USARTx->SR = (uint16_t)~itmask;
 }
 /**

@@ -31,7 +31,10 @@ int cmd_mapi( int argc, char *argv[] )
     mcush_opt opt;
     void *addr=(void*)-1;
     int length=-1;
-    uint8_t malloc_set=0, free_set=0, test_mode=0, info_set=0;
+    uint8_t malloc_set=0, free_set=0, test_mode=0;
+#if USE_CMD_MAPI_INFO
+    uint8_t info_set=0;
+#endif
 #if USE_CMD_MAPI_REALLOC
     uint8_t realloc_set=0;
 #endif
@@ -42,7 +45,7 @@ int cmd_mapi( int argc, char *argv[] )
 #define MAPI_MLIST_LEN  64
     void *mlist[MAPI_MLIST_LEN];
    
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -62,8 +65,10 @@ int cmd_mapi( int argc, char *argv[] )
                 free_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
+#if USE_CMD_MAPI_INFO
             else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info_set = 1;
+#endif
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -180,7 +185,7 @@ int cmd_mkbuf( int argc, char *argv[] )
     int buf_len;
     uint8_t float_mode=0;
 
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -240,7 +245,7 @@ int cmd_dump( int argc, char *argv[] )
     char c;
     uint8_t compact_mode=0, ascii_mode=0, integer_mode=0, float_mode=0, need_fill_line=0, unsigned_mode=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -463,7 +468,7 @@ int cmd_write( int argc, char *argv[] )
     int width=1;
     int dat;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -549,7 +554,7 @@ int cmd_mfill( int argc, char *argv[] )
     int count=0;
     int test_mode=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {

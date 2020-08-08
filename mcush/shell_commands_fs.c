@@ -100,7 +100,7 @@ int cmd_cat( int argc, char *argv[] )
 #endif
 
     fname[0] = 0;
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -313,7 +313,7 @@ int cmd_rm( int argc, char *argv[] )
     mcush_opt opt;
     char *fname=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -344,7 +344,7 @@ int cmd_rename( int argc, char *argv[] )
     mcush_opt opt;
     char *fname=0, *fname2=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -383,7 +383,7 @@ int cmd_copy( int argc, char *argv[] )
     int i, j;
     int fd, fd2;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -438,6 +438,7 @@ int cmd_copy( int argc, char *argv[] )
 static char *cmd_list_match_file_name;
 void cb_print_file(const char *name, int size, int mode)
 {
+    (void)mode;
     if( cmd_list_match_file_name && strcmp(cmd_list_match_file_name, name) != 0 )
         return;
     shell_printf("%6d  %s\n", size, name );
@@ -457,7 +458,7 @@ int cmd_list( int argc, char *argv[] )
     char mount_point[8], file_name[32];
     int i;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -508,7 +509,7 @@ int cmd_load( int argc, char *argv[] )
     int i;
 
     fname[0] = 0;
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -569,8 +570,9 @@ int cmd_crc( int argc, char *argv[] )
     mcush_opt opt;
     char *fname=0;
     int size;
+    uint32_t crc;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -588,8 +590,9 @@ int cmd_crc( int argc, char *argv[] )
     size = mcush_file_exists( fname );
     if( size == 0 )
         return 1;
-    
-    shell_printf("0x%08X\n", mcush_file_crc32(fname));
+    if( mcush_file_crc32(fname, &crc) == 0 )
+        return 1;     
+    shell_printf("0x%08X\n", crc);
     return 0;
 }
 #endif
@@ -610,12 +613,12 @@ int cmd_fcfs( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     char *cmd=0;
-    void *offset=(void*)0;
+    uint32_t offset=0;
     int buf[32];
     int len;
     int i;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -662,7 +665,7 @@ int cmd_fcfs( int argc, char *argv[] )
         }
         if( len == 0 )
             return -1;
-        return hal_fcfs_program( (int*)(FCFS_ADDR+(uint32_t)offset), buf, len ) ? 0 : 1;
+        return hal_fcfs_program( offset, buf, len ) ? 0 : 1;
     } 
     else
     {
@@ -699,7 +702,7 @@ int cmd_spiffs( int argc, char *argv[] )
     void *p;
     uint8_t compact_mode=0, ascii_mode=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -780,7 +783,7 @@ int cmd_spiffs( int argc, char *argv[] )
         if( shell_make_16bits_data_buffer( &p, &len ) ) 
         {
             len *= 2;
-            sFLASH_WritePage( (uint8_t*)p, (int)addr, len > 256 ? 256 : len );
+            sFLASH_WritePage( (uint8_t*)p, (int)addr, len > 256 ? 256 : (uint16_t)len );
             os_free( p );
         }
         else
@@ -864,7 +867,7 @@ int cmd_fatfs( int argc, char *argv[] )
     int i, j;
     unsigned char buf[512];
  
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

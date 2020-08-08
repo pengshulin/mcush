@@ -102,10 +102,11 @@ typedef struct _logger_event_t
     uint8_t type;
     uint8_t flag;
     const char *module;
-    char *str;
+    void *mem;
 } logger_event_t;
 
 void task_logger_init(void);
+void task_logger_entry(void *p);
 
 /* disabling logger module will only stop writing to logger files,
    shell monitor still works */

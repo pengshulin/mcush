@@ -66,7 +66,7 @@ UNS32 OnNumberOfErrorsUpdate(CO_Data* d, const indextable * unsused_indextable, 
 			*(d->error_first_element + index) = 0;		/* clear all the fields in Pre-defined Error Field (1003h) */
 	else
 	{
-		;// abort message
+		//;// abort message
 	}
   return 0;
 }
@@ -251,7 +251,7 @@ void proceedEMCY(CO_Data* d, Message* m)
 	
 	/* post the received EMCY */
 	nodeID = m->cob_id & 0x7F;
-	errCode = m->Data[0] | ((UNS16)m->Data[1] << 8);
+	errCode = m->Data[0] | (UNS16)(m->Data[1] << 8);
 	errReg = m->Data[2];
 	(*d->post_emcy)(d, nodeID, errCode, errReg, (const UNS8*)&m->Data[3]);
 }

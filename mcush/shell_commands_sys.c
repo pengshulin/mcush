@@ -12,7 +12,7 @@ int cmd_uptime( int argc, char *argv[] )
     mcush_opt opt;
     char buf[16];
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( !opt.spec )
@@ -43,7 +43,10 @@ int cmd_system( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
-          0, shell_str_type, 0, "(t)ask|(q)ueue"
+          0, shell_str_type, 0, "(t)ask"
+#if USE_CMD_SYSTEM_QUEUE
+            "|(q)ueue"
+#endif
 #if USE_CMD_SYSTEM_KERNEL
             "|(k)ern"
 #endif
@@ -64,8 +67,6 @@ int cmd_system( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const char *type=0;
-    int i;
-    char c;
 #if USE_CMD_SYSTEM_IDLE
     uint32_t idle_counter, idle_counter_last, idle_counter_max;
     os_task_handle_t task_idle_counter;
@@ -74,7 +75,7 @@ int cmd_system( int argc, char *argv[] )
     char *p;
 #endif
     
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -94,10 +95,12 @@ int cmd_system( int argc, char *argv[] )
     {
         os_task_info_print();
     }
+#if USE_CMD_SYSTEM_QUEUE
     else if( (strcmp( type, "q" ) == 0 ) || (strcmp( type, "queue" ) == 0 ) )
     {
         os_queue_info_print();
     }
+#endif
 #if USE_CMD_SYSTEM_KERNEL
     else if( (strcmp( type, "k" ) == 0 ) || (strcmp( type, "kern" ) == 0 ) )
     {
@@ -125,6 +128,8 @@ int cmd_system( int argc, char *argv[] )
 #if USE_CMD_SYSTEM_IDLE
     else if( (strcmp( type, "i" ) == 0 ) || (strcmp( type, "idle" ) == 0) )
     {
+        char c;
+        int i;
         /* create counter task to check the maximum count value available */
         /* NOTE: the task runs at top priority and may involve side-effects */
         idle_counter = 0;

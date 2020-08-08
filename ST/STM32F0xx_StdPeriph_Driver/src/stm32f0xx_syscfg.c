@@ -369,6 +369,8 @@ FlagStatus SYSCFG_GetFlagStatus(uint32_t SYSCFG_Flag)
 {
   FlagStatus bitstatus = RESET;
 
+  (void)SYSCFG_Flag;
+
   /* Check the parameter */
   assert_param(IS_SYSCFG_FLAG(SYSCFG_Flag));
 

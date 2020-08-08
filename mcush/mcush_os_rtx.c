@@ -83,7 +83,7 @@ void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks )
 }
 
 
-os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size_t stack_bytes, int priority )
+os_task_handle_t os_task_create( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority )
 {
     osThreadId_t task;
     osThreadAttr_t attr;
@@ -98,7 +98,7 @@ os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size
 }
 
 
-os_task_handle_t os_task_create_static( const char *name, void *entry,
+os_task_handle_t os_task_create_static( const char *name, os_task_function_t entry,
          void *parm, size_t stack_bytes, int priority,
          const static_task_buffer_t *buf )
 {
@@ -144,12 +144,16 @@ void os_task_switch( void )
 
 void os_task_priority_set( os_task_handle_t task, int new_priority )
 {
+    if( task == NULL )
+        task = osThreadGetId();
     osThreadSetPriority( task, (osPriority_t)new_priority );
 }
 
 
 int os_task_priority_get( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = osThreadGetId();
     return osThreadGetPriority( task );
 }
 
@@ -194,8 +198,8 @@ void os_queue_reset( os_queue_handle_t queue )
 
 int os_queue_put( os_queue_handle_t queue, void *data, int block_ticks )
 {
-    //if( block_ticks < 0 )
-    //    block_ticks = portMAX_DELAY;
+    if( block_ticks < 0 )
+        block_ticks = osWaitForever;
     if( osMessageQueuePut( queue, data, 0, block_ticks ) != osOK )
         return 0;
     else
@@ -205,8 +209,8 @@ int os_queue_put( os_queue_handle_t queue, void *data, int block_ticks )
 
 int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks )
 {
-    //if( block_ticks < 0 )
-    //    block_ticks = portMAX_DELAY;
+    if( block_ticks < 0 )
+        block_ticks = osWaitForever;
     if( osMessageQueueGet( queue, data, 0, block_ticks ) != osOK )
         return 0;
     else
@@ -230,17 +234,6 @@ int os_queue_count( os_queue_handle_t queue )
 {
     return osMessageQueueGetCount( queue );
 }
-
-//int os_queue_is_empty( os_queue_handle_t queue )
-//{
-//
-//}
-//
-//
-//int os_queue_is_full( os_queue_handle_t queue )
-//{
-//
-//}
 
 
 /* MUTEX */
@@ -288,8 +281,8 @@ int os_mutex_put_isr( os_mutex_handle_t mutex )
 
 int os_mutex_get( os_mutex_handle_t mutex, int block_ticks )
 {
-    //if( block_ticks < 0 )
-    //    block_ticks = portMAX_DELAY;
+    if( block_ticks < 0 )
+        block_ticks = osWaitForever;
     if( osMutexAcquire( mutex, block_ticks ) == osOK )
         return 1;
     else
@@ -348,8 +341,8 @@ int os_semaphore_put_isr( os_semaphore_handle_t semaphore )
 
 int os_semaphore_get( os_semaphore_handle_t semaphore, int block_ticks )
 {
-    //if( block_ticks < 0 )
-    //    block_ticks = portMAX_DELAY;
+    if( block_ticks < 0 )
+        block_ticks = osWaitForever;
     if( osSemaphoreAcquire( semaphore, block_ticks ) == osOK )
         return 1;
     else
@@ -369,6 +362,7 @@ os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repea
 {
     osTimerAttr_t attr;
 
+    (void)period_ticks;
     memset( (void*)&attr, 0, sizeof(attr) );
     attr.name = name;
     return osTimerNew( callback, repeat_mode ? osTimerPeriodic : osTimerOnce, 0, &attr );
@@ -379,6 +373,7 @@ os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, in
 {
     osTimerAttr_t attr;
 
+    (void)period_ticks;
     memset( (void*)&attr, 0, sizeof(attr) );
     attr.name = name;
     attr.cb_mem = (void*)buffer;
@@ -407,6 +402,7 @@ int os_timer_stop( os_timer_handle_t timer )
 
 int os_timer_reset( os_timer_handle_t timer )
 {
+    (void)timer;
     return 0;
 }
 
@@ -455,16 +451,15 @@ void os_free( void *mem )
 #define THREADS_LIMIT  100
 void os_task_info_print(void)
 {
-    osThreadId_t threads[THREADS_LIMIT], id;
+    osThreadId_t threads[THREADS_LIMIT];
     os_thread_t *thread;
     int i, count;
     char c;
 
     count = osThreadEnumerate(threads, THREADS_LIMIT);
-    for( i=0; i<; i++ )
+    for( i=0; i<count; i++ )
     {
-        id = threads[i];
-        thread = osRtxThreadId(id);
+        thread = osRtxThreadId(threads[i]);
         switch( thread->state & osRtxThreadStateMask )
         {
         case osThreadInactive: c='I'; break;
@@ -488,7 +483,7 @@ void os_task_info_print(void)
                     thread->stack_mem, thread->stack_size,
                     thread->sp
 #if OS_STACK_WATERMARK
-                    ,osThreadGetStackSpace(id)
+                    ,osThreadGetStackSpace(thread)
 #endif
                     );
     }
@@ -500,7 +495,7 @@ void os_queue_info_print(void)
 }
 
  
-void _print_kernel_item_name(const char *name)
+static void _print_kernel_item_name(const char *name)
 {
     int len=strlen(name);
 
@@ -523,5 +518,47 @@ void os_kernel_info_print(void)
     shell_printf( "%d\n", osThreadGetCount() );
 }
 
+
+__no_return void osRtxIdleThread( void *args )
+{
+    (void)args;
+
+    while(1)
+    {
+        osThreadYield();
+    }
+}
+
+
+uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
+{
+    (void)object_id;
+
+    switch (code)
+    {
+    case osRtxErrorStackUnderflow:
+        // Stack overflow detected for thread (thread_id=object_id)
+        halt("stack underflow");
+        break;
+    case osRtxErrorISRQueueOverflow:
+        // ISR Queue overflow detected when inserting object (object_id)
+        halt("isr queue overflow");
+        break;
+    case osRtxErrorTimerQueueOverflow:
+        // User Timer Callback Queue overflow detected for timer (timer_id=object_id)
+        halt("timer queue overflow");
+        break;
+    case osRtxErrorClibSpace:
+        // Standard C/C++ library libspace not available: increase OS_THREAD_LIBSPACE_NUM
+        break;
+    case osRtxErrorClibMutex:
+        // Standard C/C++ library mutex initialization failed
+        break;
+    default:
+        halt("unknown");
+        break;
+    }
+    return 0;
+}
 
 #endif

@@ -5,13 +5,11 @@
 
 #if MCUSH_ROMFS
 
-//#define static
 
 #if MCUSH_ROMFS_USER
 extern const romfs_file_t romfs_tab[];
 #else
-__attribute__((section(".signature"))) __attribute__((used))
-const char file_readme[] = "MCUSH designed by Peng Shulin, all rights reserved.\nhttps://github.com/pengshulin/mcush";
+__signature const char file_readme[] = "MCUSH designed by Peng Shulin, all rights reserved.\nhttps://github.com/pengshulin/mcush";
 #include ".build_signature"
 const romfs_file_t romfs_tab[] = {
     { "readme", file_readme, sizeof(file_readme)-1 },
@@ -56,12 +54,15 @@ int mcush_romfs_check( void )
 
 int mcush_romfs_remove( const char *path )
 {
+    (void)path;
     return 0;
 }
 
 
 int mcush_romfs_rename( const char *old, const char *newPath )
 {
+    (void)old;
+    (void)newPath;
     return 0;
 }
 
@@ -70,7 +71,8 @@ int mcush_romfs_open( const char *pathname, const char *mode )
 {
     const romfs_file_t *f = romfs_tab;
     int i;
-    
+   
+    (void)mode; 
     for( i=0; i<ROMFS_FDS_NUM; i++ )
     {
         if( ! _fds[i].file )
@@ -91,7 +93,7 @@ int mcush_romfs_open( const char *pathname, const char *mode )
 }
 
 
-int mcush_romfs_read( int fh, void *buf, int len )
+int mcush_romfs_read( int fh, char *buf, int len )
 {
     int i;
 
@@ -113,8 +115,11 @@ int mcush_romfs_read( int fh, void *buf, int len )
 }
 
 
-int mcush_romfs_write( int fh, void *buf, int len )
+int mcush_romfs_write( int fh, char *buf, int len )
 {
+    (void)fh;
+    (void)buf;
+    (void)len;
     return -1;
 }
 
@@ -144,6 +149,7 @@ int mcush_romfs_seek( int fh, int offs, int where )
 
 int mcush_romfs_flush( int fh )
 {
+    (void)fh;
     return 0;
 }
 

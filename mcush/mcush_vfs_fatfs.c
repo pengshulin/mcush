@@ -4,7 +4,6 @@
 #if MCUSH_FATFS
 #include "ff.h"
 
-#define static
 
 #ifndef FATFS_FD_NUM
 #define FATFS_FD_NUM  MCUSH_VFS_FILE_DESCRIPTOR_NUM
@@ -150,14 +149,14 @@ int mcush_fatfs_open( const char *path, const char *mode )
 }
 
 
-int mcush_fatfs_read( int fh, void *buf, int len )
+int mcush_fatfs_read( int fh, char *buf, int len )
 {
-    memset( buf, 0x55, len );
+    memset( (void*)buf, 0x55, len );
     return len;
 }
 
 
-int mcush_fatfs_write( int fh, void *buf, int len )
+int mcush_fatfs_write( int fh, char *buf, int len )
 {
     return 0;
 }

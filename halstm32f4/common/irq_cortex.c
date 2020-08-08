@@ -27,6 +27,15 @@ void HardFault_Handler(unsigned int *args)
     pc  = ((unsigned long)args[6]);
     psr = ((unsigned long)args[7]);
 
+    (void)r0;
+    (void)r1;
+    (void)r2;
+    (void)r3;
+    (void)r12;
+    (void)lr;
+    (void)pc;
+    (void)psr;
+
     /* TODO: 
        1. check $lr, determine MSP/PSP:
           0xFFFFFFF9 (-7) - MSP

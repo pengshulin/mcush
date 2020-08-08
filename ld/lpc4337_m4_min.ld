@@ -30,7 +30,6 @@ SECTIONS
  
     .signature :
     {
-        KEEP(*(.mcush_signature))
         KEEP(*(.signature))
     } > FLASH
 

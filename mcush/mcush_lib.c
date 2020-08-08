@@ -1,12 +1,14 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-
+#include <math.h>
 
 uint32_t calc_checksum(void *p, uint32_t len)
 {
     uint32_t sum=0;
+    uint8_t *b=(uint8_t*)p;
+
     while( len-- )
-        sum += *(uint8_t*)p++;
+        sum += *b++;
     return sum;
 }
 
@@ -80,10 +82,10 @@ uint16_t reverse_16_bits(uint16_t v)
     *p2   = _bits_reverse_tab[*p1];
     return v2;
 #else
-    v = ((v & 0xFF00)>>8) | ((v & 0x00FF)<<8);  // ABCD -> CDAB
-    v = ((v & 0xF0F0)>>4) | ((v & 0x0F0F)<<4);  // CDAB -> DCBA
-    v = ((v & 0xCCCC)>>2) | ((v & 0x3333)<<2);  // X: abcd -> X: cdab
-    v = ((v & 0xAAAA)>>1) | ((v & 0x5555)<<1);  // X: cdab -> X: dcba
+    v = (uint16_t)((v & 0xFF00)>>8) | (uint16_t)((v & 0x00FF)<<8);  // ABCD -> CDAB
+    v = (uint16_t)((v & 0xF0F0)>>4) | (uint16_t)((v & 0x0F0F)<<4);  // CDAB -> DCBA
+    v = (uint16_t)((v & 0xCCCC)>>2) | (uint16_t)((v & 0x3333)<<2);  // X: abcd -> X: cdab
+    v = (uint16_t)((v & 0xAAAA)>>1) | (uint16_t)((v & 0x5555)<<1);  // X: cdab -> X: dcba
     return v;
 #endif
 }
@@ -94,9 +96,9 @@ uint8_t reverse_8_bits(uint8_t v)
 #ifdef USE_REVERSE_TAB
     return _bits_reverse_tab[v];
 #else
-    v = ((v & 0xF0)>>4) | ((v & 0x0F)<<4);  // AB -> BA
-    v = ((v & 0xCC)>>2) | ((v & 0x33)<<2);  // X: abcd -> X: cdab
-    v = ((v & 0xAA)>>1) | ((v & 0x55)<<1);  // X: cdab -> X: dcba
+    v = (uint8_t)((v & 0xF0)>>4) | (uint8_t)((v & 0x0F)<<4);  // AB -> BA
+    v = (uint8_t)((v & 0xCC)>>2) | (uint8_t)((v & 0x33)<<2);  // X: abcd -> X: cdab
+    v = (uint8_t)((v & 0xAA)>>1) | (uint8_t)((v & 0x55)<<1);  // X: cdab -> X: dcba
     return v;
 #endif
 }
@@ -194,6 +196,8 @@ char *get_rtc_str(char *buf)
                         t.tm_hour, t.tm_min, t.tm_sec );
         return buf;
     }
+#else
+    (void)buf;
 #endif
     return 0;
 }
@@ -217,6 +221,9 @@ char *get_rtc_tick_str(char *buf, uint32_t tick)
                  t->tm_hour, t->tm_min, t->tm_sec );
         return buf;
     }
+#else
+    (void)buf;
+    (void)tick;
 #endif
     return 0;
 }
@@ -238,7 +245,7 @@ int parse_int( const char *str, int *i )
         return 0;
     //if( (r == LONG_MAX) || (r == LONG_MIN) )
     //    return 0;
-    *i = r;
+    *i = (int)r;
     return 1;
 }
 
@@ -277,8 +284,8 @@ int parse_int_repeat( const char *str, int *i, int *repeat )
         r2 = 0;  /* no repeat */
     //if( (r == LONG_MAX) || (r == LONG_MIN) )
     //    return 0;
-    *i = r;
-    *repeat = r2;
+    *i = (int)r;
+    *repeat = (int)r2;
     return 1;
 }
 
@@ -390,6 +397,8 @@ int set_rtc_by_str( char *s )
         if( hal_rtc_set( &t ) )
             return 1;
     }
+#else
+    (void)s;
 #endif
     return 0;
 }
@@ -414,6 +423,13 @@ int set_rtc_by_val( int year, int mon, int mday, int hour, int min, int sec )
     t.tm_isdst = 0;
     if( hal_rtc_set( &t ) )
         return 1;
+#else
+    (void)year;
+    (void)mon;
+    (void)mday;
+    (void)hour;
+    (void)min;
+    (void)sec;
 #endif
     return 0;
 }
@@ -431,6 +447,7 @@ int get_rtc_tick( uint32_t *tick )
     *tick -= 8*60*60;
     return 1; 
 #else
+    (void)tick;
     return 0; 
 #endif
 }
@@ -448,6 +465,7 @@ int get_rtc_tick64( uint64_t *tick )
     *tick -= 8*60*60;
     return 1; 
 #else
+    (void)tick;
     return 0;
 #endif
 }
@@ -590,7 +608,7 @@ char *hexlify( const char *buf_in, char *buf_out, int len, int add_null_end )
 }
 
 
-char c2i(char c)
+int8_t c2i(char c)
 {
     if( (c >= '0') && (c <= '9') )
         return c - '0';
@@ -604,7 +622,7 @@ char c2i(char c)
 
 int unhexlify( const char *buf_in, char *buf_out, int len )
 {
-    char c, c2;
+    int8_t c, c2;
     int bytes=0;
 
     while( len-- )
@@ -615,7 +633,7 @@ int unhexlify( const char *buf_in, char *buf_out, int len )
         c2 = c2i(*buf_in++);
         if( c2 == -1 )
             break;
-        *buf_out++ = (c<<4) + c2;
+        *buf_out++ = (char)(c<<4) + c2;
         bytes++;
     }
     return bytes;
@@ -739,7 +757,7 @@ int cmp_uint32(const void *a, const void *b)
 
 int cmp_float(const void *a, const void *b)
 {
-    return (*(float*)a > *(float*)b) ? 1 : (*(float*)a==*(float*)b ? 0 : -1);
+    return (*(float*)a > *(float*)b) ? 1 : (*(uint32_t*)a==*(uint32_t*)b ? 0 : -1);
 }
 
 
@@ -753,4 +771,33 @@ int bytes_to_int( char *bytes, int len )
     return ret;
 }
 
+
+void kalman_filter_init( kalman_filter_t *filter )
+{
+    memset( (void*)filter, 0, sizeof(kalman_filter_t) );
+    filter->q = 0.0001f;
+    filter->r = 0.1f;
+    filter->p_k_k1 = 1.0f;
+    filter->p_k1_k1 = 1.0f;
+}
+
+
+float kalman_filter_update( kalman_filter_t *filter, float newval )
+{
+    float val;
+
+    filter->z_k = newval;
+    if( fabsf(filter->oldval - newval) >= 1.0f )
+        filter->x_k1_k1= newval*0.382f + filter->oldval*0.618f;
+    else
+        filter->x_k1_k1 = filter->oldval;
+    filter->x_k_k1 = filter->x_k1_k1;
+    filter->p_k_k1 = filter->p_k1_k1 + filter->q;
+    filter->gain = filter->p_k_k1/(filter->p_k_k1 + filter->r);
+    val = filter->x_k_k1 + filter->gain * (filter->z_k - filter->oldval);
+    filter->p_k1_k1 = (1 - filter->gain)*filter->p_k_k1;
+    filter->p_k_k1 = filter->p_k1_k1;
+    filter->oldval = val;
+    return val;
+}
 

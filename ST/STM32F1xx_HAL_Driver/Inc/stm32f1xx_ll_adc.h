@@ -3703,6 +3703,7 @@ __STATIC_INLINE uint32_t LL_ADC_IsActiveFlag_MST_JEOS(ADC_Common_TypeDef *ADCxy_
   /*       end of unitary conversion.                                         */
   /*       Flag noted as "JEOC" is corresponding to flag "JEOS"               */
   /*       in other STM32 families).                                          */
+  (void)ADCxy_COMMON;
   return (READ_BIT(ADC1->SR, ADC_SR_JEOC) == (ADC_SR_JEOC));
 }
 
@@ -3734,6 +3735,7 @@ __STATIC_INLINE uint32_t LL_ADC_IsActiveFlag_SLV_JEOS(ADC_Common_TypeDef *ADCxy_
   */
 __STATIC_INLINE uint32_t LL_ADC_IsActiveFlag_MST_AWD1(ADC_Common_TypeDef *ADCxy_COMMON)
 {
+  (void)ADCxy_COMMON;
   return (READ_BIT(ADC1->SR, LL_ADC_FLAG_AWD1) == (LL_ADC_FLAG_AWD1));
 }
 

@@ -1,27 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #if MCUSH_VFS
 #include "mcush.h"
-#include <sys/fcntl.h>
-
-
-char *parse_file_flag( int flag, char *buf )
-{
-    buf[0] = 0;
-
-    switch( flag & 0x03 )
-    {
-    case O_RDONLY: strcpy(buf, "r");  break;
-    case O_WRONLY: strcpy(buf, "w");  break;
-    case O_RDWR:
-    default:       strcpy(buf, "rw");  break;
-    }
-    if( flag & O_CREAT )
-        strcat(buf, "+");
-    if( flag & O_APPEND )
-        strcat(buf, "a");
-
-    return buf;
-}
 
 
 int mcush_file_exists( const char *fname )
@@ -32,37 +11,43 @@ int mcush_file_exists( const char *fname )
 
 
 #define _READ_BUF_SIZE  128
-int mcush_file_crc8( const char *fname )
+int mcush_file_crc8( const char *fname, uint8_t *crc )
 {
     int fd = mcush_open( fname, "r" );
     uint8_t buf[_READ_BUF_SIZE];
-    uint8_t crc=0;
+    uint8_t _crc=0;
     int r;
     int bytes=0;
 
     if( fd == 0 )
-        return -1;
+        return 0;
     while(1)
     { 
-        r = mcush_read( fd, buf, _READ_BUF_SIZE );
+        r = mcush_read( fd, (char*)buf, _READ_BUF_SIZE );
         if( r < 0 )
             break;
         bytes += r;
         if( r > 0 )
-            crc = _crc8( buf, r, crc, crc8_table ); 
+            _crc = _crc8( buf, r, _crc, crc8_table ); 
         if( r != _READ_BUF_SIZE )
             break;
     }
     mcush_close( fd );
-    return bytes > 0 ? crc : -1;
+    if( bytes > 0 )
+    {
+        *crc = _crc;
+        return 1;
+    }
+    else 
+        return 0;
 }
 
 
-int mcush_file_crc32( const char *fname )
+int mcush_file_crc32( const char *fname, uint32_t *crc )
 {
     int fd = mcush_open( fname, "r" );
     uint8_t buf[_READ_BUF_SIZE];
-    uint32_t crc=0;
+    uint32_t _crc=0;
     int r;
     int bytes=0;
 
@@ -70,17 +55,23 @@ int mcush_file_crc32( const char *fname )
         return -1;
     while(1)
     { 
-        r = mcush_read( fd, buf, _READ_BUF_SIZE );
+        r = mcush_read( fd, (char*)buf, _READ_BUF_SIZE );
         if( r < 0 )
             break;
         bytes += r;
         if( r > 0 )
-            crc = _crc32( buf, r, crc, crc32_table ); 
+            _crc = _crc32( buf, r, _crc, crc32_table ); 
         if( r != _READ_BUF_SIZE )
             break;
     }
     mcush_close( fd );
-    return bytes > 0 ? crc : -1;
+    if( bytes > 0 )
+    {
+        *crc = _crc;
+        return 1;
+    }
+    else 
+        return 0;
 }
 
 
@@ -167,16 +158,15 @@ int mcush_file_load_string( const char *fname, char *str, int size_limit )
 int mcush_file_write_string( const char *fname, char *str )
 {
     int fd = mcush_open( fname, "w+" );
-    int len = strlen(str);
+    int len;
     int r;
 
     if( fd == 0 )
         return 0;
+    len = strlen(str);
     r = mcush_write( fd, str, len );
     mcush_close( fd );
-    if( r < 0 )
-        return 0;
-    return r==len ? 1 : 0;
+    return (r==len) ? 1 : 0;
 }
 
 
@@ -255,6 +245,57 @@ int mcush_file_write_float( const char *fname, float val )
 
     sprintf( buf, "%f", val );
     return mcush_file_write_string( fname, buf );
+}
+
+/* read float array from file */
+int mcush_file_load_float_array( const char *fname, float *array, int number_limit )
+{
+    int fd, ret;
+    char buf[128], *p;
+
+    if( number_limit <= 0 )
+        return 0;
+    fd  = mcush_open( fname, "r" );
+    if( fd == 0 )
+        return 0;
+    ret = 0;
+    while( mcush_file_read_line( fd, buf ) )
+    {
+        p = buf; 
+        strip_line( &p ); 
+        if( parse_float( (const char*)p, array ) == 0 )
+            break;
+        ret++; 
+        if( ret > number_limit )
+            break;
+        array++;
+    }
+    mcush_close( fd );
+    return ret;
+}
+
+
+int mcush_file_write_float_array( const char *fname, float *array, int number )
+{
+    int fd, len, r;
+    char buf[64];
+
+    if( number <= 0 )
+        return 0;
+    fd  = mcush_open( fname, "w+" );
+    if( fd == 0 )
+        return 0;
+    while( number )
+    { 
+        len = sprintf( buf, "%f\n", *array );
+        r = mcush_write( fd, buf, len );
+        if( r != len )
+            break;
+        array++;
+        number--;
+    }
+    mcush_close( fd );
+    return (number==0) ? 1 : 0;
 }
 
 

@@ -17,7 +17,7 @@ int cmd_reboot( int argc, char *argv[] )
     mcush_opt opt;
     uint8_t count_flag=0, reset_flag=0;
         
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -37,18 +37,20 @@ int cmd_reboot( int argc, char *argv[] )
             shell_printf( "%u\n", hal_reboot_counter_get() );
         if( reset_flag )
             hal_reboot_counter_reset();
+        return 0;
     }
     else 
     {
         hal_reboot();
-        while( 1 );
     }
 #else
+    (void)argc;
+    (void)argv;
     /* reboot command ignore all arguments */
     hal_reboot();
-    while( 1 );
 #endif
-    return 0;
+    os_task_delay_ms( 1000 );
+    return 1;  /* 1sec timeout, failed to reboot */
 }
 #endif
 
@@ -65,7 +67,7 @@ int cmd_upgrade( int argc, char *argv[] )
     char fname[32];
     
     fname[0] = 0;
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -129,7 +131,7 @@ int cmd_gpio( int argc, char *argv[] )
     int input_val=0, output_val=0, set_val=0, clr_val=0, toggle_val=0;
     int port_num = hal_gpio_get_port_num();
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -258,21 +260,21 @@ loop_start:
         if( input_set )
         {
             if( pull == -1 )
-                hal_gpio_set_input( port, pinput ? input_val : 0xFFFFFFFF );
+                hal_gpio_set_input( port, pinput ? input_val : -1 );
             else
-                hal_gpio_set_input_pull( port, pinput ? input_val : 0xFFFFFFFF, pull );
+                hal_gpio_set_input_pull( port, pinput ? input_val : -1, pull );
         }
         if( output_set )
-            hal_gpio_set_output( port, poutput ? output_val : 0xFFFFFFFF );
+            hal_gpio_set_output( port, poutput ? output_val : -1 );
         if( set_set )
-            hal_gpio_set( port, pset ? set_val : 0xFFFFFFFF );
+            hal_gpio_set( port, pset ? set_val : -1 );
         if( clr_set )
-            hal_gpio_clr( port, pclr ? clr_val : 0xFFFFFFFF );
+            hal_gpio_clr( port, pclr ? clr_val : -1 );
         if( toggle_set )
-            hal_gpio_toggle( port, ptoggle ? toggle_val : 0xFFFFFFFF );
+            hal_gpio_toggle( port, ptoggle ? toggle_val : -1 );
         if( none_set )
         {
-            shell_write_hex( hal_gpio_get( port, 0xFFFFFFFF ) );
+            shell_write_hex( hal_gpio_get( port, -1 ) );
             shell_write_str( "\n" );
         }
     }
@@ -313,7 +315,7 @@ int cmd_led( int argc, char *argv[] )
     int cmd=-1, index=-1, test_mode=-1;
     char c, test_on;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -392,7 +394,7 @@ int cmd_wdg( int argc, char *argv[] )
     mcush_opt opt;
     const char *cmd=0;
     
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -446,7 +448,7 @@ int cmd_beep( int argc, char *argv[] )
     mcush_opt opt;
     int freq=-1, ms=-1;
 
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -510,7 +512,7 @@ int cmd_sgpio( int argc, char *argv[] )
     void *buf_in=0, *buf_out=0;
     sgpio_cfg_t *cfg;
 
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -634,7 +636,7 @@ int cmd_power( int argc, char *argv[] )
     mcush_opt opt;
     int set=-1;
 
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -692,7 +694,7 @@ int cmd_pwm( int argc, char *argv[] )
     int freq, range;
     int index=-1, value=-1;
  
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -800,7 +802,7 @@ int cmd_adc( int argc, char *argv[] )
     char c;
     int i;
     
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -880,7 +882,7 @@ int cmd_rtc( int argc, char *argv[] )
     int8_t set=-1;
     struct tm t;
      
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -975,7 +977,7 @@ int cmd_can( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     const char *cmd=0;
-    int index, value;
+    int index=0, value=0;
     uint8_t index_set=0, value_set=0, ext_set=0, rtr_set=0;
     can_message_t msg;
     int arg_idx=-1;
@@ -984,7 +986,7 @@ int cmd_can( int argc, char *argv[] )
     int i, j, k, l;
     char c;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -1084,8 +1086,8 @@ int cmd_can( int argc, char *argv[] )
                 }
                 else
                 {
-                    filter.std_id = k;
-                    filter.std_id_mask = l;
+                    filter.std_id = (uint16_t)k;
+                    filter.std_id_mask = (uint16_t)l;
                 }
                 filter.remote = rtr_set ? 1 : 0;
             }
@@ -1159,7 +1161,7 @@ int cmd_can( int argc, char *argv[] )
                 return 1;
             }
             arg_idx++;
-            msg.data[msg.len++] = dat;
+            msg.data[msg.len++] = (char)dat;
         }
         if( hal_can_write( &msg ) == 0 )
             return 1;
@@ -1349,7 +1351,7 @@ int cmd_ws2812( int argc, char *argv[] )
     int dat, i, j;
     char *p2;
     
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {

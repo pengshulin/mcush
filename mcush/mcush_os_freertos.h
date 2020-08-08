@@ -30,7 +30,7 @@
 #define OS_PRIORITY_MIN          (0)
 #define OS_PRIORITY_IDLE         (tskIDLE_PRIORITY)
 
-#define OS_TICK_RATE     (configTICK_RATE_HZ)
+#define OS_TICK_RATE     configTICK_RATE_HZ
 #define OS_TICKS_MS(ms)  (ms*configTICK_RATE_HZ/1000)
 #define OS_TICKS_S(s)    (s*configTICK_RATE_HZ)
 
@@ -41,6 +41,7 @@ typedef SemaphoreHandle_t os_mutex_handle_t;
 typedef SemaphoreHandle_t os_semaphore_handle_t;
 typedef TimerHandle_t os_timer_handle_t;
 typedef void (*os_timer_callback_t)( os_timer_handle_t timer );
+typedef void (*os_task_function_t)( void *arg );
 
 
 typedef struct
@@ -67,10 +68,21 @@ typedef struct
         .control = &_static_queue_control_##name,  \
         .data = _static_queue_data_##name } 
 
+#if 0
+typedef struct
+{
+    StaticSemaphore_t *control;
+} static_mutex_buffer_t;
+#define DEFINE_STATIC_MUTEX_BUFFER( name )  \
+    static StaticSemaphore_t _static_mutex_control_##name;  \
+    static const static_mutex_buffer_t static_mutex_buffer_##name = {  \
+        .control = &_static_mutex_control_##name } 
+#endif
+
 typedef StaticSemaphore_t static_mutex_buffer_t;
 #define DEFINE_STATIC_MUTEX_BUFFER( name )  \
     static static_mutex_buffer_t static_mutex_buffer_##name
-
+ 
 typedef StaticSemaphore_t static_semaphore_buffer_t;
 #define DEFINE_STATIC_SEMAPHORE_BUFFER( name )  \
     static static_semaphore_buffer_t static_semaphore_buffer_##name
@@ -97,8 +109,8 @@ void os_task_delay( os_tick_t tick );
 void os_task_delay_ms( unsigned int ms );
 void os_task_delay_s( unsigned int s );
 void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks );
-os_task_handle_t os_task_create( const char *name, void *entry, void *parm, size_t stack_bytes, int priority );
-os_task_handle_t os_task_create_static( const char *name, void *entry, void *parm, size_t stack_bytes, int priority, const static_task_buffer_t *buf );
+os_task_handle_t os_task_create( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority );
+os_task_handle_t os_task_create_static( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority, const static_task_buffer_t *buf );
 void os_task_delete( os_task_handle_t task );
 void os_task_suspend( os_task_handle_t task );
 void os_task_resume( os_task_handle_t task );
@@ -152,6 +164,10 @@ void *os_malloc( size_t bytes );
 void *os_realloc( void *old_mem, size_t bytes );
 void os_free( void *mem );
 
+/* misc */
+void os_task_info_print(void);
+void os_queue_info_print(void);
+void os_kernel_info_print(void);
 
 
 #endif

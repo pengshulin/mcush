@@ -484,7 +484,8 @@ static uint8_t  USBD_CDC_Init (USBD_HandleTypeDef *pdev,
 {
   uint8_t ret = 0;
   USBD_CDC_HandleTypeDef   *hcdc;
-  
+ 
+  (void)cfgidx; 
   if(pdev->dev_speed == USBD_SPEED_HIGH  ) 
   {  
     /* Open EP IN */
@@ -571,7 +572,8 @@ static uint8_t  USBD_CDC_DeInit (USBD_HandleTypeDef *pdev,
                                  uint8_t cfgidx)
 {
   uint8_t ret = 0;
-  
+ 
+  (void)cfgidx; 
   /* Open EP IN */
   USBD_LL_CloseEP(pdev,
               CDC_IN_EP);
@@ -672,6 +674,7 @@ static uint8_t  USBD_CDC_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
   USBD_CDC_HandleTypeDef   *hcdc = (USBD_CDC_HandleTypeDef*) pdev->pClassData;
   
+  (void)epnum;
   if(pdev->pClassData != NULL)
   {
     

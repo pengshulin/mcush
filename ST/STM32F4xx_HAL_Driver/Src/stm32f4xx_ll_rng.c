@@ -81,6 +81,8 @@ ErrorStatus LL_RNG_DeInit(RNG_TypeDef *RNGx)
   /* Check the parameters */
   assert_param(IS_RNG_ALL_INSTANCE(RNGx));
 
+  (void)RNGx;
+
 #if  !defined (RCC_AHB2_SUPPORT)
   /* Enable RNG reset state */
   LL_AHB1_GRP1_ForceReset(LL_AHB1_GRP1_PERIPH_RNG);

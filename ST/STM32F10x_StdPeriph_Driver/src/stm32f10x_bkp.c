@@ -213,7 +213,7 @@ void BKP_SetRTCCalibrationValue(uint8_t CalibrationValue)
   /* Clear CAL[6:0] bits */
   tmpreg &= RTCCR_CAL_MASK;
   /* Set CAL[6:0] bits according to CalibrationValue value */
-  tmpreg |= CalibrationValue;
+  tmpreg |= (uint16_t)CalibrationValue;
   /* Store the new value */
   BKP->RTCCR = tmpreg;
 }

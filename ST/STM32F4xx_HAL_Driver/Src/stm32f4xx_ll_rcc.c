@@ -864,6 +864,8 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
 {
   uint32_t usb_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
+  (void)USBxSource;
+
   /* Check parameter */
   assert_param(IS_LL_RCC_USB_CLKSOURCE(USBxSource));
 

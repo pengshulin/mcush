@@ -10,11 +10,13 @@ extern "C" {
 #define TASK_BLINK_PRIORITY    (MCUSH_PRIORITY)
 #define TASK_BLINK_QUEUE_SIZE  (4)
 
-extern void task_blink_init(void);
-extern void task_blink_entry(void *p);
+void task_blink_init(void);
+void task_blink_entry(void *p);
 
 int get_errno(void);
 int set_errno(int num);
+
+int cmd_error( int argc, char *argv[] );
 
 /****************************************************************************/
 /* reserved error code id (range from 1 ~ 9) */

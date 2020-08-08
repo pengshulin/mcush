@@ -1,17 +1,39 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
+#include "hal.h"
 
 extern shell_cmd_t CMD_TAB[];
 extern char _isdata;
 
-__attribute__((section(".mcush_signature")))
-__attribute__((used))
-static const char mcush_signature[] = "<mcush>";
+__signature static const char mcush_signature[] = "<mcush>";
 
 os_task_handle_t task_mcush;
 
 
-__attribute__((weak)) void hal_pre_init(void)
+void _halt(void)
+{
+    int i, led_num=hal_led_get_num();
+
+    os_disable_interrupts();
+    for( i=0; i<led_num; i++ )
+        hal_led_clr(i);
+    while(1)
+    {
+        for( i=0; i<led_num; i++ )
+            hal_led_toggle(i);
+        hal_delay_ms( 500 );
+    }
+}
+
+char *halt_message;
+void _halt_with_message(const char *message)
+{
+    halt_message = (char*)message;
+    _halt();
+}
+
+
+__weak void hal_pre_init(void)
 {
 }
 
@@ -27,7 +49,11 @@ void mcush_init(void)
     if( !hal_init() )
         halt("hal init");
 
+#if SUPPORT_NEWLIB
     if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
+#else
+    if( !shell_init( &CMD_TAB[0], 0 ) )
+#endif
         halt("shell init");
 
 

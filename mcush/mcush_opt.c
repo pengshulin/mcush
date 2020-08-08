@@ -12,7 +12,7 @@
 
 #if DEBUG
     #define INLINE(type) type
-    #define ASSERT(c)    ((c)?0:halt("opt assert"))
+    #define ASSERT(c)    if(!c){halt("opt assert");}
 #else
     #define INLINE(type) static inline type
     #define ASSERT(c)
@@ -53,7 +53,7 @@ INLINE(const mcush_opt_spec *) spec_byalias(mcush_opt_parser *parser, char alias
 INLINE(const mcush_opt_spec *) spec_nextarg(mcush_opt_parser *parser)
 {
     const mcush_opt_spec *spec;
-    size_t args = 0;
+    int args = 0;
 
     for (spec = parser->specs; spec->type; ++spec) {
         if (spec->type == MCUSH_OPT_ARG) {
@@ -206,8 +206,8 @@ static void parse_arg(mcush_opt *opt, mcush_opt_parser *parser)
 void mcush_opt_parser_init(
     mcush_opt_parser *parser,
     const mcush_opt_spec specs[],
-    const char **args,
-    size_t args_len)
+    char **args,
+    int args_len)
 {
     ASSERT(parser);
 
@@ -215,7 +215,7 @@ void mcush_opt_parser_init(
 
     parser->specs = specs;
     parser->args = args;
-    parser->args_len = args_len;
+    parser->args_len = (size_t)args_len;
 }
 
 

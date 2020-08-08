@@ -32,9 +32,11 @@ TIMEVAL getElapsedTime(void)
 }
 
 
-unsigned char canSend(CAN_PORT canx, Message *m)
+UNS8 canSend(CAN_PORT canx, Message *m)
 {
     can_message_t msg;
+
+    (void)canx;
     
     msg.id = m->cob_id;
     msg.ext = 0;
@@ -42,6 +44,6 @@ unsigned char canSend(CAN_PORT canx, Message *m)
     msg.len = m->len;
     memcpy( msg.data, m->data, m->len );
 
-    return hal_can_write( &msg );
+    return (UNS8) hal_can_write( &msg );
 }
 

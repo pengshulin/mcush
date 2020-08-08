@@ -1,11 +1,12 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-#include "hal.h"
+
+#if defined(SUPPORT_NEWLIB)
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include <sys/fcntl.h>
 #include <unistd.h>
-
 
 
 #ifndef HALT_ON_SBRK_FAIL
@@ -40,35 +41,34 @@ caddr_t _sbrk(int incr) {
     }
     return (caddr_t)prev_heap_end;
 }
-
  
-void _halt(void)
-{
-    int i, led_num=hal_led_get_num();
 
-    os_disable_interrupts();
-    for( i=0; i<led_num; i++ )
-        hal_led_clr(i);
-    while(1)
+char *parse_file_flag( int flag, char *buf )
+{
+    buf[0] = 0;
+
+    switch( flag & 0x03 )
     {
-        for( i=0; i<led_num; i++ )
-            hal_led_toggle(i);
-        hal_delay_ms( 500 );
+    case O_RDONLY: strcpy(buf, "r");  break;
+    case O_WRONLY: strcpy(buf, "w");  break;
+    case O_RDWR:
+    default:       strcpy(buf, "rw");  break;
     }
-}
-
-char *halt_message;
-void _halt_with_message(const char *message)
-{
-    halt_message = (char*)message;
-    _halt();
+    if( flag & O_CREAT )
+        strcat(buf, "+");
+    if( flag & O_APPEND )
+        strcat(buf, "a");
+    return buf;
 }
 
 
 int _open( const char *name, int flag, int m )
 {
     char buf[8];
-    int fd=mcush_open( name, (const char *)parse_file_flag(flag, buf) );
+    int fd;
+
+    (void)m;
+    fd = mcush_open( name, (const char *)parse_file_flag(flag, buf) );
     return fd>0 ? fd : -1;
 }
 
@@ -100,18 +100,22 @@ off_t _lseek( int fd, off_t offset, int w )
 //int _fstat( int fd, struct stat *s )
 int _fstat( int fd, void *s )
 {
+    (void)fd;
+    (void)s;
     return 0;
 }
 
 
 int _isatty( int fd )
 {
+    (void)fd;
     return 0;
 }
 
 
 void _exit(int status)
 {
+    (void)status;
     halt("exit");
     while(1);
 }
@@ -119,7 +123,7 @@ void _exit(int status)
 
 void _kill(int pid)
 {
-
+    (void)pid;
 }
 
 
@@ -156,12 +160,15 @@ int _gettimeofday(struct timeval *tv, struct timezone *tz)
 
 int _link(const char *oldpath, const char *newpath)
 {
+    (void)oldpath;
+    (void)newpath;
     return -1;
 }
 
 
 int _unlink(const char *pathname)
 {
+    (void)pathname;
     return -1;
 }
 
@@ -177,4 +184,4 @@ clock_t _times(struct tms *buf)
 
 
 
-
+#endif

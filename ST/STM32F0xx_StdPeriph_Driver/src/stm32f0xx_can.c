@@ -152,6 +152,8 @@ static ITStatus CheckITStatus(uint32_t CAN_Reg, uint32_t It_Bit);
   */
 void CAN_DeInit(CAN_TypeDef* CANx)
 {
+  (void)CANx;
+
   /* Check the parameters */
   assert_param(IS_CAN_ALL_PERIPH(CANx));
  

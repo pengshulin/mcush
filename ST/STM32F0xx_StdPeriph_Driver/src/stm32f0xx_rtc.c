@@ -1048,6 +1048,7 @@ void RTC_SetAlarm(uint32_t RTC_Format, uint32_t RTC_Alarm, RTC_AlarmTypeDef* RTC
 {
   uint32_t tmpreg = 0;
   
+  (void)RTC_Alarm;
   /* Check the parameters */
   assert_param(IS_RTC_FORMAT(RTC_Format));
   assert_param(IS_RTC_ALARM(RTC_Alarm));
@@ -1180,6 +1181,8 @@ void RTC_AlarmStructInit(RTC_AlarmTypeDef* RTC_AlarmStruct)
 void RTC_GetAlarm(uint32_t RTC_Format, uint32_t RTC_Alarm, RTC_AlarmTypeDef* RTC_AlarmStruct)
 {
   uint32_t tmpreg = 0;
+    
+  (void)RTC_Alarm;
 
   /* Check the parameters */
   assert_param(IS_RTC_FORMAT(RTC_Format));
@@ -1319,6 +1322,8 @@ void RTC_AlarmSubSecondConfig(uint32_t RTC_Alarm, uint32_t RTC_AlarmSubSecondVal
 {
   uint32_t tmpreg = 0;
 
+  (void)RTC_Alarm;
+
   /* Check the parameters */
   assert_param(IS_RTC_ALARM(RTC_Alarm));
   assert_param(IS_RTC_ALARM_SUB_SECOND_VALUE(RTC_AlarmSubSecondValue));
@@ -1350,6 +1355,8 @@ void RTC_AlarmSubSecondConfig(uint32_t RTC_Alarm, uint32_t RTC_AlarmSubSecondVal
 uint32_t RTC_GetAlarmSubSecond(uint32_t RTC_Alarm)
 {
   uint32_t tmpreg = 0;
+
+  (void)RTC_Alarm;
   
   /* Get the RTC_ALRMAR register */
   tmpreg = (uint32_t)((RTC->ALRMASSR) & RTC_ALRMASSR_SS);

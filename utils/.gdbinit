@@ -148,7 +148,7 @@ chip_mem_configs = {
 ],
 
 'stm32f412': [
-[ 0x08000000, 0x08080000, 'ro', 32, True,  'Flash 512k', ],
+[ 0x08000000, 0x08100000, 'ro', 32, True,  'Flash 1M', ],
 [ 0x20000000, 0x20040000, 'rw', 32, False, 'SRAM 256k', ],
 [ 0x40000000, 0x40080000, 'rw', 32, False, 'Peripherals', ],
 ],

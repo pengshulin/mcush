@@ -327,10 +327,10 @@ void sFLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteTo
 {
     uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
-    Addr = WriteAddr % sFLASH_SPI_PAGESIZE;
-    count = sFLASH_SPI_PAGESIZE - Addr;
-    NumOfPage =  NumByteToWrite / sFLASH_SPI_PAGESIZE;
-    NumOfSingle = NumByteToWrite % sFLASH_SPI_PAGESIZE;
+    Addr = (uint8_t)(WriteAddr % sFLASH_SPI_PAGESIZE);
+    count = (uint8_t)(sFLASH_SPI_PAGESIZE - Addr);
+    NumOfPage = (uint8_t)(NumByteToWrite / sFLASH_SPI_PAGESIZE);
+    NumOfSingle = (uint8_t)(NumByteToWrite % sFLASH_SPI_PAGESIZE);
 
     if (Addr == 0) /*!< WriteAddr is sFLASH_PAGESIZE aligned  */
     {
@@ -373,7 +373,7 @@ void sFLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteTo
       {
         NumByteToWrite -= count;
         NumOfPage =  NumByteToWrite / sFLASH_SPI_PAGESIZE;
-        NumOfSingle = NumByteToWrite % sFLASH_SPI_PAGESIZE;
+        NumOfSingle = (uint8_t)(NumByteToWrite % sFLASH_SPI_PAGESIZE);
 
         sFLASH_WritePage(pBuffer, WriteAddr, count);
         WriteAddr +=  count;
@@ -527,7 +527,7 @@ uint8_t sFLASH_SendByte(uint8_t byte)
     while (SPI_I2S_GetFlagStatus(sFLASH_SPI, SPI_I2S_FLAG_RXNE) == RESET);
 
     /*!< Return the byte read from the SPI bus */
-    return SPI_I2S_ReceiveData(sFLASH_SPI);
+    return (uint8_t)SPI_I2S_ReceiveData(sFLASH_SPI);
 }
 
 /**

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "compiler.h"
 #include "hal.h"
 #include "shell.h"
 #include "mcush_os.h"
@@ -145,7 +146,7 @@ extern "C" {
     #define USE_CMD_MKBUF  1
 #endif
 #ifndef USE_CMD_WDG
-    #define USE_CMD_WDG  1
+    #define USE_CMD_WDG  0
 #endif
 #ifndef USE_CMD_UPTIME
     #define USE_CMD_UPTIME  1
@@ -155,6 +156,9 @@ extern "C" {
     #define USE_CMD_SYSTEM  1
 #endif
 #if USE_CMD_SYSTEM
+    #ifndef USE_CMD_SYSTEM_QUEUE
+        #define USE_CMD_SYSTEM_QUEUE  1
+    #endif
     #ifndef USE_CMD_SYSTEM_KERNEL
         #define USE_CMD_SYSTEM_KERNEL  1
     #endif
@@ -258,8 +262,14 @@ extern "C" {
 
 
 #if MCUSH_VFS
+    #ifndef USE_CMD_LS
+        #define USE_CMD_LS  1
+    #endif
     #ifndef USE_CMD_CAT
         #define USE_CMD_CAT  1
+    #endif
+    #ifndef USE_CMD_CP
+        #define USE_CMD_CP  1
     #endif
     #ifndef USE_CMD_RM
         #define USE_CMD_RM  1
@@ -267,14 +277,8 @@ extern "C" {
     #ifndef USE_CMD_RENAME
         #define USE_CMD_RENAME  1
     #endif
-    #ifndef USE_CMD_CP
-        #define USE_CMD_CP  1
-    #endif
-    #ifndef USE_CMD_LS
-        #define USE_CMD_LS  1
-    #endif
     #ifndef USE_CMD_LOAD
-        #define USE_CMD_LOAD  1
+        #define USE_CMD_LOAD  0
     #endif
     #ifndef USE_CMD_CRC
         #define USE_CMD_CRC  0
@@ -354,6 +358,7 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init );
 int emu_spi_update( int spi_index, spi_cb_t *update );
 void emu_spi_deinit( int spi_index );
 int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int length);
+spi_cb_t *emu_spi_get_cb( int spi_index );
 #endif
 
 
@@ -391,7 +396,7 @@ char emu_ds1w_read_byte( int ds1w_index );
 #endif
 
 
-#if SUPPORT_WS2812
+#if defined(SUPPORT_WS2812)
 int ws2812_init( int length, int group_length, int port, int pin );
 void ws2812_deinit(void);
 int ws2812_write(int offset, int dat, int swap_rg);
@@ -401,9 +406,10 @@ void ws2812_flush(void);
 
 
 
-extern void mcush_init(void);
-extern void mcush_start(void);
+void mcush_init(void);
+void mcush_start(void);
 extern os_task_handle_t task_mcush;
+extern const char build_signature[];
 
 
 #ifndef NULL

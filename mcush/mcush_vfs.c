@@ -145,6 +145,7 @@ int mcush_size( const char *pathname, int *size )
 
 int mcush_search( const char *fname )
 {
+    (void)fname;
     return 0;
 }
 
@@ -252,7 +253,7 @@ err:
 }
 
 
-int mcush_read( int fd, void *buf, int len )
+int mcush_read( int fd, char *buf, int len )
 {
     int ret, unget=0;
     const mcush_vfs_driver_t *driver;
@@ -272,7 +273,7 @@ int mcush_read( int fd, void *buf, int len )
         return 0;
     if( vfs_fd_tab[fd].unget_char )
     {
-        *(char*)buf++ = vfs_fd_tab[fd].unget_char;
+        *buf++ = vfs_fd_tab[fd].unget_char;
         vfs_fd_tab[fd].unget_char = 0;
         len--;
         unget = 1;
@@ -293,7 +294,7 @@ err:
 }
 
 
-int mcush_write( int fd, void *buf, int len )
+int mcush_write( int fd, char *buf, int len )
 {
     const mcush_vfs_driver_t *driver;
 
@@ -390,6 +391,8 @@ int mcush_list( const char *path, void (*cb)(const char *name, int size, int mod
 int mcush_getc( int fd )
 {
     char c;
+    
+    (void)fd;
     return shell_read_char( &c );
 }
 
@@ -437,6 +440,7 @@ int mcush_printf( int fd, const char *fmt, ... )
 
 const char *mcush_basename( const char *fname )
 {
+    (void)fname;
     return 0;
 }
 
@@ -464,7 +468,7 @@ int fputc(int c, FILE *stream)
 {
     if( stream == stdout || stream == stderr )
     {
-        shell_write_char( c );
+        shell_write_char( (char)c );
         return c;
     }
     else

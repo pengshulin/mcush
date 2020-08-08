@@ -38,6 +38,7 @@ int hal_key_get(int mask)
     }
     return ret;
 #else
+	(void)mask;
     return 0;
 #endif
 }

@@ -182,8 +182,8 @@ int emu_i2c_init(int i2c_index, i2c_cb_t *i2c_init)
     }
   
     memcpy( i2c, i2c_init, sizeof(i2c_cb_t) );
-    i2c->pin_scl_bit = 1<<i2c->pin_scl;
-    i2c->pin_sda_bit = 1<<i2c->pin_sda;
+    i2c->pin_scl_bit = (uint16_t)(1<<i2c->pin_scl);
+    i2c->pin_sda_bit = (uint16_t)(1<<i2c->pin_sda);
  
     hal_gpio_set_output( i2c->port_scl, i2c->pin_scl_bit );
     hal_gpio_set_output_open_drain( i2c->port_sda, i2c->pin_sda_bit );
@@ -205,7 +205,7 @@ int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_by
     if( (write_bytes==0) && (write_bytes==0) )
     {
         i2c_start(i2c);
-        if( ! i2c_write_byte( i2c, address ? address : (i2c->addr<<1) ) )
+        if( ! i2c_write_byte( i2c, address ? (uint8_t)address : (uint8_t)(i2c->addr<<1) ) )
             goto err_ack;
         i2c_stop(i2c);
         return 1;
@@ -215,7 +215,7 @@ int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_by
     if( write_bytes )
     {
         i2c_start(i2c);
-        if( ! i2c_write_byte( i2c, address ? address : (i2c->addr<<1) ) )
+        if( ! i2c_write_byte( i2c, address ? (uint8_t)address : (uint8_t)(i2c->addr<<1) ) )
             goto err_ack;
         /* write data */ 
         for( i=0; i<write_bytes; i++ )
@@ -228,7 +228,7 @@ int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_by
     if( read_bytes )
     {
         i2c_start(i2c);
-        if( ! i2c_write_byte(i2c, address ? address : ((i2c->addr<<1)|1) ) )
+        if( ! i2c_write_byte(i2c, address ? (uint8_t)address : (uint8_t)((i2c->addr<<1)|1) ) )
             goto err_ack;
         /* read bytes */
         for( i=0; i<read_bytes; i++ )
@@ -286,7 +286,7 @@ int cmd_i2c( int argc, char *argv[] )
         i2c_index -= 1;
 #endif
     emu_i2c_init_structure( &i2c_init );
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -312,23 +312,23 @@ int cmd_i2c( int argc, char *argv[] )
                 i2c_init.lsb = 1;
             else if( strcmp( opt.spec->name, "scl" ) == 0 )
             {
-                i2c_init.port_scl = strtol( opt.value, &p, 10 );
+                i2c_init.port_scl = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                i2c_init.pin_scl = strtol( p, &p, 10 );
+                i2c_init.pin_scl = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
             else if( strcmp( opt.spec->name, "sda" ) == 0 )
             {
-                i2c_init.port_sda = strtol( opt.value, &p, 10 );
+                i2c_init.port_sda = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                i2c_init.pin_sda = strtol( p, &p, 10 );
+                i2c_init.pin_sda = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
@@ -363,7 +363,7 @@ int cmd_i2c( int argc, char *argv[] )
             shell_write_line( argv[parser.idx] );
             return 1;
         }
-        buf_out[write_bytes] = i;
+        buf_out[write_bytes] = (uint8_t)i;
         parser.idx++;
         write_bytes += 1;
     }
@@ -507,10 +507,10 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init )
     }
 
     memcpy( spi, spi_init, sizeof(spi_cb_t) );
-    spi->pin_sdi_bit = 1<<spi->pin_sdi;
-    spi->pin_sdo_bit = 1<<spi->pin_sdo;
-    spi->pin_sck_bit = 1<<spi->pin_sck;
-    spi->pin_cs_bit = 1<<spi->pin_cs;
+    spi->pin_sdi_bit = (uint16_t)(1<<spi->pin_sdi);
+    spi->pin_sdo_bit = (uint16_t)(1<<spi->pin_sdo);
+    spi->pin_sck_bit = (uint16_t)(1<<spi->pin_sck);
+    spi->pin_cs_bit = (uint16_t)(1<<spi->pin_cs);
 
     hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
     hal_gpio_set_output( spi->port_sdo, spi->pin_sdo_bit );
@@ -533,10 +533,10 @@ int emu_spi_update( int spi_index, spi_cb_t *update )
     if( !spi )
         return 0;
 
-    update->pin_sdi_bit = 1<<update->pin_sdi;
-    update->pin_sdo_bit = 1<<update->pin_sdo;
-    update->pin_sck_bit = 1<<update->pin_sck;
-    update->pin_cs_bit  = 1<<update->pin_cs;
+    update->pin_sdi_bit = (uint16_t)(1<<update->pin_sdi);
+    update->pin_sdo_bit = (uint16_t)(1<<update->pin_sdo);
+    update->pin_sck_bit = (uint16_t)(1<<update->pin_sck);
+    update->pin_cs_bit  = (uint16_t)(1<<update->pin_cs);
 
     if( (update->port_sdi != spi->port_sdi) || (update->pin_sdi != spi->pin_sdi) )
     {
@@ -575,7 +575,7 @@ int emu_spi_update( int spi_index, spi_cb_t *update )
 static uint32_t emu_spi_write_single(spi_cb_t *spi, uint32_t dat)
 {
     uint32_t ret=0;
-    int i;
+    unsigned int i;
     int polar=spi->cpha^spi->cpol;
 
     for( i=0; i<spi->width; i++ )
@@ -641,6 +641,12 @@ int emu_spi_write(int spi_index, uint32_t *buf_out, uint32_t *buf_in, int length
 }
 
 
+spi_cb_t *emu_spi_get_cb( int spi_index )
+{
+    return spi_cb[spi_index];
+}
+
+
 int cmd_spi( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
@@ -688,7 +694,7 @@ int cmd_spi( int argc, char *argv[] )
         spi_index -= 1;
 #endif
     emu_spi_init_structure( &spi_init );
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -722,45 +728,45 @@ int cmd_spi( int argc, char *argv[] )
                 spi_init.lsb = 1;
             else if( strcmp( opt.spec->name, "sdi" ) == 0 )
             {
-                spi_init.port_sdi = strtol( opt.value, &p, 10 );
+                spi_init.port_sdi = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_init.pin_sdi = strtol( p, &p, 10 );
+                spi_init.pin_sdi = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
             else if( strcmp( opt.spec->name, "sdo" ) == 0 )
             {
-                spi_init.port_sdo = strtol( opt.value, &p, 10 );
+                spi_init.port_sdo = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_init.pin_sdo = strtol( p, &p, 10 );
+                spi_init.pin_sdo = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
             else if( strcmp( opt.spec->name, "sck" ) == 0 )
             {
-                spi_init.port_sck = strtol( opt.value, &p, 10 );
+                spi_init.port_sck = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_init.pin_sck = strtol( p, &p, 10 );
+                spi_init.pin_sck = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
             else if( strcmp( opt.spec->name, "cs" ) == 0 )
             {
-                spi_init.port_cs = strtol( opt.value, &p, 10 );
+                spi_init.port_cs = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                spi_init.pin_cs = strtol( p, &p, 10 );
+                spi_init.pin_cs = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
@@ -910,7 +916,7 @@ int emu_pulse_init(int pulse_index, pulse_cb_t *pulse_init)
     }
   
     memcpy( pulse, pulse_init, sizeof(pulse_cb_t) );
-    pulse->pin_bit = 1<<pulse->pin;
+    pulse->pin_bit = (uint16_t)(1<<pulse->pin);
  
     hal_gpio_set_output( pulse->port, pulse->pin_bit );
     if( pulse->invert )
@@ -976,7 +982,7 @@ int cmd_pulse( int argc, char *argv[] )
         pulse_index -= 1;
 #endif
     emu_pulse_init_structure( &pulse_init );
-    mcush_opt_parser_init( &parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -991,12 +997,12 @@ int cmd_pulse( int argc, char *argv[] )
                 pulse_init.invert = 1; 
             else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
             {
-                pulse_init.port = strtol( opt.value, &p, 10 );
+                pulse_init.port = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                pulse_init.pin = strtol( p, &p, 10 );
+                pulse_init.pin = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }
@@ -1073,7 +1079,7 @@ int emu_ds1w_init( int ds1w_index, ds1w_cb_t *ds1w_init )
 
     ds1w->port = ds1w_init->port;
     ds1w->pin = ds1w_init->pin;
-    ds1w->pin_bit = 1<<(ds1w_init->pin);
+    ds1w->pin_bit = (uint16_t)(1<<(ds1w_init->pin));
     hal_gpio_set_output_open_drain( ds1w->port, ds1w->pin_bit ); 
     hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
     return 1;
@@ -1200,7 +1206,7 @@ int cmd_ds1w( int argc, char *argv[] )
         ds1w_index -= 1;
 #endif
     emu_ds1w_init_structure( &ds1w_init );
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -1211,7 +1217,7 @@ int cmd_ds1w( int argc, char *argv[] )
             {
                 if( parse_int(opt.value, &i) )
                 {
-                    write_byte = i;
+                    write_byte = (char)i;
                     write_set = 1;
                 }
             }
@@ -1230,12 +1236,12 @@ int cmd_ds1w( int argc, char *argv[] )
                 reset_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
             {
-                ds1w_init.port = strtol( opt.value, &p, 10 );
+                ds1w_init.port = (uint8_t)strtol( opt.value, &p, 10 );
                 if( !p || (*p!='.') )
                     goto err_port;
                 if( *(++p) == 0 )
                     goto err_port;
-                ds1w_init.pin = strtol( p, &p, 10 );
+                ds1w_init.pin = (uint8_t)strtol( p, &p, 10 );
                 if( p && *p )
                     goto err_port;
             }

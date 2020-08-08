@@ -16,7 +16,7 @@ static void _set_dir( int port, int bits, GPIOMode_TypeDef mode )
     {
         if( bits & (1<<i) )
         { 
-            init.GPIO_Pin = 1<<i;
+            init.GPIO_Pin = (uint16_t)(1<<i);
             GPIO_Init((GPIO_TypeDef*)ports[port], &init);
         }
     }
@@ -65,13 +65,13 @@ void hal_gpio_set_output_open_drain(int port, int bits)
 
 void hal_gpio_set(int port, int bits)
 {
-    GPIO_SetBits((GPIO_TypeDef*)ports[port], bits);
+    GPIO_SetBits((GPIO_TypeDef*)ports[port], (uint16_t)bits);
 }
 
 
 void hal_gpio_clr(int port, int bits)
 {
-    GPIO_ResetBits((GPIO_TypeDef*)ports[port], bits);
+    GPIO_ResetBits((GPIO_TypeDef*)ports[port], (uint16_t)bits);
 }
 
 
@@ -83,9 +83,9 @@ void hal_gpio_toggle(int port, int bits)
     set = ~reset & bits;
     
     if( set )
-        GPIO_SetBits((GPIO_TypeDef*)ports[port], set);
+        GPIO_SetBits((GPIO_TypeDef*)ports[port], (uint16_t)set);
     if( reset )
-        GPIO_ResetBits((GPIO_TypeDef*)ports[port], reset);
+        GPIO_ResetBits((GPIO_TypeDef*)ports[port], (uint16_t)reset);
 }
 
 

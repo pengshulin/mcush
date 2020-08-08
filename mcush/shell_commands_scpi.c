@@ -4,10 +4,13 @@
 
 
 #if USE_CMD_SCPI_IDN
-__attribute__((weak)) int cmd_scpi_idn( int argc, char *argv[] )
+__weak int cmd_scpi_idn( int argc, char *argv[] )
 {
-    /* *idn? command ignore all arguments */
     char buf[64];
+
+    /* *idn? command ignore all arguments */
+    (void)argc;
+    (void)argv;
 
 #ifndef MODEL_STRING
     shell_write_str( shell_str_mcush );
@@ -30,9 +33,12 @@ __attribute__((weak)) int cmd_scpi_idn( int argc, char *argv[] )
 
 
 #if USE_CMD_SCPI_RST
-__attribute__((weak)) int cmd_scpi_rst( int argc, char *argv[] )
+__weak int cmd_scpi_rst( int argc, char *argv[] )
 {
     /* *rst command ignore all arguments */
+    (void)argc;
+    (void)argv;
+
     hal_platform_reset();
     return 0;
 }

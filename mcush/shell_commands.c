@@ -332,7 +332,7 @@ int cmd_help( int argc, char *argv[] )
     char *check=0;
     uint8_t cmd_exists;
  
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
@@ -375,10 +375,10 @@ int cmd_loop( int argc, char *argv[] )
     unsigned int loop=1, loop_delay=1000, loop_tick;
     char c;
     uint8_t cycle_set=0;
-    int cycle_current, cycle_limit=-1;
+    int cycle_current=0, cycle_limit=-1;
     int (*cmd)(int argc, char *argv[]) = 0;
  
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -392,7 +392,6 @@ int cmd_loop( int argc, char *argv[] )
                 parse_int(opt.value, (int*)&cycle_limit);
                 if( cycle_limit > 0 )
                 {
-                    cycle_current = 0;
                     cycle_set = 1;
                 }
                 else
@@ -445,7 +444,7 @@ int cmd_wait( int argc, char *argv[] )
     mcush_opt opt;
     int ms=1000;
     
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

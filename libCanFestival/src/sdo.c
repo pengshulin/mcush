@@ -429,7 +429,7 @@ UNS8 failedSDO (CO_Data* d, UNS8 CliServNbr, UNS8 whoami, UNS16 index,
 		MSG_WAR(0x3A21, "FailedSDO : line released : ", line);
 	}
 	if ((! err) && (whoami == SDO_CLIENT)) {
-		StopSDO_TIMER(line);
+		StopSDO_TIMER(line)
 		d->transfers[line].state = SDO_ABORTED_INTERNAL;
 		d->transfers[line].abortCode = abortCode;
 	}

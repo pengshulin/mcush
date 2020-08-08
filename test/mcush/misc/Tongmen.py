@@ -38,7 +38,7 @@ class ETM( Instrument.SerialInstrument ):
         Instrument.SerialInstrument.__init__( self, *args, **kwargs ) 
 
     def connect( self ):
-        self.client = ModbusSerialClient('rtu', port=self.port.port, baudrate=self.baudrate, timeout=self.port.timeout)
+        self.client = ModbusSerialClient('rtu', port=self.port.port, baudrate=self.port.baudrate, timeout=self.port.timeout)
         self.client.connect()
          
     def outputEnable( self ):

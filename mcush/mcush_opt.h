@@ -102,13 +102,11 @@ typedef struct mcush_opt {
  */
 typedef struct mcush_opt_parser {
 	const mcush_opt_spec *specs;
-	const char **args;
-	size_t args_len;
-
-	size_t idx;
-	size_t arg_idx;
-	int in_literal : 1,
-		in_short : 1;
+	char **args;
+	int args_len;
+	int idx;
+	int arg_idx;
+	char in_literal;
 } mcush_opt_parser;
 
 /**
@@ -123,8 +121,8 @@ typedef struct mcush_opt_parser {
 void mcush_opt_parser_init(
 	mcush_opt_parser *parser,
 	const mcush_opt_spec specs[],
-	const char **argv,
-	size_t args_len);
+	char **argv,
+	int args_len);
 
 /**
  * Parses the next command-line argument and places the information about

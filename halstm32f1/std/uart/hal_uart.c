@@ -155,7 +155,7 @@ void HAL_UARTx_IRQHandler(void)
     
     if( USART_GetITStatus( HAL_UARTx, USART_IT_RXNE ) == SET )
     {
-        c = USART_ReceiveData( HAL_UARTx );
+        c = (char)USART_ReceiveData( HAL_UARTx );  /* 8-bits data */
 #if HAL_UART_QUEUE_RX_LEN
         os_queue_put_isr( hal_uart_queue_rx, &c );
 #endif
@@ -256,6 +256,8 @@ int  shell_driver_read_feed( char *buffer, int len )
 
 int  shell_driver_read( char *buffer, int len )
 {
+    (void)buffer;
+    (void)len;
     return 0;  /* not supported */
 }
 

@@ -5,10 +5,10 @@
     #define HAL_LED_NUM  0
 #endif
 
-const uint8_t led_num = HAL_LED_NUM;
+static const uint8_t led_num = HAL_LED_NUM;
 #if HAL_LED_NUM
-const uint8_t led_ports[] = HAL_LED_PORTS;
-const uint8_t led_pins[] = HAL_LED_PINS;
+static const uint8_t led_ports[] = HAL_LED_PORTS;
+static const uint8_t led_pins[] = HAL_LED_PINS;
 #endif
 
 void hal_led_init(void)

@@ -5,7 +5,6 @@
 #if MCUSH_SPIFFS
 #include "spiffs_nucleus.h"
 
-#define static
 
 #ifndef SPIFFS_FD_NUM
 #define SPIFFS_FD_NUM  MCUSH_VFS_FILE_DESCRIPTOR_NUM
@@ -24,7 +23,7 @@ static char _cache_buf[sizeof(spiffs_cache) + SPIFFS_CACHE_NUM *
 os_mutex_handle_t mutex_spiffs;
 
 
-static int _lock_check(void)
+int mcush_spiffs_lock_check(void)
 {
     if( mutex_spiffs != NULL )
         return 1;
@@ -40,14 +39,16 @@ static int _lock_check(void)
 
 void mcush_spiffs_lock(struct spiffs_t *fs)
 {
-    if( _lock_check() )
-        os_mutex_get( mutex_spiffs, os_is_running() ? -1 : 0 );
+    (void)fs;
+    if( mcush_spiffs_lock_check() && os_is_running() )
+        os_mutex_get( mutex_spiffs,  -1 );
 }
 
 
 void mcush_spiffs_unlock(struct spiffs_t *fs)
 {
-    if( _lock_check() )
+    (void)fs;
+    if( mcush_spiffs_lock_check() && os_is_running() )
         os_mutex_put( mutex_spiffs );
 }
 
@@ -185,14 +186,14 @@ int mcush_spiffs_open( const char *path, const char *mode )
 }
 
 
-int mcush_spiffs_read( int fh, void *buf, int len )
+int mcush_spiffs_read( int fh, char *buf, int len )
 {
     int ret = SPIFFS_read( &_fs, fh, buf, len );
     return ret < 0 ? 0 : ret;
 }
 
 
-int mcush_spiffs_write( int fh, void *buf, int len )
+int mcush_spiffs_write( int fh, char *buf, int len )
 {
     int ret = SPIFFS_write( &_fs, fh, buf, len );
     return ret < 0 ? 0 : ret;
@@ -258,6 +259,7 @@ int mcush_spiffs_list( const char *pathname, void (*cb)(const char *name, int si
     spiffs_DIR dir;
     struct spiffs_dirent dirent;
 
+    (void)pathname;
     if( ! SPIFFS_opendir( &_fs, "/", &dir ) )
         return 0;
     while( SPIFFS_readdir( &dir, &dirent ) )

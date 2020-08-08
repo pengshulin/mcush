@@ -9,7 +9,6 @@
 #error "FCFS_ADDR not assigned!"
 #endif
 
-//#define static
 
 /* flash layout:
  (FCFS_ADDR)  INDEX            FILE1          FILE2   
@@ -58,7 +57,7 @@ int mcush_fcfs_info( int *total, int *used )
 
 int mcush_fcfs_format( void )
 {
-    return hal_fcfs_erase( (int*)FCFS_ADDR ) ? 1 : 0;
+    return hal_fcfs_erase() ? 1 : 0;
 }
 
 
@@ -70,12 +69,15 @@ int mcush_fcfs_check( void )
 
 int mcush_fcfs_remove( const char *path )
 {
+    (void)path;
     return 0;
 }
 
 
 int mcush_fcfs_rename( const char *old, const char *newPath )
 {
+    (void)old;
+    (void)newPath;
     return 0;
 }
 
@@ -85,6 +87,7 @@ int mcush_fcfs_open( const char *pathname, const char *mode )
     fcfs_file_t *f = (fcfs_file_t*)(FCFS_ADDR+4+FCFS_UID_LEN);
     int i, j;
     
+    (void)mode;
     for( i=0; i<FCFS_FDS_NUM; i++ )
     {
         if( ! _fds[i].file )
@@ -107,7 +110,7 @@ int mcush_fcfs_open( const char *pathname, const char *mode )
 }
 
 
-int mcush_fcfs_read( int fh, void *buf, int len )
+int mcush_fcfs_read( int fh, char *buf, int len )
 {
     int i;
 
@@ -121,13 +124,19 @@ int mcush_fcfs_read( int fh, void *buf, int len )
     if( i > len )
         i = len;
     if( i )
+    {
         memcpy( buf, (const void*)&_fds[fh].contents[_fds[fh].pos], i ); 
+        _fds[fh].pos += i;
+    }
     return i;
 }
 
 
-int mcush_fcfs_write( int fh, void *buf, int len )
+int mcush_fcfs_write( int fh, char *buf, int len )
 {
+    (void)fh;
+    (void)buf;
+    (void)len;
     return -1;
 }
 
@@ -157,6 +166,7 @@ int mcush_fcfs_seek( int fh, int offs, int where )
 
 int mcush_fcfs_flush( int fh )
 {
+    (void)fh;
     return 0;
 }
 

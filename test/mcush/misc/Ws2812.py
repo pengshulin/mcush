@@ -53,7 +53,7 @@ class LEDS():
                     # the final line, add -w option
                     self.controller.writeCommand( cmd.replace('W', 'W -w') )
                 break
-            cmd += ' %d'% (mem.pop(0) & 0xFFFFFF)
+            cmd += ' %d'% (int(mem.pop(0)) & 0xFFFFFF)
             count_data += 1
             count_argv += 1
             if (len(cmd) >= self.DEFAULT_CMD_LINE_LIMIT) or (count_argv >= self.controller.DEFAULT_CMD_ARGV_LIMIT):

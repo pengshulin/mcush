@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 **
 **
 */
-
+#include "compiler.h"
 #include "data.h"
 #include "sysdep.h"
 
@@ -174,7 +174,7 @@ UNS8 setState(CO_Data* d, e_nodeState newState)
 			/* Transition from Initialisation to Pre_operational */
 			/* is automatic as defined in DS301. */
 			/* App don't have to call SetState(d, Pre_operational) */
-								
+			__fallthrough
 			case Pre_operational:
 			{
 				
@@ -206,7 +206,9 @@ UNS8 setState(CO_Data* d, e_nodeState newState)
 				(*d->stopped)(d);
 			}
 			break;
-			default:
+            case Disconnected:
+            case Connecting:
+            case Unknown_state:
 				return 0xFF;
 
 		}/* end switch case */

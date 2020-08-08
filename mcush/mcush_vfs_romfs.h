@@ -27,14 +27,15 @@ int mcush_romfs_check( void );
 int mcush_romfs_remove( const char *path );
 int mcush_romfs_rename( const char *old, const char *newPath );
 int mcush_romfs_open( const char *pathname, const char *mode );
-int mcush_romfs_read( int fh, void *buf, int len );
+int mcush_romfs_read( int fh, char *buf, int len );
 int mcush_romfs_seek( int fh, int offs, int where );
-int mcush_romfs_write( int fh, void *buf, int len );
+int mcush_romfs_write( int fh, char *buf, int len );
 int mcush_romfs_flush( int fh );
 int mcush_romfs_close( int fh );
 int mcush_romfs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) );
 
-
 extern const mcush_vfs_driver_t mcush_romfs_driver;
+
+extern const romfs_file_t romfs_tab[];
 
 #endif

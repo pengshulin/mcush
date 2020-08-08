@@ -74,7 +74,13 @@ UNS8 accessDictionaryError(UNS16 index, UNS8 subIndex,
   default :
     MSG_WAR(0x2B20, "Unknown error code : ", code);
   }
-  #endif
+#else
+    (void)index;
+    (void)subIndex;
+    (void)sizeDataDict;
+    (void)sizeDataGiven;
+    (void)code;
+#endif
 
   return 0;
 }

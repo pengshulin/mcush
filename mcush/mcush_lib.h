@@ -74,7 +74,20 @@ int cmp_float(const void *a, const void *b);
 
 int bytes_to_int( char *bytes, int len );
 
+typedef struct {
+    float q;
+    float r;
+    float gain;
+    float p_k_k1;
+    float p_k1_k1;
+    float x_k_k1;
+    float x_k1_k1;
+    float z_k;
+    float oldval;
+} kalman_filter_t;
 
+void kalman_filter_init( kalman_filter_t *filter );
+float kalman_filter_update( kalman_filter_t *filter, float newval );
 
 #ifdef __cplusplus
 }

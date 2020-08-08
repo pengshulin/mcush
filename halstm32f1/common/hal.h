@@ -51,8 +51,8 @@ void hal_wdg_enable(void);
 void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
-int hal_fcfs_erase(int *address);
-int hal_fcfs_program(int *address, int *buf, int len);
+int hal_fcfs_erase(void);
+int hal_fcfs_program(int offset, int *buf, int len);
 
 
 typedef struct _sgpio_cfg_t
@@ -103,7 +103,7 @@ int hal_adc_get_num( void );
 int hal_adc_in_use( void );
 float hal_adc_get( int index );
 
-#if SUPPORT_WS2812
+#if defined(SUPPORT_WS2812)
 int hal_ws2812_init(int port, int pin);
 void hal_ws2812_deinit(void);
 void hal_ws2812_clr(void);
@@ -121,7 +121,7 @@ void hal_platform_init(void);
 
 #include "hal_platform.h"
 
-#if HAL_DAQ
+#if defined(HAL_DAQ) && HAL_DAQ
 #include "hal_daq.h"
 #endif
 

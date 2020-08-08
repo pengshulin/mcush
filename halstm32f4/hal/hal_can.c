@@ -177,7 +177,7 @@ void hal_can_reset( void )
 
 int hal_can_set_baudrate( int baudrate )
 {
-    int i;
+    unsigned int i;
 
     for( i=0; i<sizeof(baudrate_config)/sizeof(can_baudrate_config_t); i++ )
     {
@@ -299,7 +299,7 @@ int hal_can_send( can_message_t *msg )
     uint8_t data[8];
     uint32_t i;
 
-    if( (msg->len < 0) || (msg->len > 8) )
+    if( msg->len > 8 )
         return -1;
 
     /* transmit */

@@ -69,6 +69,7 @@
 #include <stdio.h>
 #include "shell.h"
 #if USE_SHELL_PRINTF2
+#include "compiler.h"
 #include "mcush_printf2.h"
 #include <math.h>
 #include <string.h>
@@ -95,9 +96,9 @@ static int printchar (
     char **str,
     int c,
     unsigned int max_output_len,
-    int *cur_output_char_p)
+    unsigned int *cur_output_char_p)
 {
-    if (max_output_len >= 0  &&  *cur_output_char_p >= max_output_len)
+    if( *cur_output_char_p >= max_output_len )
         return PRINTF2_OK;
 
     if (str) {
@@ -230,13 +231,13 @@ static unsigned fltordbl2stri(char *outbfr, FLOAT_OR_DOUBLE flt_or_dbl, unsigned
          |____|  |__|
      dec_digits  exp_digits  
 */
-static unsigned float_to_exp_str(char *outbfr, float flt, unsigned dec_digits, unsigned exp_digits)
+static unsigned float_to_exp_str(char *outbfr, float flt, unsigned int dec_digits, unsigned int exp_digits)
 {
     static char local_bfr[128] ;
     char *output = (outbfr == 0) ? local_bfr : outbfr ;
     float  mul;
     int    exp = 0;
-    int    n;
+    unsigned int n;
     int    pow;
     float  pow2;
 
@@ -266,8 +267,8 @@ static unsigned float_to_exp_str(char *outbfr, float flt, unsigned dec_digits, u
             *output++ = ' ';
 
         // mul/div 10.0 repeatedly to make 1.0 < f < 10.0
-        mul = flt < 1.0 ? 10.0 : 0.1;
-        while( (flt >= 10.0 || flt < 1.0) && flt != 0 ) 
+        mul = flt < 1.0f ? 10.0f : 0.1f;
+        while( (flt >= 10.0f || flt < 1.0f) && (*(uint32_t*)&flt != 0) ) 
         {
             flt *= mul;
             exp++;
@@ -277,20 +278,20 @@ static unsigned float_to_exp_str(char *outbfr, float flt, unsigned dec_digits, u
         pow2 = 1;
         for( n=0; n<=dec_digits; n++ )
         {
-            *output++ = (int)(flt/pow2) + '0';
+            *output++ = (char)(flt/pow2) + '0';
             if( n == 0 )
                 *output++ = '.';
-            flt -= pow2*(int)(flt/pow2);
-            pow2 *= 0.1;
+            flt -= pow2*(char)(flt/pow2);
+            pow2 *= 0.1f;
         }
     
         // output the exp part
         *output++ = 'e';
         *output++ = (mul > 2.0 && exp) ? '-' : '+';
-        for(pow=1, n=1; n<exp_digits; n++ , pow *= 10);
+        for(pow=1, n=1; n<exp_digits; n++, pow *= 10);
         for(n=0; n<exp_digits; n++)
         {
-            *output++ = exp/pow + '0';
+            *output++ = (char)(exp/pow) + '0';
             exp -= pow * (exp / pow);
             pow /= 10;
         } 
@@ -310,7 +311,7 @@ static unsigned float_to_exp_str(char *outbfr, float flt, unsigned dec_digits, u
 static int prints (
                      char **out,
                      const char *string, int width, int pad,
-                     unsigned int max_output_len, int *cur_output_char_p)
+                     unsigned int max_output_len, unsigned int *cur_output_char_p)
 {
     register int pc = 0, padchar = ' ';
     if (width > 0) {
@@ -344,7 +345,7 @@ static int prints (
     for (; width > 0; --width) {
         int result = printchar (
                    out,
-                   padchar, max_output_len,cur_output_char_p);
+                   padchar, max_output_len, cur_output_char_p);
         if (result < 0) return result;
         ++pc;
     }
@@ -358,7 +359,7 @@ static int printi (
                      char **out,
                      int i, uint base, int sign, int width, int pad,
                      int letbase, unsigned int max_output_len,
-                     int *cur_output_char_p, int use_leading_plus)
+                     unsigned int *cur_output_char_p, int use_leading_plus)
 {
     char print_buf[PRINT_BUF_LEN];
     char *s;
@@ -426,10 +427,10 @@ static int print (
     unsigned dec_width = 6 ;
     int pc = 0;
     char scr[2];
-    int cur_output_char = 0;
-    int *cur_output_char_p = &cur_output_char;
+    unsigned int cur_output_char = 0;
+    unsigned int *cur_output_char_p = &cur_output_char;
     int use_leading_plus = 0 ;  //  start out with this clear
-    uint8_t flag_long, flag_half;
+    uint8_t flag_half;
     int integer;
 
     max_output_len--; // make room for a trailing '\0'
@@ -479,11 +480,8 @@ static int print (
             }
             if (*format == 'l')
             {
-                ++format;
-                flag_long = 1;
+                ++format;  /* NOTE: ignored flag */
             }
-            else
-                flag_long = 0;
             if (*format == 'h')
             {
                 ++format;
@@ -531,6 +529,7 @@ static int print (
                 **out = 'x';
                 *out += 1;
                 pc += 2;
+			__fallthrough
             case 'X':
             {
                 integer = va_arg(vargs, int);
@@ -585,7 +584,7 @@ static int print (
 
             case 'e':
             {
-                float f = va_arg(vargs,double);
+                float f = (float)va_arg(vargs,double);
                 char bfr[81];
                 float_to_exp_str(bfr, f, 6, 2);
                 int result = prints ( out, bfr, width, pad, max_output_len, cur_output_char_p);

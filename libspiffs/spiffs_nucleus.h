@@ -304,49 +304,53 @@
 #define SPIFFS_CHECK_RES(res) \
   do { \
     if ((res) < SPIFFS_OK) return (res); \
-  } while (0);
+  } while (0)
 
 #define SPIFFS_API_CHECK_MOUNT(fs) \
-  if (!SPIFFS_CHECK_MOUNT((fs))) { \
-    (fs)->err_code = SPIFFS_ERR_NOT_MOUNTED; \
-    return SPIFFS_ERR_NOT_MOUNTED; \
-  }
+  do { if (!SPIFFS_CHECK_MOUNT((fs))) { \
+        (fs)->err_code = SPIFFS_ERR_NOT_MOUNTED; \
+        return SPIFFS_ERR_NOT_MOUNTED; } \
+  } while(0)
 
 #define SPIFFS_API_CHECK_CFG(fs) \
-  if (!SPIFFS_CHECK_CFG((fs))) { \
-    (fs)->err_code = SPIFFS_ERR_NOT_CONFIGURED; \
-    return SPIFFS_ERR_NOT_CONFIGURED; \
-  }
+  do { if (!SPIFFS_CHECK_CFG((fs))) { \
+      (fs)->err_code = SPIFFS_ERR_NOT_CONFIGURED; \
+      return SPIFFS_ERR_NOT_CONFIGURED; } \
+  } while(0) 
 
 #define SPIFFS_API_CHECK_RES(fs, res) \
-  if ((res) < SPIFFS_OK) { \
-    (fs)->err_code = (res); \
-    return (res); \
-  }
+  do { if ((res) < SPIFFS_OK) { \
+        (fs)->err_code = (res); \
+        return (res); }\
+  } while(0)
 
 #define SPIFFS_API_CHECK_RES_UNLOCK(fs, res) \
-  if ((res) < SPIFFS_OK) { \
-    (fs)->err_code = (res); \
-    SPIFFS_UNLOCK(fs); \
-    return (res); \
-  }
+  do { if ((res) < SPIFFS_OK) { \
+        (fs)->err_code = (res); \
+        SPIFFS_UNLOCK(fs); \
+        return (res); } \
+  } while(0)
 
 #define SPIFFS_VALIDATE_OBJIX(ph, objid, spix) \
+  do { \
     if (((ph).flags & SPIFFS_PH_FLAG_USED) != 0) return SPIFFS_ERR_IS_FREE; \
     if (((ph).flags & SPIFFS_PH_FLAG_DELET) == 0) return SPIFFS_ERR_DELETED; \
     if (((ph).flags & SPIFFS_PH_FLAG_FINAL) != 0) return SPIFFS_ERR_NOT_FINALIZED; \
     if (((ph).flags & SPIFFS_PH_FLAG_INDEX) != 0) return SPIFFS_ERR_NOT_INDEX; \
     if (((objid) & SPIFFS_OBJ_ID_IX_FLAG) == 0) return SPIFFS_ERR_NOT_INDEX; \
-    if ((ph).span_ix != (spix)) return SPIFFS_ERR_INDEX_SPAN_MISMATCH;
-    //if ((spix) == 0 && ((ph).flags & SPIFFS_PH_FLAG_IXDELE) == 0) return SPIFFS_ERR_DELETED;
+    if ((ph).span_ix != (spix)) return SPIFFS_ERR_INDEX_SPAN_MISMATCH; \
+  } while(0)
+    //if ((spix) == 0 && ((ph).flags & SPIFFS_PH_FLAG_IXDELE) == 0) return SPIFFS_ERR_DELETED; 
 
 #define SPIFFS_VALIDATE_DATA(ph, objid, spix) \
+  do { \
     if (((ph).flags & SPIFFS_PH_FLAG_USED) != 0) return SPIFFS_ERR_IS_FREE; \
     if (((ph).flags & SPIFFS_PH_FLAG_DELET) == 0) return SPIFFS_ERR_DELETED; \
     if (((ph).flags & SPIFFS_PH_FLAG_FINAL) != 0) return SPIFFS_ERR_NOT_FINALIZED; \
     if (((ph).flags & SPIFFS_PH_FLAG_INDEX) == 0) return SPIFFS_ERR_IS_INDEX; \
     if ((objid) & SPIFFS_OBJ_ID_IX_FLAG) return SPIFFS_ERR_IS_INDEX; \
-    if ((ph).span_ix != (spix)) return SPIFFS_ERR_DATA_SPAN_MISMATCH;
+    if ((ph).span_ix != (spix)) return SPIFFS_ERR_DATA_SPAN_MISMATCH; \
+  } while(0)
 
 
 // check id, only visit matching objec ids
