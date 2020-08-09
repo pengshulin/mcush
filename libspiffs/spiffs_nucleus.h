@@ -409,24 +409,24 @@ typedef struct {
   u8_t ix;
   // last access of this cache page
   u32_t last_access;
-  union {
+  union __cache_t {
     // type read cache
-    struct {
+    struct __cache_r_t {
       // read cache page index
       spiffs_page_ix pix;
-    };
+    } r;
 #if SPIFFS_CACHE_WR
     // type write cache
-    struct {
+    struct __cache_w_t {
       // write cache
       spiffs_obj_id obj_id;
       // offset in cache page
       u32_t offset;
       // size of cache page
       u16_t size;
-    };
+    } w;
 #endif
-  };
+  } cache;
 } spiffs_cache_page;
 
 // cache struct

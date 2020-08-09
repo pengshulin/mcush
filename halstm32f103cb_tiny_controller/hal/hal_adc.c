@@ -69,7 +69,7 @@ const int _ADC_REG_SEQ_SCAN_ENABLE_RANKS_LIST[] = {
     };
 
  
-float adc_int12_to_voltage(int val)
+static float adc_int12_to_voltage(int val)
 {
     float ret = val;
 #if defined(HAL_ADC_VREF)

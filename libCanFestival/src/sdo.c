@@ -753,7 +753,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 	UNS8 line = 0;
 	UNS32 nbBytes; 		/* received or to be transmited. */
 	UNS8 nodeId = 0;  	/* The node Id of the server if client otherwise unused */
-	UNS8 CliServNbr;
+	UNS8 CliServNbr = 0;
 	UNS8 whoami = SDO_UNKNOWN;  /* SDO_SERVER or SDO_CLIENT.*/
 	UNS32 errorCode; /* while reading or writing in the local object dictionary.*/
 	UNS8 data[8];    /* data for SDO to transmit */
@@ -761,7 +761,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 	UNS8 subIndex;
 	UNS32 abortCode;
 	UNS32 i;
-	UNS8	j;
+	UNS8 j;
 	UNS32 *pCobId = NULL;
 	UNS16 offset;
 	UNS16 lastIndex;
@@ -899,7 +899,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 				MSG_WAR(0x3A73, "SDO. Send response to download request defined at index 0x1200 + ", CliServNbr);
 				sendSDO(d, whoami, CliServNbr, data);
 				/* Inverting the toggle for the next segment. */
-				d->transfers[line].toggle = (UNS8)(! d->transfers[line].toggle & 1);
+				d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
 				/* If it was the last segment, */
 				if (getSDOc(m->data[0])) {
 					/* Transfering line data to object dictionary. */
@@ -944,7 +944,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 					return 0xFF;
 				}
 				/* Inverting the toggle for the next segment. */
-				d->transfers[line].toggle = (UNS8)(! d->transfers[line].toggle & 1);
+				d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
 				/* If it was the last segment,*/
 				if ( getSDOc(m->data[0])) {
 					/* Put in state finished */
@@ -1071,7 +1071,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 				if (nbBytes > 7) {
 					/* several segments to download.*/
 					/* code to send the next segment. (cs = 0; c = 0) */
-					d->transfers[line].toggle = (UNS8)(! d->transfers[line].toggle & 1);
+					d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
 					data[0] = (UNS8)(d->transfers[line].toggle << 4);
 					err = lineToSDO(d, line, 7, data + 1);
 					if (err) {
@@ -1082,7 +1082,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 				else {
 					/* Last segment. */
 					/* code to send the last segment. (cs = 0; c = 1)*/
-					d->transfers[line].toggle = (UNS8)(! d->transfers[line].toggle & 1);
+					d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
 					data[0] = (UNS8)((d->transfers[line].toggle << 4) | ((7 - nbBytes) << 1) | 1);
 					err = lineToSDO(d, line, nbBytes, data + 1);
 					if (err) {
@@ -1257,7 +1257,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 						return 0xFF;
 					}
 					/* Inverting the toggle for the next tranfert. */
-					d->transfers[line].toggle = (UNS8)(! d->transfers[line].toggle & 1);
+					d->transfers[line].toggle = (UNS8)(! (d->transfers[line].toggle & 1));
 					MSG_WAR(0x3AA3, "SDO. Sending upload segment defined at index 0x1200 + ", CliServNbr);
 					sendSDO(d, whoami, CliServNbr, data);
 				}
@@ -1443,7 +1443,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
 					    return 0xFF;
 				    }
 				    /* Reset the wathdog */
-				    RestartSDO_TIMER(line);
+				    RestartSDO_TIMER(line)
 				    /* Uploading first or next block */
 				    index = d->transfers[line].index;
 				    subIndex = d->transfers[line].subIndex;
@@ -1612,7 +1612,7 @@ UNS8 proceedSDO (CO_Data* d, Message *m)
     				    failedSDO(d, CliServNbr, whoami, 0, 0, SDOABT_LOCAL_CTRL_ERROR);
 	    			    return 0xFF;
 				    }
-					index = getSDOindex(m->data[1],m->data[2]);
+					index = (UNS16)getSDOindex(m->data[1],m->data[2]);
 					subIndex = getSDOsubIndex(m->data[3]);
 					MSG_WAR(0x3A9B, "Received SDO block download initiate defined at index 0x1200 + ",
 						CliServNbr);

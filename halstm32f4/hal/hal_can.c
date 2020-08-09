@@ -137,8 +137,8 @@ void hal_can_deinit( void )
 
     if( _inited )
     {
-        vQueueDelete( hal_can_queue_rx );
-        vQueueDelete( hal_can_queue_tx );
+        os_queue_delete( hal_can_queue_rx );
+        os_queue_delete( hal_can_queue_tx );
         hal_can_queue_rx = 0;
         hal_can_queue_tx = 0;
 

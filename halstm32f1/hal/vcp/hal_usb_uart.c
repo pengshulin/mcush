@@ -35,6 +35,7 @@ os_queue_handle_t hal_vcp_queue_tx;
 os_semaphore_handle_t hal_vcp_sem_tx;
 
 
+
 /* NOTE: call this hook in ST/USB_Device_Library/usbd_cdc.c/USBD_CDC_DataIn function */
 void hal_vcp_tx_done_isr_hook(void)
 {

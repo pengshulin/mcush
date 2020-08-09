@@ -21,7 +21,7 @@ void hal_spiffs_flash_init(void)
 #if USE_LOCK
     mutex_spiflash = os_mutex_create();
     if( mutex_spiflash == NULL )
-        halt("spiflash semphr create"); 
+        halt("spiflash mutex create"); 
 #endif
     sFLASH_Init();
 }
@@ -74,7 +74,7 @@ s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 #if USE_LOCK
     os_mutex_get( mutex_spiflash, -1 );
 #endif
-    sFLASH_ReadBuffer(dst, addr, size);
+    sFLASH_ReadBuffer(dst, addr, (uint16_t)size);
 #if USE_LOCK
     os_mutex_put( mutex_spiflash );
 #endif
@@ -87,7 +87,7 @@ s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
 #if USE_LOCK
     os_mutex_get( mutex_spiflash, -1 );
 #endif
-    sFLASH_WriteBuffer(src, addr, size);
+    sFLASH_WriteBuffer(src, addr, (uint16_t)size);
 #if USE_LOCK
     os_mutex_put( mutex_spiflash );
 #endif

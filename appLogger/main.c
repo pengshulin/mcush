@@ -14,6 +14,8 @@ static void cb_timer_event_generator( os_timer_handle_t timer )
 {
     static int msgid=0;
     char buf[50];
+
+    (void)timer;
     //hal_led_toggle(1);
     sprintf( buf, "This is a demo log event %d!", msgid++ );
     logger_info( buf );

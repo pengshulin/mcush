@@ -19,7 +19,7 @@ static spiffs_cache_page *spiffs_cache_page_get(spiffs *fs, spiffs_page_ix pix) 
     spiffs_cache_page *cp = spiffs_get_cache_page_hdr(fs, cache, i);
     if ((cache->cpage_use_map & (1<<i)) &&
         (cp->flags & SPIFFS_CACHE_FLAG_TYPE_WR) == 0 &&
-        cp->pix == pix ) {
+        cp->cache.r.pix == pix ) {
       //SPIFFS_CACHE_DBG("CACHE_GET: have cache page "_SPIPRIi" for "_SPIPRIpg"\n", i, pix);
       cp->last_access = cache->last_access;
       return cp;
@@ -40,7 +40,7 @@ static s32_t spiffs_cache_page_free(spiffs *fs, int ix, u8_t write_back) {
         (cp->flags & SPIFFS_CACHE_FLAG_DIRTY)) {
       u8_t *mem =  spiffs_get_cache_page(fs, cache, ix);
       SPIFFS_CACHE_DBG("CACHE_FREE: write cache page "_SPIPRIi" pix "_SPIPRIpg"\n", ix, cp->pix);
-      res = SPIFFS_HAL_WRITE(fs, SPIFFS_PAGE_TO_PADDR(fs, cp->pix), SPIFFS_CFG_LOG_PAGE_SZ(fs), mem);
+      res = SPIFFS_HAL_WRITE(fs, SPIFFS_PAGE_TO_PADDR(fs, cp->cache.r.pix), SPIFFS_CFG_LOG_PAGE_SZ(fs), mem);
     }
 
 #if SPIFFS_CACHE_WR
@@ -130,7 +130,7 @@ s32_t spiffs_phys_rd(
   (void)fh;
   s32_t res = SPIFFS_OK;
   spiffs_cache *cache = spiffs_get_cache(fs);
-  spiffs_cache_page *cp =  spiffs_cache_page_get(fs, SPIFFS_PADDR_TO_PAGE(fs, addr));
+  spiffs_cache_page *cp =  spiffs_cache_page_get(fs, (spiffs_page_ix)SPIFFS_PADDR_TO_PAGE(fs, addr));
   cache->last_access++;
   if (cp) {
     // we've already got one, you see
@@ -155,7 +155,7 @@ s32_t spiffs_phys_rd(
     cp = spiffs_cache_page_allocate(fs);
     if (cp) {
       cp->flags = SPIFFS_CACHE_FLAG_WRTHRU;
-      cp->pix = SPIFFS_PADDR_TO_PAGE(fs, addr);
+      cp->cache.r.pix = (spiffs_page_ix)SPIFFS_PADDR_TO_PAGE(fs, addr);
       SPIFFS_CACHE_DBG("CACHE_ALLO: allocated cache page "_SPIPRIi" for pix "_SPIPRIpg "\n", cp->ix, cp->pix);
 
       s32_t res2 = SPIFFS_HAL_READ(fs,
@@ -189,7 +189,7 @@ s32_t spiffs_phys_wr(
     u32_t len,
     u8_t *src) {
   (void)fh;
-  spiffs_page_ix pix = SPIFFS_PADDR_TO_PAGE(fs, addr);
+  spiffs_page_ix pix = (spiffs_page_ix)SPIFFS_PADDR_TO_PAGE(fs, addr);
   spiffs_cache *cache = spiffs_get_cache(fs);
   spiffs_cache_page *cp =  spiffs_cache_page_get(fs, pix);
 
@@ -237,7 +237,7 @@ spiffs_cache_page *spiffs_cache_page_get_by_fd(spiffs *fs, spiffs_fd *fd) {
     spiffs_cache_page *cp = spiffs_get_cache_page_hdr(fs, cache, i);
     if ((cache->cpage_use_map & (1<<i)) &&
         (cp->flags & SPIFFS_CACHE_FLAG_TYPE_WR) &&
-        cp->obj_id == fd->obj_id) {
+        cp->cache.w.obj_id == fd->obj_id) {
       return cp;
     }
   }
@@ -258,7 +258,7 @@ spiffs_cache_page *spiffs_cache_page_allocate_by_fd(spiffs *fs, spiffs_fd *fd) {
   }
 
   cp->flags = SPIFFS_CACHE_FLAG_TYPE_WR;
-  cp->obj_id = fd->obj_id;
+  cp->cache.w.obj_id = fd->obj_id;
   fd->cache_page = cp;
   SPIFFS_CACHE_DBG("CACHE_ALLO: allocated cache page "_SPIPRIi" for fd "_SPIPRIfd ":"_SPIPRIid "\n", cp->ix, fd->file_nbr, fd->obj_id);
   return cp;
@@ -277,7 +277,7 @@ void spiffs_cache_fd_release(spiffs *fs, spiffs_cache_page *cp) {
   }
   spiffs_cache_page_free(fs, cp->ix, 0);
 
-  cp->obj_id = 0;
+  cp->cache.w.obj_id = 0;
 }
 
 #endif
@@ -299,7 +299,7 @@ void spiffs_cache_init(spiffs *fs) {
 
   spiffs_cache cache;
   memset(&cache, 0, sizeof(spiffs_cache));
-  cache.cpage_count = cache_entries;
+  cache.cpage_count = (u8_t)cache_entries;
   cache.cpages = (u8_t *)((u8_t *)fs->cache + sizeof(spiffs_cache));
 
   cache.cpage_use_map = 0xffffffff;
@@ -312,7 +312,7 @@ void spiffs_cache_init(spiffs *fs) {
 
   c->cpage_use_map &= ~(c->cpage_use_mask);
   for (i = 0; i < cache.cpage_count; i++) {
-    spiffs_get_cache_page_hdr(fs, c, i)->ix = i;
+    spiffs_get_cache_page_hdr(fs, c, i)->ix = (u8_t)i;
   }
 }
 

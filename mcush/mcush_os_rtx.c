@@ -361,30 +361,48 @@ int os_semaphore_get_isr( os_semaphore_handle_t semaphore )
 os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback )
 {
     osTimerAttr_t attr;
+    osTimerId_t id;
+    os_timer_t *tmr;
 
     (void)period_ticks;
     memset( (void*)&attr, 0, sizeof(attr) );
     attr.name = name;
-    return osTimerNew( callback, repeat_mode ? osTimerPeriodic : osTimerOnce, 0, &attr );
+    id = osTimerNew( callback, repeat_mode ? osTimerPeriodic : osTimerOnce, 0, &attr );
+    if( id != NULL )
+    {
+        tmr = osRtxTimerId( id );
+        tmr->load = (uint32_t)period_ticks; 
+    }
+    return id;
 }
 
 
 os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer )
 {
     osTimerAttr_t attr;
+    osTimerId_t id;
+    os_timer_t *tmr;
 
     (void)period_ticks;
     memset( (void*)&attr, 0, sizeof(attr) );
     attr.name = name;
     attr.cb_mem = (void*)buffer;
     attr.cb_size = sizeof(osRtxTimer_t);
-    return osTimerNew( callback, repeat_mode ? osTimerPeriodic : osTimerOnce, 0, &attr );
+    id = osTimerNew( callback, repeat_mode ? osTimerPeriodic : osTimerOnce, 0, &attr );
+    if( id != NULL )
+    {
+        tmr = osRtxTimerId( id );
+        tmr->load = (uint32_t)period_ticks; 
+    }
+    return id;
 }
 
 
 int os_timer_start( os_timer_handle_t timer )
 {
-    if( osTimerStart( timer, 0 ) == osOK )
+    os_timer_t *tmr = osRtxTimerId( timer );
+
+    if( (tmr != NULL) && (osTimerStart( timer, tmr->load ) == osOK) )
         return 1;
     else
         return 0;

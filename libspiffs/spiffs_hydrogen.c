@@ -225,14 +225,14 @@ spiffs_file SPIFFS_open(spiffs *fs, const char *path, spiffs_flags flags, spiffs
 #endif // SPIFFS_READ_ONLY
 
   s32_t res = spiffs_fd_find_new(fs, &fd, path);
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
 
   res = spiffs_object_find_object_index_header_by_name(fs, (const u8_t*)path, &pix);
   if ((flags & SPIFFS_O_CREAT) == 0) {
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
 
   if (res == SPIFFS_OK &&
@@ -240,7 +240,7 @@ spiffs_file SPIFFS_open(spiffs *fs, const char *path, spiffs_flags flags, spiffs
     // creat and excl and file exists - fail
     res = SPIFFS_ERR_FILE_EXISTS;
     spiffs_fd_return(fs, fd->file_nbr);
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
 
   if ((flags & SPIFFS_O_CREAT) && res == SPIFFS_ERR_NOT_FOUND) {
@@ -251,32 +251,32 @@ spiffs_file SPIFFS_open(spiffs *fs, const char *path, spiffs_flags flags, spiffs
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
     res = spiffs_object_create(fs, obj_id, (const u8_t*)path, 0, SPIFFS_TYPE_FILE, &pix);
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
     flags &= ~SPIFFS_O_TRUNC;
 #endif // !SPIFFS_READ_ONLY
   } else {
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
   res = spiffs_object_open_by_page(fs, pix, fd, flags, mode);
   if (res < SPIFFS_OK) {
     spiffs_fd_return(fs, fd->file_nbr);
   }
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
 #if !SPIFFS_READ_ONLY
   if (flags & SPIFFS_O_TRUNC) {
     res = spiffs_object_truncate(fd, 0, 0);
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
 #endif // !SPIFFS_READ_ONLY
 
@@ -296,20 +296,20 @@ spiffs_file SPIFFS_open_by_dirent(spiffs *fs, struct spiffs_dirent *e, spiffs_fl
   spiffs_fd *fd;
 
   s32_t res = spiffs_fd_find_new(fs, &fd, 0);
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
 
   res = spiffs_object_open_by_page(fs, e->pix, fd, flags, mode);
   if (res < SPIFFS_OK) {
     spiffs_fd_return(fs, fd->file_nbr);
   }
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
 #if !SPIFFS_READ_ONLY
   if (flags & SPIFFS_O_TRUNC) {
     res = spiffs_object_truncate(fd, 0, 0);
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
 #endif // !SPIFFS_READ_ONLY
 
@@ -329,12 +329,12 @@ spiffs_file SPIFFS_open_by_page(spiffs *fs, spiffs_page_ix page_ix, spiffs_flags
   spiffs_fd *fd;
 
   s32_t res = spiffs_fd_find_new(fs, &fd, 0);
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
 
   if (SPIFFS_IS_LOOKUP_PAGE(fs, page_ix)) {
     res = SPIFFS_ERR_NOT_A_FILE;
     spiffs_fd_return(fs, fd->file_nbr);
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
 
   res = spiffs_object_open_by_page(fs, page_ix, fd, flags, mode);
@@ -348,7 +348,7 @@ spiffs_file SPIFFS_open_by_page(spiffs *fs, spiffs_page_ix page_ix, spiffs_flags
   if (res < SPIFFS_OK) {
     spiffs_fd_return(fs, fd->file_nbr);
   }
-  SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+  SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
 
 #if !SPIFFS_READ_ONLY
   if (flags & SPIFFS_O_TRUNC) {
@@ -356,7 +356,7 @@ spiffs_file SPIFFS_open_by_page(spiffs *fs, spiffs_page_ix page_ix, spiffs_flags
     if (res < SPIFFS_OK) {
       spiffs_fd_return(fs, fd->file_nbr);
     }
-    SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
+    SPIFFS_API_CHECK_RES_UNLOCK(fs, (spiffs_file)res);
   }
 #endif // !SPIFFS_READ_ONLY
 
@@ -497,7 +497,7 @@ s32_t SPIFFS_write(spiffs *fs, spiffs_file fh, void *buf, s32_t len) {
     }
 #if SPIFFS_CACHE_WR
     if (fd->cache_page) {
-      offset = MAX(offset, fd->cache_page->offset + fd->cache_page->size);
+      offset = MAX(offset, fd->cache_page->cache.w.offset + fd->cache_page->cache.w.size);
     }
 #endif
   }
@@ -509,16 +509,16 @@ s32_t SPIFFS_write(spiffs *fs, spiffs_file fh, void *buf, s32_t len) {
       u8_t alloc_cpage = 1;
       if (fd->cache_page) {
         // have a cached page for this fd already, check cache page boundaries
-        if (offset < fd->cache_page->offset || // writing before cache
-            offset > fd->cache_page->offset + fd->cache_page->size || // writing after cache
-            offset + len > fd->cache_page->offset + SPIFFS_CFG_LOG_PAGE_SZ(fs)) // writing beyond cache page
+        if (offset < fd->cache_page->cache.w.offset || // writing before cache
+            offset > fd->cache_page->cache.w.offset + fd->cache_page->cache.w.size || // writing after cache
+            offset + len > fd->cache_page->cache.w.offset + SPIFFS_CFG_LOG_PAGE_SZ(fs)) // writing beyond cache page
         {
           // boundary violation, write back cache first and allocate new
           SPIFFS_CACHE_DBG("CACHE_WR_DUMP: dumping cache page "_SPIPRIi" for fd "_SPIPRIfd":"_SPIPRIid", boundary viol, offs:"_SPIPRIi" size:"_SPIPRIi"\n",
               fd->cache_page->ix, fd->file_nbr, fd->obj_id, fd->cache_page->offset, fd->cache_page->size);
           res = spiffs_hydro_write(fs, fd,
               spiffs_get_cache_page(fs, spiffs_get_cache(fs), fd->cache_page->ix),
-              fd->cache_page->offset, fd->cache_page->size);
+              fd->cache_page->cache.w.offset, fd->cache_page->cache.w.size);
           spiffs_cache_fd_release(fs, fd->cache_page);
           SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
         } else {
@@ -530,15 +530,15 @@ s32_t SPIFFS_write(spiffs *fs, spiffs_file fh, void *buf, s32_t len) {
       if (alloc_cpage) {
         fd->cache_page = spiffs_cache_page_allocate_by_fd(fs, fd);
         if (fd->cache_page) {
-          fd->cache_page->offset = offset;
-          fd->cache_page->size = 0;
+          fd->cache_page->cache.w.offset = offset;
+          fd->cache_page->cache.w.size = 0;
           SPIFFS_CACHE_DBG("CACHE_WR_ALLO: allocating cache page "_SPIPRIi" for fd "_SPIPRIfd":"_SPIPRIid"\n",
               fd->cache_page->ix, fd->file_nbr, fd->obj_id);
         }
       }
 
       if (fd->cache_page) {
-        u32_t offset_in_cpage = offset - fd->cache_page->offset;
+        u32_t offset_in_cpage = offset - fd->cache_page->cache.w.offset;
         SPIFFS_CACHE_DBG("CACHE_WR_WRITE: storing to cache page "_SPIPRIi" for fd "_SPIPRIfd":"_SPIPRIid", offs "_SPIPRIi":"_SPIPRIi" len "_SPIPRIi"\n",
             fd->cache_page->ix, fd->file_nbr, fd->obj_id,
             offset, offset_in_cpage, len);
@@ -556,7 +556,7 @@ s32_t SPIFFS_write(spiffs *fs, spiffs_file fh, void *buf, s32_t len) {
         }
 #endif
         _SPIFFS_MEMCPY(&cpage_data[offset_in_cpage], buf, len);
-        fd->cache_page->size = MAX(fd->cache_page->size, offset_in_cpage + len);
+        fd->cache_page->cache.w.size = MAX(fd->cache_page->cache.w.size, (u16_t)(offset_in_cpage + len));
         fd->fdoffset += len;
         SPIFFS_UNLOCK(fs);
         return len;
@@ -575,7 +575,7 @@ s32_t SPIFFS_write(spiffs *fs, spiffs_file fh, void *buf, s32_t len) {
             fd->cache_page->ix, fd->file_nbr, fd->obj_id, fd->cache_page->offset, fd->cache_page->size);
         res = spiffs_hydro_write(fs, fd,
             spiffs_get_cache_page(fs, spiffs_get_cache(fs), fd->cache_page->ix),
-            fd->cache_page->offset, fd->cache_page->size);
+            fd->cache_page->cache.w.offset, fd->cache_page->cache.w.size);
         spiffs_cache_fd_release(fs, fd->cache_page);
         SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
         // data written below
@@ -629,8 +629,8 @@ s32_t SPIFFS_lseek(spiffs *fs, spiffs_file fh, s32_t offs, int whence) {
   }
   SPIFFS_API_CHECK_RES_UNLOCK(fs, res);
 
-  spiffs_span_ix data_spix = (offs > 0 ? (offs-1) : 0) / SPIFFS_DATA_PAGE_SIZE(fs);
-  spiffs_span_ix objix_spix = SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
+  spiffs_span_ix data_spix = (spiffs_span_ix)((offs > 0 ? (offs-1) : 0) / SPIFFS_DATA_PAGE_SIZE(fs));
+  spiffs_span_ix objix_spix = (spiffs_span_ix)SPIFFS_OBJ_IX_ENTRY_SPAN_IX(fs, data_spix);
   if (fd->cursor_objix_spix != objix_spix) {
     spiffs_page_ix pix;
     res = spiffs_obj_lu_find_id_and_span(
@@ -819,7 +819,7 @@ static s32_t spiffs_fflush_cache(spiffs *fs, spiffs_file fh) {
           fd->cache_page->ix, fd->file_nbr,  fd->obj_id, fd->cache_page->offset, fd->cache_page->size);
       res = spiffs_hydro_write(fs, fd,
           spiffs_get_cache_page(fs, spiffs_get_cache(fs), fd->cache_page->ix),
-          fd->cache_page->offset, fd->cache_page->size);
+          fd->cache_page->cache.w.offset, fd->cache_page->cache.w.size);
       if (res < SPIFFS_OK) {
         fs->err_code = res;
       }
@@ -1037,7 +1037,7 @@ static s32_t spiffs_read_dir_v(
     return SPIFFS_VIS_COUNTINUE;
   }
 
-  spiffs_page_ix pix = SPIFFS_OBJ_LOOKUP_ENTRY_TO_PIX(fs, bix, ix_entry);
+  spiffs_page_ix pix = (spiffs_page_ix)SPIFFS_OBJ_LOOKUP_ENTRY_TO_PIX(fs, bix, ix_entry);
   res = _spiffs_rd(fs, SPIFFS_OP_T_OBJ_LU2 | SPIFFS_OP_C_READ,
       0, SPIFFS_PAGE_TO_PADDR(fs, pix), sizeof(spiffs_page_object_ix_header), (u8_t *)&objix_hdr);
   if (res != SPIFFS_OK) return res;
@@ -1268,8 +1268,8 @@ s32_t SPIFFS_ix_map(spiffs *fs,  spiffs_file fh, spiffs_ix_map *map,
   map->map_buf = map_buf;
   map->offset = offset;
   // nb: spix range includes last
-  map->start_spix = offset / SPIFFS_DATA_PAGE_SIZE(fs);
-  map->end_spix = (offset + len) / SPIFFS_DATA_PAGE_SIZE(fs);
+  map->start_spix = (spiffs_span_ix)(offset / SPIFFS_DATA_PAGE_SIZE(fs));
+  map->end_spix = (spiffs_span_ix)((offset + len) / SPIFFS_DATA_PAGE_SIZE(fs));
   memset(map_buf, 0, sizeof(spiffs_page_ix) * (map->end_spix - map->start_spix + 1));
   fd->ix_map = map;
 

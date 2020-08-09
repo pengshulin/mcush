@@ -16,7 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include <unistd.h>
+//#include <unistd.h>
 // ----------- >8 ------------
 
 // compile time switches

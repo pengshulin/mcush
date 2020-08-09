@@ -1,5 +1,6 @@
 #include "hal.h"
 
+#ifdef FCFS_ADDR
 
 int hal_fcfs_erase(void)
 {
@@ -34,4 +35,6 @@ int hal_fcfs_program(int offset, int *buf, int length)
     HAL_FLASH_Lock();
     return length ? 0 : 1; 
 }
+
+#endif
 
