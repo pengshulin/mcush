@@ -1,4 +1,4 @@
-#include "hal.h"
+#include "mcush.h"
 
 void NMI_Handler(void);
 void HardFault_Handler(void);
@@ -9,37 +9,37 @@ void DebugMon_Handler(void);
 
 
 
-void NMI_Handler(void)
+__weak void NMI_Handler(void)
 {
     while(1);
 }
 
 
-void HardFault_Handler(void)
+__weak void HardFault_Handler(void)
 {
     while(1);
 }
 
 
-void MemManage_Handler(void)
+__weak void MemManage_Handler(void)
 {
     while(1);
 }
 
 
-void BusFault_Handler(void)
+__weak void BusFault_Handler(void)
 {
     while(1);
 }
 
 
-void UsageFault_Handler(void)
+__weak void UsageFault_Handler(void)
 {
     while(1);
 }
 
 
-void DebugMon_Handler(void)
+__weak void DebugMon_Handler(void)
 {
     while (1);
 }

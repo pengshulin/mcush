@@ -26,6 +26,14 @@ extern "C" {
 
     #define __no_return __attribute__((__noreturn__))
 
+    #if defined(__ARM_BIG_ENDIAN)
+        #define __big_endian  1
+        #define __little_endian  0
+    #else
+        #define __big_endian  0
+        #define __little_endian  1
+    #endif
+
 /* GCC or compatiable */
 #elif defined( __GNUC__ )
     #ifndef __weak
@@ -40,6 +48,15 @@ extern "C" {
     #if defined(__NEWLIB__)    
         #define SUPPORT_NEWLIB   1
     #endif
+
+    #if __BYTE_ORDER___ == __ORDER_BIG_ENDIAN__
+        #define __big_endian  1
+        #define __little_endian  0
+    #else
+        #define __big_endian  0
+        #define __little_endian  1
+    #endif
+
 
 #endif
 

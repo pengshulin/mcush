@@ -258,7 +258,7 @@ os_mutex_handle_t os_mutex_create_static( static_mutex_buffer_t *buf )
 }
 
 
-void os_mutex_delete( os_mutex_handle_t *mutex )
+void os_mutex_delete( os_mutex_handle_t mutex )
 {
     osMutexDelete( mutex );
 }
@@ -318,7 +318,7 @@ os_semaphore_handle_t os_semaphore_create_static( int max_count, int init_count,
 }
 
 
-void os_semaphore_delete( os_semaphore_handle_t *semaphore )
+void os_semaphore_delete( os_semaphore_handle_t semaphore )
 {
     osSemaphoreDelete( semaphore );
 }

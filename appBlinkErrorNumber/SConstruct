@@ -13,9 +13,11 @@ if haldir is None:
     haldir = 'stm32f407zg_eu'
     haldir = 'stm32f429ig_challenger'
     haldir = 'stm32f103cb_tiny_controller'
+    haldir = 'stm32f411ce_weact'
 
-RTOS = 'FREERTOS'
 RTOS = 'RTX'
+RTOS = 'FREERTOS'
+RTOS = 'RTTHREAD'
 
 #env = loadHalConfig( haldir ).env
 env = loadHalConfig( haldir, append_rtos=RTOS ).env

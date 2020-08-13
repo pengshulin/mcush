@@ -121,7 +121,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_SYSTEM
 {   CMD_HIDDEN,  0,  "sys",  cmd_system, 
     "system info",
-    "sys t|q" },
+    "sys t|k" },
 #endif
 #if USE_CMD_GPIO
 {   0,  0,  "gpio",  cmd_gpio, 
