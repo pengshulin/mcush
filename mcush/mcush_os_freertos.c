@@ -373,10 +373,10 @@ os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repea
 }
 
 
-os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer )
+os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buf )
 {
 #if OS_SUPPORT_STATIC_ALLOCATION
-    return xTimerCreateStatic( name, period_ticks, repeat_mode, 0, (TimerCallbackFunction_t)callback, (StaticTimer_t *)buffer );
+    return xTimerCreateStatic( name, period_ticks, repeat_mode, 0, (TimerCallbackFunction_t)callback, (StaticTimer_t *)buf );
 #else
     return NULL;
 #endif

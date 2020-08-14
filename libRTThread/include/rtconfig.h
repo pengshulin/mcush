@@ -4,8 +4,7 @@
 
 #define RT_NAME_MAX 8
 #define RT_ALIGN_SIZE 4
-#define RT_THREAD_PRIORITY_32
-#define RT_THREAD_PRIORITY_MAX 32
+#define RT_THREAD_PRIORITY_MAX 8
 #define RT_TICK_PER_SECOND 250
 #define RT_USING_OVERFLOW_CHECK
 #define RT_USING_HOOK
@@ -25,9 +24,9 @@
 #define RT_USING_SMALL_MEM
 #define RT_USING_HEAP
 
-#define ARCH_ARM
-#define ARCH_ARM_CORTEX_M
-#define ARCH_ARM_CORTEX_M3
+//#define ARCH_ARM
+//#define ARCH_ARM_CORTEX_M
+//#define ARCH_ARM_CORTEX_M3
 
 
 

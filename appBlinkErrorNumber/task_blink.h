@@ -7,8 +7,7 @@ extern "C" {
 #endif
 
 #define TASK_BLINK_STACK_SIZE  (200)
-#define TASK_BLINK_PRIORITY    (MCUSH_PRIORITY)
-#define TASK_BLINK_QUEUE_SIZE  (4)
+#define TASK_BLINK_PRIORITY    (OS_PRIORITY_NORMAL)
 
 void task_blink_init(void);
 void task_blink_entry(void *p);

@@ -377,7 +377,7 @@ os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repea
 }
 
 
-os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer )
+os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buf )
 {
     osTimerAttr_t attr;
     osTimerId_t id;
@@ -386,7 +386,7 @@ os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, in
     (void)period_ticks;
     memset( (void*)&attr, 0, sizeof(attr) );
     attr.name = name;
-    attr.cb_mem = (void*)buffer;
+    attr.cb_mem = (void*)buf;
     attr.cb_size = sizeof(osRtxTimer_t);
     id = osTimerNew( callback, repeat_mode ? osTimerPeriodic : osTimerOnce, 0, &attr );
     if( id != NULL )

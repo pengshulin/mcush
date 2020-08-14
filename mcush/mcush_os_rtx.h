@@ -31,8 +31,6 @@ typedef osMessageQueueId_t os_queue_handle_t;
 typedef osMutexId_t os_mutex_handle_t;
 typedef osSemaphoreId_t os_semaphore_handle_t;
 typedef osTimerId_t os_timer_handle_t;
-typedef void (*os_timer_callback_t)( os_timer_handle_t timer );
-typedef void (*os_task_function_t)( void *arg );
 
 
 typedef struct

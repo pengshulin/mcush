@@ -64,7 +64,7 @@
    found the logger queue blocked, check if some other tasks refuse to
    give back the cpu */
 #ifndef TASK_LOGGER_PRIORITY
-    #define TASK_LOGGER_PRIORITY    (TASK_IDLE_PRIORITY+1)
+    #define TASK_LOGGER_PRIORITY    (OS_PRIORITY_LOWEST)
 #endif
 
 /* default queue size */

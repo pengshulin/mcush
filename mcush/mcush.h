@@ -27,16 +27,18 @@ extern "C" {
 
 
 /* task priority
- * 6 -- highest (timer task)
- * 5 -- reserved
- * 4 -- reserved
- * 3 -- shell task default
- * 2 -- reserved
- * 1 -- reserved
- * 0 -- lowest (idle task)
+ * HIGHEST -- highest (timer task)
+ * ... (reserved)
+ * HIGHER -- reserved
+ * HIGH   -- reserved
+ * NORMAL -- shell task default
+ * LOW    -- reserved
+ * LOWER  -- reserved
+ * ... (reserved)
+ * LOWEST -- lowest (idle task)
  */
+
 #ifndef MCUSH_PRIORITY
-    //#define MCUSH_PRIORITY  (3)
     #define MCUSH_PRIORITY  (OS_PRIORITY_NORMAL)
 #endif
 

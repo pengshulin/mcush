@@ -40,9 +40,6 @@ typedef QueueHandle_t os_queue_handle_t;
 typedef SemaphoreHandle_t os_mutex_handle_t;
 typedef SemaphoreHandle_t os_semaphore_handle_t;
 typedef TimerHandle_t os_timer_handle_t;
-typedef void (*os_timer_callback_t)( os_timer_handle_t timer );
-typedef void (*os_task_function_t)( void *arg );
-
 
 typedef struct
 {
@@ -79,8 +76,6 @@ typedef StaticSemaphore_t static_semaphore_buffer_t;
 typedef StaticTimer_t static_timer_buffer_t;
 #define DEFINE_STATIC_TIMER_BUFFER( name )  \
     static static_timer_buffer_t static_timer_buffer_##name
-        
-
       
 
 #endif

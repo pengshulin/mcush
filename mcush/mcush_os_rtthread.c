@@ -8,25 +8,32 @@
 #if MCUSH_OS == OS_RTTHREAD
 
 
+extern char _sheap, _sstack;
 
 void os_init(void)
 {
+    rt_system_tick_init();
+    rt_system_object_init();
+    rt_system_timer_init();
+    rt_system_heap_init( (void*)&_sheap, (void*)&_sstack-1 );
     rt_system_scheduler_init();
 }
 
 
 void os_start(void)
 {
+    rt_system_timer_thread_init();
+    rt_thread_idle_init();
     rt_system_scheduler_start();
 }
 
 
 int os_is_running(void)
 {
-    //if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
+    if( rt_thread_self() != NULL )
         return 1;
-    //else
-    //    return 0;
+    else
+        return 0;
 }
 
 
@@ -169,7 +176,7 @@ os_queue_handle_t os_queue_create_static( const char *name, size_t queue_length,
 {
     rt_err_t err;
 
-    err = rt_mq_init( buf->control, name, buf->data, item_bytes, queue_length, 0 );
+    err = rt_mq_init( buf->control, name, buf->data, item_bytes, queue_length*(RT_ALIGN(item_bytes,RT_ALIGN_SIZE)+RT_ALIGN_SIZE), 0 );
     if( err == RT_EOK )
         return (os_queue_handle_t)buf->control;
     else
@@ -385,19 +392,23 @@ os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repea
     rt_timer_t timer;
 
     (void)repeat_mode;  // FIXME
-    timer = rt_timer_create( name, callback, NULL, period_ticks, 0 );
+    timer = rt_timer_create( name, (void*)callback, NULL, period_ticks, 0 );
     if( timer != RT_NULL )
+    {
+        timer->parameter = (void*)timer;
         return timer;
+    }
     else
         return NULL;
 }
 
 
-os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer )
+os_timer_handle_t os_timer_create_static( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buf )
 {
     (void)repeat_mode;  // FIXME
-    rt_timer_init( buffer, name, callback, NULL, period_ticks, 0 );
-    return buffer;
+    rt_timer_init( buf, name, (void*)callback, NULL, period_ticks, 0 );
+    buf->parameter = (void*)buf;
+    return buf;
 }
 
 
@@ -518,6 +529,13 @@ void os_kernel_info_print(void)
     shell_printf( "%d\n", OS_TICK_RATE );
 }
 
+
+void SysTick_Handler(void)
+{
+    rt_interrupt_enter();
+    rt_tick_increase();
+    rt_interrupt_leave();
+}
 
 
 

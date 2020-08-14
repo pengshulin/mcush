@@ -24,6 +24,9 @@
 #endif
 
 
+typedef void (*os_timer_callback_t)( os_timer_handle_t timer );
+typedef void (*os_task_function_t)( void *arg );
+
 /* APIS */
 
 void os_init(void);
@@ -84,7 +87,7 @@ int os_semaphore_get_isr( os_semaphore_handle_t semaphore );
 os_timer_handle_t os_timer_create( const char *name, int period_ticks,
          int repeat_mode, os_timer_callback_t callback );
 os_timer_handle_t os_timer_create_static( const char *name, int period_ticks,
-         int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buffer );
+         int repeat_mode, os_timer_callback_t callback, static_timer_buffer_t *buf );
 int os_timer_start( os_timer_handle_t timer );
 int os_timer_stop( os_timer_handle_t timer );
 int os_timer_reset( os_timer_handle_t timer );

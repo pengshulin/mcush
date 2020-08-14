@@ -15,16 +15,14 @@ if chip is None:
 else:
     print('set chip as %s'% chip)
 
-# search for elf file
-dbg_file = os.path.basename(os.getcwd())
-if dbg_file.startswith('app'):
-    dbg_file = dbg_file[3:]
-dbg_file += '_dbg.elf' if DEBUG else '.elf'
+# use scons assigned elf file
+from subprocess import check_output
+dbg_file = check_output(['scons','--quiet','name']).strip()+'.elf'
 if os.path.isfile( dbg_file ):
     print('found debug file %s'% dbg_file)
 else:
     dbg_file=None
-    print("not debug file found.")
+    print('not debug file found.')
     
 class dump_array(gdb.Command):
     fname = '/dev/shm/float_array'
