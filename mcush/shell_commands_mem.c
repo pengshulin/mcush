@@ -4,7 +4,9 @@
 
 
 #if USE_CMD_MAPI
+#if SUPPORT_NEWLIB
 #include <malloc.h>
+#endif
 int cmd_mapi( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {

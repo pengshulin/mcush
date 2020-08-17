@@ -1,8 +1,6 @@
 #ifndef __HAL_PLATFORM_H__
 #define __HAL_PLATFORM_H__
 
-#define LED_NORMAL  0
-#define LED_ERROR   0
 
 #define HAL_LED_NUM   1
 #define HAL_LED_PORTS  { 0 }

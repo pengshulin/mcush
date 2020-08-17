@@ -37,12 +37,10 @@ extern const GPIO_TypeDef * const ports[];
 
 os_queue_handle_t hal_can_queue_rx, hal_can_queue_tx;
 
-uint32_t hal_can_tx_counter;
-uint32_t hal_can_rx_counter;
-
-uint32_t can_baudrate=HAL_CAN_BAUDRATE_DEF;
-
 static uint8_t _inited;
+static uint32_t hal_can_tx_counter;
+static uint32_t hal_can_rx_counter;
+static uint32_t hal_can_baudrate=HAL_CAN_BAUDRATE_DEF;
 
 
 /* configuration table */
@@ -103,7 +101,7 @@ int hal_can_init( void )
     CAN_DeInit( HAL_CANx );
    
     /* CAN cell init */
-    hal_can_set_baudrate(can_baudrate);
+    hal_can_set_baudrate(hal_can_baudrate);
   
     /* CAN filter init */
     can_filter_init.CAN_FilterNumber = 0;
@@ -192,7 +190,7 @@ int hal_can_set_baudrate( int baudrate )
             can_init.CAN_RFLM = DISABLE;  // receive fifo locked mode
             can_init.CAN_TXFP = DISABLE;  // transmit fifo priority
             CAN_Init( HAL_CANx, &can_init );  
-            can_baudrate = baudrate;
+            hal_can_baudrate = baudrate;
             if( _inited )
                 CAN_OperatingModeRequest( HAL_CANx, CAN_OperatingMode_Normal );
             return 1;
@@ -204,7 +202,7 @@ int hal_can_set_baudrate( int baudrate )
 
 int hal_can_get_baudrate( void )
 {
-    return can_baudrate;
+    return hal_can_baudrate;
 }
 
 
@@ -213,7 +211,12 @@ int hal_can_filter_set( int index, can_filter_t *filter, int enabled )
     CAN_FilterInitTypeDef can_filter_init;
     int f, m;
 
+    /* CAN1/CAN2 shared filters */
+#if HAL_CAN2
     if( (index < 0) || (index >= 14) )
+#else
+    if( (index < 0) || (index >= 28) )
+#endif
         return 0;
     can_filter_init.CAN_FilterNumber = (uint8_t)index;
     can_filter_init.CAN_FilterMode = CAN_FilterMode_IdMask;
@@ -248,7 +251,12 @@ int hal_can_filter_get( int index, can_filter_t *filter, int *enabled )
 {
     int f, m;
 
+    /* CAN1/CAN2 shared filters */
+#if HAL_CAN2
     if( (index < 0) || (index >= 14) )
+#else
+    if( (index < 0) || (index >= 28) )
+#endif
         return 0;
 
     if( CAN1->FA1R & (1<<index) )
@@ -368,7 +376,6 @@ int hal_can_get_counter( uint32_t *tx_counter, uint32_t *rx_counter )
 
 void HAL_CAN_TX_IRQHandler(void)
 {
-    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     can_message_t msg;
 
     if( CAN_GetITStatus( HAL_CANx, CAN_IT_TME) == SET )
@@ -383,13 +390,11 @@ void HAL_CAN_TX_IRQHandler(void)
             hal_can_tx_counter += 1;
         }
     }
-    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 
 void HAL_CAN_RX_IRQHandler(void)
 {
-    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     can_message_t msg;
 
     while( hal_can_receive( &msg ) )
@@ -398,16 +403,7 @@ void HAL_CAN_RX_IRQHandler(void)
         if( os_queue_put_isr( hal_can_queue_rx, &msg ) == 0 )
             break;
     }
-    
-    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
-
-
-void CAN1_SCE1_IRQHandler(void)
-{
-
-}
-
 
 
 

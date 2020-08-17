@@ -188,34 +188,34 @@ int mcush_spiffs_open( const char *path, const char *mode )
 
 int mcush_spiffs_read( int fh, char *buf, int len )
 {
-    int ret = SPIFFS_read( &_fs, fh, buf, len );
+    int ret = SPIFFS_read( &_fs, (spiffs_file)fh, buf, len );
     return ret < 0 ? 0 : ret;
 }
 
 
 int mcush_spiffs_write( int fh, char *buf, int len )
 {
-    int ret = SPIFFS_write( &_fs, fh, buf, len );
+    int ret = SPIFFS_write( &_fs, (spiffs_file)fh, buf, len );
     return ret < 0 ? 0 : ret;
 }
 
 
 int mcush_spiffs_seek( int fh, int offs, int where )
 {
-    return SPIFFS_lseek( &_fs, fh, offs, where );
+    return SPIFFS_lseek( &_fs, (spiffs_file)fh, offs, where );
 }
 
 
 int mcush_spiffs_flush( int fh )
 {
-    int ret = SPIFFS_fflush( &_fs, fh );
+    int ret = SPIFFS_fflush( &_fs, (spiffs_file)fh );
     return ret < 0 ? 0 : ret;
 }
 
 
 int mcush_spiffs_close( int fh )
 {
-    int ret = SPIFFS_close( &_fs, fh );
+    int ret = SPIFFS_close( &_fs, (spiffs_file)fh );
     return ret < 0 ? 0 : ret;
 }
 

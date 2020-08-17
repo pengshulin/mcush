@@ -23,6 +23,7 @@ extern "C" {
     #endif
     #define __fallthrough  __attribute__((fallthrough));
     #define __signature  __attribute__((section(".signature"))) __attribute__((used))
+    #define __init_script  __attribute__((section(".init_script"))) __attribute__((used))
 
     #define __no_return __attribute__((__noreturn__))
 
@@ -42,6 +43,7 @@ extern "C" {
     #define __byte_aligned  __attribute__((aligned(1)))
     #define __fallthrough
     #define __signature  __attribute__((section(".signature"))) __attribute__((used))
+    #define __init_script  __attribute__((section(".init_script"))) __attribute__((used))
     
     #define __no_return __attribute__((noreturn))
     

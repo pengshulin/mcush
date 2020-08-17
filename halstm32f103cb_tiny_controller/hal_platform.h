@@ -2,14 +2,14 @@
 #define __HAL_PLATFORM_H__
 
 #if HAL_CAN
-    #define LED_NORMAL  0
-    #define LED_ERROR   1
+    #define ERRNO_LED_NORMAL  0
+    #define ERRNO_LED_ERROR   1
     #define HAL_LED_NUM   2
     #define HAL_LED_PORTS  { 1, 1 }
     #define HAL_LED_PINS  { 10, 11 }
 #else
-    #define LED_NORMAL  0
-    #define LED_ERROR   2
+    #define ERRNO_LED_NORMAL  0
+    #define ERRNO_LED_ERROR   2
     #define HAL_LED_NUM   4
     #define HAL_LED_PORTS  { 1, 1, 1, 1 }
     #define HAL_LED_PINS  { 8, 10, 9, 11 }

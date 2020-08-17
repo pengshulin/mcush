@@ -12,9 +12,6 @@ extern char _sheap, _sstack;
 
 void os_init(void)
 {
-    rt_system_tick_init();
-    rt_system_object_init();
-    rt_system_timer_init();
     rt_system_heap_init( (void*)&_sheap, (void*)&_sstack-1 );
     rt_system_scheduler_init();
 }
@@ -22,6 +19,8 @@ void os_init(void)
 
 void os_start(void)
 {
+    SysTick_Config( SystemCoreClock / RT_TICK_PER_SECOND );
+    rt_system_timer_init();
     rt_system_timer_thread_init();
     rt_thread_idle_init();
     rt_system_scheduler_start();
@@ -211,7 +210,7 @@ int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks )
 {
     if( block_ticks < 0 )
         block_ticks = RT_WAITING_FOREVER;
-    if( rt_mq_recv( queue, data, queue->msg_size,block_ticks ) != RT_EOK )
+    if( rt_mq_recv( queue, data, queue->msg_size, block_ticks ) != RT_EOK )
         return 0;
     else
         return 1;
@@ -220,13 +219,21 @@ int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks )
 
 int os_queue_put_isr( os_queue_handle_t queue, void *data )
 {
-    return os_queue_put( queue, data, 0 );
+    int ret;
+    rt_interrupt_enter();
+    ret = os_queue_put( queue, data, 0 );
+    rt_interrupt_leave();
+    return ret;
 }
 
 
 int os_queue_get_isr( os_queue_handle_t queue, void *data )
 {
-    return os_queue_get( queue, data, 0 );
+    int ret;
+    rt_interrupt_enter();
+    ret = os_queue_get( queue, data, 0 );
+    rt_interrupt_leave();
+    return ret;
 }
 
 
@@ -252,7 +259,7 @@ int os_queue_count( os_queue_handle_t queue )
 
 os_mutex_handle_t os_mutex_create( void )
 {
-    return (os_mutex_handle_t)rt_mutex_create( NULL, 0 );
+    return (os_mutex_handle_t)rt_mutex_create( shell_str_null, 0 );
 }
 
 
@@ -260,7 +267,7 @@ os_mutex_handle_t os_mutex_create_static( static_mutex_buffer_t *buf )
 {
     rt_err_t err;
 
-    err = rt_mutex_init( buf, NULL, 0 );
+    err = rt_mutex_init( buf, shell_str_null, 0 );
     if( err == RT_EOK )
         return (os_mutex_handle_t)buf;    
     else
@@ -319,7 +326,7 @@ os_semaphore_handle_t os_semaphore_create( int max_count, int init_count )
     os_semaphore_handle_t sem;
 
     (void)init_count;  // FIXME
-    sem = rt_sem_create( NULL, max_count, 0 );
+    sem = rt_sem_create( shell_str_null, max_count, 0 );
     if( sem != RT_NULL )
         return sem;
     else
@@ -332,7 +339,7 @@ os_semaphore_handle_t os_semaphore_create_static( int max_count, int init_count,
     rt_err_t err;
 
     (void)init_count;  // FIXME
-    err = rt_sem_init( (rt_sem_t)buf, NULL, max_count, 0 );
+    err = rt_sem_init( (rt_sem_t)buf, shell_str_null, max_count, 0 );
     if( err == RT_EOK )
         return (os_semaphore_handle_t)buf;
     else

@@ -16,12 +16,6 @@ int hal_init(void)
 #if HAL_RTC
     hal_rtc_init();
 #endif
-#if HAL_LCD
-    hal_lcd_init();
-#endif
-#if USE_CMD_SGPIO
-    hal_sgpio_init();
-#endif
     hal_platform_init();
     if( !hal_uart_init(0) )
         return 0;

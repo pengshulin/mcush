@@ -6,7 +6,8 @@ DESCRIPTION
 * MCUSH is the short name for MCU-SHell.
 * A practical project that enhance microcontroller serial port console with shell features like in many linux systems.
 * The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.
-* MCUSH is heavily based on FreeRTOS, the core shell runs as a stand-alone task with middle level priority.
+* MCUSH is initially based on FreeRTOS, but can also be adapted to other RTOSes.
+* The core shell runs as a stand-alone task with middle level priority.
 * Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.
 * Hosted on github: <https://github.com/pengshulin/mcush>
 * Python core module released on PYPI and installed by 'pip install mcush'
@@ -30,11 +31,11 @@ ROADMAP
 =======
 (done)
 * run the basic shell on STM32 chips
-* add commands to control more peripherals
 * use USB virtual com port driver provided by ST
 * add file system support (spiffs...)
 * add file utils (ls,cp,rm,cat,...) for file system
 * add ST/HAL Driver support
+* ported to RTX5 platform
 
 (todo/in progress)
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
