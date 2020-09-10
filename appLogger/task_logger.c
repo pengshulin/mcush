@@ -385,6 +385,7 @@ void logger_module_buffer( const char *module, const char *buf, int len )
 }
 
 
+#if FS_SUPPORT
 static char *_join_log_fname( char *buf, int level )
 {
     if( level > 0 )
@@ -503,7 +504,6 @@ int backup_all_log_files( void )
 }
 
 
-#if FS_SUPPORT
 static int rotate_log_files( const char *src_fname, int level )
 {
     int size;
