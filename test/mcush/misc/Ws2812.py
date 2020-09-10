@@ -50,8 +50,17 @@ class LEDS():
         while True:
             if len(mem) == 0:
                 if count_data:
-                    # the final line, add -w option
-                    self.controller.writeCommand( cmd.replace('W', 'W -w') )
+                    # the final line left
+                    if ((len(cmd)+3) >= self.DEFAULT_CMD_LINE_LIMIT) or ((count_argv+1) >= self.controller.DEFAULT_CMD_ARGV_LIMIT):
+                        # too full to add -w option
+                        self.controller.writeCommand( cmd )
+                        self.controller.writeCommand( 'W -w')
+                    else:
+                        # add -w option
+                        self.controller.writeCommand( cmd.replace('W', 'W -w') )
+                else:
+                    # all data written, but not flushed
+                    self.controller.writeCommand( 'W -w')
                 break
             cmd += ' %d'% (int(mem.pop(0)) & 0xFFFFFF)
             count_data += 1

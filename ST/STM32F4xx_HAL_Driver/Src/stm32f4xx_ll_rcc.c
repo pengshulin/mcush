@@ -769,6 +769,8 @@ uint32_t LL_RCC_GetRNGClockFreq(uint32_t RNGxSource)
 {
   uint32_t rng_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
 
+    (void)RNGxSource;
+
   /* Check parameter */
   assert_param(IS_LL_RCC_RNG_CLKSOURCE(RNGxSource));
 

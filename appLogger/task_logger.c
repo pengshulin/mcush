@@ -1,4 +1,19 @@
-/* MCUSH designed by Peng Shulin, all rights reserved. */
+/* Logger task, save logging events to files or forward to shell
+ * 
+ * The task runs as an auxiliary service in a micro-kerenl RTOS environment,
+ * it aims to help you debug your applications.
+ *
+ * To use this service task, copy or symbolic link task_logger.c/h files to
+ * your application and call task_logger_init() before you use it.
+ * 
+ * An independent shell command 'log' can control the task behavior including:
+ * * enable/disable file writing
+ * * remove log files
+ * * snapshot log files
+ * * forward events to shell for realtime monitoring
+ *  
+ *  
+ * MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdarg.h>
 #include <ctype.h>
 #include "mcush.h"
@@ -7,16 +22,22 @@
 
 
 //#define DEBUG_LOGGER  1
-
 #define DEBUG_WRITE_LED  0
+
+#if MCUSH_SPIFFS
+    #define FS_SUPPORT  1
+#else
+    #define FS_SUPPORT  0
+#endif
+
 
 static os_mutex_handle_t mutex_logger;
 static os_queue_handle_t queue_logger;
 static os_queue_handle_t queue_logger_monitor;
-static uint8_t monitoring_mode=0;
 
 static const char _fname[] = LOGGER_FNAME;
 static uint8_t _enable = LOGGER_ENABLE;
+static uint8_t _monitoring;
 static uint8_t _busy;
 
 
@@ -482,7 +503,7 @@ int backup_all_log_files( void )
 }
 
 
-#if MCUSH_SPIFFS
+#if FS_SUPPORT
 static int rotate_log_files( const char *src_fname, int level )
 {
     int size;
@@ -516,7 +537,7 @@ static int rotate_log_files( const char *src_fname, int level )
 static void post_process_event( logger_event_t *evt )
 {
     /* forward event to shell_monitor or clean up directly */
-    if( monitoring_mode )
+    if( _monitoring )
     {
         /* forward the event */
         if( os_queue_put( queue_logger_monitor, evt, 0 ) == 0 )
@@ -536,7 +557,7 @@ static void post_process_event( logger_event_t *evt )
 void task_logger_entry(void *p)
 {
     logger_event_t evt;
-#if MCUSH_SPIFFS
+#if FS_SUPPORT
     int fd = 0;
     int size = -1;
     int i, j;
@@ -557,7 +578,7 @@ void task_logger_entry(void *p)
             continue;
         }
 
-#if MCUSH_SPIFFS
+#if FS_SUPPORT
         _busy = 1;
         hal_wdg_clear();
 
@@ -648,7 +669,11 @@ int cmd_logger( int argc, char *argv[] );
 static const shell_cmd_t cmd_tab_logger[] = {
     {   0, 0, "log",  cmd_logger,
         "logger",
+#if FS_SUPPORT
         "log [-e|d|t|b|D|I|W|E]"
+#else
+        "log [-D|I|W|E]"
+#endif
     },
     {   CMD_END  }
 };
@@ -708,6 +733,7 @@ void task_logger_init(void)
 int cmd_logger( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
+#if FS_SUPPORT
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'd', shell_str_disable, 0, "disable logging to file" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
@@ -718,6 +744,9 @@ int cmd_logger( int argc, char *argv[] )
           0, shell_str_delete, 0, "delete history files" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           't', shell_str_tail, 0, "list tail 10 lines from log file" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'm', shell_str_msg, shell_str_message, "log message" },
+#endif
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'D', shell_str_debug, 0, "DEBUG type filter" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
@@ -730,20 +759,22 @@ int cmd_logger( int argc, char *argv[] )
           'M', shell_str_module, "module", "module filter" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'H', shell_str_head, "head", "message head filter" },
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
-          'm', shell_str_msg, shell_str_message, "log message" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int8_t enable=0, enable_set=0, tail_set=0, debug_set=0, info_set=0, warn_set=0, error_set=0, delete_set=0, backup_set=0;
+#if FS_SUPPORT
+    int8_t enable=0, enable_set=0, tail_set=0, delete_set=0, backup_set=0;
+    char *tail[LOGGER_TAIL_NUM];
+    int tail_len[LOGGER_TAIL_NUM], len;
+    const char *msg=0;
+    int i, j, fd;
+#endif
+    int8_t debug_set=0, info_set=0, warn_set=0, error_set=0;
     int8_t filter_mode=0;
-    const char *msg=0, *head=0, *module=0;
+    const char *head=0, *module=0;
     size_t head_len=0;
     logger_event_t evt;
     char c;
-    char *tail[LOGGER_TAIL_NUM];
-    int tail_len[LOGGER_TAIL_NUM], len;
-    int i, j, fd;
     char buf[LOGGER_LINE_BUF_SIZE];
 
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
@@ -751,6 +782,7 @@ int cmd_logger( int argc, char *argv[] )
     {
         if( opt.spec )
         {
+#if FS_SUPPORT
             if( STRCMP( opt.spec->name, shell_str_enable ) == 0 )
             {
                 enable = 1;
@@ -767,7 +799,18 @@ int cmd_logger( int argc, char *argv[] )
                 delete_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_backup ) == 0 )
                 backup_set = 1;
-            else if( STRCMP( opt.spec->name, shell_str_debug ) == 0 )
+            else if( STRCMP( opt.spec->name, shell_str_msg ) == 0 )
+            {
+                msg = opt.value;
+                if( msg == 0 )
+                {
+                    shell_write_err(shell_str_msg);
+                    return -1;
+                }
+            }
+            else
+#endif
+            if( STRCMP( opt.spec->name, shell_str_debug ) == 0 )
                 debug_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info_set = 1;
@@ -795,20 +838,12 @@ int cmd_logger( int argc, char *argv[] )
                     return -1;
                 }
             }
-            else if( STRCMP( opt.spec->name, shell_str_msg ) == 0 )
-            {
-                msg = opt.value;
-                if( msg == 0 )
-                {
-                    shell_write_err(shell_str_msg);
-                    return -1;
-                }
-            }
         }
         else
             STOP_AT_INVALID_ARGUMENT
     }
 
+#if FS_SUPPORT
     if( enable_set )
     {
         _enable = enable;
@@ -900,8 +935,9 @@ int cmd_logger( int argc, char *argv[] )
         }
     }
     else
+#endif
     {
-        monitoring_mode = 1;
+        _monitoring = 1;
         if( debug_set )
             filter_mode |= LOG_DEBUG;
         if( info_set )
@@ -940,7 +976,7 @@ int cmd_logger( int argc, char *argv[] )
             if( c == 0x03 )
                 break;
         }
-        monitoring_mode = 0;
+        _monitoring = 0;
         /* free all remaining event */
         while( os_queue_get( queue_logger_monitor, &evt, 0 ) )
         {

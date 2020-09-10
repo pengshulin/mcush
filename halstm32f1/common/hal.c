@@ -1,7 +1,7 @@
-#include "hal.h"
+#include "mcush.h"
 
  
-int hal_init(void)
+__weak int hal_init(void)
 {
     hal_wdg_init();
     hal_clk_init();
@@ -12,12 +12,6 @@ int hal_init(void)
     hal_led_init();
 #if HAL_RTC
     hal_rtc_init();
-#endif
-#if USE_CMD_BEEP
-    hal_beep_init();
-#endif
-#if USE_CMD_SGPIO
-    hal_sgpio_init();
 #endif
     hal_platform_init();
     if( !hal_uart_init(0) )

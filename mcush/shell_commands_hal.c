@@ -1270,7 +1270,7 @@ int ws2812_push(int forward, int dat, int swap_rg, int offset, int length)
     {
         if( offset < 0 )
             offset = ws2812_length - 1;
-        if( offset - length < 0 )
+        if( offset - length + 1 < 0 )
             length = offset;
         for( i=offset-length+1; i<offset; i++ )
             *(ws2812_buf + i) = *(ws2812_buf + i + 1);
@@ -1430,14 +1430,29 @@ int cmd_ws2812( int argc, char *argv[] )
         return 0;
     } 
 
-    /* update memory */
-    if( fill_set || pushf_set || pushb_set )
+    /* update memory, default parameters */
+    if( fill_set )
     {
         if( ! offset_set )
-            offset = -1;
+            offset = 0;
         if( ! length_set )
-            length = -1;
+            length = ws2812_length - offset;
     }
+    if( pushf_set )
+    {
+        if( ! offset_set )
+            offset = 0;
+        if( ! length_set )
+            length = ws2812_length - offset;
+    }
+    if( pushb_set )
+    {
+        if( ! offset_set )
+            offset = ws2812_length - 1;
+        if( ! length_set )
+            length = offset + 1;
+    }
+
     parser.idx++;
     j = argc - parser.idx;  /* data length */
     while( parser.idx < argc )

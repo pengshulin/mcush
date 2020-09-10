@@ -54,12 +54,14 @@ static int lua_log_error(lua_State *L)
 
 static int lua_log_enable(lua_State *L)
 {
+    (void)L;
     logger_enable();
     return 0;
 }
 
 static int lua_log_disable(lua_State *L)
 {
+    (void)L;
     logger_disable();
     return 0;
 }

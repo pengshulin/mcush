@@ -2,6 +2,8 @@
 #ifndef __MCUSH_OS_H__
 #define __MCUSH_OS_H__
 
+
+#define OS_NONE      0
 #define OS_FREERTOS  1
 #define OS_RTX       2
 #define OS_THREADX   3
@@ -11,7 +13,9 @@
     #define MCUSH_OS  OS_FREERTOS
 #endif
 
-#if MCUSH_OS == OS_FREERTOS
+#if MCUSH_OS == OS_NONE
+    #include "mcush_os_none.h"
+#elif MCUSH_OS == OS_FREERTOS
     #include "mcush_os_freertos.h"
 #elif MCUSH_OS == OS_RTX
     #include "mcush_os_rtx.h"
@@ -102,7 +106,6 @@ void os_free( void *mem );
 void os_task_info_print(void);
 void os_queue_info_print(void);
 void os_kernel_info_print(void);
-
 
 
 #endif

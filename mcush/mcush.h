@@ -407,10 +407,12 @@ void ws2812_flush(void);
 #endif
 
 
-
+#if MCUSH_OS != OS_NONE
 void mcush_init(void);
 void mcush_start(void);
 extern os_task_handle_t task_mcush;
+#endif
+
 extern const char build_signature[];
 
 

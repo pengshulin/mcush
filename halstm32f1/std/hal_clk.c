@@ -42,7 +42,12 @@ void hal_clk_init(void)
 #elif HSE_VALUE == 12000000
         RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_6);   /* 12M / 1 * 6 = 72M */
 #elif HSE_VALUE == 16000000
+    #ifdef RCC_PLLSource_PREDIV1
+        RCC_PREDIV1Config(RCC_PREDIV1_Source_HSE, RCC_PREDIV1_Div2);
+        RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);   /* 16M / 2 * 9 = 72M */
+    #else
         RCC_PLLConfig(RCC_PLLSource_HSE_Div2, RCC_PLLMul_9);   /* 16M / 2 * 9 = 72M */
+    #endif
 #else
         #error "HSE_VALUE not defined"
 #endif

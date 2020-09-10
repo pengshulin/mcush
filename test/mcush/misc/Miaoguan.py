@@ -40,8 +40,8 @@ class TH10S_B( Instrument.SerialInstrument ):
     def readTemperature( self ):
         val = self.readADC(0)
         val = Utils.s2i(Utils.I2s(val))
-        return val*0.1
+        return round(val*0.1, 1)
 
     def readHumidity( self,  ):
-        return self.readADC(1)*0.1
+        return round(self.readADC(1)*0.1, 1)
 

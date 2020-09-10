@@ -22,7 +22,7 @@ reset:
 sterase:
 	@emu_util_stlink erase
 stflash:
-	@emu_util_stlink flash `scons --quiet name`.bin
+	@emu_util_stlink flash `scons --quiet name`.hex
 streset:
 	@emu_util_stlink reset
 

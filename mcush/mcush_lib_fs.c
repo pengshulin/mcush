@@ -1,7 +1,7 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#if MCUSH_VFS
 #include "mcush.h"
 
+#if MCUSH_VFS
 
 int mcush_file_exists( const char *fname )
 {
