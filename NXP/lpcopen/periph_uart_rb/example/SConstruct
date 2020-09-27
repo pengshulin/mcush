@@ -4,7 +4,7 @@ class Lpc4337withoutCMSIS( Lpc4337 ):
     INCLUDE_CMSIS=False
 
 env = Lpc4337withoutCMSIS(startup_driver=False)
-env.setLinkfile( '/ld/lpc4337_m4_min.ld' )
+env.setLinkfile( '/ld/lpc4337_m4.ld' )
 
 env.appendDefineFlags( [
     #'__USE_CMSIS',

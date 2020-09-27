@@ -6,7 +6,7 @@ if hal_config.use_hal_driver is None:
         hal_config.use_vcp = True  # use vcp as default
 
 env = Stm32f407xx( use_hal_driver=hal_config.use_hal_driver )
-env.setLinkfile( '/ld/stm32f407xg_min.ld' )
+env.setLinkfile( '/ld/stm32f407xg.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 env.appendDefineFlags( [ 'HAL_RNG=1' ] )
 #env.appendDefineFlags( [ 'USE_CMD_UPGRADE=1' ] )

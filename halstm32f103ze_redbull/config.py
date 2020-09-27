@@ -5,7 +5,7 @@ if hal_config.use_bankb:
     env.setLinkfile( '/ld/stm32f103xe_upper.ld' )
     env.appendDefineFlags( [ 'VECT_TAB_OFFSET=0x40000' ] )
 else:
-    env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+    env.setLinkfile( '/ld/stm32f103xe.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 #env.appendDefineFlags( ['DATA_IN_ExtSRAM'] )
 

@@ -51,8 +51,11 @@ void hal_wdg_enable(void);
 void hal_wdg_disable(void);
 void hal_wdg_clear(void);
 
-int hal_fcfs_erase(void);
-int hal_fcfs_program(int offset, int *buf, int len);
+//int hal_fcfs_erase(void);
+//int hal_fcfs_program(int offset, int *buf, int len);
+
+int hal_flash_erase( void *addr, int bytes );
+int hal_flash_program( void *addr, int *dat, int bytes );
 
 
 typedef struct _sgpio_cfg_t

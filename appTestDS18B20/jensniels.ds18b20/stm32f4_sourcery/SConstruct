@@ -2,25 +2,25 @@ from Arm.Stm32 import *
 
 #env = Stm32f1md()
 #haldir='stm32f103ze_redbull'
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+#env.setLinkfile( '/ld/stm32f103xe.ld' )
 
 #env = Stm32f1md()
 #haldir='stm32f103xb'
-#env.setLinkfile( '/ld/stm32f103x8_min.ld' )
-##env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.setLinkfile( '/ld/stm32f103x8.ld' )
+##env.setLinkfile( '/ld/stm32f103xb.ld' )
 
 #env = Stm32f1md()
 #haldir='stm32f103xb_pyeasycontrol'
-#env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+#env.setLinkfile( '/ld/stm32f103xb.ld' )
 #env.appendDriver(STM32_USB_FS_Driver())
 
 env = Stm32f407xx()
 haldir='stm32f407zg_eu'
-env.setLinkfile( '/ld/stm32f407zg_min.ld' )
+env.setLinkfile( '/ld/stm32f407zg.ld' )
 
 #env = Stm32f767xx()
 #haldir='stm32f767zi_nucleo'
-#env.setLinkfile( '/ld/stm32f767zi_min.ld' )
+#env.setLinkfile( '/ld/stm32f767zi.ld' )
 
 env.appendOptimizeFlags()
 

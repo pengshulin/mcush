@@ -1,7 +1,7 @@
 from Arm.Stm32 import *
 
 env = Stm32f2( use_hal_driver=hal_config.use_hal_driver )
-env.setLinkfile( '/ld/stm32f207xg_min.ld' )
+env.setLinkfile( '/ld/stm32f207xg.ld' )
 #env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )  # not soldered 
 env.appendDefineFlags( [ 'HSE_DISABLED' ] )
 

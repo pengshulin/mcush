@@ -26,7 +26,7 @@ static int lua_sys_uptime( lua_State *L )
 
 static int lua_sys_delay( lua_State *L )
 {
-    uint32_t delay_ms, tick;
+    uint32_t delay_ms;
 
     if( lua_gettop(L) < 1 )
     {
@@ -39,14 +39,13 @@ static int lua_sys_delay( lua_State *L )
 
     if( delay_ms )
     {
-        tick = delay_ms * configTICK_RATE_HZ / 1000;
-        vTaskDelay( tick ? tick : 1 );
+        os_task_delay_ms( delay_ms );
     }
     else
     {
         /* sys.delay(0) --> abort current time slice, 
            yield to other tasks with the same priority */
-        taskYIELD();
+        os_task_switch();
     } 
 
     return 0;
@@ -112,9 +111,8 @@ static int lua_sys_beep( lua_State *L )
     if( ms < 0 )
         ms = 50;
     hal_beep_on( freq );
-    vTaskDelay(ms*configTICK_RATE_HZ/1000);
+    os_task_delay_ms( ms );
     hal_beep_off();
-
     return 0;
 }
 #endif

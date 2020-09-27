@@ -102,9 +102,83 @@ class ETM( Instrument.SerialInstrument ):
         return (self.readVoltage(), self.readCurrent())
 
 
+# low-power switch series
+
+class ETM1520P( ETM ):
+    DEFAULT_NAME = 'ETM1520P'
+    VMAX = 15.0
+    IMAX = 20.0
+
+class ETM305P( ETM ):
+    DEFAULT_NAME = 'ETM305P'
+    VMAX = 30.0
+    IMAX = 5.0
+
+class ETM3010P( ETM ):
+    DEFAULT_NAME = 'ETM3010P'
+    VMAX = 30.0
+    IMAX = 10.0
 
 class ETM605P( ETM ):
     DEFAULT_NAME = 'ETM605P'
     VMAX = 60.0
     IMAX = 5.0
+
+class ETM1003P( ETM ):
+    DEFAULT_NAME = 'ETM1003P'
+    VMAX = 100.0
+    IMAX = 3.0
+
+class ETM1502P( ETM ):
+    DEFAULT_NAME = 'ETM1502P'
+    VMAX = 150.0
+    IMAX = 2.0
+
+
+# low-power linear series
+
+class ETM303DP( ETM ):
+    DEFAULT_NAME = 'ETM303DP'
+    VMAX = 30.0
+    IMAX = 3.0
+
+class ETM305DP( ETM ):
+    DEFAULT_NAME = 'ETM305DP'
+    VMAX = 30.0
+    IMAX = 5.0
+
+class ETM603DP( ETM ):
+    DEFAULT_NAME = 'ETM603DP'
+    VMAX = 60.0
+    IMAX = 3.0
+
+class ETM605DP( ETM ):
+    DEFAULT_NAME = 'ETM605DP'
+    VMAX = 60.0
+    IMAX = 5.0
+
+class ETM1501DP( ETM ):
+    DEFAULT_NAME = 'ETM1501DP'
+    VMAX = 150.0
+    IMAX = 1.0
+
+
+# mini series
+
+class ETM305MP( ETM ):
+    DEFAULT_NAME = 'ETM305MP'
+    VMAX = 30.0
+    IMAX = 5.0
+
+class ETM3010MP( ETM ):
+    DEFAULT_NAME = 'ETM3010MP'
+    VMAX = 30.0
+    IMAX = 10.0
+
+class ETM605MP( ETM ):
+    DEFAULT_NAME = 'ETM605MP'
+    VMAX = 60.0
+    IMAX = 5.0
+
+
 

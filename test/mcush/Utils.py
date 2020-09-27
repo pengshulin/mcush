@@ -513,9 +513,9 @@ class FCFS:
             self.fname = fname.encode('utf8')
             self.contents = contents.encode('utf8')
         def __len__( self ):
-            return len(self.fname) + 1 + len(self.contents)
+            return len(self.fname) + len(self.contents) + 2  # two \x00 seperators
         def __bytes__( self ):
-            return self.fname + b'\00' + self.contents
+            return self.fname + b'\x00' + self.contents + b'\x00'
  
     def __init__( self ):
         self.reset()
@@ -558,20 +558,21 @@ class FCFS:
         self.head.append( self.Node(f) )
 
     def generate( self ):
-        self.head.append( self.Signature('\x00\x00\x00\x00') )  # end node
-        self.head.append( self.Signature(strftime('<%y%m%d%H%M%S>')) )  # timestamp
+        newlst = [i for i in self.head]
+        newlst.append( self.Signature('\x00\x00\x00\x00') )  # end node
+        newlst.append( self.Signature(strftime('<%y%m%d%H%M%S>')) )  # timestamp
         # re-calculate the offsets
-        offset_counter = sum([len(h) for h in self.head])
+        offset_counter = sum([len(h) for h in newlst])
         for idx in range(len(self.contents)):
             f = self.head[idx+2]
             f.offset = offset_counter
             offset_counter += len(f.file)
-        self.contents.append( self.Signature('END') )  # end
-        output = self.head + self.contents
+        newlst += self.contents
+        newlst.append( self.Signature('END') )  # end
         if Env.PYTHON_V3:
-            output = Env.EMPTY_BYTE.join([bytes(o) for o in output])
+            output = Env.EMPTY_BYTE.join([bytes(o) for o in newlst])
         else:
-            output = Env.EMPTY_BYTE.join([o.__bytes__() for o in output])
+            output = Env.EMPTY_BYTE.join([o.__bytes__() for o in newlst])
         return output
  
 

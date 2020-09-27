@@ -55,46 +55,6 @@ int cmd_reboot( int argc, char *argv[] )
 #endif
 
 
-#if USE_CMD_UPGRADE
-int cmd_upgrade( int argc, char *argv[] )
-{
-    static const mcush_opt_spec const opt_spec[] = {
-        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'f', shell_str_file, "upgrade file", "binary file name" },
-        { MCUSH_OPT_NONE } };
-    mcush_opt_parser parser;
-    mcush_opt opt;
-    char fname[32];
-    
-    fname[0] = 0;
-    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
-    while( mcush_opt_parser_next( &opt, &parser ) )
-    {
-        if( opt.spec )
-        {
-            if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
-                strcpy( fname, (char*)opt.value );
-        }
-        else
-            STOP_AT_INVALID_ARGUMENT 
-    }
-
-    if( strlen(fname) == 0 )
-        return 1;
-
-    shell_printf("Loading firmware from %s...\n", fname);
-    os_task_delay_ms( 200 );  // 0.2s to confirm the uart output
-    if( !hal_upgrade_prepare_swap( fname, 0 ) )
-        return 1; 
-    shell_printf("Upgrading...\n");
-    os_task_delay_ms( 200 );  // 0.2s to confirm the uart output
-    hal_upgrade_run_stage2();
-    //while( 1 );
-    return 0;
-}
-#endif
-
-
 #if USE_CMD_GPIO
 int cmd_gpio( int argc, char *argv[] )
 {
@@ -116,9 +76,11 @@ int cmd_gpio( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'n', shell_str_number, 0, shell_str_query },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'U', shell_str_pullup, 0, "with pullup resister" },
+          'U', shell_str_pullup, 0, shell_str_pullup },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
-          'D', shell_str_pulldown, 0, "with pulldown resister" },
+          'D', shell_str_pulldown, 0, shell_str_pulldown },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'O', shell_str_opendrain, 0, shell_str_opendrain },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -127,7 +89,7 @@ int cmd_gpio( int argc, char *argv[] )
     int port=-1, bit=-1, bit_mode=-1, pull=-1;
     const char *pport=0, *pinput=0, *poutput=0, *pset=0, *pclr=0, *ptoggle=0;
     char *pbit;
-    uint8_t input_set=0, output_set=0, set_set=0, clr_set=0, toggle_set=0, none_set=0;
+    uint8_t input_set=0, output_set=0, set_set=0, clr_set=0, toggle_set=0, none_set=0, opendrain_set=0;
     int input_val=0, output_val=0, set_val=0, clr_val=0, toggle_val=0;
     int port_num = hal_gpio_get_port_num();
 
@@ -173,6 +135,8 @@ int cmd_gpio( int argc, char *argv[] )
                 pull = 1;
             else if( STRCMP( opt.spec->name, shell_str_pulldown ) == 0 )
                 pull = 0;
+            else if( STRCMP( opt.spec->name, shell_str_opendrain ) == 0 )
+                opendrain_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
                 loop=1;
@@ -245,7 +209,12 @@ loop_start:
                 hal_gpio_set_input_pull( port, 1<<bit, pull );
         }
         if( output_set )
-            hal_gpio_set_output( port, 1<<bit );
+        {
+            if( opendrain_set )
+                hal_gpio_set_output_open_drain( port, 1<<bit );
+            else
+                hal_gpio_set_output( port, 1<<bit );
+        }
         if( set_set )
             hal_gpio_set( port, 1<<bit );
         if( clr_set )
@@ -265,7 +234,12 @@ loop_start:
                 hal_gpio_set_input_pull( port, pinput ? input_val : -1, pull );
         }
         if( output_set )
-            hal_gpio_set_output( port, poutput ? output_val : -1 );
+        {
+            if( opendrain_set )
+                hal_gpio_set_output_open_drain( port, poutput ? output_val : -1 );
+            else
+                hal_gpio_set_output( port, poutput ? output_val : -1 );
+        }
         if( set_set )
             hal_gpio_set( port, pset ? set_val : -1 );
         if( clr_set )
@@ -1187,6 +1161,10 @@ int cmd_can( int argc, char *argv[] )
 static int ws2812_length;
 static int ws2812_group_length;
 static int *ws2812_buf;  /* memory needs: 4*length bytes */
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+static int ws2812_group_length_list_length;
+static uint8_t *ws2812_group_length_list;
+#endif
 
 
 int ws2812_init( int length, int group_length, int port, int pin )
@@ -1215,6 +1193,17 @@ int ws2812_init( int length, int group_length, int port, int pin )
         return 0;
     }
 }
+
+
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+void ws2812_init_group_length_list( uint8_t *list, int list_length )
+{
+    if( list == NULL )
+        list_length = 0;
+    ws2812_group_length_list_length = list_length;
+    ws2812_group_length_list = list;
+}
+#endif
 
 
 void ws2812_deinit(void)
@@ -1284,7 +1273,7 @@ static void ws2812_flush_pixel( int dat )
 {
     int i;
 
-    portENTER_CRITICAL(); 
+    os_enter_critical(); 
     for( i=0; i<24; i++ )
     {
         if( dat & 0x00800000 )
@@ -1293,20 +1282,35 @@ static void ws2812_flush_pixel( int dat )
             hal_ws2812_write0();
         dat <<= 1;
     }
-    portEXIT_CRITICAL();
+    os_exit_critical();
 }
 
 
 void ws2812_flush(void)
 {
     int i, j, *p;
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+    uint8_t list_idx=0;
+#endif
 
     hal_ws2812_clr();
     hal_delay_us(60);
     for( i=0, p=ws2812_buf; i<ws2812_length; i++ )
     {
-        for( j=0; j<ws2812_group_length; j++ )
-            ws2812_flush_pixel( *p );
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+        if( ws2812_group_length_list_length )
+        {
+            for( j=0; j<ws2812_group_length_list[list_idx]; j++ )
+                ws2812_flush_pixel( *p );
+            if( ++list_idx >= ws2812_group_length_list_length )
+                list_idx = 0;
+        }
+        else
+#endif
+        {
+            for( j=0; j<ws2812_group_length; j++ )
+                ws2812_flush_pixel( *p );
+        }
         p++;
     }
     hal_ws2812_clr();
@@ -1321,6 +1325,10 @@ int cmd_ws2812( int argc, char *argv[] )
           'l', shell_str_length, shell_str_length, "number of groups" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'G', shell_str_group, shell_str_group, "number of pixels per group" },
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          0, "glist_file", 0, "/c/glist" },
+#endif
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -1349,7 +1357,7 @@ int cmd_ws2812( int argc, char *argv[] )
     int port=HAL_WS2812_PORT, pin=HAL_WS2812_PIN;
     int length=0, offset=0, group=0;
     int dat, i, j;
-    char *p2;
+    char *p;
     
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
@@ -1387,13 +1395,13 @@ int cmd_ws2812( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
             {
-                port = strtol( opt.value, &p2, 10 );
-                if( !p2 || (*p2!='.') )
+                port = strtol( opt.value, &p, 10 );
+                if( !p || (*p!='.') )
                     goto err_port;
-                if( *(++p2) == 0 )
+                if( *(++p) == 0 )
                     goto err_port;
-                pin = strtol( p2, &p2, 10 );
-                if( p2 && *p2 )
+                pin = strtol( p, &p, 10 );
+                if( p && *p )
                     goto err_port;
             }
             else if( strcmp( opt.spec->name, "forward" ) == 0 )
@@ -1402,6 +1410,20 @@ int cmd_ws2812( int argc, char *argv[] )
                 pushb_set = 1;
             else if( strcmp( opt.spec->name, "fill" ) == 0 )
                 fill_set = 1;
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+            else if( strcmp( opt.spec->name, "glist_file" ) == 0 )
+            {
+                if( mcush_fcfs_get_raw_address( "glist", (const char**)&p, &i ) )
+                {
+                    ws2812_init_group_length_list( (uint8_t *)p, i );
+                }
+                else
+                {
+                    shell_write_err( "file" );
+                    return 1;
+                }
+            }
+#endif
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -1461,7 +1483,6 @@ int cmd_ws2812( int argc, char *argv[] )
         {
             shell_write_str( "data err: " );
             shell_write_line( argv[parser.idx] );
-            hal_ws2812_clr();
             return 1;
         }
         if( pushf_set || pushb_set )
@@ -1492,3 +1513,107 @@ err_port:
 }
 #endif
 #endif
+
+
+#if USE_CMD_UPGRADE
+int cmd_upgrade( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'f', "flags", 0, "flags" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'c', shell_str_command, "cmd", "info|erase|(p)rogram|offset" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_value, 0, shell_str_data },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    char *cmd=0;
+    static uint32_t offset=0;
+    uint8_t flags_mode=0;
+    int buf[32];
+    int len;
+    int i;
+    int ret=0;
+
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, "flags") == 0 )
+                flags_mode = 1; 
+            else if( STRCMP( opt.spec->name, shell_str_command) == 0 )
+                cmd = (char*)opt.value;
+            else if( STRCMP( opt.spec->name, shell_str_value ) == 0 )
+            {
+                parser.idx--;
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT 
+    }
+
+    if( !cmd || strcmp( cmd, shell_str_info ) == 0 )
+    {
+        shell_printf( "%s: 0x%08X\n", shell_str_address, FLASH_UPGRADE_ADDR_BASE );
+        shell_printf( "%s: %u\n", shell_str_size, FLASH_UPGRADE_SIZE );
+        shell_printf( "flags_%s: 0x%08X\n", shell_str_address, FLASH_BOOTLOADER_FLAG_ADDR_BASE );
+        shell_printf( "flags_%s: %u\n", shell_str_size, FLASH_BOOTLOADER_FLAG_SIZE );
+    }
+    else if( strcmp( cmd, shell_str_erase ) == 0 )
+    {
+        offset = 0;
+        if( flags_mode )
+            return hal_flash_erase((void*)FLASH_BOOTLOADER_FLAG_ADDR_BASE, FLASH_BOOTLOADER_FLAG_SIZE) ? 0 : 1;
+        else
+            return hal_flash_erase((void*)FLASH_UPGRADE_ADDR_BASE, FLASH_UPGRADE_SIZE) ? 0 : 1;
+    }
+    else if( strcmp( cmd, "offset" ) == 0 )
+    {
+        parser.idx++;
+        if( parser.idx < argc )
+        {
+            if( ! parse_int(argv[parser.idx], (int*)&offset) )
+            {
+                shell_write_str( "data err: " );
+                shell_write_line( argv[parser.idx] );
+                return 1;
+            }
+        }
+        else
+            shell_printf( "0x%08X\n", offset );
+    }
+    else if( (strcmp( cmd, shell_str_program ) == 0) || (strcmp( cmd, "p" ) == 0) )
+    {
+        parser.idx++;
+        len = 0;
+        while( parser.idx < argc )
+        {
+            if( ! parse_int(argv[parser.idx], (int*)&i) )
+            {
+                shell_write_str( "data err: " );
+                shell_write_line( argv[parser.idx] );
+                return 1;
+            }
+            buf[len] = i;
+            parser.idx++;
+            len += 1;
+        }
+        if( len == 0 )
+            return -1;
+        ret = hal_flash_program( (void*)((flags_mode ? FLASH_BOOTLOADER_FLAG_ADDR_BASE:FLASH_UPGRADE_ADDR_BASE)+offset), buf, len*4 );
+        offset += len*4;
+        return ret ? 0 : 1;
+    } 
+    else
+    {
+        shell_write_err( shell_str_command );
+        return -1;
+    }
+    return 0;
+}
+#endif
+
+

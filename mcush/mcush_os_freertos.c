@@ -560,43 +560,14 @@ static void _print_kernel_item_name(const char *name)
 
 void os_kernel_info_print(void)
 {
-    //mcush_kern_info_t kinfo;
-    //int i;
-    //char buf[1024];
-
     _print_kernel_item_name( "OS" );
     shell_printf( "%s\n", OS_NAME );
     _print_kernel_item_name( "SystemCoreClock" );
     shell_printf( "%d\n", SystemCoreClock );
     _print_kernel_item_name( "TickRate" );
     shell_printf( "%d\n", OS_TICK_RATE );
-    _print_kernel_item_name( "CurrentNumberOfTasks" );
-    shell_printf( "%d\n", uxTaskGetNumberOfTasks() );
-    //mcushGetKernInfo(&kinfo);
-    //_print_kernel_item_name( "TopReadyPriority" );
-    //shell_printf( "%d\n", kinfo.uxTopReadyPriority );
-    //_print_kernel_item_name( "PendedTicks" );
-    //shell_printf( "%d\n", kinfo.uxPendedTicks );
-    //_print_kernel_item_name( "NumOfOverflows" );
-    //shell_printf( "%d\n", kinfo.uxNumOfOverflows );
-    //_print_kernel_item_name( "CurrentTCB" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxCurrentTCB, mcushGetTaskNameFromTCB(kinfo.pxCurrentTCB) );
-    //for( i=configMAX_PRIORITIES-1; i>=0; i-- )
-    //{
-    //    shell_printf( "ReadyTaskLists[%d]:    0x%08X %s\n", i, (uint32_t)kinfo.pxReadyTaskLists[i], mcushGetTaskNamesFromTaskList(kinfo.pxReadyTaskLists[i], buf) );
-    //}
-    //_print_kernel_item_name( "DelayedTaskList1" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList1, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList1, buf) );
-    //_print_kernel_item_name( "DelayedTaskList2" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList2, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList2, buf) );
-    //_print_kernel_item_name( "DelayedTaskList" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxDelayedTaskList, buf) );
-    //_print_kernel_item_name( "OverflowDelayedTList" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxOverflowDelayedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxOverflowDelayedTaskList, buf) );
-    //_print_kernel_item_name( "PendingReadyList" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxPendingReadyList, mcushGetTaskNamesFromTaskList(kinfo.pxPendingReadyList, buf) );
-    //_print_kernel_item_name( "SuspendedTaskList" );
-    //shell_printf( "0x%08X %s\n", (uint32_t)kinfo.pxSuspendedTaskList, mcushGetTaskNamesFromTaskList(kinfo.pxSuspendedTaskList, buf) );
+    //_print_kernel_item_name( "CurrentNumberOfTasks" );
+    //shell_printf( "%d\n", uxTaskGetNumberOfTasks() );
 }
 
 

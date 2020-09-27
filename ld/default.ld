@@ -17,12 +17,13 @@ SECTIONS
         KEEP(*(.signature))
     } > FLASH
 
-    .init_script :
+    /* obseleted, use /r/init or /c/init instead */
+    /*.init_script :
     {
         _isdata = . ;
         KEEP(*(.init_script))
         BYTE(0);
-    } > FLASH
+    } > FLASH */
 
         __exidx_start = . ;
         .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }

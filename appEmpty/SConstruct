@@ -2,7 +2,7 @@ from VEnvironment import *
 from Arm.Stm32 import *
 
 #env = Stm32f1hd()
-#env.setLinkfile( '/ld/stm32f103xe_min.ld' )
+#env.setLinkfile( '/ld/stm32f103xe.ld' )
     
 haldir = 'stm32f103xb'
 env = loadHalConfig( haldir ).env

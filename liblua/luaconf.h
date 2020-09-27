@@ -320,7 +320,6 @@
 
 
 #if defined(LUA_COMPAT_5_1)	/* { */
-
 /* Incompatibilities from 5.2 -> 5.3 */
 #define LUA_COMPAT_MATHLIB
 #define LUA_COMPAT_APIINTCASTS

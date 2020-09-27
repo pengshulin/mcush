@@ -1,7 +1,7 @@
 from Arm.Stm32 import *
 
 env = Stm32f767xx()
-env.setLinkfile( '/ld/stm32f767zi_min.ld' )
+env.setLinkfile( '/ld/stm32f767zi.ld' )
 
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']

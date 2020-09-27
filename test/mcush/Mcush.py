@@ -9,6 +9,7 @@ import time
 import base64
 import binascii
 import logging
+import hashlib
 from . import Env
 from . import Utils
 from . import Instrument
@@ -21,7 +22,7 @@ class Mcush( Instrument.SerialInstrument ):
     DEFAULT_NAME = 'MCUSH'
     DEFAULT_IDN = re.compile( 'mcush,([0-9]+\.[0-9]+.*)' )
     DEFAULT_MULTILINE_INPUT_LINE_LIMIT = 50
-    DEFAULT_CMD_LINE_LIMIT = 128
+    DEFAULT_CMD_LINE_LIMIT = 127
     DEFAULT_CMD_ARGV_LIMIT = 20
     DEFAULT_REBOOT_RETRY = 10
     DEFAULT_DELAY_AFTER_REBOOT = 1
@@ -936,15 +937,101 @@ class Mcush( Instrument.SerialInstrument ):
         self.writeCommand('')
         
 
-    DEFAULT_TIMEOUT_UPRADE = 20
-    def upgrade( self, upgrade_file='/s/upgrade.bin' ):
-        command = 'upgrade -f %s'% upgrade_file
-        try:
-            self.setTimeout( self.DEFAULT_TIMEOUT_UPRADE )
-            self.writeCommand( command )
-        except Instrument.CommandTimeoutError:
-            pass
+    # NOTE: to be obseleted
+    #DEFAULT_TIMEOUT_UPGRADE = 20
+    #def upgrade( self, upgrade_file='/s/upgrade.bin' ):
+    #    command = 'upgrade -f %s'% upgrade_file
+    #    try:
+    #        self.setTimeout( self.DEFAULT_TIMEOUT_UPGRADE )
+    #        self.writeCommand( command )
+    #    except Instrument.CommandTimeoutError:
+    #        pass
 
+    def writeBootloaderFlags( self, oper, flags=[] ):
+        # erase flags
+        self.writeCommand( 'upgrade -f -c erase' )
+        # write flags 
+        cmd = 'U -f -cp'
+        cmd += ' %u'% Utils.s2I('BTFG')  # BooTloaderFlaG magic number (4-bytes)
+        if len(oper) < 8:
+            oper += '\x00'*(8-len(oper))
+        cmd += ' %u'% Utils.s2I(oper[:4])  # operation command (8-bytes)
+        cmd += ' %u'% Utils.s2I(oper[4:])
+        for i in flags:
+            if isinstance(i, str):
+                i = eval(i)
+            cmd += ' %u'% int(i)
+        self.writeCommand( cmd )
+
+    def upgradeFromIntFlash( self, filename, process_cb=None ):
+        # check if upgrade command is supported
+        if not self.checkCommand( 'upgrade' ):
+            raise Exception('Not supported')
+        # check upgrade swap size
+        info = Utils.parseKeyValueLines(self.writeCommand('upgrade -c info'))
+        # check new firmware size
+        file_contents = open(filename, 'rb').read()
+        file_size = len(file_contents)
+        if int(info['size']) < file_size:
+            raise Exception('Size out of range')
+        # erase first
+        self.writeCommand( 'upgrade -c erase' )
+        # prepare int list from binary file
+        int_list = []
+        for i in range(int(file_size/4)):
+            int_list.append( Utils.s2I(file_contents[i*4:(i+1)*4]) )
+        # program new firmware
+        programmed_bytes = 0
+        while programmed_bytes < file_size:
+            cmd = 'U -cp'  # short for: upgrade -c program
+            while int_list:
+                _cmd = cmd + ' %d'% int_list[0]
+                if len(_cmd) > self.DEFAULT_CMD_LINE_LIMIT:
+                    break
+                if len(_cmd.split(' ')) > self.DEFAULT_CMD_ARGV_LIMIT:
+                    break
+                cmd = _cmd
+                int_list.pop(0)
+                programmed_bytes += 4
+            self.writeCommand( cmd )
+            if process_cb is not None:
+                # inform the process percentage
+                process_cb( 0, 0, programmed_bytes, file_size )
+        # calculate md5
+        md5 = hashlib.md5(file_contents).digest()
+        flags = [file_size, Utils.s2I(md5[:4]), Utils.s2I(md5[4:8]), Utils.s2I(md5[8:12]), Utils.s2I(md5[12:])]
+        self.writeBootloaderFlags( 'flash', flags )
+        
+    def upgradeFromSPIFFS( self, filename, process_cb=None ):
+        # check if upgrade command is supported
+        if not self.checkCommand( 'upgrade' ):
+            raise Exception('Not supported')
+        # check and erase old file
+        if self.checkFileExist( '/s/upgrade.bin' ):
+            self.remove( '/s/upgrade.bin' )
+        #self.spiffsUmount()
+        #self.spiffsFormat()
+        #self.spiffsMount()
+        # transfer file contents
+        oldtimeout = self.setTimeout( 30 )
+        self.putFile( '/s/upgrade.bin', filename, segment_size=512, segment_done_callback=process_cb )
+        self.setTimeout( oldtimeout )
+        # remount for filesystem sync
+        self.spiffsRemount()
+        # verify the file
+        readback = self.cat( '/s/upgrade.bin', b64=True )
+        file_contents = open(filename, 'rb').read()
+        file_size = len(file_contents)
+        if len(readback) != file_size:
+            raise Exception("verify error (file size not match)")
+        # calculate md5
+        md5 = hashlib.md5(file_contents).digest()
+        flags = [file_size, Utils.s2I(md5[:4]), Utils.s2I(md5[4:8]), Utils.s2I(md5[8:12]), Utils.s2I(md5[12:])]
+        self.writeBootloaderFlags( 'spiffs', flags )
+        
+
+
+ 
     def wget( self, url, local_file, timeout=30 ):
         command = 'wget -u %s -f %s'% (url, local_file)
         oldtimeout = self.setTimeout( timeout )

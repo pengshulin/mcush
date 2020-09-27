@@ -5,13 +5,13 @@
 
 #if MCUSH_FCFS
 
-#ifndef FCFS_ADDR
-#error "FCFS_ADDR not assigned!"
+#ifndef FLASH_FCFS_ADDR_BASE
+    #error "FLASH_FCFS_ADDR_BASE not assigned!"
 #endif
 
 
 /* flash layout:
- (FCFS_ADDR)  INDEX            FILE1          FILE2   
+ (ADDR_BASE)  INDEX            FILE1          FILE2   
  index --> ------------ --> ---------- --> ----------  ...
           | magic_code |   | fname    |   | fname    |
           |------------|   |----------|   |----------|
@@ -35,7 +35,7 @@ static fcfs_file_desc_t _fds[FCFS_FDS_NUM];
 int mcush_fcfs_mount( void )
 {
     memset( (void*)&_fds, 0, FCFS_FDS_NUM * sizeof(fcfs_file_desc_t) );
-    if( *(int*)FCFS_ADDR != FCFS_MAGIC_CODE )
+    if( *(int*)FLASH_FCFS_ADDR_BASE != FCFS_MAGIC_NUMBER )
         return 0;
     else
         return 1;
@@ -57,7 +57,7 @@ int mcush_fcfs_info( int *total, int *used )
 
 int mcush_fcfs_format( void )
 {
-    return hal_fcfs_erase() ? 1 : 0;
+    return 0;
 }
 
 
@@ -84,7 +84,7 @@ int mcush_fcfs_rename( const char *old, const char *newPath )
 
 int mcush_fcfs_open( const char *pathname, const char *mode )
 {
-    fcfs_file_t *f = (fcfs_file_t*)(FCFS_ADDR+4+FCFS_UID_LEN);
+    fcfs_file_t *f = (fcfs_file_t*)(FLASH_FCFS_ADDR_BASE+sizeof(fcfs_head_t));
     int i, j;
     
     (void)mode;
@@ -94,11 +94,11 @@ int mcush_fcfs_open( const char *pathname, const char *mode )
         {
             while( (f->offset != 0) && (f->offset != 0xFFFF) )
             {
-                if( strcmp((char*)(FCFS_ADDR+f->offset), pathname)==0 )
+                if( strcmp((char*)(FLASH_FCFS_ADDR_BASE+f->offset), pathname)==0 )
                 {
                     _fds[i].file = f;
-                    j = strlen((char*)(FCFS_ADDR+f->offset));
-                    _fds[i].contents = (const char *)(FCFS_ADDR+f->offset+j+1);
+                    j = strlen((char*)(FLASH_FCFS_ADDR_BASE+f->offset));
+                    _fds[i].contents = (const char *)(FLASH_FCFS_ADDR_BASE+f->offset+j+1);
                     _fds[i].pos = 0;
                     return i+1;
                 }
@@ -180,10 +180,10 @@ int mcush_fcfs_close( int fh )
 
 int mcush_fcfs_size( const char *name, int *size )
 {
-    fcfs_file_t *f = (fcfs_file_t *)(FCFS_ADDR+4+FCFS_UID_LEN);
+    fcfs_file_t *f = (fcfs_file_t *)(FLASH_FCFS_ADDR_BASE+sizeof(fcfs_head_t));
     while( (f->offset != 0) && (f->offset != 0xFFFF) )
     {
-        if( strcmp((char*)(FCFS_ADDR+f->offset), name) == 0 )
+        if( strcmp((char*)(FLASH_FCFS_ADDR_BASE+f->offset), name) == 0 )
         {
             *size = f->len;
             return 1;
@@ -196,19 +196,38 @@ int mcush_fcfs_size( const char *name, int *size )
 
 int mcush_fcfs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) )
 {
-    fcfs_file_t *f = (fcfs_file_t *)(FCFS_ADDR+4+FCFS_UID_LEN);
+    fcfs_file_t *f = (fcfs_file_t *)(FLASH_FCFS_ADDR_BASE+sizeof(fcfs_head_t));
 
     if( strcmp(pathname, "/") != 0 )
         return 0;
 
     while( (f->offset != 0) && (f->offset != 0xFFFF) )
     {
-        (*cb)( (char*)(FCFS_ADDR+f->offset), f->len, 0 );
+        (*cb)( (char*)(FLASH_FCFS_ADDR_BASE+f->offset), f->len, 0 );
         f++;
     }
     return 1;
 }
 
+
+int mcush_fcfs_get_raw_address( const char *name, const char **addr, int *size )
+{
+    fcfs_file_t *f = (fcfs_file_t*)(FLASH_FCFS_ADDR_BASE+sizeof(fcfs_head_t));
+    int i;
+    
+    while( (f->offset != 0) && (f->offset != 0xFFFF) )
+    {
+        if( strcmp((char*)(FLASH_FCFS_ADDR_BASE+f->offset), name)==0 )
+        {
+            i = strlen((char*)(FLASH_FCFS_ADDR_BASE+f->offset));
+            *addr = (const char *)(FLASH_FCFS_ADDR_BASE+f->offset+i+1);
+            *size = f->len;
+            return 1;
+        }
+        f++;
+    }
+    return 0;
+}
 
 
 

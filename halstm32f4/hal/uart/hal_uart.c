@@ -302,7 +302,7 @@ int  shell_driver_write( const char *buffer, int len )
 
 void shell_driver_write_char( char c )
 {
-    while( hal_uart_putc( c, portMAX_DELAY ) == 0 )
+    while( hal_uart_putc( c, -1 ) == 0 )
         os_task_delay(1);
 }
 

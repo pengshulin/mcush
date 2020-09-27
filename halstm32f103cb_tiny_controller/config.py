@@ -9,7 +9,7 @@ if hal_config.use_hal_driver:
     env = Stm32f103xb( use_hal_driver=True )
 else:
     env = Stm32f1md( use_hal_driver=False )
-env.setLinkfile( '/ld/stm32f103xb_min.ld' )
+env.setLinkfile( '/ld/stm32f103xb.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
 hal_config.paths += ['common']

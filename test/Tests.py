@@ -408,6 +408,26 @@ def fcfs_program(argv=None):
     s.fcfsProgram(mem) 
 
 
+############################################################################# 
+# upgrade
+def writeBootloaderFlags(argv=None):
+    s = Mcush(check_idn=False)
+    s.writeBootloaderFlags( argv[0], argv[1:] )
+
+def transferCallback( segment, segments, written, total):
+    print( '%d / %d (%.1f%%)'% (written, total, 100.0*written/total) )
+
+def upgradeFromIntFlash(argv=None):
+    s = Mcush(check_idn=False)
+    s.upgradeFromIntFlash( argv[0], transferCallback )
+    s.port.write( "reboot\n" )
+    
+def upgradeFromSPIFFS(argv=None):
+    s = Mcush(check_idn=False)
+    s.upgradeFromSPIFFS( argv[0], transferCallback )
+    s.port.write( "reboot\n" )
+    
+  
 #############################################################################
 if __name__ == '__main__':
     app_name = os.path.basename(sys.argv[0])

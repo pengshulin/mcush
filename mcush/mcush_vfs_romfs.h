@@ -34,6 +34,8 @@ int mcush_romfs_flush( int fh );
 int mcush_romfs_close( int fh );
 int mcush_romfs_list( const char *pathname, void (*cb)(const char *name, int size, int mode) );
 
+int mcush_romfs_get_raw_address( const char *name, const char **addr, int *size );
+
 extern const mcush_vfs_driver_t mcush_romfs_driver;
 
 extern const romfs_file_t romfs_tab[];

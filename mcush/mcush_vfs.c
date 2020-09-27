@@ -262,8 +262,8 @@ int mcush_read( int fd, char *buf, int len )
     vfs_stat.count_read++;
 #endif
     /* fd == 0: map to shell input */
-    if( fd == 0 )
-        return shell_read( buf, len );
+    //if( fd == 0 )
+    //    return shell_read( buf, len );
 
     fd -= FD_RESERVED;
     if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
@@ -302,11 +302,11 @@ int mcush_write( int fd, char *buf, int len )
     vfs_stat.count_write++;
 #endif
     /* fd == 1/2: map to shell output */
-    if( fd == 1 || fd == 2 )
-    {
-        shell_write( buf, len );
-        return len;
-    }
+    //if( fd == 1 || fd == 2 )
+    //{
+    //    shell_write( buf, len );
+    //    return len;
+    //}
     fd -= FD_RESERVED;
     if( (fd < 0) || (fd >= MCUSH_VFS_FILE_DESCRIPTOR_NUM) )
         goto err;
@@ -390,10 +390,11 @@ int mcush_list( const char *path, void (*cb)(const char *name, int size, int mod
 
 int mcush_getc( int fd )
 {
-    char c;
-    
     (void)fd;
-    return shell_read_char( &c );
+    //char c;
+    //
+    //return shell_read_char( &c );
+    return -1;
 }
 
 

@@ -509,6 +509,9 @@ msgstr "正在启动..."
 msgid "Started"
 msgstr "已启动"
 
+msgid "Erase"
+msgstr "擦除"
+
 msgid "Erasing..."
 msgstr "正在擦除..."
 

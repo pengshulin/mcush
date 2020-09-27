@@ -7,7 +7,6 @@ extern int cmd_help( int argc, char *argv[] );
 extern int cmd_scpi_idn( int argc, char *argv[] );
 extern int cmd_scpi_rst( int argc, char *argv[] );
 extern int cmd_reboot( int argc, char *argv[] );
-extern int cmd_upgrade( int argc, char *argv[] );
 extern int cmd_gpio( int argc, char *argv[] );
 extern int cmd_led( int argc, char *argv[] );
 extern int cmd_dump( int argc, char *argv[] );
@@ -36,6 +35,7 @@ extern int cmd_ws2812( int argc, char *argv[] );
 extern int cmd_fcfs( int argc, char *argv[] );
 extern int cmd_spiffs( int argc, char *argv[] );
 extern int cmd_fatfs( int argc, char *argv[] );
+extern int cmd_upgrade( int argc, char *argv[] );
 extern int cmd_cat( int argc, char *argv[] );
 extern int cmd_rm( int argc, char *argv[] );
 extern int cmd_rename( int argc, char *argv[] );
@@ -67,11 +67,6 @@ const shell_cmd_t CMD_TAB[] = {
 {   CMD_HIDDEN, 0,  shell_str_reboot,  cmd_reboot, 
     "reboot device",
     shell_str_reboot },
-#endif
-#if USE_CMD_UPGRADE
-{   CMD_HIDDEN, 0,  "upgrade",  cmd_upgrade, 
-    "upgrade firmware and restart",
-    "upgrade -f <filename>" },
 #endif
 #if USE_CMD_DUMP
 {   CMD_HIDDEN,  'x',  "dump",  cmd_dump, 
@@ -126,7 +121,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_GPIO
 {   0,  0,  "gpio",  cmd_gpio, 
     "control gpio",
-    "gpio -p <port.bit> [-i|o|s|c|t|v]" },
+    "gpio -p <port.bit> [-i|o|s|c|t]" },
 #endif
 #if USE_CMD_SGPIO
 {   0,  0,  "sgpio",  cmd_sgpio, 
@@ -262,6 +257,11 @@ const shell_cmd_t CMD_TAB[] = {
 {   CMD_HIDDEN, 0, "fcfs",  cmd_fcfs, 
     "fcfs control",
     "fcfs"  },
+#endif
+#if USE_CMD_UPGRADE
+{   CMD_HIDDEN, 'U', "upgrade",  cmd_upgrade, 
+    "upgrade firmware",
+    "upgrade"  },
 #endif
 #if USE_CMD_SPIFFS
 {   0, 's', "spiffs",  cmd_spiffs, 

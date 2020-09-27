@@ -399,11 +399,14 @@ char emu_ds1w_read_byte( int ds1w_index );
 
 
 #if defined(SUPPORT_WS2812)
-int ws2812_init( int length, int group_length, int port, int pin );
+int ws2812_init( int length, int group_length,  int port, int pin );
 void ws2812_deinit(void);
 int ws2812_write(int offset, int dat, int swap_rg);
 int ws2812_push(int forward, int dat, int swap_rg, int offset, int length);
 void ws2812_flush(void);
+#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+void ws2812_init_group_length_list( uint8_t *list, int list_length );
+#endif
 #endif
 
 

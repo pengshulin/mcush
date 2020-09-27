@@ -603,20 +603,22 @@ int cmd_crc( int argc, char *argv[] )
 int cmd_fcfs( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
+        /* TODO: offset option may be obselected in the future */
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'o', shell_str_offset, shell_str_offset, shell_str_offset },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', shell_str_command, "cmd_name", "info|format|program" },
+          'c', shell_str_command, "cmd_name", "info|erase|(p)rogram|offset" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_value, 0, shell_str_data },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     char *cmd=0;
-    uint32_t offset=0;
+    static uint32_t offset=0;
     int buf[32];
     int len;
     int i;
+    fcfs_head_t *head=(fcfs_head_t*)FLASH_FCFS_ADDR_BASE;
 
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -639,15 +641,33 @@ int cmd_fcfs( int argc, char *argv[] )
 
     if( !cmd || strcmp( cmd, shell_str_info ) == 0 )
     {
-        shell_printf( "%s: 0x%08X\n", shell_str_address, FCFS_ADDR );
-        shell_printf( "uid: %s\n", hexlify((const char*)(FCFS_ADDR+4), (char*)buf, FCFS_UID_LEN, 1) );
+        shell_printf( "%s: 0x%08X\n", shell_str_address, FLASH_FCFS_ADDR_BASE );
+        shell_printf( "%s: %u\n", shell_str_size, FLASH_FCFS_SIZE );
+        shell_printf( "uid: %s\n", hexlify((const char*)(head->uid), (char*)buf, sizeof(head->uid), 1) );
     }
-    else if( strcmp( cmd, shell_str_format ) == 0 )
+    else if( (strcmp( cmd, shell_str_format ) == 0) ||
+             (strcmp( cmd, shell_str_erase ) == 0) )
     {
         mcush_fcfs_umount();
-        return mcush_fcfs_format() ? 0 : 1;
+        offset = 0;
+        return hal_flash_erase((void*)FLASH_FCFS_ADDR_BASE, FLASH_FCFS_SIZE) ? 0 : 1;
     }
-    else if( strcmp( cmd, shell_str_program ) == 0 )
+    else if( strcmp( cmd, "offset" ) == 0 )
+    {
+        if( ++parser.idx < argc )
+        {
+            if( ! parse_int(argv[parser.idx], (int*)&offset) )
+            {
+                shell_write_str( "data err: " );
+                shell_write_line( argv[parser.idx] );
+                return 1;
+            }
+        }
+        else
+            shell_printf( "0x%08X\n", offset );
+    }
+    else if( (strcmp( cmd, shell_str_program ) == 0) || 
+             (strcmp( cmd, "p") == 0) )
     {
         parser.idx++;
         len = 0;
@@ -665,7 +685,13 @@ int cmd_fcfs( int argc, char *argv[] )
         }
         if( len == 0 )
             return -1;
-        return hal_fcfs_program( offset, buf, len ) ? 0 : 1;
+        if( hal_flash_program( (void*)(FLASH_FCFS_ADDR_BASE+offset), buf, len*4 ) )
+        {
+            offset += len*4;
+            return 0;
+        }
+        else
+            return 1;
     } 
     else
     {

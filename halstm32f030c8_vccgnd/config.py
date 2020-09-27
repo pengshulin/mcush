@@ -1,7 +1,7 @@
 from Arm.Stm32 import *
 
 env = Stm32f030xx()
-env.setLinkfile( '/ld/stm32f030x8_min.ld' )
+env.setLinkfile( '/ld/stm32f030x8.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=8000000' ] )
 
 hal_config.paths += ['common']

@@ -49,7 +49,6 @@ class Instrument:
     DEFAULT_TIMEOUT = 5
     DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
     DEFAULT_PROMPTS_MULTILINE = re_compile( '[=#?!]?>' )
-    DEFAULT_LINE_LIMIT = 128
     DEFAULT_IDN = re_compile( '.*' )
 
     DEFAULT_TERMINAL_RESET = True

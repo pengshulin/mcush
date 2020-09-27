@@ -11,22 +11,30 @@ import time
 import binascii
 from mcush import *
 
+#FAST_BAUDRATE = 19200
+#FAST_BAUDRATE = 38400
+#FAST_BAUDRATE = 57600
+#FAST_BAUDRATE = 115200
+#FAST_BAUDRATE = 230400
+#FAST_BAUDRATE = 256000
+#FAST_BAUDRATE = 512000
+FAST_BAUDRATE = 921600
 
 posy = 0
 heighty = 20
 
 def main(argv=None):
     if len(argv) < 2:
-        print u'Usage: %s tft_filename'% argv[0]
+        print( u'Usage: %s tft_filename'% argv[0] )
         return 1
     filename = argv[1]
     if not os.path.isfile(filename):
-        print 'File not exist.'
+        print( 'File not exist.' )
         return 2
     dat = open(filename).read()
     filesize = len(dat) 
     if filesize <= 0:
-        print 'File error'
+        print( 'File error' )
         return 3
     # split dat into 4k packets
     packets = []
@@ -38,13 +46,13 @@ def main(argv=None):
         dat = dat[4096:]
         if len(dat) == 0:
             break
-    print 'File name:', filename
-    print 'File size: %d Bytes, splited into %s packets'% (filesize, len(packets))
+    print( 'File name:', filename )
+    print( 'File size: %d Bytes, splited into %s packets'% (filesize, len(packets)) )
     port = Env.PORT
     if not port:
-        print 'Serial port not set'
+        print( 'Serial port not set' )
         return 3
-    print 'Serial port:', port
+    print( 'Serial port:', port )
    
     # 1. connect using default baudrate (9600) 
     # 2. get device info
@@ -58,20 +66,20 @@ def main(argv=None):
     info = ''.join(h.readUntilPrompts(check_return_code=False))
     try:
         a,b,c,d,e,f,g = info.split(',')
-        print 'Device info:', info
+        print( 'Device info:', info )
     except:
-        print 'Deivce response error'
+        print( 'Deivce response error' )
         return -1
     aa, ab = a.split(' ')
     assert aa == 'comok'
-    print '  touch support: %s'% ('Y' if int(ab) else 'N')
-    print '  product model: %s'% c
-    print '  firmware version: %s'% d
-    print '  cpu id: %s'% e
-    print '  serial number: %s'% f
-    print '  flash size: %s Bytes'% g
+    print( '  touch support: %s'% ('Y' if int(ab) else 'N') )
+    print( '  product model: %s'% c )
+    print( '  firmware version: %s'% d )
+    print( '  cpu id: %s'% e )
+    print( '  serial number: %s'% f )
+    print( '  flash size: %s Bytes'% g )
     if filesize > int(g):
-        print 'Filesize too large to fit into flash'
+        print( 'Filesize too large to fit into flash' )
         return -1
 
     def writeline(s):
@@ -86,11 +94,12 @@ def main(argv=None):
     writeline(time.strftime('%Y-%m-%d %H:%M:%S'))
    
     baud = h.port.baudrate
-    if baud != 115200:
-        baud = 115200
-        print 'switch baudrate to %d'% baud
+    if baud != FAST_BAUDRATE:
+        baud = FAST_BAUDRATE
+        print( 'switch baudrate to %d'% baud )
         h.port.write("baud=%d\xFF\xFF\xFF"% baud)
         h.port.flush()
+        time.sleep(1)
         h.port.ser.close()
         h.port.ser.baudrate = baud
         h.port.ser.open()
@@ -98,9 +107,9 @@ def main(argv=None):
     writeline('ready to download...')
     for i in [3,2,1]:
         writeline('%d'% i)
-        print i
+        print( i )
         time.sleep(1)
-    print 'downloading...'
+    print( 'downloading...' )
     h.port.write( 'whmi-wri %s,%s,%s\xff\xff\xff'% (filesize,baud,0) )
     h.port.flush()
     # write packets
@@ -110,7 +119,7 @@ def main(argv=None):
         byte = h.port.read(1)
         if not byte:
             # according to the datasheet, code 0x05 should response in 500ms
-            print 'timeout'
+            print( 'timeout' )
             return -1
         if byte == '\x05':
             # sync and send packet
@@ -120,13 +129,13 @@ def main(argv=None):
                 sent += len(p)
                 np = int(sent*100/filesize)
                 if np != percent:
-                    print '%d / %d (%d %%)'% (sent, filesize, np)
+                    print( '%d / %d (%d %%)'% (sent, filesize, np) )
                     percent = np
             else:
-                print 'done'
+                print( 'done' )
                 break 
         else:
-            print 'unknown byte', ord(byte)
+            print( 'unknown byte', ord(byte) )
             return -1
     return 0
  

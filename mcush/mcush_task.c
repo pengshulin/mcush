@@ -3,9 +3,9 @@
 #include "hal.h"
 
 extern shell_cmd_t CMD_TAB[];
-extern char _isdata;
+//extern char _isdata;
 
-__signature static const char mcush_signature[] = "<mcush>";
+__signature const char mcush_signature[] = "<mcush>";
 
 os_task_handle_t task_mcush;
 
@@ -49,11 +49,11 @@ void mcush_init(void)
     if( !hal_init() )
         halt("hal init");
 
-#if SUPPORT_NEWLIB
-    if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
-#else
+//#if SUPPORT_NEWLIB
+//    if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
+//#else
     if( !shell_init( &CMD_TAB[0], 0 ) )
-#endif
+//#endif
         halt("shell init");
 
 

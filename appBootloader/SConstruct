@@ -1,0 +1,27 @@
+from VEnvironment import *
+
+haldir = 'stm32f412'
+
+env = loadHalConfig( haldir, bootloader_mode=True, append_rtos="NONE" ).env
+
+
+if (not env.DEBUG) and (not getBoolEnv('HAL_WDG_DISABLE')):
+    env.appendDefineFlags( [ 'HAL_WDG_ENABLE=1' ] )  # add watchdog
+
+
+env.appendDefineFlags( [
+    'SPIFFS_READ_ONLY=1',
+    ] )
+
+env.appendPath([
+    '.',
+    '/libmd5/',
+])
+
+env.appendGlobSource([
+    '*.c',
+    '/libmd5/*.c',
+])
+
+env.makeApp()
+

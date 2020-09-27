@@ -1,0 +1,81 @@
+/* Simple bootloader demo
+ *  
+ * Peng Shulin <trees_peng@linkongsoft.com> 2020
+ */
+#include "mcush.h"
+#include "md5.h"
+#include "flash_config.h"
+
+
+
+#ifndef DEBUG_LED_ID
+    #define DEBUG_LED_ID  0
+#endif
+
+
+typedef void (user_app_entry_t)(void);
+
+const bootloader_flag_t *flag = (bootloader_flag_t*)FLASH_BOOTLOADER_FLAG_ADDR_BASE;
+
+int main(void)
+{
+    int md5_output[4];
+    uint32_t *sp;
+
+    hal_wdg_init();
+    hal_clk_init();
+    hal_gpio_init();
+    hal_led_init();
+
+    hal_led_set(DEBUG_LED_ID);
+
+    if( flag->magic_num != BOOTLOADER_FLAG_MAGIC_NUM )
+        goto run_app;
+    
+    /* check for upgrade size and md5 digest */
+    if( (flag->size >= 4*1024) && (flag->size <= FLASH_APP_SIZE) )
+    {
+        md5( (const char*)FLASH_UPGRADE_ADDR_BASE, flag->size, (char*)md5_output );
+        if( memcmp( (void*)md5_output, (void*)(flag->md5), 16 ) == 0 )
+        {
+            /* erase app flash */
+            if( hal_flash_erase( (void*)FLASH_APP_ADDR_BASE, FLASH_APP_SIZE ) )
+            {
+                /* copy from upgrade flash */
+                if( hal_flash_program( (void*)FLASH_APP_ADDR_BASE, (int*)FLASH_UPGRADE_ADDR_BASE, flag->size ) )
+                {
+                    /* clear flags */
+                    if( hal_flash_erase( (void*)FLASH_BOOTLOADER_FLAG_ADDR_BASE, FLASH_BOOTLOADER_FLAG_SIZE ) )
+                        hal_led_clr(DEBUG_LED_ID);
+                }
+                else
+                    goto halt;
+            }
+            else
+                goto halt;
+        }
+    }
+  
+run_app: 
+    /* check user app entry by stack pointer */ 
+    sp = (uint32_t*)FLASH_APP_ADDR_BASE;
+    if( (*sp & 0x2FF00000) != 0x20000000 )
+        goto halt;
+
+    /* jump and run */
+    hal_led_clr(DEBUG_LED_ID);
+    //RCC_DeInit();
+    __set_MSP(*sp);
+    (*((user_app_entry_t*)(*(uint32_t*)(FLASH_APP_ADDR_BASE+4))))(); 
+    while(1);
+
+halt:
+    while( 1 )
+    {
+        hal_led_set( DEBUG_LED_ID );
+        hal_delay_ms(250);
+        hal_led_clr( DEBUG_LED_ID );
+        hal_delay_ms(250);
+    }
+}
+

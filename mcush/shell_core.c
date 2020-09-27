@@ -848,6 +848,29 @@ fail:
 }
 
 
+/* load priority sequence:
+ * 1. /c/init    (user configured)
+ * 2. /r/init    (compiler builtin)
+ */
+static int load_init_script(void)
+{
+#if MCUSH_FCFS || MCUSH_ROMFS
+    const char *addr;
+    int size;
+#if MCUSH_FCFS
+    if( mcush_fcfs_get_raw_address( shell_str_init, &addr, &size ) )
+        return shell_set_script( addr, 0 );
+    else
+#endif
+#if MCUSH_ROMFS
+    if( mcush_romfs_get_raw_address( shell_str_init, &addr, &size ) )
+        return shell_set_script( addr, 0 );
+#endif
+#endif
+    return 0;
+}
+
+
 void shell_run( void *p )
 {
     (void)p;
@@ -856,12 +879,11 @@ void shell_run( void *p )
     shell_write_str("\r\n");
     shell_write_str( shell_get_prompt() );
 #endif
+
+    load_init_script();
     
     while( 1 )
     {
-//#if HAL_WDG_ENABLE
-//        hal_wdg_clear();
-//#endif
         switch( shell_read_line(0, "") )
         {
         case 0:  /* empty line */

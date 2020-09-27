@@ -9,10 +9,10 @@
 #if MCUSH_ROMFS_USER
 extern const romfs_file_t romfs_tab[];
 #else
-__signature const char file_readme[] = "MCUSH designed by Peng Shulin, all rights reserved.\nhttps://github.com/pengshulin/mcush";
+__signature const char romfs_file_readme[] = "MCUSH designed by Peng Shulin, all rights reserved.\nhttps://github.com/pengshulin/mcush";
 #include ".build_signature"
 const romfs_file_t romfs_tab[] = {
-    { "readme", file_readme, sizeof(file_readme)-1 },
+    { "readme", romfs_file_readme, sizeof(romfs_file_readme)-1 },
     { "build", build_signature, sizeof(build_signature)-1 },
     { 0 } };
 #endif
@@ -190,6 +190,25 @@ int mcush_romfs_list( const char *pathname, void (*cb)(const char *name, int siz
         f++;
     }
     return 1;
+}
+
+
+
+int mcush_romfs_get_raw_address( const char *name, const char **addr, int *size )
+{
+    const romfs_file_t *f = romfs_tab;
+   
+    while( f->name )
+    {
+        if( strcmp(f->name, name)==0 )
+        {
+            *addr = f->contents;
+            *size = f->len;
+            return 1;
+        }
+        f++;
+    }
+    return 0;        
 }
 
 

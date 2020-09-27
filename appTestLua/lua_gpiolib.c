@@ -25,12 +25,17 @@ static int _gpio_process( lua_State *L, gpio_f f )
     return 0;
 }
 
-static int lua_gpio_out(lua_State *L)
+static int lua_gpio_output(lua_State *L)
 {
     return _gpio_process( L, hal_gpio_set_output );
 }
 
-static int lua_gpio_in(lua_State *L)
+static int lua_gpio_output_od(lua_State *L)
+{
+    return _gpio_process( L, hal_gpio_set_output_open_drain );
+}
+
+static int lua_gpio_input(lua_State *L)
 {
     return _gpio_process( L, hal_gpio_set_input );
 }
@@ -78,8 +83,9 @@ static int lua_gpio_get(lua_State *L)
 
 static const struct luaL_Reg gpiolib[] =
 {
-    { "input", lua_gpio_in },
-    { "output", lua_gpio_out },
+    { "input", lua_gpio_input },
+    { "output", lua_gpio_output },
+    { "output_od", lua_gpio_output_od },
     { "set", lua_gpio_set },
     { "clr", lua_gpio_clr },
     { "toggle", lua_gpio_toggle },

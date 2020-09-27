@@ -1,7 +1,7 @@
 from Arm.Stm32 import *
 env = Stm32f429xx( use_hal_driver=hal_config.use_hal_driver )
 env.setLinkfile( '/ld/stm32f429xg_ccmsram.ld' )
-#env.setLinkfile( '/ld/stm32f429xg_min.ld' )
+#env.setLinkfile( '/ld/stm32f429xg.ld' )
 #env.setLinkfile( '/ld/stm32f429xg_sdram_b2.ld' )
 env.appendDefineFlags( [ 'HSE_VALUE=25000000', 'NEED_FMC' ] )
 

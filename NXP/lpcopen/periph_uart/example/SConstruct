@@ -1,7 +1,7 @@
 from Arm import *
 
 env = CortexM4(cmsis_inc=False)
-env.setLinkfile( '/ld/lpc4337_m4_min.ld' )
+env.setLinkfile( '/ld/lpc4337_m4.ld' )
 
 env.appendDefineFlags( [
     'CORE_M4', 
