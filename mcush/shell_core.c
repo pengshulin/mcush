@@ -660,13 +660,17 @@ int shell_init( const shell_cmd_t *cmd_table, const char *init_script )
 
 int shell_set_script( const char *script, int need_free )
 {
-    if( !script )
-        return 0;
     scb.script = script;
     if( scb.script_free )
         os_free( (void*)scb.script_free );
     scb.script_free = need_free ? script : 0;
     return 1;
+}
+
+
+int shell_is_script_mode( void )
+{
+    return scb.script ? 1 : 0;
 }
 
 

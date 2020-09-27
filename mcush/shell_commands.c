@@ -443,6 +443,8 @@ int cmd_wait( int argc, char *argv[] )
     mcush_opt_parser parser;
     mcush_opt opt;
     int ms=1000;
+    os_tick_t t0=os_tick(), dt=0, total_ticks;
+    char c;
     
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -456,7 +458,17 @@ int cmd_wait( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
-    os_task_delay_ms( ms );
+    total_ticks = OS_TICKS_MS(ms);
+    while( shell_driver_read_char_blocked(&c, total_ticks - dt) != -1 )
+    {
+        if( c == 0x03 ) /* Ctrl-C for stop */
+        {
+            if( shell_is_script_mode() )
+                shell_set_script( NULL, 0 );  /* abort current script */
+            return 0;
+        }
+        dt = os_tick() - t0;
+    }
     return 0;
 }
 #endif

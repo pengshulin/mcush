@@ -122,6 +122,7 @@ void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
 int  shell_print_help( const char *cmd, int show_hidden );
 int  shell_set_script( const char *script, int need_free );
+int  shell_is_script_mode( void );
 void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
 char *shell_get_buf( void );

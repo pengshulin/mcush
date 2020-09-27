@@ -507,6 +507,7 @@ int cmd_load( int argc, char *argv[] )
     int fd;
     void *buf=0;
     int i;
+    const char *addr;
 
     fname[0] = 0;
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
@@ -521,11 +522,43 @@ int cmd_load( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT 
     }
 
-    if( ! fname[0] )
+    if( fname[0] != '/' )
+        return -1;
+    if( ! isalnum((int)fname[1]) )
+        return -1;
+    if( fname[2] != '/' )
+        return -1;
+    if( ! isalnum((int)fname[3]) )
         return -1;
 
+#if MCUSH_ROMFS
+    if( fname[1] == 'r' )
+    {
+        if( mcush_romfs_get_raw_address( (const char*)&fname[3], &addr, &size ) )
+        {
+            shell_set_script( addr, 0 );
+            return 0; 
+        }
+        else
+            return 1;
+    }
+#endif
+
+#if MCUSH_FCFS
+    if( fname[1] == 'c' )
+    {
+        if( mcush_fcfs_get_raw_address( (const char*)&fname[3], &addr, &size ) )
+        {
+            shell_set_script( addr, 0 );
+            return 0; 
+        }
+        else
+            return 1;
+    }
+#endif
+
     mcush_size( fname, &size );
-    if( !size )
+    if( size == 0 )
         return 0;
 
     buf = os_malloc( size + 1 );
