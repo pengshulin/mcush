@@ -75,7 +75,7 @@ void hal_beep_on( int freq )
     if( freq != _freq )
     {
         _freq = freq;
-        _auto_reload_val = auto_reload_val = sqrt( SystemCoreClock / freq );
+        _auto_reload_val = auto_reload_val = (short)sqrtf( SystemCoreClock / freq );
     }
     else
         auto_reload_val = _auto_reload_val;

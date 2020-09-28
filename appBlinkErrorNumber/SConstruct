@@ -16,8 +16,8 @@ if haldir is None:
     haldir = 'stm32f411ce_weact'
 
 RTOS = 'RTX'
-RTOS = 'FREERTOS'
 RTOS = 'RTTHREAD'
+RTOS = 'FREERTOS'
 
 #env = loadHalConfig( haldir ).env
 env = loadHalConfig( haldir, append_rtos=RTOS ).env

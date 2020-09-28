@@ -26,7 +26,7 @@ if hal_config.use_vcp:
     else:
         env.appendDriver(STM32_USB_FS_Driver() )
         env.appendDefineFlags( [ 'SUSPEND_ENABLED=0' ] )
-    #env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
+    env.appendDefineFlags( ['HAL_RESET_USB_PINS=1'] )
     env.appendDefineFlags( ['SHELL_NO_PROMPT_AT_STARTUP=1'] )
 else:
     hal_config.paths += [hal_dir+'/uart']
@@ -61,7 +61,7 @@ env.appendDefineFlags( [
     'USE_CMD_LOAD=0',
     'USE_CMD_CAT_WRITE=0',
     #'USE_CMD_MAPI=0',
-    #'USE_CMD_MKBUF=0',
+    'USE_CMD_MKBUF=0',
     #'MCUSH_FREERTOS_PEEK_API=0',
     'configUSE_TIMERS=0',
     #'configUSE_MUTEX=0',

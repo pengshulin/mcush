@@ -154,7 +154,7 @@ void HAL_UARTx_IRQHandler(void)
 #if HAL_UART_QUEUE_RX_LEN
         os_queue_put_isr( hal_uart_queue_rx, &c );
 #endif
-        USART_ClearITPendingBit( HAL_UARTx, USART_IT_RXNE );
+        LL_USART_ClearFlag_RXNE( HAL_UARTx );
     }   
 
     if( LL_USART_IsActiveFlag_ORE( HAL_UARTx ) )
@@ -244,7 +244,7 @@ int  shell_driver_read_feed( char *buffer, int len )
     int bytes=0;
     while( bytes < len )
     {
-        while( hal_uart_feedc( *(char*)((int)buffer + bytes), portMAX_DELAY ) == 0 )
+        while( hal_uart_feedc( *(char*)((int)buffer + bytes), -1 ) == 0 )
             os_task_delay(1);
         bytes += 1;
     }
@@ -254,13 +254,15 @@ int  shell_driver_read_feed( char *buffer, int len )
 
 int  shell_driver_read( char *buffer, int len )
 {
+    (void)buffer;
+    (void)len;
     return 0;  /* not supported */
 }
 
 
 int  shell_driver_read_char( char *c )
 {
-    if( hal_uart_getc( c, portMAX_DELAY ) == pdFAIL )
+    if( hal_uart_getc( c, -1 ) == 0 )
         return -1;
     else
         return (int)c;

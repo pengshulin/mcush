@@ -33,9 +33,6 @@
     #define HAL_UARTx_AF                    GPIO_AF_USART1
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
-    #define HAL_UARTx_BAUDRATE              9600
-    #define HAL_UART_QUEUE_RX_LEN           128
-    #define HAL_UART_QUEUE_TX_LEN           128
 #endif
 
 
@@ -89,8 +86,6 @@ int hal_uart_init( uint32_t baudrate )
 #endif
 #endif
 
-
- 
     USART_ClearFlag( HAL_UARTx, USART_FLAG_CTS | USART_FLAG_LBD | USART_FLAG_TC | USART_FLAG_RXNE );	
     USART_ITConfig( HAL_UARTx, USART_IT_CTS | USART_IT_LBD | USART_IT_TXE | USART_IT_TC | \
                     USART_IT_RXNE | USART_IT_IDLE | USART_IT_PE | USART_IT_ERR, DISABLE );

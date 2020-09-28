@@ -39,7 +39,7 @@ float adval_to_voltage(int val)
 {
     float ret;
     ret = val;
-    ret = 3.3 * ret / 4096;
+    ret = 3.3f * ret / 4096.0f;
     return ret;
 }
 
