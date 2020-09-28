@@ -278,7 +278,11 @@ void rt_thread_idle_init(void)
 
     for (i = 0; i < _CPUS_NR; i++)
     {
-        rt_sprintf(tidle_name, "tidle%d", i);
+#ifdef RT_USING_SMP
+        rt_sprintf(tidle_name, "idle%dT", i);
+#else
+        rt_sprintf( tidle_name, "idleT" );
+#endif
         rt_thread_init(&idle[i],
                 tidle_name,
                 rt_thread_idle_entry,

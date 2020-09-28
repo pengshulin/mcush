@@ -474,44 +474,220 @@ void os_free( void *mem )
 }
 
 
+/*************************************************************************************/
+/* list operation codes borrowed from components/finsh/cmd.c in RT-Thread repository */
+/*************************************************************************************/
 
-#define TASKS_LIMIT  30
+#define LIST_FIND_OBJ_NR  8
+
+typedef struct
+{
+    rt_list_t *list;
+    rt_list_t **array;
+    rt_uint8_t type;
+    int nr;             /* input: max nr, can't be 0 */
+    int nr_out;         /* out: got nr */
+} list_get_next_t;
+
+static void list_find_init(list_get_next_t *p, rt_uint8_t type, rt_list_t **array, int nr)
+{
+    struct rt_object_information *info;
+    rt_list_t *list;
+
+    info = rt_object_get_information((enum rt_object_class_type)type);
+    list = &info->object_list;
+
+    p->list = list;
+    p->type = type;
+    p->array = array;
+    p->nr = nr;
+    p->nr_out = 0;
+}
+
+static rt_list_t *list_get_next(rt_list_t *current, list_get_next_t *arg)
+{
+    int first_flag = 0;
+    rt_ubase_t level;
+    rt_list_t *node, *list;
+    rt_list_t **array;
+    int nr;
+
+    arg->nr_out = 0;
+
+    if (!arg->nr || !arg->type)
+    {
+        return (rt_list_t *)RT_NULL;
+    }
+
+    list = arg->list;
+
+    if (!current) /* find first */
+    {
+        node = list;
+        first_flag = 1;
+    }
+    else
+    {
+        node = current;
+    }
+
+    level = rt_hw_interrupt_disable();
+
+    if (!first_flag)
+    {
+        struct rt_object *obj;
+        /* The node in the list? */
+        obj = rt_list_entry(node, struct rt_object, list);
+        if ((obj->type & ~RT_Object_Class_Static) != arg->type)
+        {
+            rt_hw_interrupt_enable(level);
+            return (rt_list_t *)RT_NULL;
+        }
+    }
+
+    nr = 0;
+    array = arg->array;
+    while (1)
+    {
+        node = node->next;
+
+        if (node == list)
+        {
+            node = (rt_list_t *)RT_NULL;
+            break;
+        }
+        nr++;
+        *array++ = node;
+        if (nr == arg->nr)
+        {
+            break;
+        }
+    }
+    
+    rt_hw_interrupt_enable(level);
+    arg->nr_out = nr;
+    return node;
+}
+
+
+static int check_free_bytes(int *p)
+{
+    int bytes=0;
+
+    while( *p==0x23232323 )  /* filled with "####" */
+    {
+        bytes += 4;
+#if defined(ARCH_CPU_STACK_GROWS_UPWARD)
+        p--;
+#else
+        p++;
+#endif
+    }
+    return bytes;
+}
+
+
 void os_task_info_print(void)
 {
-//    /* sizeof(TaskStatus_t) = 36 bytes */
-//    TaskStatus_t task_status_array[TASKS_LIMIT];  /* 30*36=1080 bytes */
-//    int i, count;
-//    char c;
-//
-//    count = uxTaskGetSystemState( task_status_array, TASKS_LIMIT, NULL );
-//    for( i=0; i<count; i++ )
-//    {
-//        /* status */
-//        switch( task_status_array[i].eCurrentState )
-//        {
-//        case eRunning: c = 'X'; break;
-//        case eReady: c = 'R'; break;
-//        case eBlocked: c = 'B'; break;
-//        case eSuspended: c = 'S'; break;
-//        case eDeleted: c = 'D'; break;
-//        default: c = '?'; break;
-//        } 
-//        
-//        shell_printf( "%2d %8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n",
-//                    task_status_array[i].xTaskNumber,
-//                    task_status_array[i].pcTaskName, c, 
-//                    task_status_array[i].xHandle,
-//                    task_status_array[i].uxCurrentPriority, task_status_array[i].uxBasePriority, 
-//                    task_status_array[i].pxStackBase,
-//                    *(uint32_t*)task_status_array[i].xHandle,  /* pxTopOfStack is at the begining of TCB_t */
-//                    //(uint32_t*)mcushGetTaskStackTop( task_status_array[i].xHandle ),
-//                    task_status_array[i].usStackHighWaterMark * sizeof(portSTACK_TYPE) );
-//    } 
+    rt_ubase_t level;
+    list_get_next_t find_arg;
+    rt_list_t *obj_list[LIST_FIND_OBJ_NR];
+    rt_list_t *next = (rt_list_t*)RT_NULL;
+    int i;
+    char c;
+    struct rt_object *obj;
+    struct rt_thread thread_info, *thread;
+    int free_bytes;
+
+    list_find_init(&find_arg, RT_Object_Class_Thread, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+
+    do
+    {
+        next = list_get_next(next, &find_arg);
+        for( i = 0; i < find_arg.nr_out; i++ )
+        {
+            obj = rt_list_entry(obj_list[i], struct rt_object, list);
+            level = rt_hw_interrupt_disable();
+
+            if ((obj->type & ~RT_Object_Class_Static) != find_arg.type)
+            {
+                rt_hw_interrupt_enable(level);
+                continue;
+            }
+            /* copy info */
+            memcpy(&thread_info, obj, sizeof thread_info);
+            rt_hw_interrupt_enable(level);
+
+            thread = (struct rt_thread*)obj;
+            
+            /* NOTE:
+             * this method is not the real-time snapshot of all tasks status, 
+             * tasks are still dynamically changing,
+             * more than one tasks may be displayed as "Running" status
+             */
+            switch( thread->stat & RT_THREAD_STAT_MASK )
+            {
+            case RT_THREAD_READY: c = 'R'; break;
+            case RT_THREAD_SUSPEND: c = 'S'; break;
+            case RT_THREAD_INIT: c = 'I'; break;
+            case RT_THREAD_CLOSE: c = 'D'; break;
+            case RT_THREAD_RUNNING: c = 'X'; break;
+            default: c = '?'; break;
+            } 
+
+#if defined(ARCH_CPU_STACK_GROWS_UPWARD)
+            free_bytes = check_free_bytes((int*)(thread->stack_addr+thread->stack_size-4));
+#else
+            free_bytes = check_free_bytes((int*)thread->stack_addr);
+#endif
+            shell_printf("%8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n", thread->name, c, (uint32_t)thread,
+                        thread->current_priority, thread->init_priority,
+                        (uint32_t)thread->stack_addr, (uint32_t)thread->sp, free_bytes);
+        }
+    } while (next != (rt_list_t*)RT_NULL);
 }
 
 
 void os_queue_info_print(void)
 {
+    rt_ubase_t level;
+    list_get_next_t find_arg;
+    rt_list_t *obj_list[LIST_FIND_OBJ_NR];
+    rt_list_t *next = (rt_list_t*)RT_NULL;
+    int i;
+    int pool_bytes;
+    struct rt_object *obj;
+    struct rt_messagequeue *m;
+
+    list_find_init(&find_arg, RT_Object_Class_MessageQueue, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
+
+    do
+    {
+        next = list_get_next(next, &find_arg);
+        {
+            for( i = 0; i < find_arg.nr_out; i++ )
+            {
+                obj = rt_list_entry(obj_list[i], struct rt_object, list);
+                level = rt_hw_interrupt_disable();
+                if ((obj->type & ~RT_Object_Class_Static) != find_arg.type)
+                {
+                    rt_hw_interrupt_enable(level);
+                    continue;
+                }
+
+                rt_hw_interrupt_enable(level);
+
+                m = (struct rt_messagequeue *)obj;
+                pool_bytes = m->max_msgs * m->msg_size;
+                shell_printf("%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n",
+                            m->parent.parent.name, (uint32_t)m,
+                            m->max_msgs, m->msg_size, m->entry, 
+                            (int)m->msg_pool, (int)m->msg_pool+pool_bytes,
+                            pool_bytes );
+            }
+        }
+    }
+    while (next != (rt_list_t*)RT_NULL);
 }
 
 
