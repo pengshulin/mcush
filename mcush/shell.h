@@ -110,6 +110,7 @@ typedef struct _shell_control_block_t {
     const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
     const char *script;
     const char *script_free;
+    uint8_t script_error_stop;
     int (*write_sniffer)( const char *buf, int len );
     //uint8_t write_sniffer_block_mode;
 } shell_control_block_t;
@@ -121,7 +122,7 @@ void shell_run( void *p );
 void shell_set_prompt_hook( const char *(*hook)(void) );
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
 int  shell_print_help( const char *cmd, int show_hidden );
-int  shell_set_script( const char *script, int need_free );
+int  shell_set_script( const char *script, int need_free, int error_stop );
 int  shell_is_script_mode( void );
 void shell_set_errnum( int errnum );
 int  shell_get_errnum( void );
@@ -147,6 +148,7 @@ const char *shell_get_prompt( void );
 int  shell_make_16bits_data_buffer( void **pbuf, int *len );
 int  shell_make_float_data_buffer( void **pbuf, int *len );
 int  (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[]);
+char shell_get_short_name( const char *name );
 int  shell_call( const char *cmd_name, ... );
 int  shell_call_line( char *cmd_line );
 

@@ -25,20 +25,53 @@ static int _gpio_process( lua_State *L, gpio_f f )
     return 0;
 }
 
-static int lua_gpio_output(lua_State *L)
-{
-    return _gpio_process( L, hal_gpio_set_output );
-}
-
-static int lua_gpio_output_od(lua_State *L)
-{
-    return _gpio_process( L, hal_gpio_set_output_open_drain );
-}
-
 static int lua_gpio_input(lua_State *L)
 {
-    return _gpio_process( L, hal_gpio_set_input );
+    int port, pin, pull, argc;
+
+    argc = lua_gettop(L);
+    if( (argc < 2) || (argc >3) )
+    {
+        lua_writestring( "parms: (port, pin)[, pull]", 26 );
+        lua_writeline();
+        return 0;
+    }
+
+    port = luaL_checkinteger(L, 1);
+    pin = luaL_checkinteger(L, 2);
+    if( argc == 3 )
+        pull = luaL_checkinteger(L, 3);
+    else
+        pull = 0;
+        
+    hal_gpio_set_input(port, 1<<pin, pull);
+    return 0;
 }
+
+
+static int lua_gpio_output(lua_State *L)
+{
+    int port, pin, opendrain, argc;
+
+    argc = lua_gettop(L);
+    if( (argc < 2) || (argc >3) )
+    {
+        lua_writestring( "parms: (port, pin)[, opendrain]", 26 );
+        lua_writeline();
+        return 0;
+    }
+
+    port = luaL_checkinteger(L, 1);
+    pin = luaL_checkinteger(L, 2);
+    if( argc == 3 )
+        opendrain = luaL_checkinteger(L, 3);
+    else
+        opendrain = 0;
+        
+    hal_gpio_set_output(port, 1<<pin, opendrain);
+    return 0;
+}
+
 
 static int lua_gpio_set(lua_State *L)
 {
@@ -54,6 +87,7 @@ static int lua_gpio_toggle(lua_State *L)
 {
     return _gpio_process( L, hal_gpio_toggle );
 }
+
 
 static int lua_gpio_get(lua_State *L)
 {
@@ -85,7 +119,6 @@ static const struct luaL_Reg gpiolib[] =
 {
     { "input", lua_gpio_input },
     { "output", lua_gpio_output },
-    { "output_od", lua_gpio_output_od },
     { "set", lua_gpio_set },
     { "clr", lua_gpio_clr },
     { "toggle", lua_gpio_toggle },

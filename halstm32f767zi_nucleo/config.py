@@ -28,7 +28,6 @@ env.appendDefineFlags( [
     'USE_CMD_REBOOT=0',
     'USE_CMD_REBOOT_COUNTER=0',
     'USE_CMD_RESET=0',
-    'USE_CMD_WDG=0',
     'USE_CMD_PWM=0',
     'USE_CMD_ADC=0',
     'USE_CMD_SGPIO=0',

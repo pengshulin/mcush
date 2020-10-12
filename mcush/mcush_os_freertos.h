@@ -1,7 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #ifndef __MCUSH_OS_FREERTOS_H__
 #define __MCUSH_OS_FREERTOS_H__
-
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -9,7 +8,7 @@
 #include "timers.h"
 #include "mcush_freertos_api.h"
 
-#define OS_NAME          "FreeRTOS " tskKERNEL_VERSION_NUMBER
+#define OS_NAME          "FreeRTOS"
 
 #if configSUPPORT_STATIC_ALLOCATION
     #define OS_SUPPORT_STATIC_ALLOCATION  1

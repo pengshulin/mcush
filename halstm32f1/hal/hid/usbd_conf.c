@@ -101,7 +101,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 #if HAL_RESET_USB_PINS
         GPIO_InitTypeDef GPIO_InitStruct;
         /* pull the DM/DP low, disconnect with the host */
-        hal_gpio_set_output( 0, (3<<11) );
+        hal_gpio_set_output( 0, (3<<11), 0 );
         hal_gpio_clr( 0, (3<<11) );
         hal_delay_ms( 5 );
         /* PA11 --- USB_FS_DM
@@ -726,8 +726,9 @@ void USBD_LL_Delay(uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-  static uint32_t mem[(sizeof(USBD_HID_HandleTypeDef)/4)+1];/* On 32-bit boundary */
-  return mem;
+    (void)size;
+    static uint32_t mem[(sizeof(USBD_HID_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+    return mem;
 }
 
 /**
@@ -737,7 +738,7 @@ void *USBD_static_malloc(uint32_t size)
   */
 void USBD_static_free(void *p)
 {
-
+    (void)p;
 }
 
 /**
@@ -748,18 +749,17 @@ void USBD_static_free(void *p)
   */
 void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 {
-  /* USER CODE BEGIN 6 */
-  if (state == 1)
-  {
-    /* Configure Low connection state. */
-
-  }
-  else
-  {
-    /* Configure High connection state. */
-
-  }
-  /* USER CODE END 6 */
+    (void)hpcd;
+    /* USER CODE BEGIN 6 */
+    if (state == 1)
+    {
+        /* Configure Low connection state. */
+    }
+    else
+    {
+        /* Configure High connection state. */
+    }
+    /* USER CODE END 6 */
 }
 
 

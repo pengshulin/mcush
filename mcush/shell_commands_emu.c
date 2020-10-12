@@ -155,8 +155,8 @@ void emu_i2c_deinit(int i2c_index)
 
     if( i2c==0 )
         return;
-    hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit );
-    hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit );
+    hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit, 0 );
+    hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit, 0 );
     os_free( (void*)i2c );
     i2c_cb[i2c_index] = 0;
 }
@@ -170,8 +170,8 @@ int emu_i2c_init(int i2c_index, i2c_cb_t *i2c_init)
     {
         /* free previous i2c pins (maybe different from the new pins),
            but do not free the memory */
-        hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit );
-        hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit );
+        hal_gpio_set_input( i2c->port_scl, i2c->pin_scl_bit, 0 );
+        hal_gpio_set_input( i2c->port_sda, i2c->pin_sda_bit, 0 );
     }
     else
     {
@@ -185,8 +185,8 @@ int emu_i2c_init(int i2c_index, i2c_cb_t *i2c_init)
     i2c->pin_scl_bit = (uint16_t)(1<<i2c->pin_scl);
     i2c->pin_sda_bit = (uint16_t)(1<<i2c->pin_sda);
  
-    hal_gpio_set_output( i2c->port_scl, i2c->pin_scl_bit );
-    hal_gpio_set_output_open_drain( i2c->port_sda, i2c->pin_sda_bit );
+    hal_gpio_set_output( i2c->port_scl, i2c->pin_scl_bit, 0 );
+    hal_gpio_set_output( i2c->port_sda, i2c->pin_sda_bit, 1 );
     i2c_stop(i2c);
     
     return 1;
@@ -476,10 +476,10 @@ void emu_spi_deinit( int spi_index )
 
     if( spi==0 )
         return;
-    hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
-    hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
-    hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
-    hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
+    hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit, 0 );
+    hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit, 0 );
+    hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit, 0 );
+    hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit, 0 );
     os_free( (void*)spi );
     spi_cb[spi_index] = 0;
 }
@@ -493,10 +493,10 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init )
     {
         /* free previous spi pins (maybe different from the new pins),
            but do not free the memory */
-        hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
-        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
-        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
-        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
+        hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit, 0 );
+        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit, 0 );
+        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit, 0 );
+        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit, 0 );
     }
     else
     {
@@ -512,10 +512,10 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init )
     spi->pin_sck_bit = (uint16_t)(1<<spi->pin_sck);
     spi->pin_cs_bit = (uint16_t)(1<<spi->pin_cs);
 
-    hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit );
-    hal_gpio_set_output( spi->port_sdo, spi->pin_sdo_bit );
-    hal_gpio_set_output( spi->port_sck, spi->pin_sck_bit );
-    hal_gpio_set_output( spi->port_cs, spi->pin_cs_bit );
+    hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit, 0 );
+    hal_gpio_set_output( spi->port_sdo, spi->pin_sdo_bit, 0 );
+    hal_gpio_set_output( spi->port_sck, spi->pin_sck_bit, 0 );
+    hal_gpio_set_output( spi->port_cs, spi->pin_cs_bit, 0 );
     hal_gpio_set( spi->port_cs, spi->pin_cs_bit );
     if( spi->cpol )
         hal_gpio_set( spi->port_sck, spi->pin_sck_bit );
@@ -540,19 +540,19 @@ int emu_spi_update( int spi_index, spi_cb_t *update )
 
     if( (update->port_sdi != spi->port_sdi) || (update->pin_sdi != spi->pin_sdi) )
     {
-        hal_gpio_set_input( update->port_sdi, update->pin_sdi_bit );
+        hal_gpio_set_input( update->port_sdi, update->pin_sdi_bit, 0 );
     }
      
     if( (update->port_sdo != spi->port_sdo) || (update->pin_sdo != spi->pin_sdo) )
     {
-        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit );
-        hal_gpio_set_output( update->port_sdo, update->pin_sdo_bit );
+        hal_gpio_set_input( spi->port_sdo, spi->pin_sdo_bit, 0 );
+        hal_gpio_set_output( update->port_sdo, update->pin_sdo_bit, 0 );
     }
 
     if( (update->port_sck != spi->port_sck) || (update->pin_sck != spi->pin_sck) )
     { 
-        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit );
-        hal_gpio_set_output( update->port_sck, update->pin_sck_bit );
+        hal_gpio_set_input( spi->port_sck, spi->pin_sck_bit, 0 );
+        hal_gpio_set_output( update->port_sck, update->pin_sck_bit, 0 );
         if( update->cpol )
             hal_gpio_set( update->port_sck, update->pin_sck_bit );
         else
@@ -561,8 +561,8 @@ int emu_spi_update( int spi_index, spi_cb_t *update )
 
     if( (update->port_cs != spi->port_cs) || (update->pin_cs != spi->pin_cs) )
     { 
-        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit );
-        hal_gpio_set_output( update->port_cs, update->pin_cs_bit );
+        hal_gpio_set_input( spi->port_cs, spi->pin_cs_bit, 0 );
+        hal_gpio_set_output( update->port_cs, update->pin_cs_bit, 0 );
         hal_gpio_set( update->port_cs, update->pin_cs_bit );
     }
     
@@ -891,7 +891,7 @@ void emu_pulse_deinit(int pulse_index)
 
     if( pulse==0 )
         return;
-    hal_gpio_set_input( pulse->port, pulse->pin_bit );
+    hal_gpio_set_input( pulse->port, pulse->pin_bit, 0 );
     os_free( (void*)pulse );
     pulse_cb[pulse_index] = 0;
 }
@@ -905,7 +905,7 @@ int emu_pulse_init(int pulse_index, pulse_cb_t *pulse_init)
     {
         /* free previous pulse pins (maybe different from the new pins),
            but do not free the memory */
-        hal_gpio_set_input( pulse->port, pulse->pin_bit );
+        hal_gpio_set_input( pulse->port, pulse->pin_bit, 0 );
     }
     else
     {
@@ -918,7 +918,7 @@ int emu_pulse_init(int pulse_index, pulse_cb_t *pulse_init)
     memcpy( pulse, pulse_init, sizeof(pulse_cb_t) );
     pulse->pin_bit = (uint16_t)(1<<pulse->pin);
  
-    hal_gpio_set_output( pulse->port, pulse->pin_bit );
+    hal_gpio_set_output( pulse->port, pulse->pin_bit, 0 );
     if( pulse->invert )
         hal_gpio_set( pulse->port, pulse->pin_bit );
     else
@@ -1080,7 +1080,7 @@ int emu_ds1w_init( int ds1w_index, ds1w_cb_t *ds1w_init )
     ds1w->port = ds1w_init->port;
     ds1w->pin = ds1w_init->pin;
     ds1w->pin_bit = (uint16_t)(1<<(ds1w_init->pin));
-    hal_gpio_set_output_open_drain( ds1w->port, ds1w->pin_bit ); 
+    hal_gpio_set_output( ds1w->port, ds1w->pin_bit, 1 ); 
     hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
     return 1;
 }
@@ -1090,7 +1090,7 @@ void emu_ds1w_deinit( int ds1w_index )
 {
     ds1w_cb_t *ds1w=&ds1w_cb[ds1w_index];
 
-    hal_gpio_set_input( ds1w->port, ds1w->pin_bit ); 
+    hal_gpio_set_input( ds1w->port, ds1w->pin_bit, 0 ); 
 }
 
 

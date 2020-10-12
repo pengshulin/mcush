@@ -4,7 +4,7 @@ const uint8_t port_num = 9;
 const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG, GPIOH, GPIOI };
 
 
-static void _port_init( int port, int bits, GPIOMode_TypeDef mode, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pull )
+static void _set_mode( int port, int bits, GPIOMode_TypeDef mode, GPIOOType_TypeDef otype, GPIOPuPd_TypeDef pull )
 {
     GPIO_InitTypeDef init;
     int i;
@@ -42,27 +42,18 @@ void hal_gpio_init(void)
 }
 
 
-void hal_gpio_set_input(int port, int bits)
+void hal_gpio_set_input(int port, int bits, int pull)
 {
-    _port_init( port, bits, GPIO_Mode_IN, 0, GPIO_PuPd_NOPULL );
+    _set_mode( port, bits, GPIO_Mode_IN, 0, pull==0 ? GPIO_PuPd_NOPULL : (pull>0? GPIO_PuPd_UP : GPIO_PuPd_DOWN) );
 }
 
 
-void hal_gpio_set_input_pull(int port, int bits, int pull)
+void hal_gpio_set_output(int port, int bits, int open_drain)
 {
-    _port_init( port, bits, GPIO_Mode_IN, 0, pull ? GPIO_PuPd_UP : GPIO_PuPd_DOWN );
-}
-
-
-void hal_gpio_set_output(int port, int bits)
-{
-    _port_init( port, bits, GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL );
-}
-
-
-void hal_gpio_set_output_open_drain(int port, int bits)
-{
-    _port_init( port, bits, GPIO_Mode_OUT, GPIO_OType_OD, GPIO_PuPd_UP );
+    if( open_drain )
+        _set_mode( port, bits, GPIO_Mode_OUT, GPIO_OType_OD, GPIO_PuPd_UP );
+    else
+        _set_mode( port, bits, GPIO_Mode_OUT, GPIO_OType_PP, GPIO_PuPd_NOPULL );
 }
 
 

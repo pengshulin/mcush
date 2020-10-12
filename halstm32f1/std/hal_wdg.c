@@ -1,8 +1,11 @@
+#include "compiler.h"
 #include "hal.h"
 
 static char _wdg_enable=0;
 
-void hal_wdg_init(void)
+void hal_wdg_enable(void);
+
+__weak void hal_wdg_init(void)
 {
     IWDG_WriteAccessCmd( IWDG_WriteAccess_Enable );
     IWDG_SetReload( 0xFFF );
@@ -37,7 +40,7 @@ void hal_wdg_disable(void)
     /* invalid for stm32/IWDG */ 
 }
 
-void hal_wdg_clear(void)
+__weak void hal_wdg_clear(void)
 {
     IWDG_ReloadCounter();
 }

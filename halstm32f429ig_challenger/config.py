@@ -48,7 +48,6 @@ if hal_config.use_hal_driver:
         'USE_CMD_SCPI_RST=0',
         'USE_CMD_REBOOT=0',
         'USE_CMD_RESET=0',
-        'USE_CMD_WDG=0',
         'USE_CMD_PWM=0',
         'USE_CMD_ADC=0',
         'USE_CMD_SGPIO=0',

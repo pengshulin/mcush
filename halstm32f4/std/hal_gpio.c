@@ -6,7 +6,7 @@ const uint8_t port_num = sizeof(ports)/sizeof(const GPIO_TypeDef *);
 
 
 
-static void _set_dir( int port, int bits, GPIOMode_TypeDef mode, GPIOPuPd_TypeDef pull, GPIOOType_TypeDef output_type )
+static void _set_mode( int port, int bits, GPIOMode_TypeDef mode, GPIOPuPd_TypeDef pull, GPIOOType_TypeDef output_type )
 {
     GPIO_InitTypeDef gpio_init;
         
@@ -37,27 +37,20 @@ void hal_gpio_init(void)
 }
 
 
-void hal_gpio_set_input(int port, int bits)
+void hal_gpio_set_input(int port, int bits, int pull)
 {
-    _set_dir( port, bits, GPIO_Mode_IN, GPIO_PuPd_NOPULL, GPIO_OType_PP );
+    _set_mode( port, bits, GPIO_Mode_IN, 
+               pull==0 ? GPIO_PuPd_NOPULL : (pull>0? GPIO_PuPd_UP : GPIO_PuPd_DOWN),
+               GPIO_OType_OD );
 }
 
 
-void hal_gpio_set_input_pull(int port, int bits, int pull)
+void hal_gpio_set_output(int port, int bits, int open_drain)
 {
-    _set_dir( port, bits, GPIO_Mode_IN, pull ? GPIO_PuPd_UP : GPIO_PuPd_DOWN, GPIO_OType_OD );
-}
-
-
-void hal_gpio_set_output(int port, int bits)
-{
-    _set_dir( port, bits, GPIO_Mode_OUT, GPIO_PuPd_NOPULL, GPIO_OType_PP );
-}
-
-
-void hal_gpio_set_output_open_drain(int port, int bits)
-{
-    _set_dir( port, bits, GPIO_Mode_OUT, GPIO_PuPd_UP, GPIO_OType_OD );
+    if( open_drain )
+        _set_mode( port, bits, GPIO_Mode_OUT, GPIO_PuPd_UP, GPIO_OType_OD );
+    else
+        _set_mode( port, bits, GPIO_Mode_OUT, GPIO_PuPd_NOPULL, GPIO_OType_PP );
 }
 
 

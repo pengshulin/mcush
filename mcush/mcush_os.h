@@ -2,7 +2,6 @@
 #ifndef __MCUSH_OS_H__
 #define __MCUSH_OS_H__
 
-
 #define OS_NONE      0
 #define OS_FREERTOS  1
 #define OS_RTX       2
@@ -63,6 +62,7 @@ void os_queue_delete( os_queue_handle_t queue );
 void os_queue_reset( os_queue_handle_t queue );
 int os_queue_put( os_queue_handle_t queue, void *data, int block_ticks ); 
 int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks ); 
+int os_queue_peek( os_queue_handle_t queue, void *data, int block_ticks );
 int os_queue_put_isr( os_queue_handle_t queue, void *data ); 
 int os_queue_get_isr( os_queue_handle_t queue, void *data ); 
 int os_queue_count( os_queue_handle_t queue );

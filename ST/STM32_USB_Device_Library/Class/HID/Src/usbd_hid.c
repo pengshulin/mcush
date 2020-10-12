@@ -282,25 +282,27 @@ __ALIGN_BEGIN static uint8_t HID_MOUSE_ReportDesc[HID_MOUSE_REPORT_DESC_SIZE]  _
 static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev, 
                                uint8_t cfgidx)
 {
-  uint8_t ret = 0;
+    uint8_t ret = 0;
+
+    (void)cfgidx;
   
-  /* Open EP IN */
-  USBD_LL_OpenEP(pdev,
-                 HID_EPIN_ADDR,
-                 USBD_EP_TYPE_INTR,
-                 HID_EPIN_SIZE);  
-  
-  pdev->pClassData = USBD_malloc(sizeof (USBD_HID_HandleTypeDef));
-  
-  if(pdev->pClassData == NULL)
-  {
-    ret = 1; 
-  }
-  else
-  {
-    ((USBD_HID_HandleTypeDef *)pdev->pClassData)->state = HID_IDLE;
-  }
-  return ret;
+    /* Open EP IN */
+    USBD_LL_OpenEP(pdev,
+                   HID_EPIN_ADDR,
+                   USBD_EP_TYPE_INTR,
+                   HID_EPIN_SIZE);  
+    
+    pdev->pClassData = USBD_malloc(sizeof (USBD_HID_HandleTypeDef));
+    
+    if(pdev->pClassData == NULL)
+    {
+        ret = 1; 
+    }
+    else
+    {
+        ((USBD_HID_HandleTypeDef *)pdev->pClassData)->state = HID_IDLE;
+    }
+    return ret;
 }
 
 /**
@@ -310,21 +312,21 @@ static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev,
   * @param  cfgidx: Configuration index
   * @retval status
   */
-static uint8_t  USBD_HID_DeInit (USBD_HandleTypeDef *pdev, 
-                                 uint8_t cfgidx)
+static uint8_t  USBD_HID_DeInit (USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-  /* Close HID EPs */
-  USBD_LL_CloseEP(pdev,
-                  HID_EPIN_ADDR);
-  
-  /* FRee allocated memory */
-  if(pdev->pClassData != NULL)
-  {
-    USBD_free(pdev->pClassData);
-    pdev->pClassData = NULL;
-  } 
-  
-  return USBD_OK;
+    (void)cfgidx;
+
+    /* Close HID EPs */
+    USBD_LL_CloseEP(pdev, HID_EPIN_ADDR);
+    
+    /* FRee allocated memory */
+    if(pdev->pClassData != NULL)
+    {
+        USBD_free(pdev->pClassData);
+        pdev->pClassData = NULL;
+    } 
+    
+    return USBD_OK;
 }
 
 /**
@@ -488,7 +490,8 @@ static uint8_t  *USBD_HID_GetCfgDesc (uint16_t *length)
 static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev, 
                               uint8_t epnum)
 {
-  
+  (void)epnum;
+
   /* Ensure that the FIFO is empty before a new transfer, this condition could 
   be caused by  a new transfer before the end of the previous transfer */
   ((USBD_HID_HandleTypeDef *)pdev->pClassData)->state = HID_IDLE;

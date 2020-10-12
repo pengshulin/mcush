@@ -205,6 +205,17 @@ int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks )
 }
 
 
+int os_queue_peek( os_queue_handle_t queue, void *data, int block_ticks )
+{
+    if( block_ticks < 0 )
+        block_ticks = portMAX_DELAY;
+    if( xQueuePeek( queue, data, block_ticks ) != pdPASS )
+        return 0;
+    else
+        return 1;
+}
+
+
 int os_queue_put_isr( os_queue_handle_t queue, void *data )
 {
     if( xQueueSendFromISR( queue, data, NULL ) == errQUEUE_FULL )
@@ -561,7 +572,7 @@ static void _print_kernel_item_name(const char *name)
 void os_kernel_info_print(void)
 {
     _print_kernel_item_name( "OS" );
-    shell_printf( "%s\n", OS_NAME );
+    shell_printf( "%s %s\n", OS_NAME, tskKERNEL_VERSION_NUMBER );
     _print_kernel_item_name( "SystemCoreClock" );
     shell_printf( "%d\n", SystemCoreClock );
     _print_kernel_item_name( "TickRate" );

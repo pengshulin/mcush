@@ -103,7 +103,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
     {
 #if HAL_RESET_USB_PINS
         /* pull the DM/DP low, disconnect with the host */
-        hal_gpio_set_output( 0, (3<<11) );
+        hal_gpio_set_output( 0, (3<<11), 0 );
         hal_gpio_clr( 0, (3<<11) );
         hal_delay_ms( 1 );
 #endif

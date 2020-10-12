@@ -4,6 +4,9 @@ if hal_config.use_hal_driver is None:
     hal_config.use_hal_driver = True  # use hal_driver as default
 if hal_config.use_vcp is None:
     hal_config.use_vcp = True  # use vcp as default
+if hal_config.use_fcfs is None:
+    hal_config.use_fcfs = True  # use fcfs as default
+
 
 if hal_config.use_hal_driver:
     env = Stm32f103xb( use_hal_driver=True )
@@ -47,18 +50,16 @@ env.appendDefineFlags( [
     #'USE_CMD_SCPI_RST=0',
     #'USE_CMD_REBOOT=0',
     'USE_CMD_RESET=0',
-    'USE_CMD_GPIO=0',
+    #'USE_CMD_GPIO=0',
     #'USE_CMD_LED=0',
     #'USE_CMD_DUMP=0',
     #'USE_CMD_WRITE=0',
     #'USE_CMD_MFILL=0',
     #'USE_CMD_WAIT=0',
-    'USE_CMD_WDG=0',
     #'USE_CMD_UPTIME=0',
     'USE_CMD_RM=0',
     'USE_CMD_RENAME=0',
     'USE_CMD_CP=0',
-    'USE_CMD_LOAD=0',
     'USE_CMD_CAT_WRITE=0',
     #'USE_CMD_MAPI=0',
     'USE_CMD_MKBUF=0',

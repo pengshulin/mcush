@@ -29,6 +29,7 @@ int cmd_uptime( int argc, char *argv[] )
 void task_idle_counter_entry(void *p)
 {
     volatile uint32_t *cnt = (uint32_t*)p;
+        
     while(1)
         (*cnt)++;
 }
@@ -134,6 +135,7 @@ int cmd_system( int argc, char *argv[] )
         /* NOTE: the task runs at top priority and may involve side-effects */
         idle_counter = 0;
         os_task_priority_set( NULL, OS_PRIORITY_HIGHEST );
+        hal_wdg_clear();
         task_idle_counter = os_task_create( "idleCntT",
                 task_idle_counter_entry, &idle_counter,
                 OS_STACK_SIZE_MIN, OS_PRIORITY_HIGHEST );

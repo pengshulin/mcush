@@ -138,17 +138,14 @@ extern "C" {
 #ifndef USE_CMD_MFILL
     #define USE_CMD_MFILL  1
 #endif
-#ifndef USE_CMD_WAIT
-    #define USE_CMD_WAIT  1
+#ifndef USE_CMD_DELAY
+    #define USE_CMD_DELAY  1
 #endif
 #ifndef USE_CMD_ECHO
-    #define USE_CMD_ECHO  1
+    #define USE_CMD_ECHO  0  /* to be obseleted */
 #endif
 #ifndef USE_CMD_MKBUF
     #define USE_CMD_MKBUF  1
-#endif
-#ifndef USE_CMD_WDG
-    #define USE_CMD_WDG  0
 #endif
 #ifndef USE_CMD_UPTIME
     #define USE_CMD_UPTIME  1
@@ -229,6 +226,11 @@ extern "C" {
     #define USE_CMD_LOOP  1
 #endif
 
+#ifndef USE_CMD_TEST
+    #define USE_CMD_TEST  1
+#endif
+
+
 #if MCUSH_FCFS
     #ifndef USE_CMD_FCFS
         #define USE_CMD_FCFS  1
@@ -280,7 +282,14 @@ extern "C" {
         #define USE_CMD_RENAME  1
     #endif
     #ifndef USE_CMD_LOAD
-        #define USE_CMD_LOAD  0
+        #if MCUSH_FCFS
+            #define USE_CMD_LOAD  1
+        #else
+            #define USE_CMD_LOAD  0
+        #endif
+    #endif
+    #ifndef USE_CMD_STOP
+        #define USE_CMD_STOP  USE_CMD_LOAD
     #endif
     #ifndef USE_CMD_CRC
         #define USE_CMD_CRC  0
@@ -327,7 +336,11 @@ extern "C" {
         #define USE_CMD_CAT_B64  1
     #endif
 #endif
-   
+
+#include "hal_core.h"
+
+/* gpio emulated buses */
+
 #if USE_CMD_I2C
 typedef struct {
     uint8_t port_scl, port_sda;
@@ -404,9 +417,7 @@ void ws2812_deinit(void);
 int ws2812_write(int offset, int dat, int swap_rg);
 int ws2812_push(int forward, int dat, int swap_rg, int offset, int length);
 void ws2812_flush(void);
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
 void ws2812_init_group_length_list( uint8_t *list, int list_length );
-#endif
 #endif
 
 

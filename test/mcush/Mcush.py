@@ -384,6 +384,11 @@ class Mcush( Instrument.SerialInstrument ):
         cmd = '? -c %s'% name
         return bool(int(self.writeCommand(cmd)[0])) 
 
+    def checkCommandShortName( self, name ):
+        cmd = '? -s %s'% name
+        ret = self.writeCommand(cmd)
+        return ret[0] if len(ret)>0 else None
+
     def errnoStop( self ):
         '''stop errno blink'''
         self.writeCommand( 'error -s' )
@@ -609,9 +614,13 @@ class Mcush( Instrument.SerialInstrument ):
         self.setPrompts()
         self.writeCommand( '' )
     
+    def fcfsErase( self ):
+        self.writeCommand( 'fcfs -c erase' )
+ 
+    # NOTE: this api will be obselected in the future
     def fcfsFormat( self ):
         self.writeCommand( 'fcfs -c format' )
- 
+
     def fcfsProgram( self, mem ):
         # append zero to be 4-bytes alignment
         while len(mem) & 0x3:

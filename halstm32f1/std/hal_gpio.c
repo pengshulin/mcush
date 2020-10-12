@@ -5,7 +5,7 @@ const uint8_t port_num = 7;
 const GPIO_TypeDef * const ports[] = { GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF, GPIOG };
 
 
-static void _set_dir( int port, int bits, GPIOMode_TypeDef mode )
+static void _set_mode( int port, int bits, GPIOMode_TypeDef mode )
 {
     GPIO_InitTypeDef init;
     int i;
@@ -39,27 +39,15 @@ void hal_gpio_init(void)
 }
 
 
-void hal_gpio_set_input(int port, int bits)
+void hal_gpio_set_input(int port, int bits, int pull)
 {
-    _set_dir( port, bits, GPIO_Mode_IPU );
+    _set_mode( port, bits, pull ? GPIO_Mode_IPU : GPIO_Mode_IPD );
 }
 
 
-void hal_gpio_set_input_pull(int port, int bits, int pull)
+void hal_gpio_set_output(int port, int bits, int open_drain)
 {
-    _set_dir( port, bits, pull ? GPIO_Mode_IPU : GPIO_Mode_IPD );
-}
-
-
-void hal_gpio_set_output(int port, int bits)
-{
-    _set_dir( port, bits, GPIO_Mode_Out_PP );
-}
-
-
-void hal_gpio_set_output_open_drain(int port, int bits)
-{
-    _set_dir( port, bits, GPIO_Mode_Out_OD );
+    _set_mode( port, bits, open_drain ? GPIO_Mode_Out_OD : GPIO_Mode_Out_PP );
 }
 
 

@@ -7,6 +7,9 @@
 
 #if MCUSH_OS == OS_RTTHREAD
 
+#ifndef THREAD_SLICE_TICKS
+    #define THREAD_SLICE_TICKS  1
+#endif
 
 extern char _sheap, _sstack;
 
@@ -91,7 +94,7 @@ os_task_handle_t os_task_create( const char *name, os_task_function_t entry, voi
 {
     rt_thread_t task;
 
-    task = rt_thread_create( name, entry, parm, stack_bytes, priority, 10 );
+    task = rt_thread_create( name, entry, parm, stack_bytes, priority, THREAD_SLICE_TICKS );
     if( task != RT_NULL )
     {
         rt_thread_startup( task );
@@ -108,7 +111,7 @@ os_task_handle_t os_task_create_static( const char *name, os_task_function_t ent
 {
     rt_err_t err;
 
-    err = rt_thread_init( buf->control, name, entry, parm, buf->stack, stack_bytes, priority, 10 );
+    err = rt_thread_init( buf->control, name, entry, parm, buf->stack, stack_bytes, priority, THREAD_SLICE_TICKS );
     if( err == RT_EOK )
     {
         rt_thread_startup( buf->control );
@@ -147,12 +150,16 @@ void os_task_priority_set( os_task_handle_t task, int new_priority )
 {
     rt_uint8_t priority = new_priority;
 
+    if( task == NULL )
+        task = rt_thread_self(); 
     rt_thread_control( task, RT_THREAD_CTRL_CHANGE_PRIORITY, (void*)&priority ); 
 }
 
 
 int os_task_priority_get( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = rt_thread_self(); 
     return task->current_priority;
 }
 
@@ -598,6 +605,7 @@ void os_task_info_print(void)
     struct rt_object *obj;
     struct rt_thread thread_info, *thread;
     int free_bytes;
+    char name[9];
 
     list_find_init(&find_arg, RT_Object_Class_Thread, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
 
@@ -640,7 +648,9 @@ void os_task_info_print(void)
 #else
             free_bytes = check_free_bytes((int*)thread->stack_addr);
 #endif
-            shell_printf("%8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n", thread->name, c, (uint32_t)thread,
+            strncpy( name, thread->name, 8 );
+            name[8] = 0;
+            shell_printf("%8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n", name, c, (uint32_t)thread,
                         thread->current_priority, thread->init_priority,
                         (uint32_t)thread->stack_addr, (uint32_t)thread->sp, free_bytes);
         }
@@ -658,6 +668,7 @@ void os_queue_info_print(void)
     int pool_bytes;
     struct rt_object *obj;
     struct rt_messagequeue *m;
+    char name[9];
 
     list_find_init(&find_arg, RT_Object_Class_MessageQueue, obj_list, sizeof(obj_list)/sizeof(obj_list[0]));
 
@@ -679,8 +690,10 @@ void os_queue_info_print(void)
 
                 m = (struct rt_messagequeue *)obj;
                 pool_bytes = m->max_msgs * m->msg_size;
+                strncpy( name, m->parent.parent.name, 8 );
+                name[8] = 0;
                 shell_printf("%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n",
-                            m->parent.parent.name, (uint32_t)m,
+                            name, (uint32_t)m,
                             m->max_msgs, m->msg_size, m->entry, 
                             (int)m->msg_pool, (int)m->msg_pool+pool_bytes,
                             pool_bytes );

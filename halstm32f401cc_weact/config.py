@@ -37,7 +37,6 @@ env.appendDefineFlags( [
     'USE_CMD_WRITE=0',
     'USE_CMD_MFILL=0',
     'USE_CMD_WAIT=0',
-    'USE_CMD_WDG=0',
     'USE_CMD_ECHO=0',
     #'USE_CMD_UPTIME=0',
     #'USE_CMD_SYSTEM=0',

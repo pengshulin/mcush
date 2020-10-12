@@ -3,7 +3,6 @@
 #include "hal.h"
 
 extern shell_cmd_t CMD_TAB[];
-//extern char _isdata;
 
 __signature const char mcush_signature[] = "<mcush>";
 
@@ -49,13 +48,8 @@ void mcush_init(void)
     if( !hal_init() )
         halt("hal init");
 
-//#if SUPPORT_NEWLIB
-//    if( !shell_init( &CMD_TAB[0], _isdata ? &_isdata : 0 ) )
-//#else
     if( !shell_init( &CMD_TAB[0], 0 ) )
-//#endif
         halt("shell init");
-
 
 #if MCUSH_ROMFS
     mcush_mount( "r", &mcush_romfs_driver );

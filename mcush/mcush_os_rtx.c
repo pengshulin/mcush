@@ -527,7 +527,7 @@ static void _print_kernel_item_name(const char *name)
 void os_kernel_info_print(void)
 {
     _print_kernel_item_name( "OS" );
-    shell_printf( "%s\n", OS_NAME );
+    shell_printf( "%s\n", osRtxKernelId );
     _print_kernel_item_name( "SystemCoreClock" );
     shell_printf( "%d\n", SystemCoreClock );
     _print_kernel_item_name( "TickRate" );

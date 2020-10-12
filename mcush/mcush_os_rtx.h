@@ -4,7 +4,7 @@
 
 #include "rtx_lib.h"
 
-#define OS_NAME                 osRtxKernelId
+#define OS_NAME                 "RTX" 
 
 #define OS_SUPPORT_STATIC_ALLOCATION  1
 

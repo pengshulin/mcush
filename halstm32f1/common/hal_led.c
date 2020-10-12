@@ -18,7 +18,7 @@ void hal_led_init(void)
 
     for( i=0; i<led_num; i++ )
     {
-        hal_gpio_set_output( led_ports[i], 1<<led_pins[i] );
+        hal_gpio_set_output( led_ports[i], 1<<led_pins[i], 0 );
 #if defined(HAL_LED_REV)
         hal_gpio_set( led_ports[i], 1<<led_pins[i]);
 #else

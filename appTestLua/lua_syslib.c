@@ -9,7 +9,7 @@
 
 static int lua_sys_tick( lua_State *L )
 {
-    lua_pushinteger( L, xTaskGetTickCount() );
+    lua_pushinteger( L, os_tick() );
     return 1;
 }
 

@@ -126,7 +126,7 @@ class ShellLabLamp(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLabLamp'
     DEFAULT_IDN = re_compile( 'ShellLab-L1[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
-    def lamp( self, color=None, red=None, green=None, blue=None, freq=None ):
+    def lamp( self, color=None, red=None, green=None, blue=None, freq=None, count=None ):
         cmd = 'lamp'
         if color is not None:
             cmd += ' -c 0x%X'% color
@@ -138,6 +138,8 @@ class ShellLabLamp(Mcush.Mcush):
             cmd += ' -b %d'% blue
         if freq is not None:
             cmd += ' -f %s'% freq
+        if count is not None:
+            cmd += ' -C %d'% count
         return self.writeCommand(cmd)
 
     def alarm( self, count=None, freq=None ):
@@ -152,12 +154,12 @@ class ShellLabLamp(Mcush.Mcush):
         self.lamp( 0, freq=lamp_freq )
         self.alarm( 0, freq=alarm_freq )
 
-    def color( self, c, freq=None ):
+    def color( self, c, freq=None, count=None ):
         if isinstance(c, str):
             if not c in COLOR_TAB:
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
-        self.lamp( c, freq=freq ) 
+        self.lamp( c, freq=freq, count=count ) 
 
 
 class ShellLabStrap(Mcush.Mcush):
@@ -174,7 +176,7 @@ class ShellLabStrap(Mcush.Mcush):
         cmd = 'strap -l%d'% length
         self.writeCommand(cmd)
 
-    def strap( self, color=None, red=None, green=None, blue=None, freq=None ):
+    def strap( self, color=None, red=None, green=None, blue=None, freq=None, count=None ):
         cmd = 'strap'
         if color is not None:
             cmd += ' -c 0x%X'% color
@@ -186,17 +188,19 @@ class ShellLabStrap(Mcush.Mcush):
             cmd += ' -b %d'% blue
         if freq is not None:
             cmd += ' -f %s'% freq
+        if count is not None:
+            cmd += ' -C %d'% count
         return self.writeCommand(cmd)
 
     def reset( self, freq=1 ):
         self.strap( 0, freq=freq )
 
-    def color( self, c, freq=None ):
+    def color( self, c, freq=None, count=None ):
         if isinstance(c, str):
             if not c in COLOR_TAB:
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
-        self.strap( c, freq=freq ) 
+        self.strap( c, freq=freq, count=count ) 
 
     def beep( self, freq=None, duration=0.05, times=1 ):
         # not supported

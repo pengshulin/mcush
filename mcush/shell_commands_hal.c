@@ -204,16 +204,13 @@ loop_start:
         if( input_set )
         {
             if( pull == -1 )
-                hal_gpio_set_input( port, 1<<bit );
+                hal_gpio_set_input( port, 1<<bit, 0 );
             else
-                hal_gpio_set_input_pull( port, 1<<bit, pull );
+                hal_gpio_set_input( port, 1<<bit, pull );
         }
         if( output_set )
         {
-            if( opendrain_set )
-                hal_gpio_set_output_open_drain( port, 1<<bit );
-            else
-                hal_gpio_set_output( port, 1<<bit );
+            hal_gpio_set_output( port, 1<<bit, opendrain_set );
         }
         if( set_set )
             hal_gpio_set( port, 1<<bit );
@@ -229,16 +226,13 @@ loop_start:
         if( input_set )
         {
             if( pull == -1 )
-                hal_gpio_set_input( port, pinput ? input_val : -1 );
+                hal_gpio_set_input( port, pinput ? input_val : -1, 0 );
             else
-                hal_gpio_set_input_pull( port, pinput ? input_val : -1, pull );
+                hal_gpio_set_input( port, pinput ? input_val : -1, pull );
         }
         if( output_set )
         {
-            if( opendrain_set )
-                hal_gpio_set_output_open_drain( port, poutput ? output_val : -1 );
-            else
-                hal_gpio_set_output( port, poutput ? output_val : -1 );
+            hal_gpio_set_output( port, poutput ? output_val : -1, opendrain_set );
         }
         if( set_set )
             hal_gpio_set( port, pset ? set_val : -1 );
@@ -352,58 +346,6 @@ int cmd_led( int argc, char *argv[] )
         hal_led_toggle( index );
     else
         shell_write_line( hal_led_get(index) ? "1" : "0" );
-    return 0;
-}
-#endif
-
-
-#if USE_CMD_WDG
-int cmd_wdg( int argc, char *argv[] )
-{
-    static const mcush_opt_spec opt_spec[] = {
-        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
-          0, shell_str_command, 0, "enable|disable|clear|reset" },
-        { MCUSH_OPT_NONE } };
-    mcush_opt_parser parser;
-    mcush_opt opt;
-    const char *cmd=0;
-    
-    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
-    while( mcush_opt_parser_next( &opt, &parser ) )
-    {
-        if( opt.spec )
-        {
-            if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
-                cmd = opt.value;
-        }
-        else
-            STOP_AT_INVALID_ARGUMENT 
-    }
-
-    if( !cmd )
-    {
-        shell_write_line( hal_wdg_is_enable() ? shell_str_enable : shell_str_disable );
-    }
-    else if( strcmp( cmd, shell_str_enable ) == 0 )
-    {
-        hal_wdg_enable();
-    }
-    else if( strcmp( cmd, shell_str_disable ) == 0 )
-    {
-        hal_wdg_disable();
-    }
-    else if( strcmp( cmd, shell_str_clear ) == 0 )
-    {
-        hal_wdg_clear();
-    }
-    else if( strcmp( cmd, shell_str_reset ) == 0 )
-    {
-        portENTER_CRITICAL();
-        while(1);
-    }
-    else
-        return -1;
-    
     return 0;
 }
 #endif

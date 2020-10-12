@@ -497,6 +497,8 @@ int cmd_list( int argc, char *argv[] )
 int cmd_load( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'e', shell_str_error, 0, "stop on error" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_file, 0, shell_str_file_name },
         { MCUSH_OPT_NONE } };
@@ -508,6 +510,7 @@ int cmd_load( int argc, char *argv[] )
     void *buf=0;
     int i;
     const char *addr;
+    uint8_t error_stop=0;
 
     fname[0] = 0;
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
@@ -517,6 +520,10 @@ int cmd_load( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
                 strcpy( fname, (char*)opt.value );
+            else if( STRCMP( opt.spec->name, shell_str_error ) == 0 )
+            {
+                error_stop = 1;
+            }
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -536,7 +543,7 @@ int cmd_load( int argc, char *argv[] )
     {
         if( mcush_romfs_get_raw_address( (const char*)&fname[3], &addr, &size ) )
         {
-            shell_set_script( addr, 0 );
+            shell_set_script( addr, 0, error_stop );
             return 0; 
         }
         else
@@ -549,7 +556,7 @@ int cmd_load( int argc, char *argv[] )
     {
         if( mcush_fcfs_get_raw_address( (const char*)&fname[3], &addr, &size ) )
         {
-            shell_set_script( addr, 0 );
+            shell_set_script( addr, 0, error_stop );
             return 0; 
         }
         else
@@ -586,8 +593,19 @@ int cmd_load( int argc, char *argv[] )
     }
   
     ((char*)buf)[i] = 0; 
-    shell_set_script( buf, 1 );
+    shell_set_script( buf, 1, error_stop );
     return 0;
+}
+#endif
+
+
+#if USE_CMD_STOP
+int cmd_stop( int argc, char *argv[] )
+{
+    (void)argc;
+    (void)argv;
+    shell_set_script( 0, 0, 0 );
+    return 0; 
 }
 #endif
 

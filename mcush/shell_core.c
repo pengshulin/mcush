@@ -609,6 +609,20 @@ int (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[])
 }
 
 
+char shell_get_short_name( const char *name )
+{
+    int i, j;
+
+    for( i = 0; i < SHELL_CMD_TABLE_LEN; i++ )
+    {
+        j = shell_search_command( i, (char*)name );
+        if( j != -1 )
+            return ((shell_cmd_t*)(scb.cmd_table[i] + j))->sname;
+    }
+    return 0;
+}
+
+
 int shell_print_help( const char *cmd, int show_hidden )
 {
     int i, j;
@@ -658,12 +672,13 @@ int shell_init( const shell_cmd_t *cmd_table, const char *init_script )
 }
 
 
-int shell_set_script( const char *script, int need_free )
+int shell_set_script( const char *script, int need_free, int error_stop )
 {
     scb.script = script;
     if( scb.script_free )
         os_free( (void*)scb.script_free );
     scb.script_free = need_free ? script : 0;
+    scb.script_error_stop = error_stop;
     return 1;
 }
 
@@ -863,12 +878,12 @@ static int load_init_script(void)
     int size;
 #if MCUSH_FCFS
     if( mcush_fcfs_get_raw_address( shell_str_init, &addr, &size ) )
-        return shell_set_script( addr, 0 );
+        return shell_set_script( addr, 0, 0 );
     else
 #endif
 #if MCUSH_ROMFS
     if( mcush_romfs_get_raw_address( shell_str_init, &addr, &size ) )
-        return shell_set_script( addr, 0 );
+        return shell_set_script( addr, 0, 0 );
 #endif
 #endif
     return 0;
@@ -899,6 +914,12 @@ void shell_run( void *p )
             shell_process_command();
         }
         shell_write_str( shell_get_prompt() );
+        /* error stop in script mode */
+        if( (scb.script_error_stop) && (scb.script != NULL)
+            && (*scb.script != 0) && (scb.errnum != 0) )
+        {
+            shell_set_script( 0, 0, 0 );
+        }
     }
 }
 

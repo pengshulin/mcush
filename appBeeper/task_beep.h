@@ -2,7 +2,7 @@
 #ifndef __TASK_BEEP_H__
 #define __TASK_BEEP_H__
 
-#define TASK_BEEP_STACK_SIZE    (400)
+#define TASK_BEEP_STACK_SIZE    (352)
 #define TASK_BEEP_PRIORITY      (OS_PRIORITY_NORMAL)
 #define TASK_BEEP_QUEUE_SIZE    (1)
 

@@ -1,7 +1,5 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
-#include "hal.h"
-
 
 extern int cmd_help( int argc, char *argv[] );
 extern int cmd_scpi_idn( int argc, char *argv[] );
@@ -12,9 +10,8 @@ extern int cmd_led( int argc, char *argv[] );
 extern int cmd_dump( int argc, char *argv[] );
 extern int cmd_write( int argc, char *argv[] );
 extern int cmd_mfill( int argc, char *argv[] );
-extern int cmd_wait( int argc, char *argv[] );
+extern int cmd_delay( int argc, char *argv[] );
 extern int cmd_echo( int argc, char *argv[] );
-extern int cmd_wdg( int argc, char *argv[] );
 extern int cmd_uptime( int argc, char *argv[] );
 extern int cmd_system( int argc, char *argv[] );
 extern int cmd_mapi( int argc, char *argv[] );
@@ -42,8 +39,10 @@ extern int cmd_rename( int argc, char *argv[] );
 extern int cmd_copy( int argc, char *argv[] );
 extern int cmd_list( int argc, char *argv[] );
 extern int cmd_load( int argc, char *argv[] );
+extern int cmd_stop( int argc, char *argv[] );
 extern int cmd_crc( int argc, char *argv[] );
 extern int cmd_loop( int argc, char *argv[] );
+extern int cmd_test( int argc, char *argv[] );
 
 
 
@@ -88,10 +87,10 @@ const shell_cmd_t CMD_TAB[] = {
     "memory api",
     "mapi -t" },
 #endif
-#if USE_CMD_WAIT
-{   CMD_HIDDEN,  0,  "wait",  cmd_wait, 
+#if USE_CMD_DELAY
+{   CMD_HIDDEN,  0,  "delay",  cmd_delay, 
     "sleep ms",
-    "wait <ms>" },
+    "delay <ms>" },
 #endif
 #if USE_CMD_ECHO
 {   CMD_HIDDEN,  0,  "echo",  cmd_echo, 
@@ -102,11 +101,6 @@ const shell_cmd_t CMD_TAB[] = {
 {   CMD_HIDDEN,  0,  "mkbuf",  cmd_mkbuf, 
     "make data buffer",
     "mkbuf" },
-#endif
-#if USE_CMD_WDG
-{   CMD_HIDDEN,  0,  "wdg",  cmd_wdg, 
-    "watchdog",
-    "wdg (en|dis)able|clear|reset" },
 #endif
 #if USE_CMD_UPTIME
 {   CMD_HIDDEN,  0,  "uptime",  cmd_uptime, 
@@ -299,9 +293,14 @@ const shell_cmd_t CMD_TAB[] = {
     "ls"  },
 #endif
 #if USE_CMD_LOAD
-{   0,  0,  "load",  cmd_load, 
+{   CMD_HIDDEN,  0,  "load",  cmd_load, 
     "load script",
     "load <pathname>" },
+#endif
+#if USE_CMD_STOP
+{   CMD_HIDDEN,  0,  "stop",  cmd_stop, 
+    "stop script",
+    "stop" },
 #endif
 #if USE_CMD_CRC
 {   0, 0, "crc",  cmd_crc, 
@@ -309,9 +308,14 @@ const shell_cmd_t CMD_TAB[] = {
     "crc <pathname>"  },
 #endif
 #if USE_CMD_LOOP
-{   0, 0, "loop",  cmd_loop, 
+{   0, 'L', "loop",  cmd_loop, 
     "run command looply",
     "loop <cmd and args>"  },
+#endif
+#if USE_CMD_TEST
+{   0, 'T', "test",  cmd_test, 
+    "condition test and run command",
+    "test [-p|f] <cmd and args>"  },
 #endif
 {   CMD_END  } };
 
@@ -325,12 +329,15 @@ int cmd_help( int argc, char *argv[] )
           'a', "all", 0, "show all" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'c', "check", shell_str_command, "check if command exists" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          's', "sname", shell_str_command, "check sname" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     int show_hidden=0;
-    char *check=0;
+    char *check=0, *sname=0;
     uint8_t cmd_exists;
+    char c;
  
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
 
@@ -342,6 +349,8 @@ int cmd_help( int argc, char *argv[] )
                 show_hidden = 1;
             else if( strcmp( opt.spec->name, "check" ) == 0 )
                 check = (char*)opt.value;
+            else if( strcmp( opt.spec->name, "sname" ) == 0 )
+                sname = (char*)opt.value;
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -351,6 +360,16 @@ int cmd_help( int argc, char *argv[] )
     {
         cmd_exists = shell_get_cmd_by_name( check ) ? 1 : 0;
         shell_write_line( cmd_exists ? shell_str_1 : shell_str_0 );
+        return 0;
+    }
+    
+    if( sname )
+    {
+        c = shell_get_short_name( sname );
+        if( c == 0 )
+            return 0;
+        shell_write_char( c );
+        shell_write_char( '\n' );
         return 0;
     }
 
@@ -374,7 +393,7 @@ int cmd_loop( int argc, char *argv[] )
     mcush_opt opt;
     unsigned int loop=1, loop_delay=1000, loop_tick;
     char c;
-    uint8_t cycle_set=0;
+    uint8_t cycle_set=0, cmd_set=0;
     int cycle_current=0, cycle_limit=-1;
     int (*cmd)(int argc, char *argv[]) = 0;
  
@@ -399,6 +418,7 @@ int cmd_loop( int argc, char *argv[] )
             }
             else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
             {
+                cmd_set = 1;
                 cmd = shell_get_cmd_by_name( argv[parser.idx] );
                 argc -= parser.idx;
                 argv += parser.idx;
@@ -409,13 +429,15 @@ int cmd_loop( int argc, char *argv[] )
             STOP_AT_INVALID_ARGUMENT  
     }
 
-    /* command not set/found */ 
+    /* command not set, syntax error */ 
+    if( ! cmd_set )
+        return -1;
+    /* command not found, exec error */ 
     if( cmd == 0 )
         return 1;
-
-    /* cannot run "loop loop ..." */
+    /* cannot run "loop loop ...", syntax error */
     if( cmd == cmd_loop )
-        return 1;
+        return -1;
 
 loop_start:
     if( cmd( argc, argv ) != 0 )
@@ -433,8 +455,8 @@ loop_start:
 #endif
 
 
-#if USE_CMD_WAIT
-int cmd_wait( int argc, char *argv[] )
+#if USE_CMD_DELAY
+int cmd_delay( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
@@ -464,7 +486,7 @@ int cmd_wait( int argc, char *argv[] )
         if( c == 0x03 ) /* Ctrl-C for stop */
         {
             if( shell_is_script_mode() )
-                shell_set_script( NULL, 0 );  /* abort current script */
+                shell_set_script( NULL, 0, 0 );  /* abort current script */
             return 0;
         }
         dt = os_tick() - t0;
@@ -488,6 +510,103 @@ int cmd_echo( int argc, char *argv[] )
             shell_write_str( "\n" );
     }
     return 0;
+}
+#endif
+
+
+#if USE_CMD_TEST
+int cmd_test( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'p', shell_str_pin, shell_str_pin, "port.bit high status" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'f', shell_str_file, shell_str_file, "file exist" },
+        { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
+          0, shell_str_command, 0, "cmd with args" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    int8_t bit_mode=-1;
+    uint8_t cmd_set=0;
+    int (*cmd)(int argc, char *argv[]) = 0;
+    int port=-1, bit=-1;
+    const char *pport=0;
+    char *pbit;
+    int port_num = hal_gpio_get_port_num();
+ 
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
+                pport = opt.value;
+            else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
+            {
+                cmd_set = 1;
+                cmd = shell_get_cmd_by_name( argv[parser.idx] );
+                argc -= parser.idx;
+                argv += parser.idx;
+                break;
+            }
+        }
+        else
+            STOP_AT_INVALID_ARGUMENT  
+    }
+
+    /* command not set, syntax error */ 
+    if( ! cmd_set )
+        return -1;
+    /* command not found, exec error */ 
+    if( cmd == 0 )
+        return 1;
+ 
+    if( pport )
+    {
+        port = strtol( pport, &pbit, 10 );
+        bit_mode = 0;
+        if( pbit )
+        {
+            if( *pbit == '.' )
+            {
+                pbit += 1;
+                if( *pbit )
+                {
+                    bit = strtol( pbit, &pbit, 10 );
+                    if( !pbit )
+                        bit_mode = 1;
+                    else if( !*pbit )
+                        bit_mode = 1;
+                    else
+                        goto port_error;
+                }
+                else
+                    goto port_error;
+            }
+            else if( *pbit )
+                goto port_error;
+        } 
+        if( (port < 0) || (port > port_num-1) )
+            goto port_error;
+        if( bit_mode && ((bit < 0) || (bit > 31)) )
+            goto port_error;
+
+        /* check test condition */
+        if( hal_gpio_get( port, 1<<bit ) == 0 )
+        {
+            /* not matched, ignore command */
+            return 0;
+        }
+    }
+
+    if( cmd( argc, argv ) != 0 )
+        return 1;
+
+    return 0;
+port_error:
+    shell_write_err( shell_str_port_bit );
+    return 1;
 }
 #endif
 

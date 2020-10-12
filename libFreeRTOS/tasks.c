@@ -910,6 +910,7 @@ UBaseType_t x;
 
 		/* Ensure the name string is terminated in the case that the string length
 		was greater or equal to configMAX_TASK_NAME_LEN. */
+        /* NOTE: this makes the maximum length one byte smaller than the whole buffer */
 		pxNewTCB->pcTaskName[ configMAX_TASK_NAME_LEN - 1 ] = '\0';
 	}
 	else

@@ -7,7 +7,7 @@ extern "C" {
 #endif
 
 
-#define TASK_BLINK_STACK_SIZE  (200)
+#define TASK_BLINK_STACK_SIZE  (224)
 #define TASK_BLINK_PRIORITY    (OS_PRIORITY_NORMAL)
 
 #ifndef ERRNO_LED_NORMAL

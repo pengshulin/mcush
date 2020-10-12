@@ -49,4 +49,8 @@ int hal_is_power_set(void);
 
 //#define HAL_RESET_USB_PINS  1
 
+
+#include "flash_config.h"
+
+
 #endif
