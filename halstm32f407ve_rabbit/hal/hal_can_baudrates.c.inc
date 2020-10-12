@@ -1,0 +1,1 @@
+../../halstm32f407zg_eu/hal/hal_can_baudrates.c.inc
