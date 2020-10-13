@@ -132,7 +132,10 @@ int cmd_system( int argc, char *argv[] )
         char c;
         int i;
         /* create counter task to check the maximum count value available */
-        /* NOTE: the task runs at top priority and may involve side-effects */
+        /* NOTE: the task runs at top priority and may involve side-effects:
+           some tasks that are are responsable for clearing the watchdog
+           are also stopped, so shell task takes the responsibility before 
+           they come back                                                 */
         idle_counter = 0;
         os_task_priority_set( NULL, OS_PRIORITY_HIGHEST );
         hal_wdg_clear();

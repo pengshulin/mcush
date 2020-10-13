@@ -564,7 +564,8 @@ uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
         break;
     case osRtxErrorTimerQueueOverflow:
         // User Timer Callback Queue overflow detected for timer (timer_id=object_id)
-        halt("timer queue overflow");
+        /* ignore the error notify, or "sys idle" may not work */
+        //halt("timer queue overflow");
         break;
     case osRtxErrorClibSpace:
         // Standard C/C++ library libspace not available: increase OS_THREAD_LIBSPACE_NUM
