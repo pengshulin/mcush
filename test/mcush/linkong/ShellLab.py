@@ -126,7 +126,7 @@ class ShellLabLamp(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLabLamp'
     DEFAULT_IDN = re_compile( 'ShellLab-L1[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
-    def lamp( self, color=None, red=None, green=None, blue=None, freq=None, count=None ):
+    def lamp( self, color=None, red=None, green=None, blue=None, freq=None, mode=None, count=None ):
         cmd = 'lamp'
         if color is not None:
             cmd += ' -c 0x%X'% color
@@ -138,6 +138,8 @@ class ShellLabLamp(Mcush.Mcush):
             cmd += ' -b %d'% blue
         if freq is not None:
             cmd += ' -f %s'% freq
+        if mode is not None:
+            cmd += ' -m %d'% mode
         if count is not None:
             cmd += ' -C %d'% count
         return self.writeCommand(cmd)
@@ -150,9 +152,21 @@ class ShellLabLamp(Mcush.Mcush):
             cmd += ' -f %d'% freq
         return self.writeCommand(cmd)
  
-    def reset( self, lamp_freq=1, alarm_freq=1 ):
-        self.lamp( 0, freq=lamp_freq )
+    def reset( self, lamp_freq=1, alarm_freq=1, mode=None ):
+        self.lamp( 0, freq=lamp_freq, mode=mode )
         self.alarm( 0, freq=alarm_freq )
+
+    def mode( self, mode ):
+        if isinstance(mode, str):
+            if mode in ['blink', 'reset']:
+                mode = 0
+            elif mode == ['clock', 'clockwise', 'rotate']:
+                mode = 1
+            elif mode == ['anti', 'anticlockwise']:
+                mode = 2
+            else:
+                raise Exception('Unknown mode name %s'% mode)
+        self.lamp(mode=mode)
 
     def color( self, c, freq=None, count=None ):
         if isinstance(c, str):
