@@ -160,9 +160,9 @@ class ShellLabLamp(Mcush.Mcush):
         if isinstance(mode, str):
             if mode in ['blink', 'reset']:
                 mode = 0
-            elif mode == ['clock', 'clockwise', 'rotate']:
+            elif mode in ['clock', 'clockwise', 'rotate']:
                 mode = 1
-            elif mode == ['anti', 'anticlockwise']:
+            elif mode in ['anti', 'anticlockwise']:
                 mode = 2
             else:
                 raise Exception('Unknown mode name %s'% mode)
