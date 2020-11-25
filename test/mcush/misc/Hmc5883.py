@@ -24,7 +24,7 @@ LSB_PER_GAUSS_GAIN = [1370, 1090, 820, 660, 440, 390, 330, 230]
 
 class Hmc5883():
 
-    def __init__( self, controller, scl=None, sda=None, addr_mode=0 ):
+    def __init__( self, controller, scl=None, sda=None ):
         self.controller = controller
         self.controller.i2c_init( 0x1E, scl, sda )
         self.config()

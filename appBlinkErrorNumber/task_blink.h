@@ -1,6 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef _TASK_BLINK_H_
-#define _TASK_BLINK_H_
+#ifndef __TASK_BLINK_H__
+#define __TASK_BLINK_H__
 
 #ifdef __cplusplus
 extern "C" {

@@ -71,7 +71,7 @@ class Instrument:
         elif self.warning:
             level = logging.WARNING
         else:
-            level = logging.FATAL
+            level = logging.ERROR
         logging.basicConfig( level=level, format=Env.LOG_FORMAT, datefmt=Env.LOG_DATEFMT )
         self.logger = logging.getLogger( self.DEFAULT_NAME )
         self.returned_cmd = None
@@ -336,7 +336,7 @@ class Instrument:
         self.idn = ret[0].strip()
         if len(ret)>1:
             self.serial_number = ret[1].strip()
-        self.logger.info( 'IDN:%s', str(self.idn) )
+        self.logger.debug( 'IDN:%s', str(self.idn) )
         if check and (not Env.NO_IDN_CHECK):
             if not self.DEFAULT_IDN.match( self.idn ):
                 raise IDNMatchError(self.idn.split(',')[0])

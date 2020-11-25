@@ -6,10 +6,10 @@
 #define TASK_BEEP_PRIORITY      (OS_PRIORITY_NORMAL)
 #define TASK_BEEP_QUEUE_SIZE    (1)
 
-#define BEEP_EVENT_TYPE_RESET       0
-#define BEEP_EVENT_TYPE_TONE        1
-#define BEEP_EVENT_TYPE_NOTE        2
-#define BEEP_EVENT_TYPE_LIST        3
+#define BEEP_EVENT_RESET        0
+#define BEEP_EVENT_TONE         1
+#define BEEP_EVENT_NOTE         2
+#define BEEP_EVENT_LIST         3
 
 
 typedef struct {

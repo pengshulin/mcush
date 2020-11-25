@@ -23,7 +23,9 @@
  * ......F800   Page 62 ---  1k  APP
  * ......FC00   Page 63 ---  1k  FCFS (Flash Configuration File System)
  */
-#define FLASH_PAGE_SIZE                 1024
+#ifndef FLASH_PAGE_SIZE
+    #define FLASH_PAGE_SIZE                 1024
+#endif
 
 #define FLASH_APP_ADDR_BASE             0x08000000  // Application
 #define FLASH_APP_SIZE                  (63*1024)

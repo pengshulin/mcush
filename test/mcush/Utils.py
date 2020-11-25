@@ -34,6 +34,8 @@ def writeTitle( title='', mark='=', color=True ):
         stdout.write( unicode(line) + '\n' )
     stdout.flush()
 
+printTitle = writeTitle
+
 def generateRandomFile( size ):
     FILE = open( Env.TEST_WR, 'w+' )
     counter = 0

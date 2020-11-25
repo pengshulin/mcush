@@ -34,7 +34,7 @@ int beep_note( const beep_note_t *note, int repeat_count, int repeat_delay_ms )
 {
     beep_event_t evt;
     
-    evt.type = BEEP_EVENT_TYPE_NOTE;
+    evt.type = BEEP_EVENT_NOTE;
     evt.note.val.freq = note->freq;
     evt.note.val.ms = note->ms;
     evt.repeat_count = repeat_count;
@@ -47,7 +47,7 @@ int beep_notes( const beep_note_t *note )
 {
     beep_event_t evt;
 
-    evt.type = BEEP_EVENT_TYPE_LIST;
+    evt.type = BEEP_EVENT_LIST;
     evt.note.p = note;
     return os_queue_put( queue_beep, &evt, 0 );
 }
@@ -67,15 +67,15 @@ void task_beep_entry(void *p)
 
         switch( evt.type )
         {
-        case BEEP_EVENT_TYPE_RESET:
+        case BEEP_EVENT_RESET:
             hal_beep_off();
             break;
 
-        case BEEP_EVENT_TYPE_TONE:
+        case BEEP_EVENT_TONE:
             hal_beep_on( evt.note.val.freq ); 
             break;
 
-        case BEEP_EVENT_TYPE_NOTE:
+        case BEEP_EVENT_NOTE:
             while(1)
             {
                 hal_beep_on( evt.note.val.freq ); 
@@ -88,7 +88,7 @@ void task_beep_entry(void *p)
             }
             break;
 
-        case BEEP_EVENT_TYPE_LIST:
+        case BEEP_EVENT_LIST:
             note = evt.note.p;
             while( note->freq || note->ms )
             {

@@ -552,3 +552,52 @@ class ShellLabCANopen(ShellLabCAN):
 
 
 
+class ShellLabStepperMotor(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLabStepperMotor'
+    DEFAULT_IDN = re_compile( 'ShellLab(-[A-Z][0-9a-zA-Z\-]*)?,([0-9]+\.[0-9]+.*)' )
+
+    def motor( self, cmd, index=None, value=None ):
+        cmd = 'M -c%s'% cmd
+        if index is not None:
+            cmd += ' -i%d'% index
+        if value is not None:
+            cmd += ' -v%s'% value
+        return self.writeCommand( cmd )
+
+    def start( self, index=None ):
+        self.motor( 'start', index=index )
+
+    def stop( self, index=None ):
+        self.motor( 'stop', index=index )
+
+    def isStopped( self, index=None ):
+        return bool(int(self.motor('stopped', index=index)[0]))
+
+    def isStable( self, index=None ):
+        return bool(int(self.motor('stable', index=index)[0]))
+
+    def setPPR( self, ppr, index=None ):
+        self.motor( 'ppr', index=index, value=ppr )
+
+    def setSpeed( self, speed, index=None ):
+        self.motor( 'speed', index=index, value=speed )
+
+    def setDir( self, direction, index=None ):
+        self.motor( 'dir', index=index, value=direction )
+
+    def setFree( self, free, index=None ):
+        self.motor( 'free', index=index, value=free )
+
+    def waitForStable( self, index=None ):
+        while True:
+            if self.isStable(index=index):
+                break
+            time.sleep(0.1)
+
+    def waitForStopped( self, index=None ):
+        while True:
+            if self.isStopped(index=index):
+                break
+            time.sleep(0.1)
+
+

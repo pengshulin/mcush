@@ -98,8 +98,12 @@
     #define USBD_VID            0x0483
     #define USBD_PID_FS         0x5710
 #else
-    #define USBD_VID            0xFFFF
-    #define USBD_PID_FS         0xFFFF
+    #ifndef USBD_VID
+        #define USBD_VID            0xFFFF
+    #endif
+    #ifndef USBD_PID_FS
+        #define USBD_PID_FS         0xFFFF
+    #endif
 #endif
 
 #define USBD_LANGID_STRING      0x0409  /* lang: US */
