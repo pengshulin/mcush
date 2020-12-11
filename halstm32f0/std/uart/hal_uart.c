@@ -100,7 +100,8 @@ int hal_uart_init( uint32_t baudrate )
     gpio_init.GPIO_Mode = GPIO_Mode_AF;
     gpio_init.GPIO_Speed = GPIO_Speed_Level_3;
     gpio_init.GPIO_OType = GPIO_OType_PP;
-    gpio_init.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    //gpio_init.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    gpio_init.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_Init( HAL_UARTx_RX_PORT, &gpio_init );
     gpio_init.GPIO_Pin = HAL_UARTx_TX_PIN;
     gpio_init.GPIO_Mode = GPIO_Mode_AF;

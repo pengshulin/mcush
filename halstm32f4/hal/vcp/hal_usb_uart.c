@@ -7,7 +7,7 @@
 #include "usbd_cdc_if.h"
 
 
-#define TASK_VCP_TX_STACK_SIZE  (304)
+#define TASK_VCP_TX_STACK_SIZE  (310)
 #define TASK_VCP_TX_PRIORITY    (MCUSH_PRIORITY)
 
 #define TASK_VCP_TX_READ_TIMEOUT_MS    5  /* timeout for the last byte, actual cycle timeout will be doubled */
