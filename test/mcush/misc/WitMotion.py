@@ -19,7 +19,7 @@ PACKET_TYPES = {
     0x56: 'pressure_height',
     0x57: 'gps_lon_lat',
     0x58: 'gps_height_yaw_v',
-    0x59: 'quad',
+    0x59: 'quat',
     0x5A: 'gps_info',
     }
 
@@ -159,7 +159,7 @@ class WitPacket():
         elif data_type == 'gps_height_yaw_v':
             h,y,v = unpack(b'hhI', dat)
             return h/10.0, y/100.0, v/1000.0  # unit: meter, degree, km/h
-        elif data_type == 'quad':
+        elif data_type == 'quat':
             q0,q1,q2,q3 = unpack(b'hhhh', dat)
             return q0/32768.0, q1/32768.0, q2/32768.0, q3/32768.0 
         elif data_type == 'gps_info':
@@ -260,7 +260,7 @@ class JY901( Instrument.SerialInstrument ):
     def calsw( self, mode=0 ):
         self.writeReg('CALSW', mode ) 
 
-    def setRSW( self, time=False, acc=True, gyo=True, ang=True, mag=True, port=False, pressure_height=False, gps_lon_lat=False, gps_height_yaw_v=False, quad=False, gps_info=False ):
+    def setRSW( self, time=False, acc=True, gyo=True, ang=True, mag=True, port=False, pressure_height=False, gps_lon_lat=False, gps_height_yaw_v=False, quat=False, gps_info=False ):
         val = 0
         if time:
             val |= 1<<0
@@ -280,7 +280,7 @@ class JY901( Instrument.SerialInstrument ):
             val |= 1<<7
         if gps_height_yaw_v:
             val |= 1<<8
-        if quad:
+        if quat:
             val |= 1<<9
         if gps_info:
             val |= 1<<10

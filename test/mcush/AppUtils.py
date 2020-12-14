@@ -28,9 +28,11 @@ class Task():
     STOP_MAX_DELAY = 15
     STOP_CHECK_PERIOD = 0.2
 
-    def __init__( self, args, queue ):
+    def __init__( self, args, queue=None ):
         self.started = False
         self.args = args
+        if queue is None:
+            queue = Queue()
         self.queue = queue
         self.control_queue = Queue()
         self.p = Process( target=self.monitor )

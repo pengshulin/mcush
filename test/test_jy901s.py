@@ -13,7 +13,7 @@ def main(argv=None):
     wt = WitMotion.JY901()
     #wt.setLED(True)
     wt.syncRTC()
-    #wt.setRSW( quad=True )
+    #wt.setRSW( quat=True )
     #wt.setRSW( port=True, acc=False,gyo=False,mag=False,ang=False )
     #wt.setRSW( time=True )
     #wt.setRSW( time=True, acc=False, gyo=False, mag=False, ang=False )
