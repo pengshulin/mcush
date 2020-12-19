@@ -1,0 +1,12 @@
+/* MindMotion MM32F031x8, 64k FLASH, 8kB SRAM */
+
+USER_HEAP_SIZE = 4;
+USER_STACK_SIZE = 128;
+MEMORY
+{
+    FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 64K 
+    SRAM (rw)  : ORIGIN = 0x20000000, LENGTH = 8K 
+}
+
+INCLUDE default.ld
+

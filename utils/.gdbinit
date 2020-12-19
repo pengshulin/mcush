@@ -178,6 +178,11 @@ chip_mem_configs = {
 [ 0x10400000, 0x1040FFFC, 'ro', 32, True,   'ROM', ],
 ],
 
+'mm32f0': [
+[ 0x08000000, 0x0801FFFC, 'ro', 32, True,  'Flash 128k' ],
+[ 0x20000000, 0x20001FFC, 'rw', 32, False, 'SRAM 8k' ],
+[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
+]
 }
 
 if chip in chip_mem_configs.keys():
