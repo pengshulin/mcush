@@ -21,6 +21,7 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
         _etext = . ;
+        LONG(0x43444E45);  /* ASCII: ENDC */
     } > SRAM
 
     _sidata = . ;

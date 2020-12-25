@@ -355,7 +355,7 @@ void Reset_Handler(void)
 
     /* basic environment pre-init before main */
     /* patched by PengShulin <trees_peng@163.com> 2020 */
-    uint32_t i, *p, *p2;
+    register uint32_t i, *p, *p2;
     
     /* data area init from flash */
     i = ((uint32_t)&_edata - (uint32_t)&_sdata) / 4;

@@ -8,6 +8,12 @@
 #include "HAL_iwdg.h"
 #include "HAL_uart.h"
 #include "HAL_flash.h"
+#include "HAL_tim.h"
 
+#ifdef USE_FCFS_UID
+    #define UNIQUE_ID0  0x0800FC04
+#else
+    #define UNIQUE_ID0  0x1FFFF7E8
+#endif
 
 #endif

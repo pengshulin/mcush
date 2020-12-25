@@ -16,8 +16,8 @@ CMD_CONTROL = 0x80
 CMD_ADDRESS = 0xC0
 
 
-class LED4:
-    DIGITS = 4
+class LED:
+    DIGITS = 1
     
     def __init__( self, controller, scl=None, sda=None, brightness=BRIGHTNESS ):
         self.controller = controller
@@ -26,7 +26,7 @@ class LED4:
         self.brightness = brightness
         
     def clear( self ):
-        self.display_segs( 0, "    ", ascii_mode=True )
+        self.display_segs( 0, " "*self.DIGITS, ascii_mode=True )
 
     def display_string( self, string, index=0 ):
         segments = []
@@ -74,7 +74,20 @@ class LED4:
     display_segs = display_segments
 
 
-class LED8:
-    DIGITS = 8
+class LED2(LED):
+    DIGITS = 2
 
+class LED3(LED):
+    DIGITS = 3
+     
+class LED4(LED):
+    DIGITS = 4
+
+class LED5(LED):
+    DIGITS = 5
+
+class LED6(LED):
+    DIGITS = 6
+
+# NOTE: TM1637 chip supports 6 digits at most
 

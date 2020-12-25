@@ -127,12 +127,12 @@ void GPIO_checkBKP(void)
 ////////////////////////////////////////////////////////////////////////////////
 void GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* pInitStruct)
 {
-    switch (*(u32*)&GPIOx) {
-        case (u32)GPIOC:
-            GPIO_checkBKP();
-            break;
-        default: break;
-    }
+    //switch (*(u32*)&GPIOx) {
+    //    case (u32)GPIOC:
+    //        GPIO_checkBKP();
+    //        break;
+    //    default: break;
+    //}
 
     u8   idx;
     __IO u32* pReg;

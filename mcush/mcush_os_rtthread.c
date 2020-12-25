@@ -710,7 +710,7 @@ static void _print_kernel_item_name(const char *name)
 
     shell_write_str(name);
     shell_write_char(':');
-    while( len++ < 21 )
+    while( len++ < 10 )
         shell_write_char(' ');
 }
 
@@ -719,7 +719,7 @@ void os_kernel_info_print(void)
 {
     _print_kernel_item_name( "OS" );
     shell_printf( "%s %d.%d.%d\n", OS_NAME, RT_VERSION, RT_SUBVERSION, RT_REVISION );
-    _print_kernel_item_name( "SystemCoreClock" );
+    _print_kernel_item_name( "SysClock" );
     shell_printf( "%d\n", SystemCoreClock );
     _print_kernel_item_name( "TickRate" );
     shell_printf( "%d\n", OS_TICK_RATE );

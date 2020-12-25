@@ -601,3 +601,152 @@ class ShellLabStepperMotor(Mcush.Mcush):
             time.sleep(0.1)
 
 
+class ShellLabSegmentDisplay(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLabSegmentDisplay'
+    DEFAULT_IDN = re_compile( 'ShellLab-L3[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
+
+    def __init__( self, *args, **kwargs ):
+        Instrument.Instrument.__init__( self, *args, **kwargs )
+        self.digits = int(self.disp('digits')[0])
+
+    def disp( self, cmd=None, idx=None, val=None, msg=None ):
+        command = 'd'
+        if cmd is not None:
+            command += ' -c%s'% cmd
+        if idx is not None:
+            command += ' -i%d'% idx
+        if val is not None:
+            command += ' -v%d'% val
+        if msg is not None:
+            command += ' -m"%s"'% msg
+        return self.writeCommand( command ) 
+
+    def brightness(self, new_brightness=7):
+        self.disp('brightness', val=new_brightness)
+
+    def clrscr(self):
+        self.disp('clrscr')
+
+    def blink(self, on, idx=None):
+        self.disp('blink', idx=idx, val=on)
+
+    def raw(self, val, idx):
+        self.disp('raw', idx=idx, val=val)
+   
+    def hex(self, val, idx):
+        self.disp('hex', idx=idx, val=val)
+
+    def ascii(self, val, idx):
+        self.disp('ascii', idx=idx, val=val)
+
+    def int(self, val, idx=None):
+        self.disp('int', idx=idx, val=val)
+ 
+    def msg(self, msg, idx=None):
+        self.disp(idx=idx, msg=msg)
+
+    def dispString(self, string, align='left'):
+        if align == 'right':
+            msg_len = len(string.replace('.','').replace(':',''))
+            self.msg( string, idx=self.digits-msg_len )
+        else:
+            self.msg( string )
+
+    def dispInteger(self, val, align='right'):
+        self.dispString( '%d'% val, align=align )
+
+    def dispHex(self, val, align='right'):
+        self.dispString( '%X'% val, align=align )
+
+    def dispFloat(self, val, precesion=1, align='right'):
+        fmt = '%%.%df'% precesion
+        output_str = fmt% val
+        if align == 'right':
+            output_len = len(output_str)-1
+            if output_len <= self.digits:
+                self.dispString( output_str, align='right' )
+            else:
+                self.dispString( output_str, align='left' )
+        else:
+            self.dispString( output_str, align='left' )
+
+
+class ShellLabSensor(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLab-Sensor'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-[A-Z][0-9a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
+
+    def measure( self, cmd=None, idx=None, val=None ):
+        command = 'm'
+        if cmd is not None:
+            command += ' -c%s'% cmd
+        if idx is not None:
+            command += ' -i%d'% idx
+        if val is not None:
+            command += ' -v%d'% val
+        return self.writeCommand( command ) 
+
+ 
+class ShellLabSensorTH(ShellLabSensor):
+    '''SHT30 based temperature/humidity sensor'''
+    DEFAULT_NAME = 'ShellLab-Sensor-TH'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-TH,([0-9]+\.[0-9]+.*)' )
+
+    def configMPS( self, mps=0.5 ):
+        if mps >= 10.0:
+            val = 4
+        elif mps > 4.0:
+            val = 3
+        elif mps > 2.0:
+            val = 2
+        elif mps > 1.0:
+            val = 1
+        else:
+            val = 0
+        self.measure( 'mps', val=val )
+    
+    def configRepeatability( self, repeatability='high' ):
+        if repeatability == 'low':
+            val = 2
+        elif repeatability == 'medium':
+            val = 1
+        else:
+            val = 0
+        self.measure( 'repeatability', val=val )
+
+    def getTH( self ):
+        ret = self.measure()
+        a, b = ret[0].split(' ')
+        k1,v1 = a.split(':')
+        k2,v2 = b.split(':')
+        if k1 == 'T' and k2 == 'H':
+            return (float(v1), float(v2))
+        return None 
+
+
+class ShellLabSensorPH(ShellLabSensor):
+    '''Acid/alkali PH sensor'''
+    DEFAULT_NAME = 'ShellLab-Sensor-PH'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-PH,([0-9]+\.[0-9]+.*)' )
+
+    def getPH( self ):
+        return None 
+
+
+class ShellLabSensorPressure(ShellLabSensor):
+    '''Pressure sensor'''
+    DEFAULT_NAME = 'ShellLab-Sensor-Pressure'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Pressure,([0-9]+\.[0-9]+.*)' )
+
+    def getPressure( self ):
+        return None 
+
+
+class ShellLabSensorWeight(ShellLabSensor):
+    '''Weight sensor'''
+    DEFAULT_NAME = 'ShellLab-Sensor-Weight'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Weight,([0-9]+\.[0-9]+.*)' )
+
+    def getWeight( self ):
+        return None 
+
+

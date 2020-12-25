@@ -7,6 +7,7 @@ void hal_wdg_enable(void);
 
 __weak void hal_wdg_init(void)
 {
+    RCC_LSICmd(ENABLE);
     IWDG_WriteAccessCmd( IWDG_WriteAccess_Enable );
     IWDG_SetReload( 0xFFF );
     //IWDG_SetPrescaler( IWDG_Prescaler_4 );  /* 4 * 0xfff / 32768 -> 0.5s */

@@ -1102,7 +1102,8 @@ int cmd_can( int argc, char *argv[] )
 #define LENGTH_MAX  1000
 static int ws2812_length;
 static int ws2812_group_length;
-static int *ws2812_buf;  /* memory needs: 4*length bytes */
+static int *ws2812_buf;  /* memory needs: 3*length bytes */
+static uint8_t *ws2812_r, *ws2812_g, *ws2812_b;
 #if SUPPORT_WS2812_GROUP_LENGTH_LIST
 static int ws2812_group_length_list_length;
 static uint8_t *ws2812_group_length_list;
@@ -1119,14 +1120,17 @@ int ws2812_init( int length, int group_length, int port, int pin )
         os_free( ws2812_buf );
         ws2812_length = 0;
     }
-    ws2812_buf = (int*)os_malloc( 4*length ); 
+    ws2812_buf = (int*)os_malloc( 3*length ); 
     if( ws2812_buf == NULL )
     {
         return 0;
     }
     ws2812_length = length;
     ws2812_group_length = group_length;
-    memset( ws2812_buf, 0, 4*length );
+    memset( ws2812_buf, 0, 3*length );
+    ws2812_r = (uint8_t*)ws2812_buf;
+    ws2812_g = ws2812_r + length;
+    ws2812_b = ws2812_g + length;
     if( hal_ws2812_init( port, pin ) )
         return 1;
     else
@@ -1160,6 +1164,22 @@ void ws2812_deinit(void)
 }
 
 
+static void _ws2812_write_mem( int offset, int dat, int swap_rg )
+{
+    *(ws2812_r + offset) = swap_rg ? (dat>>16)&0xFF : (dat>>8)&0xFF;
+    *(ws2812_g + offset) = swap_rg ? (dat>>8)&0xFF : (dat>>16)&0xFF;
+    *(ws2812_b + offset) = dat&0xFF;
+}
+
+
+static void _ws2812_copy_mem( int offset_dst, int offset_src )
+{
+    *(ws2812_r + offset_dst) = *(ws2812_r + offset_src);
+    *(ws2812_g + offset_dst) = *(ws2812_g + offset_src);
+    *(ws2812_b + offset_dst) = *(ws2812_b + offset_src);
+}
+
+
 int ws2812_write(int offset, int dat, int swap_rg)
 {
     if( ws2812_buf == NULL )
@@ -1168,10 +1188,7 @@ int ws2812_write(int offset, int dat, int swap_rg)
     if( offset >= ws2812_length )
         return 0; 
     
-    /* swtich color between GRB and RGB */
-    if( ! swap_rg )
-        dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
-    *(ws2812_buf + offset) = dat;
+    _ws2812_write_mem( offset, dat, swap_rg ); 
     return 1;
 }
 
@@ -1183,9 +1200,6 @@ int ws2812_push(int forward, int dat, int swap_rg, int offset, int length)
     if( ws2812_buf == NULL )
         return 0;
    
-    /* swtich color between GRB and RGB */
-    if( ! swap_rg )
-        dat = (dat&0xFF) + ((dat>>8)&0xFF00) + ((dat<<8)&0xFF0000);
     if( length < 0 )
         length = ws2812_length; 
     if( forward )
@@ -1195,7 +1209,7 @@ int ws2812_push(int forward, int dat, int swap_rg, int offset, int length)
         if( offset + length > ws2812_length )
             length = ws2812_length - offset;
         for( i=offset+length-1; i>offset; i-- )
-            *(ws2812_buf + i) = *(ws2812_buf + i - 1);
+            _ws2812_copy_mem( i, i-1 );
     }
     else
     {
@@ -1204,9 +1218,10 @@ int ws2812_push(int forward, int dat, int swap_rg, int offset, int length)
         if( offset - length + 1 < 0 )
             length = offset;
         for( i=offset-length+1; i<offset; i++ )
-            *(ws2812_buf + i) = *(ws2812_buf + i + 1);
+            _ws2812_copy_mem( i, i+1 );
     }
-    *(ws2812_buf + offset) = dat;
+    
+    _ws2812_write_mem( offset, dat, swap_rg ); 
     return 1;
 }
 
@@ -1230,20 +1245,25 @@ static void ws2812_flush_pixel( int dat )
 
 void ws2812_flush(void)
 {
-    int i, j, *p;
+    int i, j, c;
+    uint8_t *r, *g, *b;
 #if SUPPORT_WS2812_GROUP_LENGTH_LIST
     uint8_t list_idx=0;
 #endif
 
+    if( ws2812_buf == NULL )
+        return;
+
     hal_ws2812_clr();
     hal_delay_us(60);
-    for( i=0, p=ws2812_buf; i<ws2812_length; i++ )
+    for( i=0, r=ws2812_r, g=ws2812_g, b=ws2812_b; i<ws2812_length; i++ )
     {
+        c = (*r<<16)+(*g<<8)+*b;
 #if SUPPORT_WS2812_GROUP_LENGTH_LIST
         if( ws2812_group_length_list_length )
         {
             for( j=0; j<ws2812_group_length_list[list_idx]; j++ )
-                ws2812_flush_pixel( *p );
+                ws2812_flush_pixel( c );
             if( ++list_idx >= ws2812_group_length_list_length )
                 list_idx = 0;
         }
@@ -1251,9 +1271,11 @@ void ws2812_flush(void)
 #endif
         {
             for( j=0; j<ws2812_group_length; j++ )
-                ws2812_flush_pixel( *p );
+                ws2812_flush_pixel( c );
         }
-        p++;
+        r++;
+        g++;
+        b++;
     }
     hal_ws2812_clr();
 }

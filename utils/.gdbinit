@@ -95,7 +95,11 @@ end
 
 ######################################################################
 
-define init_regs
+define init_common_regs
+mem 0xE0000000 0xE000FFFC rw 32 nocache
+end
+
+define init_chip_regs
 python
 chip_mem_configs = {
 
@@ -264,7 +268,8 @@ source .gdbextra
 ######################################################################
 #set pagination off
 
-init_regs
+init_chip_regs
+init_common_regs
 load_file
 connect
 #program

@@ -67,8 +67,10 @@ void IWDG_WriteAccessCmd(u16 IWDG_WriteAccess)
 ////////////////////////////////////////////////////////////////////////////////
 void IWDG_SetPrescaler(u8 IWDG_Prescaler)
 {
-    IWDG->PR = IWDG_Prescaler;
+    /* update after PVU bit is cleared 
+       patched by PengShulin <trees_peng@163.com> 2020 */
     PVU_CheckStatus();
+    IWDG->PR = IWDG_Prescaler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,8 +81,10 @@ void IWDG_SetPrescaler(u8 IWDG_Prescaler)
 ////////////////////////////////////////////////////////////////////////////////
 void IWDG_SetReload(u16 Reload)
 {
-    IWDG->RLR = Reload;
+    /* update after RVU bit is cleared 
+       patched by PengShulin <trees_peng@163.com> 2020 */
     RVU_CheckStatus();
+    IWDG->RLR = Reload;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
