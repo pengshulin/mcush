@@ -180,3 +180,9 @@ void Chip_ENET_SetSpeed(LPC_ENET_T *pENET, bool speed100)
 	}
 }
 
+
+
+
+
+
+

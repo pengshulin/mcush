@@ -414,3 +414,9 @@ uint32_t Chip_SPI_ReadFrames_Blocking(LPC_SPI_T *pSPI, uint8_t *buffer, uint32_t
 #endif
 
 #endif /* __SPI_43XX_H_ */
+
+
+
+
+
+

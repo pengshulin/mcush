@@ -183,6 +183,7 @@ int SDIO_Card_SetBlockSize(LPC_SDMMC_T *pSDMMC, uint32_t func, uint32_t blkSize)
 /* Get the block size of a particular function */
 uint32_t SDIO_Card_GetBlockSize(LPC_SDMMC_T *pSDMMC, uint32_t func)
 {
+    (void)pSDMMC;
 	if (func > sdioif->fnum)
 		return 0;
 
@@ -446,6 +447,7 @@ void SDIO_Setup_Callback(LPC_SDMMC_T *pSDMMC,
 	void (*wake_evt)(LPC_SDMMC_T *pSDMMC, uint32_t event, void *arg),
 	uint32_t (*wait_evt)(LPC_SDMMC_T *pSDMMC, uint32_t event, void *arg))
 {
+    (void)pSDMMC;
 	sdioif->wake_evt = wake_evt;
 	sdioif->wait_evt = wait_evt;
 }
@@ -516,3 +518,9 @@ void SDIO_Handler(LPC_SDMMC_T *pSDMMC)
 	/* Clear the interrupts */
 	pSDMMC->RINTSTS = iclr;
 }
+
+
+
+
+
+

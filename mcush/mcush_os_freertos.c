@@ -236,20 +236,39 @@ int os_queue_get_isr( os_queue_handle_t queue, void *data )
 
 int os_queue_count( os_queue_handle_t queue )
 {
-    /* NOTE: don't call it in ISR */
     return uxQueueMessagesWaiting( queue );
 }
 
-//int os_queue_is_empty( os_queue_handle_t queue )
-//{
-//
-//}
-//
-//
-//int os_queue_is_full( os_queue_handle_t queue )
-//{
-//
-//}
+
+int os_queue_count_isr( os_queue_handle_t queue )
+{
+    return uxQueueMessagesWaitingFromISR( queue );
+}
+
+
+int os_queue_is_empty( os_queue_handle_t queue )
+{
+    return xQueueIsQueueEmpty( queue );
+}
+
+
+int os_queue_is_empty_isr( os_queue_handle_t queue )
+{
+    return xQueueIsQueueEmptyFromISR( queue );
+}
+
+
+int os_queue_is_full( os_queue_handle_t queue )
+{
+    return xQueueIsQueueFull( queue );
+}
+
+
+int os_queue_is_full_isr( os_queue_handle_t queue )
+{
+    return xQueueIsQueueFullFromISR( queue );
+}
+
 
 
 /* MUTEX */

@@ -218,3 +218,9 @@ void Chip_RTC_EV_GetLastTimeStamp(LPC_RTC_T *pRTC, RTC_EV_CHANNEL_T ch, RTC_EV_T
 
 #endif /*RTC_EV_SUPPORT*/
 
+
+
+
+
+
+

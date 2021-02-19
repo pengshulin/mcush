@@ -516,6 +516,7 @@ void task_modbus_tcp_entry(void *arg)
     int write;
     int i;
 
+    (void)arg;
     while( 1 )
     {
         if( xQueueReceive( queue_modbus_tcp, &evt, portMAX_DELAY ) == pdFALSE )

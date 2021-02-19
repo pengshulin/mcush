@@ -112,3 +112,9 @@ typedef struct {							/*!< (@ 0x40052000) CCU2 Structure         */
 #endif
 
 #endif /* __CGUCCU_18XX_43XX_H_ */
+
+
+
+
+
+

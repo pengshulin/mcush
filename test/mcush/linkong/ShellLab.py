@@ -723,6 +723,25 @@ class ShellLabSensorTH(ShellLabSensor):
         return None 
 
 
+class ShellLabSensorEncoder(ShellLabSensor):
+    '''Rotary encoder'''
+    DEFAULT_NAME = 'ShellLab-Sensor-Encoder'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Encoder,([0-9]+\.[0-9]+.*)' )
+
+    def setPos( self, pos ):
+        self.measure('pos', val=pos)
+
+    def getPos( self ):
+        return float(self.measure('pos')[0])
+
+    def getSpeed( self ):
+        return float(self.measure('speed')[0])
+
+    def getVal( self ):
+        pos, val = self.measure()[0].split()
+        return float(pos), float(val)
+
+
 class ShellLabSensorPH(ShellLabSensor):
     '''Acid/alkali PH sensor'''
     DEFAULT_NAME = 'ShellLab-Sensor-PH'

@@ -552,3 +552,9 @@ int Chip_I2C_IsStateChanged(I2C_ID_T id)
 	return (LPC_I2Cx(id)->CONSET & I2C_CON_SI) != 0;
 }
 
+
+
+
+
+
+

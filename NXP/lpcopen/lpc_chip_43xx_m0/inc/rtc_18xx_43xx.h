@@ -636,3 +636,9 @@ void Chip_RTC_DeInit(LPC_RTC_T *pRTC);
 #endif
 
 #endif /* __RTC_18XX_43XX_H_ */
+
+
+
+
+
+

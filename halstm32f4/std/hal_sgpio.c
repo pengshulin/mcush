@@ -100,9 +100,9 @@ int hal_sgpio_setup( int loop_mode, int port, int output_mode, int input_mode, v
         return 0;
 
     if( output_mode )
-        hal_gpio_set_output( port, output_mode );
+        hal_gpio_set_output( port, output_mode, 0 );
     if( input_mode )
-        hal_gpio_set_input( port, input_mode );
+        hal_gpio_set_input( port, input_mode, 0 );
     hal_sgpio_set_freq( freq );
 
     // DMA config
@@ -162,7 +162,7 @@ int hal_sgpio_set_freq( float freq )
     if( div < 16384.0 )
     {
         TIM4->CNT = 0;
-        TIM4->ARR = div-1;
+        TIM4->ARR = div-1.0;
         TIM_PrescalerConfig( TIM4, 0, TIM_PSCReloadMode_Immediate );
     }
     else

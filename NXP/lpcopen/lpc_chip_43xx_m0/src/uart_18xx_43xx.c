@@ -422,3 +422,9 @@ void Chip_UART_ABCmd(LPC_USART_T *pUART, uint32_t mode, bool autorestart, Functi
 	}
 }
 
+
+
+
+
+
+

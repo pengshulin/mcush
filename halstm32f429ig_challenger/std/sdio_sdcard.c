@@ -1530,6 +1530,7 @@ SD_Error FindSCR(u16 rca,u32 *pscr)
     SD_Error errorstatus = SD_OK;
     u32 tempscr[2]= {0,0};
 
+    (void)rca;
     SDIO_CmdInitStructure.SDIO_Argument = (uint32_t)8;	 //发送CMD16,短响应,设置Block Size为8字节
     SDIO_CmdInitStructure.SDIO_CmdIndex = SD_CMD_SET_BLOCKLEN; //	 cmd16
     SDIO_CmdInitStructure.SDIO_Response = SDIO_Response_Short;  //r1
@@ -1620,7 +1621,7 @@ u8 convert_from_bytes_to_power_of_two(u16 NumberOfBytes)
 //dir:方向;DMA_DIR_MemoryToPeripheral  存储器-->SDIO(写数据);DMA_DIR_PeripheralToMemory SDIO-->存储器(读数据);
 void SD_DMA_Config(u32*mbuf,u32 bufsize,u32 dir)
 {
-
+    (void)bufsize;
     DMA_InitTypeDef  DMA_InitStructure;
 
     while (DMA_GetCmdStatus(DMA2_Stream3) != DISABLE) {} //等待DMA可配置

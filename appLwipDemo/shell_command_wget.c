@@ -58,6 +58,8 @@ wget_cb_t *wcb;
 
 void wget_hostname_dns_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 {
+    (void)name;
+    (void)arg;
     if( ipaddr )
         wcb->server_ip = *ipaddr;
     else
@@ -69,6 +71,8 @@ void wget_hostname_dns_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 err_t wget_http_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 {
     struct pbuf *p2;
+
+    (void)arg;
     if( err == ERR_OK )
     {
         if( p != NULL )  /* normal receive */
@@ -95,12 +99,15 @@ err_t wget_http_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t er
 
 static void wget_http_error_cb(void *arg, err_t err)
 {
+    (void)arg;
+    (void)err;
     shell_write_err( "tcp" ); 
 }
 
 
 static err_t wget_http_poll_cb(void *arg, struct tcp_pcb *pcb)
 {
+    (void)arg;
     wcb->timeout++;
     if( wcb->timeout > 20 )
     {
@@ -113,6 +120,9 @@ static err_t wget_http_poll_cb(void *arg, struct tcp_pcb *pcb)
 
 static err_t wget_http_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len)
 {
+    (void)arg;
+    (void)pcb;
+    (void)len;
     wcb->timeout = 0;
     //shell_printf("%d bytes sent\n", len ); 
     return ERR_OK;
@@ -122,6 +132,7 @@ static err_t wget_http_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len)
 static err_t wget_http_connected_cb(void *arg, struct tcp_pcb *pcb, err_t err)
 {
     char buf[256];
+    (void)arg;
     if( err != ERR_OK )
     {
         tcp_close(pcb);
@@ -253,9 +264,10 @@ int cmd_wget( int argc, char *argv[] )
     int size;
     char buf[64];
 
+    (void)ip_set;
     memset( &lwcb, 0, sizeof(wget_cb_t) );
     wcb = &lwcb;
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

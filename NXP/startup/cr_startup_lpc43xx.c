@@ -264,8 +264,7 @@ void (* const g_pfnVectors[])(void) = {
 // ResetISR() function in order to cope with MCUs with multiple banks of
 // memory.
 //*****************************************************************************
-        __attribute__((section(".after_vectors"
-)))
+__attribute__((section(".after_vectors")))
 void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
     unsigned int *pulDest = (unsigned int*) start;
     unsigned int *pulSrc = (unsigned int*) romstart;
@@ -389,13 +388,13 @@ void ResetISR(void) {
      * Code taken from Section 7.1, Cortex-M4 TRM (DDI0439C)
      */
     // CPACR is located at address 0xE000ED88
-    asm("LDR.W R0, =0xE000ED88");
+    __asm("LDR.W R0, =0xE000ED88");
     // Read CPACR
-    asm("LDR R1, [R0]");
+    __asm("LDR R1, [R0]");
     // Set bits 20-23 to enable CP10 and CP11 coprocessors
-    asm(" ORR R1, R1, #(0xF << 20)");
+    __asm(" ORR R1, R1, #(0xF << 20)");
     // Write back the modified value to the CPACR
-    asm("STR R1, [R0]");
+    __asm("STR R1, [R0]");
 #endif // (__VFP_FP__) && !(__SOFTFP__)
     // ******************************
     // Check to see if we are running the code from a non-zero

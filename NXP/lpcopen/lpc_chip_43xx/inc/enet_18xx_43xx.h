@@ -582,6 +582,7 @@ STATIC INLINE void Chip_ENET_RXDisable(LPC_ENET_T *pENET)
  */
 STATIC INLINE void Chip_ENET_RMIIEnable(LPC_ENET_T *pENET)
 {
+    (void)pENET;
 	LPC_CREG->CREG6 |= 0x4;
 }
 
@@ -595,6 +596,7 @@ STATIC INLINE void Chip_ENET_RMIIEnable(LPC_ENET_T *pENET)
  */
 STATIC INLINE void Chip_ENET_MIIEnable(LPC_ENET_T *pENET)
 {
+    (void)pENET;
 	LPC_CREG->CREG6 &= ~0x7;
 }
 
@@ -678,3 +680,9 @@ void Chip_ENET_DeInit(LPC_ENET_T *pENET);
 #endif
 
 #endif /* __ENET_18XX_43XX_H_ */
+
+
+
+
+
+

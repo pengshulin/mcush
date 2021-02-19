@@ -10,6 +10,9 @@
  */
 #include "mcush.h"
 
+#ifdef INLINE
+    #undef INLINE
+#endif
 #if DEBUG
     #define INLINE(type) type
     #define ASSERT(c)    if(!c){halt("opt assert");}

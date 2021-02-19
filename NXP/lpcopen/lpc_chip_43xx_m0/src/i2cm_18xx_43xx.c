@@ -266,3 +266,9 @@ uint32_t Chip_I2CM_Read(LPC_I2C_T *pI2C, uint8_t *buff, uint32_t len)
 
 	return rxLen;
 }
+
+
+
+
+
+

@@ -76,3 +76,9 @@ void Chip_WWDT_ClearStatusFlag(LPC_WWDT_T *pWWDT, uint32_t status)
 	}
 }
 
+
+
+
+
+
+

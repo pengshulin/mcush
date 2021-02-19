@@ -159,7 +159,7 @@ __STATIC_INLINE void Chip_Clock_EnableMainPLL(void)
 __STATIC_INLINE void Chip_Clock_SetupMainPLL(const PLL_PARAM_T *ppll)
 {
 	/* power up main PLL */
-	LPC_CGU->PLL1_CTRL = ppll->ctrl | ((uint32_t) ppll->srcin << 24) | (ppll->msel << 16) | (ppll->nsel << 12) | (ppll->psel << 8);
+    LPC_CGU->PLL1_CTRL = ppll->ctrl | ((uint32_t) ppll->srcin << 24) | (ppll->msel << 16) | (ppll->nsel << 12) | (ppll->psel << 8) | ( 1 << 11);	
 }
 
 /**
@@ -392,3 +392,9 @@ __STATIC_INLINE int Chip_Clock_MainPLLLocked(void)
 #endif
 
 #endif /* __CLOCK_18XX_43XX_H_ */
+
+
+
+
+
+

@@ -85,6 +85,7 @@ void Chip_SDIF_Init(LPC_SDMMC_T *pSDMMC)
 /* Shutdown the SD/MMC controller */
 void Chip_SDIF_DeInit(LPC_SDMMC_T *pSDMMC)
 {
+    (void)pSDMMC;
     /* Disable the clock */
 	Chip_Clock_Disable(CLK_MX_SDIO);
 }
@@ -220,4 +221,10 @@ void Chip_SDIF_DmaSetup(LPC_SDMMC_T *pSDMMC, sdif_device *psdif_dev, uint32_t ad
 	/* Set DMA derscriptor base address */
 	pSDMMC->DBADDR = (uint32_t) &psdif_dev->mci_dma_dd[0];
 }
+
+
+
+
+
+
 

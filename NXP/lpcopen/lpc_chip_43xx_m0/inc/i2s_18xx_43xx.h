@@ -558,3 +558,9 @@ void Chip_I2S_DMA_RxCmd(LPC_I2S_T *pI2S, I2S_DMA_CHANNEL_T dmaNum, FunctionalSta
 #endif
 
 #endif /* __I2S_18XX_43XX_H_ */
+
+
+
+
+
+

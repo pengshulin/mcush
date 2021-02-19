@@ -141,3 +141,9 @@ STATIC INLINE uint32_t Chip_ATIMER_GetPresetValue(LPC_ATIMER_T *pATIMER)
 #endif
 
 #endif /* __ATIMER_18XX_43XX_H_ */
+
+
+
+
+
+

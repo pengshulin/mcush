@@ -50,6 +50,8 @@ nc_cb_t *ncb;
 
 void nc_hostname_dns_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 {
+    (void)name;
+    (void)arg;
     if( ipaddr )
         ncb->server_ip = *ipaddr;
     else
@@ -61,6 +63,8 @@ void nc_hostname_dns_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 err_t nc_tcp_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 {
     struct pbuf *p2;
+
+    (void)arg;
     if( err == ERR_OK )
     {
         if( p != NULL )  /* normal receive */
@@ -90,6 +94,8 @@ err_t nc_tcp_recv_cb(void *arg, struct tcp_pcb *pcb, struct pbuf *p, err_t err)
 
 static void nc_tcp_error_cb(void *arg, err_t err)
 {
+    (void)arg;
+    (void)err;
     if( ncb->cancel )
         return;
     ncb->error = 1;
@@ -98,6 +104,7 @@ static void nc_tcp_error_cb(void *arg, err_t err)
 
 static err_t nc_tcp_poll_cb(void *arg, struct tcp_pcb *pcb)
 {
+    (void)arg;
     ncb->timeout++;
     if( ncb->timeout > 20 )
     {
@@ -110,6 +117,9 @@ static err_t nc_tcp_poll_cb(void *arg, struct tcp_pcb *pcb)
 
 static err_t nc_tcp_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len)
 {
+    (void)arg;
+    (void)pcb;
+    (void)len;
     ncb->timeout = 0;
     return ERR_OK;
 }
@@ -117,6 +127,7 @@ static err_t nc_tcp_sent_cb(void *arg, struct tcp_pcb *pcb, uint16_t len)
 
 static err_t nc_tcp_connected_cb(void *arg, struct tcp_pcb *pcb, err_t err)
 {
+    (void)arg;
     if( err != ERR_OK )
     {
         tcp_abort(pcb);
@@ -154,7 +165,7 @@ int cmd_nc( int argc, char *argv[] )
 
     memset( &lncb, 0, sizeof(nc_cb_t) );
     ncb = &lncb;
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

@@ -82,6 +82,8 @@ int hal_upgrade_prepare_swap( const char *filename, int debug_mode )
     uint32_t checksum=0;
     FLASH_Status status;
 
+    (void)debug_mode;
+
     if( ! mcush_size( filename, &size ) )
         return 0;  /* file not exist */
     if( size < UPGRADE_FILE_SIZE_MIN  || size > UPGRADE_FILE_SIZE_MAX )

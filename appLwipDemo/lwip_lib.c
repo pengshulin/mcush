@@ -17,7 +17,7 @@
 
 /* dynamic ports range (refer to RFC 6335) */
 #define LOCAL_PORT_START  0xC000
-#define LOCAL_PORT_END    0xFFFF
+#define LOCAL_PORT_END    0xFFFE
 uint16_t tcp_bind_random_port( struct tcp_pcb *pcb )
 {
     static uint16_t port = 0, port2;

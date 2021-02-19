@@ -2,7 +2,8 @@
 #ifndef __MCUSH_FREERTOS_API_H__
 #define __MCUSH_FREERTOS_API_H__
 
-#include "FreeRTOSConfig.h"
+#include "FreeRTOS.h"
+#include "queue.h"
 
 #ifndef MCUSH_FREERTOS_PEEK_API
     #define MCUSH_FREERTOS_PEEK_API  1
@@ -53,6 +54,9 @@ typedef struct {
     uint32_t uxFreeStack;
 } mcush_task_info_t;
 
+
+BaseType_t xQueueIsQueueEmpty( const QueueHandle_t xQueue );
+BaseType_t xQueueIsQueueFull( const QueueHandle_t xQueue );
 
 int mcushGetQueueRegistered( int index, void **pxHandle, const char **pcQueueName );
 int mcushGetQueueInfo( void *xHandle, mcush_queue_info_t *info );

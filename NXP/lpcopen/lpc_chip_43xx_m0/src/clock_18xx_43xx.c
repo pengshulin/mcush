@@ -141,7 +141,7 @@ static void pll_get_frac(uint32_t freq, PLL_PARAM_T *ppll)
 	diff[0] = ABS(freq - pll[0].fout);
 
 	/* Try non-Integer mode */
-	pll[2].ctrl = (1 << 6);
+	pll[2].ctrl &= ~(1 << 6);			// need to set FBSEL to 0
 	pll[2].fin = ppll->fin;
 	pll[2].srcin = ppll->srcin;
 	pll_calc_divs(freq, &pll[2]);
@@ -149,16 +149,17 @@ static void pll_get_frac(uint32_t freq, PLL_PARAM_T *ppll)
 		*ppll = pll[2];
 		return ;
 	}
-
 	diff[2] = ABS(freq - pll[2].fout);
-	/* Try integer mode */
-	pll[1].ctrl = (1 << 6);
-	pll[1].fin = ppll->fin;
-	pll[1].srcin = ppll->srcin;
-	pll_calc_divs(freq, &pll[1]);
-	if (pll[1].fout == freq) {
-		*ppll = pll[1];
-		return ;
+	
+	if (freq <= 110000000) {
+		/* Try integer mode */
+		pll[1].ctrl = (1 << 6);
+		pll[1].fin = ppll->fin;
+		pll_calc_divs(freq, &pll[1]);
+		if (pll[1].fout == freq) {
+			*ppll = pll[1];
+			return ;
+		}
 	}
 	diff[1] = ABS(freq - pll[1].fout);
 
@@ -370,6 +371,8 @@ uint32_t Chip_Clock_SetupMainPLLMult(CHIP_CGU_CLKIN_T Input, uint32_t mult)
 				(1 << 1) |	/* BYPASS */
 				(1 << 7) |	/* DIRECT */
 				(0x03 << 8) | (0xFF << 16) | (0x03 << 12));	/* PSEL, MSEL, NSEL- divider ratios */
+	
+	PLLReg |= (1 << 11);		/* AUTOBLOCK */
 
 	if (freq < 156000000) {
 		/* psel is encoded such that 0=1, 1=2, 2=4, 3=8 */
@@ -821,3 +824,9 @@ uint32_t Chip_Clock_GetPLLStatus(CHIP_CGU_USB_AUDIO_PLL_T pllnum)
 {
 	return LPC_CGU->PLL[pllnum].PLL_STAT;
 }
+
+
+
+
+
+

@@ -1,1 +1,0 @@
-../../../lpcopen/./../../utils/.gdbinit

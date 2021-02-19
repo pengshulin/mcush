@@ -84,3 +84,9 @@ typedef struct {				/*!< QEI Structure          */
 #endif
 
 #endif /* __QEI_18XX_43XX_H_ */
+
+
+
+
+
+

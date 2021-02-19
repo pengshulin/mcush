@@ -61,3 +61,9 @@ void Chip_ATIMER_DeInit(LPC_ATIMER_T *pATIMER)
 	Chip_ATIMER_IntDisable(pATIMER);
 }
 
+
+
+
+
+
+

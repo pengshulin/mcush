@@ -165,3 +165,9 @@ int RingBuffer_PopMult(RINGBUFF_T *RingBuff, void *data, int num)
 
 	return cnt1 + cnt2;
 }
+
+
+
+
+
+

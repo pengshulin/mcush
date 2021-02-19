@@ -1,6 +1,6 @@
 /* LPC4337, 1024kB FLASH, 136kB SRAM */
 
-USER_HEAP_SIZE = 16K;
+USER_HEAP_SIZE = 8K;
 USER_STACK_SIZE = 1K;
 MEMORY
 {
@@ -13,7 +13,8 @@ MEMORY
     SDRAM (rw)   : ORIGIN = 0x28000000, LENGTH = 64M 
 }
 
-USER_STACK_ADDR = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+/*USER_STACK_ADDR = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE; */
+USER_STACK_ADDR = ORIGIN(AHBSRAM) + LENGTH(AHBSRAM) - USER_STACK_SIZE;
 
 
 SECTIONS
@@ -58,6 +59,7 @@ SECTIONS
         *(.rodata*)
         . = ALIGN(4);
         _etext = . ;
+        LONG(0x43444E45);  /* ASCII: ENDC */
     } >FLASH
 
     .data : AT ( _sidata )
@@ -93,7 +95,7 @@ SECTIONS
         . = . + USER_HEAP_SIZE ;
         . = ALIGN(4);
         _eheap = . ;
-    } >SRAM
+    } >AHBSRAM
 
     .userstack (USER_STACK_ADDR) :
     {
@@ -102,7 +104,7 @@ SECTIONS
         . = . + USER_STACK_SIZE ;
         . = ALIGN(4);
         _estack = .;
-    } >SRAM 
+    } >AHBSRAM
     PROVIDE( _vStackTop = _estack );
 
     /DISCARD/ :
@@ -110,6 +112,10 @@ SECTIONS
         libc.a ( * )
         libm.a ( * )
         libgcc.a ( * )
+        *(.ARM.exidx)
+        *(.glue*)
+        *(.init)
+        *(.fini)
     }
 
 }
@@ -144,3 +150,7 @@ SECTIONS
         . = ALIGN(4);
     } >SDRAM
 }
+
+ASSERT( _sidata + SIZEOF(.data) <= ORIGIN(FLASH) + LENGTH(FLASH), "flash full, fail to append data image" )
+ASSERT( _eheap <= _sstack, "heap size too large" )
+

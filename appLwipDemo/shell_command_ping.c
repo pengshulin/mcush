@@ -68,6 +68,8 @@ extern void logger_ip( const char *prompt, uint32_t address, int shell_mode );
 
 void dns_ping_hostname_check_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 {
+    (void)name;
+    (void)arg;
     if( ping_pcb )
     {
         if( ipaddr )
@@ -195,7 +197,7 @@ int cmd_ping( int argc, char *argv[] )
     ping_pcb = 0;
     memset( &pcb, 0, sizeof(ping_cb_t) );
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

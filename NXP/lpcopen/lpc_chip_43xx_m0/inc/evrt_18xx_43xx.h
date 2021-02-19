@@ -171,3 +171,9 @@ STATIC INLINE void Chip_EVRT_ClrPendIntSrc(CHIP_EVRT_SRC_T EVRT_Src)
 #endif
 
 #endif /* __EVRT_18XX_43XX_H_ */
+
+
+
+
+
+

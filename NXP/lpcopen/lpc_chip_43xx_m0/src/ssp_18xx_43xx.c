@@ -467,3 +467,9 @@ void Chip_SSP_DeInit(LPC_SSP_T *pSSP)
 	
 }
 
+
+
+
+
+
+

@@ -142,3 +142,9 @@ uint32_t Chip_OTP_GenRand(void);
 #endif
 
 #endif /* __OTP_18XX_43XX_H_ */
+
+
+
+
+
+

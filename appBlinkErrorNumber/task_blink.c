@@ -9,7 +9,7 @@
  *
  * eg.
  * errno 0 (power up default):
- *     the LED is set ON for 1s and OFF for 1s (blinks slowly as 2Hz)
+ *     the LED is set ON for 1s and OFF for 1s (blinks slowly as 0.5Hz)
  *      ____________________                      ____________________
  * ____|                    |____________________|                    |_____
  *
@@ -175,11 +175,11 @@ static void blink_digit( int digit, int led )
 }
 
 
-void task_blink_entry(void *p)
+void task_blink_entry(void *arg)
 {
     int i, digit, pos, skip;
 
-    (void)p;
+    (void)arg;
     while( 1 )
     {
         hal_wdg_clear();

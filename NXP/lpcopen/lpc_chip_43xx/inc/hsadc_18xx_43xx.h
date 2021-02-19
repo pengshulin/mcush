@@ -573,3 +573,9 @@ STATIC INLINE uint32_t Chip_HSADC_GetBaseClockRate(LPC_HSADC_T *pHSADC)
 #endif
 
 #endif /* __HSADC_18XX_43XX_H_ */
+
+
+
+
+
+

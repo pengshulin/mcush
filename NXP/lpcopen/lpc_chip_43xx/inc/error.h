@@ -270,3 +270,9 @@ typedef enum
 	case pred:; }
 
 #endif /* __LPC_ERROR_H__ */
+
+
+
+
+
+

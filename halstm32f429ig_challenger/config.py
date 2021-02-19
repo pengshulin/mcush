@@ -41,6 +41,10 @@ if hal_config.use_eth:
     hal_config.paths += [hal_dir+'/LAN8742A']
     hal_config.sources += [hal_dir+'/LAN8742A/*.c']
 
+    
+env.appendDefineFlags( [
+    'USE_CMD_SGPIO=0',
+    ] )
 
 if hal_config.use_hal_driver:
     # disable those functions that are not finished
@@ -50,7 +54,6 @@ if hal_config.use_hal_driver:
         'USE_CMD_RESET=0',
         'USE_CMD_PWM=0',
         'USE_CMD_ADC=0',
-        'USE_CMD_SGPIO=0',
         'USE_CMD_UPGRADE=0',
         'HAL_RTC=0',
         'HAL_RNG=0',

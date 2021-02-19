@@ -95,3 +95,9 @@ IntStatus Chip_RIT_GetIntStatus(LPC_RITIMER_T *pRITimer)
 	return (IntStatus) result;
 }
 
+
+
+
+
+
+

@@ -172,3 +172,9 @@ uint32_t Chip_AES_GetStatusDMA(uint32_t channel_id)
 {
 	return aes_Get_Status_DMA(channel_id);
 }
+
+
+
+
+
+

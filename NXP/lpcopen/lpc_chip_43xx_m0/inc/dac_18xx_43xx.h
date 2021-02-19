@@ -164,3 +164,9 @@ STATIC INLINE IntStatus Chip_DAC_GetIntStatus(LPC_DAC_T *pDAC)
 #endif
 
 #endif /* __DAC_18XX_43XX_H_ */
+
+
+
+
+
+

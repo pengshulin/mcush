@@ -97,6 +97,7 @@ void Chip_UART_Init(LPC_USART_T *pUART)
 {
     volatile uint32_t tmp;
 
+    (void)tmp;
 	/* Enable UART clocking. UART base clock(s) must already be enabled */
 	Chip_Clock_EnableOpts(UART_PClock[Chip_UART_GetIndex(pUART)], true, true, 1);
 
@@ -421,4 +422,10 @@ void Chip_UART_ABCmd(LPC_USART_T *pUART, uint32_t mode, bool autorestart, Functi
 		pUART->ACR = 0;
 	}
 }
+
+
+
+
+
+
 

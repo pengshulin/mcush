@@ -297,3 +297,9 @@ void Board_LCD_WriteData(const uint8_t *data, uint16_t size)
 /**
  * @}
  */
+
+
+
+
+
+

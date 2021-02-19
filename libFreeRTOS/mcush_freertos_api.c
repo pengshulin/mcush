@@ -4,6 +4,18 @@
 #if MCUSH_FREERTOS_PEEK_API
 
 #ifdef INCLUDE_MCUSH_QUEUE_API
+BaseType_t xQueueIsQueueEmpty( const QueueHandle_t xQueue )
+{
+    return prvIsQueueEmpty((const Queue_t*)xQueue);
+}
+    
+
+BaseType_t xQueueIsQueueFull( const QueueHandle_t xQueue )
+{
+    return prvIsQueueFull((const Queue_t*)xQueue);
+}
+
+ 
 int mcushGetQueueRegistered( int index, void **pxHandle, const char **pcQueueName )
 {
     if( (index < 0) || (index >= configQUEUE_REGISTRY_SIZE) )

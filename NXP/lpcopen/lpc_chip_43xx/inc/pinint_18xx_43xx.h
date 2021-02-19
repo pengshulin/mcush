@@ -77,14 +77,14 @@ typedef struct {			/*!< PIN_INT Structure */
  * @return	Nothing
  * @note	This function should be used after the Chip_GPIO_Init() function.
  */
-STATIC INLINE void Chip_PININT_Init(LPC_PIN_INT_T *pPININT) {}
+STATIC INLINE void Chip_PININT_Init(LPC_PIN_INT_T *pPININT) {(void)pPININT;}
 
 /**
  * @brief	De-Initialize Pin interrupt block
  * @param	pPININT	: The base address of Pin interrupt block
  * @return	Nothing
  */
-STATIC INLINE void Chip_PININT_DeInit(LPC_PIN_INT_T *pPININT) {}
+STATIC INLINE void Chip_PININT_DeInit(LPC_PIN_INT_T *pPININT) {(void)pPININT;}
 
 /**
  * @brief	Configure the pins as edge sensitive in Pin interrupt block
@@ -250,3 +250,9 @@ STATIC INLINE void Chip_PININT_ClearIntStatus(LPC_PIN_INT_T *pPININT, uint32_t p
 #endif
 
 #endif /* __PININT_18XX_43XX_H_ */
+
+
+
+
+
+

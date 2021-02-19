@@ -226,6 +226,8 @@ int  shell_driver_read_feed( char *buffer, int len )
 
 int  shell_driver_read( char *buffer, int len )
 {
+    (void)buffer;
+    (void)len;
     return 0;  /* not supported */
 }
 

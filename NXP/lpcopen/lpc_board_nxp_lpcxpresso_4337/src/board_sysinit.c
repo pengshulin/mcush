@@ -99,6 +99,9 @@ void Board_SetupClocking(void)
 {
 	int i;
 
+	Chip_Clock_SetBaseClock(CLK_BASE_SPIFI, CLKIN_IRC, true, false);	// change SPIFI to IRC during clock programming
+	LPC_SPIFI->CTRL |= SPIFI_CTRL_FBCLK(1);								// and set FBCLK in SPIFI controller
+
 	/* Enable Flash acceleration and setup wait states */
 	Chip_CREG_SetFlashAcceleration(MAX_CLOCK_FREQ);
 
@@ -127,3 +130,9 @@ void Board_SystemInit(void)
 	Board_SetupMuxing();
 	Board_SetupClocking();
 }
+
+
+
+
+
+

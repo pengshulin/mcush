@@ -85,3 +85,9 @@ void Chip_SCT_SetConflictResolution(LPC_SCT_T *pSCT, uint8_t outnum, uint8_t val
 	pSCT->RES = tem;
 }
 
+
+
+
+
+
+

@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 void task_blink_init(void);
-void task_blink_entry(void *p);
+void task_blink_entry(void *arg);
 
 int get_errno(void);
 int set_errno(int num);

@@ -97,3 +97,9 @@ void Chip_PMC_Set_PwrState(CHIP_PMC_PWR_STATE_T PwrState);
 #endif
 
 #endif /* __PMC_18XX_43XX_H_ */
+
+
+
+
+
+

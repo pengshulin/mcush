@@ -47,7 +47,13 @@
 /**
  * @brief Boolean Type definition
  */
-typedef enum {FALSE = 0, TRUE = !FALSE} Bool;
+//typedef enum {FALSE = 0, TRUE = !FALSE} Bool;		// in earlier versions
+#ifndef TRUE
+#define TRUE (1)
+#endif
+#ifndef FALSE
+#define FALSE (0)
+#endif
 
 /**
  * @brief Boolean Type definition
@@ -214,3 +220,9 @@ typedef bool BOOL_8;
  */
 
 #endif /* __LPC_TYPES_H_ */
+
+
+
+
+
+

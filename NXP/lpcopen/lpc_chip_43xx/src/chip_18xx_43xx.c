@@ -115,3 +115,9 @@ void SystemCoreClockUpdate(void)
 	/* CPU core speed */
 	SystemCoreClock = Chip_Clock_GetRate(CLK_MX_MXCORE);
 }
+
+
+
+
+
+

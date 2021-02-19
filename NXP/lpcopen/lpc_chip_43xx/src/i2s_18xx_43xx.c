@@ -54,6 +54,7 @@ STATIC Status getClkDiv(LPC_I2S_T *pI2S, I2S_AUDIO_FORMAT_T *format, uint16_t *p
 	uint32_t N;
 	uint16_t err, ErrorOptimal = 0xFFFF;
 
+    (void)pI2S;
 	pClk = Chip_Clock_GetRate(CLK_APB1_I2S);
 
 	/* divider is a fixed point number with 16 fractional bits */
@@ -110,6 +111,7 @@ STATIC Status getClkDiv(LPC_I2S_T *pI2S, I2S_AUDIO_FORMAT_T *format, uint16_t *p
 /* Initialize the I2S interface */
 void Chip_I2S_Init(LPC_I2S_T *pI2S)
 {
+    (void)pI2S;
 	Chip_Clock_Enable(CLK_APB1_I2S);
 }
 
@@ -225,6 +227,7 @@ void Chip_I2S_DMA_TxCmd(LPC_I2S_T *pI2S,
 						FunctionalState newState,
 						uint8_t depth)
 {
+    (void)dmaNum;
 	/* Enable/Disable I2S transmit*/
 	if (newState == ENABLE) {
 	    /* Set FIFO Level */
@@ -243,7 +246,7 @@ void Chip_I2S_DMA_RxCmd(LPC_I2S_T *pI2S,
 						FunctionalState newState,
 						uint8_t depth)
 {
-	
+    (void)dmaNum;	
 	/* Enable/Disable I2S Receive */
 	if (newState == ENABLE) {
 	    /* Set FIFO Level */
@@ -255,4 +258,10 @@ void Chip_I2S_DMA_RxCmd(LPC_I2S_T *pI2S,
 		pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_2] &= ~0x01;
 	}
 }
+
+
+
+
+
+
 

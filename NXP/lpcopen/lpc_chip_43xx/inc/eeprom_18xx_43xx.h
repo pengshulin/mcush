@@ -273,3 +273,9 @@ STATIC INLINE void Chip_EEPROM_ClearIntStatus(LPC_EEPROM_T *pEEPROM, uint32_t ma
 #endif
 
 #endif /* _EEPROM_18XX_43XX_H_ */
+
+
+
+
+
+

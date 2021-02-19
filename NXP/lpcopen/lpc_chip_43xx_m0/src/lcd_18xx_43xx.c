@@ -204,3 +204,9 @@ void Chip_LCD_LoadPalette(LPC_LCD_T *pLCD, void *palette)
 	}
 }
 
+
+
+
+
+
+

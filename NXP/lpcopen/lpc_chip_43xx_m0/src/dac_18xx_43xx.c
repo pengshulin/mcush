@@ -83,3 +83,9 @@ void Chip_DAC_SetBias(LPC_DAC_T *pDAC, uint32_t bias)
 	}
 }
 
+
+
+
+
+
+

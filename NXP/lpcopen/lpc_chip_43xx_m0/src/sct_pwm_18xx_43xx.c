@@ -85,3 +85,9 @@ void Chip_SCTPWM_SetRate(LPC_SCT_T *pSCT, uint32_t freq)
 	/* Set SCT Counter to count 32-bits and reset to 0 after reaching MATCH0 */
 	Chip_SCT_Config(pSCT, SCT_CONFIG_32BIT_COUNTER | SCT_CONFIG_AUTOLIMIT_L);
 }
+
+
+
+
+
+

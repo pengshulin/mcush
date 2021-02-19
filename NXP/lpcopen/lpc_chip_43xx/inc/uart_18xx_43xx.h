@@ -824,3 +824,9 @@ void Chip_UART_ABCmd(LPC_USART_T *pUART, uint32_t mode, bool autorestart,
 #endif
 
 #endif /* __UART_18XX_43XX_H_ */
+
+
+
+
+
+

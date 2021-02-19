@@ -107,7 +107,7 @@ static const uint8_t GPDMA_LUTPerWid[] = {
 };
 
 /* Lookup Table of Connection Type matched with (18xx,43xx) Peripheral Data (FIFO) register base address */
-volatile static const void *GPDMA_LUTPerAddr[] = {
+static volatile const void *GPDMA_LUTPerAddr[] = {
 	NULL,							/* MEMORY             */
 	(&LPC_TIMER0->MR),				/* MAT0.0             */
 	(&LPC_USART0-> /*RBTHDLR.*/ THR),	/* UART0 Tx           */
@@ -451,6 +451,7 @@ void Chip_GPDMA_Init(LPC_GPDMA_T *pGPDMA)
 /* Shutdown the GPDMA */
 void Chip_GPDMA_DeInit(LPC_GPDMA_T *pGPDMA)
 {
+    (void)pGPDMA;
 	Chip_Clock_Disable(CLK_MX_DMA);
 }
 
@@ -506,6 +507,7 @@ int Chip_GPDMA_InitChannelCfg(LPC_GPDMA_T *pGPDMA,
 	GPDMACfg->TransferType = TransferType;
 	GPDMACfg->TransferSize = Size;
 
+    (void)pGPDMA;
 	switch (TransferType) {
 	case GPDMA_TRANSFERTYPE_M2M_CONTROLLER_DMA:
 		GPDMACfg->SrcAddr = (uint32_t) src;
@@ -734,6 +736,8 @@ uint8_t Chip_GPDMA_GetFreeChannel(LPC_GPDMA_T *pGPDMA,
 								  uint32_t PeripheralConnection_ID)
 {
 	uint8_t temp = 0;
+
+    (void)PeripheralConnection_ID;
 	for (temp = 0; temp < GPDMA_NUMBER_CHANNELS; temp++) {
 		if (!Chip_GPDMA_IntGetStatus(pGPDMA, GPDMA_STAT_ENABLED_CH,
 									 temp) && (ChannelHandlerArray[temp].ChannelStatus == DISABLE)) {
@@ -743,4 +747,10 @@ uint8_t Chip_GPDMA_GetFreeChannel(LPC_GPDMA_T *pGPDMA,
 	}
 	return 0;
 }
+
+
+
+
+
+
 

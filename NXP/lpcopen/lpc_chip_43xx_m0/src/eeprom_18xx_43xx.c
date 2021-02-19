@@ -98,3 +98,9 @@ void Chip_EEPROM_WaitForIntStatus(LPC_EEPROM_T *pEEPROM, uint32_t mask)
 	Chip_EEPROM_ClearIntStatus(pEEPROM, mask);
 }
 
+
+
+
+
+
+

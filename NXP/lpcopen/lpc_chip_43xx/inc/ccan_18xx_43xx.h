@@ -451,6 +451,7 @@ STATIC INLINE void Chip_CCAN_ClearMsgIntPend(LPC_CCAN_T *pCCAN,
 											 uint8_t msgNum,
 											 CCAN_TRANSFER_DIR_T dir)
 {
+    (void)dir;
 	Chip_CCAN_TransferMsgObject(pCCAN, IFSel, CCAN_IF_CMDMSK_RD | CCAN_IF_CMDMSK_R_CLRINTPND, msgNum);
 }
 
@@ -503,3 +504,9 @@ void Chip_CCAN_DeleteReceiveID(LPC_CCAN_T *pCCAN, CCAN_MSG_IF_T IFSel, uint32_t 
 #endif
 
 #endif /* __CCAN_18XX_43XX_H_ */
+
+
+
+
+
+

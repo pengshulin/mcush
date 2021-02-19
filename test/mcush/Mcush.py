@@ -226,22 +226,31 @@ class Mcush( Instrument.SerialInstrument ):
 
 
 
-    def parseMemLine( self, line, compact_mode=False ):
+    def parseMemLine( self, line, compact_mode=False, width=1 ):
         '''parse memory line which has been stripped'''
-        # format(standard):  XXXXXXXX: xx xx xx xx xx ... xx    (no ascii mode, final space stripped)
-        # format(compact):   xxxxxxxxxxxx...xx
-        #print( type(line), line )
+        # line format:
+        # standard, w1:  XXXXXXXX: xx xx xx xx ... xx
+        # standard, w2:  XXXXXXXX: xxxx xxxx ... xxxx
+        # standard, w4:  XXXXXXXX: xxxxxxxx ... xxxxxxxx
+        # compact, w1:   xx...xx
+        # compact, w2:   xxxx...xxxx
+        # compact, w4:   xxxxxxxx...xxxxxxxx
+        if not compact_mode:
+            line = line[10:]  # cut address
+        line = line.replace(' ', '')
         line_len = len(line)
-        line_len_err = bool(line_len % 2) if compact_mode else bool((line_len-9) % 3)
-        if line_len_err:
-            raise CommandExecuteError('memory line width error, length=%s'% line_len)
-        if compact_mode:
-            m = [binascii.unhexlify(line[i:i+2]) for i in range(0,line_len,2)]
-        else:
-            m = [binascii.unhexlify(line[i:i+2]) for i in range(10,line_len,3)]
-        ret = Env.EMPTY_BYTE.join(m)
-        #print( type(ret), len(ret), ret )
-        return ret
+        #print( line_len, line )
+        m = []
+        if width == 1:
+            for i in range(0,line_len,2):
+                m.append( binascii.unhexlify(line[i:i+2]) )
+        elif width == 2:
+            for i in range(0,line_len,4):
+                m.append( binascii.unhexlify(line[i:i+4])[::-1] )
+        elif width == 4:
+            for i in range(0,line_len,8):
+                m.append( binascii.unhexlify(line[i:i+8])[::-1] )
+        return Env.EMPTY_BYTE.join(m)
        
     def fillMem( self, addr, pattern, width, length ):
         '''fill memory with specific pattern'''
@@ -293,9 +302,11 @@ class Mcush( Instrument.SerialInstrument ):
         return int(r['address'], 16)
             
  
-    def readMem( self, addr, length=1, compact_mode=False, retry=None ):
+    def readMem( self, addr, length=1, width=1, compact_mode=False, retry=None ):
         '''get memory'''
         cmd = 'x -b 0x%X -l %d'% ( addr, length )
+        if width != 1:
+            cmd += ' -w%d'% width
         if compact_mode:
             cmd += ' -c'
         if retry:
@@ -306,7 +317,7 @@ class Mcush( Instrument.SerialInstrument ):
         for line in ret:
             self.logger.info( line )
         mem = Env.EMPTY_BYTE.join( \
-               [self.parseMemLine(line.strip(), compact_mode) for line in ret])
+               [self.parseMemLine(line.strip(), compact_mode, width=width) for line in ret])
         #print( type(mem), len(mem), mem )
         return mem[:length]
 

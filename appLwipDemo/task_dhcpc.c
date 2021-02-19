@@ -91,7 +91,7 @@ int load_ip_from_conf_file(const char *fname, ip_addr_t *ipaddr, ip_addr_t *netm
 
 int send_dhcpc_event( uint8_t event )
 {
-    return os_queue_put( queue_dhcpc, &event, 0 ) )
+    return os_queue_put( queue_dhcpc, &event, 0 );
 }
 
 
@@ -99,6 +99,7 @@ void timer_dhcpc_callback( os_timer_handle_t timer )
 {
     //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     const int8_t evt = DHCPC_EVENT_CHECK_TIMER;
+    (void)timer;
     os_queue_put_isr( queue_dhcpc, (void*)&evt );
     //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
@@ -170,12 +171,13 @@ void do_lwip_init(void)
 }
 
 
-void task_dhcpc_entry(void *p)
+void task_dhcpc_entry(void *arg)
 {
     char buf[256];
     uint8_t evt;
     int i;
 
+    (void)arg;
     do_lwip_init();
     os_timer_start( timer_dhcpc );
 
@@ -287,6 +289,8 @@ void task_dhcpc_entry(void *p)
 
 int cmd_lwip( int argc, char *argv[] )
 {
+    (void)argc;
+    (void)argv;
     stats_display();
     return 0;
 }
@@ -306,7 +310,7 @@ int cmd_netstat( int argc, char *argv[] )
     char *input=0;
     ip_addr_t ipaddr, netmask, gateway;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

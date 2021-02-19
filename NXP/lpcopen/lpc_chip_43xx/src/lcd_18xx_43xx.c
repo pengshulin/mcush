@@ -133,6 +133,7 @@ void Chip_LCD_Init(LPC_LCD_T *pLCD, LCD_CONFIG_T *LCD_ConfigStruct)
 /* Shutdown the LCD controller */
 void Chip_LCD_DeInit(LPC_LCD_T *pLCD)
 {
+    (void)pLCD;
 	Chip_Clock_Disable(CLK_MX_LCD);
 }
 
@@ -203,4 +204,10 @@ void Chip_LCD_LoadPalette(LPC_LCD_T *pLCD, void *palette)
 		pLCD->PAL[i] = *((uint32_t *)&pal_entry);
 	}
 }
+
+
+
+
+
+
 

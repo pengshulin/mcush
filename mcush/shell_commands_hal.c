@@ -86,7 +86,7 @@ int cmd_gpio( int argc, char *argv[] )
     mcush_opt opt;
     unsigned int loop=0, loop_delay=1000, loop_tick;
     char c;
-    int port=-1, bit=-1, bit_mode=-1, pull=-1;
+    int port=-1, bit=-1, bit_mode=-1, pull=0;
     const char *pport=0, *pinput=0, *poutput=0, *pset=0, *pclr=0, *ptoggle=0;
     char *pbit;
     uint8_t input_set=0, output_set=0, set_set=0, clr_set=0, toggle_set=0, none_set=0, opendrain_set=0;
@@ -134,7 +134,7 @@ int cmd_gpio( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_pullup ) == 0 )
                 pull = 1;
             else if( STRCMP( opt.spec->name, shell_str_pulldown ) == 0 )
-                pull = 0;
+                pull = -1;
             else if( STRCMP( opt.spec->name, shell_str_opendrain ) == 0 )
                 opendrain_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
@@ -203,10 +203,7 @@ loop_start:
     {
         if( input_set )
         {
-            if( pull == -1 )
-                hal_gpio_set_input( port, 1<<bit, 0 );
-            else
-                hal_gpio_set_input( port, 1<<bit, pull );
+            hal_gpio_set_input( port, 1<<bit, pull );
         }
         if( output_set )
         {
@@ -225,10 +222,7 @@ loop_start:
     {
         if( input_set )
         {
-            if( pull == -1 )
-                hal_gpio_set_input( port, pinput ? input_val : -1, 0 );
-            else
-                hal_gpio_set_input( port, pinput ? input_val : -1, pull );
+            hal_gpio_set_input( port, pinput ? input_val : -1, pull );
         }
         if( output_set )
         {

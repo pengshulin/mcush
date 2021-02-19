@@ -156,3 +156,9 @@ STATIC INLINE void Chip_RGU_ClearReset(CHIP_RGU_RST_T ResetNumber)
 #endif
 
 #endif /* __RGU_18XX_43XX_H_ */
+
+
+
+
+
+

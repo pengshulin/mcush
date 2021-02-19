@@ -266,3 +266,9 @@ void Chip_ADC_SetBurstCmd(LPC_ADC_T *pADC, FunctionalState NewState);
 #endif
 
 #endif /* __ADC_18XX_43XX_H_ */
+
+
+
+
+
+

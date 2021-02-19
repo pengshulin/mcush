@@ -187,6 +187,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     uint32_t byteslefttocopy = 0;
     uint32_t payloadoffset = 0;
 
+    (void)netif;
     SYS_ARCH_DECL_PROTECT(sr);
     /* Interrupts are disabled through this whole thing to support multi-threading
        transmit calls. Also this function might be called from an ISR. */
@@ -278,6 +279,7 @@ static struct pbuf * low_level_input(struct netif *netif)
     uint32_t byteslefttocopy = 0;
     uint32_t i=0;
 
+    (void)netif;
     /* get received frame */
     frame = ETH_Get_Received_Frame_interrupt();
 
@@ -355,12 +357,13 @@ static struct pbuf * low_level_input(struct netif *netif)
 *
 * @param netif the lwip network interface structure for this ethernetif
 */
-void ethernetif_input( void * pvParameters )
+void ethernetif_input( void *arg )
 {
     struct pbuf *p;
     //OS_ERR os_err;
     err_t err;
 
+    (void)arg;
     /* move received packet into a new pbuf */
     while (1)
     {
@@ -426,6 +429,7 @@ err_t ethernetif_init(struct netif *netif)
 
 static void arp_timer(void *arg)
 {
+    (void)arg;
     etharp_tmr();
     sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);
 }

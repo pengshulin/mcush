@@ -443,3 +443,9 @@ STATIC INLINE void Chip_TIMER_TIMER_SetCountClockSrc(LPC_TIMER_T *pTMR,
 #endif
 
 #endif /* __TIMER_18XX_43XX_H_ */
+
+
+
+
+
+

@@ -64,3 +64,9 @@ typedef struct {						/*!< GIMA Structure */
 #endif
 
 #endif /* __GIMA_18XX_43XX_H_ */
+
+
+
+
+
+

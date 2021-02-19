@@ -143,3 +143,9 @@ uint32_t Chip_OTP_GenRand(void)
 {
 	return Otp_GenRand();
 }
+
+
+
+
+
+

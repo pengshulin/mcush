@@ -221,3 +221,9 @@ void Chip_SDIF_DmaSetup(LPC_SDMMC_T *pSDMMC, sdif_device *psdif_dev, uint32_t ad
 	pSDMMC->DBADDR = (uint32_t) &psdif_dev->mci_dma_dd[0];
 }
 
+
+
+
+
+
+

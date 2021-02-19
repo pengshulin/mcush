@@ -596,3 +596,9 @@ void Chip_SSP_SetBitRate(LPC_SSP_T *pSSP, uint32_t bitRate);
 #endif
 
 #endif /* __SSP_18XX_43XX_H_ */
+
+
+
+
+
+

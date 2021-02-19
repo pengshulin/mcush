@@ -287,3 +287,9 @@ void Chip_EMC_Init(uint32_t Enable, uint32_t ClockRatio, uint32_t EndianMode)
 	LPC_EMC->CONTROL     = (Enable ? 1 : 0);
 }
 
+
+
+
+
+
+

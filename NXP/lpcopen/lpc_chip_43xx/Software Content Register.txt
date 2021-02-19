@@ -1,0 +1,70 @@
+Software Content Register
+
+This is at the top-level installation directory for LPCOpen Driver produced by NXP B.V.
+
+As detailed in the Software Content Register below, LPCOpen Driver comprises NXP B.V. copyrighted files, open source components, and components provided by third parties. 
+
+NXP B.V. copyrighted files are licensed under the terms of the NXP B.V. proprietary license associated with this distribution (see License.txt).
+
+Some of the licenses for open source components shipped as part of
+LPCOpen Driver entitles users to a copy of the source code for that component. Where this is the case, the Source URL lines below indicate the download address. Components with Source URL lines referring to nxp.com have been modified as part of producing LPCOpen Driver. Other components have been built from unmodified sources.
+
+Software Content Register
+--------------------------
+FreeRTOS
+FreeRTOS is provided by Real Time Engineer Ltd. This is a real time operating system for embedded controllers.
+
+License: GPL 2.0 as published by the Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+License File: http://www.freertos.org/license.txt
+Distribution Type: Source 
+Version: V8.0.1
+Location: https://sourceforge.net/projects/freertos/files/latest/download?source=files
+
+emWin Graphical Library
+emWin Graphical Library is provided by Segger. This is a graphic LCD tool to assist the user in generating their GUI solutions based on LPC devices with graphical LCD interface. NXP provide only Binary library version. Should the user require the source, for a fee, they contact Segger directly.
+
+Website: https://www.segger.com/products/user-interface/emwin/
+License File: emWinLicense.rtf
+Distribution Type: Binary Library
+Version:  5.38
+Website: http://www.nxp.com/pages/emwin-graphics-library:EMWIN-GRAPHICS-LIBRARY 
+
+
+
+LWIP
+Light Weight Internet Protocol (LwIP) was originally developed byÊAdam DunkelsÊat theÊSwedish Institute of Computer ScienceÊand is now developed and maintained by a worldwide network of developers.
+Licenses: BSD 
+License File: ./lwip/inc/arch/cc.h
+Distribution Type: Source 
+Version: 1.4.0
+Location: http://git.savannah.gnu.org/cgit/lwip.git
+
+
+Chan FAT Filesystem
+FatFs is a generic FAT/exFAT filesystem module for small embedded systems.
+This is used for devices with SD/MMC card interface.
+
+Source URL: https://launchpad.net/gcc-arm-embedded/+download
+License: BSD style:
+FatFs module is a free software that opened under license policy of following conditions.
+
+Copyright (C) 2015, ChaN, all right reserved.
+
+1. Redistributions of source code must retain the above copyright notice,
+   this condition and the following disclaimer.
+
+This software is provided by the copyright holder and contributors "AS IS" and any warranties related to this software are DISCLAIMED.
+The copyright owner or contributors be NOT LIABLE for any damages caused by use of this software.
+
+License File: ./src/ff.h
+Distribution Type: Source 
+Version: R0.09a
+Location: http://elm-chan.org/fsw/ff/00index_e.html
+
+
+uC OS III
+uC OS III developed by Micrium is an RTOS provided in source form to user for evaluation. NXP port uC OS III and provide in source form, users are required to register with Micrium (in goodwill) as indicated in the source file header.
+
+Link to download Source
+https://www.micrium.com/downloadcenter/download-results/?searchterm=hm-nxp&supported=true
+

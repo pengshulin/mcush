@@ -62,6 +62,7 @@ void Chip_WWDT_Init(LPC_WWDT_T *pWWDT)
 /* Shutdown the Watchdog timer */
 void Chip_WWDT_DeInit(LPC_WWDT_T *pWWDT)
 {
+    (void)pWWDT;
 }
 
 /* Clear WWDT interrupt status flags */
@@ -75,4 +76,10 @@ void Chip_WWDT_ClearStatusFlag(LPC_WWDT_T *pWWDT, uint32_t status)
 		pWWDT->MOD |= WWDT_WDMOD_WDINT;
 	}
 }
+
+
+
+
+
+
 

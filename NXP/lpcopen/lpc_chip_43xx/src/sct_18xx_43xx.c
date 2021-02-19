@@ -50,12 +50,14 @@
 /* Initialize SCT */
 void Chip_SCT_Init(LPC_SCT_T *pSCT)
 {
+    (void)pSCT;
 	Chip_Clock_EnableOpts(CLK_MX_SCT, true, true, 1);
 }
 
 /* Shutdown SCT */
 void Chip_SCT_DeInit(LPC_SCT_T *pSCT)
 {
+    (void)pSCT;
 	Chip_Clock_Disable(CLK_MX_SCT);
 }
 
@@ -84,4 +86,10 @@ void Chip_SCT_SetConflictResolution(LPC_SCT_T *pSCT, uint8_t outnum, uint8_t val
 	tem |= (value << (2 * outnum));
 	pSCT->RES = tem;
 }
+
+
+
+
+
+
 

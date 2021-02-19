@@ -187,3 +187,9 @@ void Chip_RIT_SetTimerInterval(LPC_RITIMER_T *pRITimer, uint32_t time_interval);
 #endif
 
 #endif /* __RITIMER_18XX_43XX_H_ */
+
+
+
+
+
+

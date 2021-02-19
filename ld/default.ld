@@ -25,11 +25,11 @@ SECTIONS
         BYTE(0);
     } > FLASH */
 
-        __exidx_start = . ;
+    /*    __exidx_start = . ;
         .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
         __exidx_end = .;
-
-   .text :
+    */
+    .text :
     {
         . = ALIGN(4);
         _stext = . ;

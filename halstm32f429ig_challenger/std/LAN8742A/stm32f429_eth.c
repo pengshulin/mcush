@@ -30,8 +30,7 @@
 #include "stm32f429_eth.h"
 #include "stm32f4xx_rcc.h"
 #include <string.h>
-#include "FreeRTOS.h"
-#include "task.h"
+#include "mcush.h"
 
 
 /** @defgroup ETH_Private_TypesDefinitions
@@ -135,7 +134,7 @@ __IO uint32_t Frame_Rx_index;
 void ETH_Delay(__IO uint32_t nCount)
 {
     /* NOTE: nCount in 10ms */
-    vTaskDelay( nCount * configTICK_RATE_HZ / 100 );
+    os_task_delay_ms( nCount / 10 );
 }
 #endif /* USE_Delay*/
 
@@ -372,7 +371,7 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
     }
 
     /* Delay to assure PHY reset */
-    _eth_delay_(PHY_RESET_DELAY);
+    os_task_delay_ms( PHY_RESET_DELAY*10 );
 
     if(ETH_InitStruct->ETH_AutoNegotiation != ETH_AutoNegotiation_Disable)
     {
@@ -443,7 +442,7 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
             err = ETH_ERROR;
         }
         /* Delay to assure PHY configuration */
-        _eth_delay_(PHY_CONFIG_DELAY);
+        os_task_delay_ms(PHY_CONFIG_DELAY*10);
     }
 error:
     if (err == ETH_ERROR) /* Auto-negotiation failed */
@@ -492,7 +491,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACCR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACCR = tmpreg;
 
     /*----------------------- ETHERNET MACFFR Configuration --------------------*/
@@ -517,7 +516,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACFFR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACFFR = tmpreg;
 
     /*--------------- ETHERNET MACHTHR and MACHTLR Configuration ---------------*/
@@ -551,7 +550,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACFCR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACFCR = tmpreg;
 
     /*----------------------- ETHERNET MACVLANTR Configuration -----------------*/
@@ -563,7 +562,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACVLANTR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACVLANTR = tmpreg;
 
     /*-------------------------------- DMA Config ------------------------------*/
@@ -598,7 +597,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->DMAOMR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY);
     ETH->DMAOMR = tmpreg;
 
     /*----------------------- ETHERNET DMABMR Configuration --------------------*/
@@ -619,7 +618,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->DMABMR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->DMABMR = tmpreg;
 
 #ifdef USE_ENHANCED_DMA_DESCRIPTORS
@@ -629,7 +628,7 @@ error:
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->DMABMR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->DMABMR = tmpreg;
 #endif /* USE_ENHANCED_DMA_DESCRIPTORS */
 
@@ -718,7 +717,7 @@ void ETH_MACTransmissionCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACCR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACCR = tmpreg;
 }
 
@@ -748,7 +747,7 @@ void ETH_MACReceptionCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACCR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACCR = tmpreg;
 }
 
@@ -786,7 +785,7 @@ void ETH_InitiatePauseControlFrame(void)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACFCR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACFCR = tmpreg;
 }
 
@@ -818,7 +817,7 @@ void ETH_BackPressureActivationCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACFCR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACFCR = tmpreg;
 }
 
@@ -998,7 +997,7 @@ void ETH_MACAddressPerfectFilterCmd(uint32_t MacAddr, FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr));
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) = tmpreg;
 }
 
@@ -1040,7 +1039,7 @@ void ETH_MACAddressFilterConfig(uint32_t MacAddr, uint32_t Filter)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr));
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) = tmpreg;
 }
 
@@ -1074,7 +1073,7 @@ void ETH_MACAddressMaskBytesFilterConfig(uint32_t MacAddr, uint32_t MaskByte)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr));
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) = tmpreg;
 
     /* Set the selected Filter mask bytes */
@@ -1083,7 +1082,7 @@ void ETH_MACAddressMaskBytesFilterConfig(uint32_t MacAddr, uint32_t MaskByte)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr));
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     (*(__IO uint32_t *) (ETH_MAC_ADDR_HBASE + MacAddr)) = tmpreg;
 }
 
@@ -1824,7 +1823,7 @@ void ETH_EnhancedDescriptorCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->DMABMR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY);
     ETH->DMABMR = tmpreg;
 }
 #endif /* USE_ENHANCED_DMA_DESCRIPTORS */
@@ -2096,7 +2095,7 @@ void ETH_FlushTransmitFIFO(void)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->DMAOMR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->DMAOMR = tmpreg;
 }
 
@@ -2443,7 +2442,7 @@ void ETH_ResetWakeUpFrameFilterRegisterPointer(void)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACPMTCSR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACPMTCSR = tmpreg;
 }
 
@@ -2466,7 +2465,7 @@ void ETH_SetWakeUpFrameFilterRegister(uint32_t *Buffer)
         /* Wait until the write operation will be taken into account :
          at least four TX_CLK/RX_CLK clock cycles */
         tmpreg = ETH->MACRWUFFR;
-        _eth_delay_(ETH_REG_WRITE_DELAY);
+        os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
         ETH->MACRWUFFR = tmpreg;
     }
 }
@@ -2498,7 +2497,7 @@ void ETH_GlobalUnicastWakeUpCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACPMTCSR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACPMTCSR = tmpreg;
 }
 
@@ -2553,7 +2552,7 @@ void ETH_WakeUpFrameDetectionCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACPMTCSR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACPMTCSR = tmpreg;
 }
 
@@ -2583,7 +2582,7 @@ void ETH_MagicPacketDetectionCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACPMTCSR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACPMTCSR = tmpreg;
 }
 
@@ -2614,7 +2613,7 @@ void ETH_PowerDownCmd(FunctionalState NewState)
     /* Wait until the write operation will be taken into account :
      at least four TX_CLK/RX_CLK clock cycles */
     tmpreg = ETH->MACPMTCSR;
-    _eth_delay_(ETH_REG_WRITE_DELAY);
+    os_task_delay_ms(ETH_REG_WRITE_DELAY*10);
     ETH->MACPMTCSR = tmpreg;
 }
 

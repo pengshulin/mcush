@@ -59,6 +59,7 @@ void Chip_DAC_Init(LPC_DAC_T *pDAC)
 /* Shutdown DAC peripheral */
 void Chip_DAC_DeInit(LPC_DAC_T *pDAC)
 {
+    (void)pDAC;
 	Chip_Clock_Disable(CLK_APB3_DAC);
 }
 
@@ -82,4 +83,10 @@ void Chip_DAC_SetBias(LPC_DAC_T *pDAC, uint32_t bias)
 		pDAC->CR |= DAC_BIAS_EN;
 	}
 }
+
+
+
+
+
+
 

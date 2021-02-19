@@ -137,6 +137,7 @@ void Chip_ENET_DeInit(LPC_ENET_T *pENET)
 /* Sets up the PHY link clock divider and PHY address */
 void Chip_ENET_SetupMII(LPC_ENET_T *pENET, uint32_t div, uint8_t addr)
 {
+    (void)pENET;
 	/* Save clock divider and PHY address in MII address register */
 	phyCfg = MAC_MIIA_PA(addr) | MAC_MIIA_CR(div);
 }
@@ -179,4 +180,10 @@ void Chip_ENET_SetSpeed(LPC_ENET_T *pENET, bool speed100)
 		pENET->MAC_CONFIG &= ~MAC_CFG_FES;
 	}
 }
+
+
+
+
+
+
 

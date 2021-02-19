@@ -19,18 +19,20 @@
 #endif
     
 extern char _sheap, _eheap, _sstack, _estack;
-char *heap_end;
-caddr_t _sbrk(int incr) {
-    char *prev_heap_end;
+
+caddr_t _sbrk(int incr)
+{
+    static char *heap_end = NULL;
+    char *prev_heap_end, *new_heap_end;
     
-    if( !heap_end ) 
+    if( heap_end == NULL ) 
         heap_end = &_sheap;
     prev_heap_end = heap_end;
-    heap_end += incr;
+    new_heap_end = heap_end + incr;
 #if EXPAND_HEAP_TO_STACK
-    if( heap_end > &_sstack )
+    if( new_heap_end > &_sstack )
 #else
-    if( heap_end > &_eheap )
+    if( new_heap_end > &_eheap )
 #endif
     {
 #if HALT_ON_SBRK_FAIL
@@ -39,6 +41,7 @@ caddr_t _sbrk(int incr) {
         return (caddr_t)(-1);
 #endif
     }
+    heap_end = new_heap_end;
     return (caddr_t)prev_heap_end;
 }
  
@@ -61,7 +64,7 @@ char *parse_file_flag( int flag, char *buf )
     return buf;
 }
 
-
+#if MCUSH_VFS
 int _open( const char *name, int flag, int m )
 {
     char buf[8];
@@ -111,6 +114,7 @@ int _isatty( int fd )
     (void)fd;
     return 0;
 }
+#endif
 
 
 void _exit(int status)

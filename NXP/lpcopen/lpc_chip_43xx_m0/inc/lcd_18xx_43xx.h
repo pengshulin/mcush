@@ -381,3 +381,9 @@ void Chip_LCD_LoadPalette(LPC_LCD_T *pLCD, void *palette);
  */
 
 #endif /* __LCD_18XX_43XX_H_ */
+
+
+
+
+
+

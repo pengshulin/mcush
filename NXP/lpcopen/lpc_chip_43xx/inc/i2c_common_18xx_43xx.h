@@ -198,3 +198,9 @@ typedef struct {				/* I2C0 Structure         */
 #endif
 
 #endif /* __I2C_COMMON_18XX_43XX_H_ */
+
+
+
+
+
+

@@ -245,3 +245,9 @@ STATIC INLINE void Chip_SCU_SetPinMuxing(const PINMUX_GRP_T *pinArray, uint32_t 
 #endif
 
 #endif /* __SCU_18XX_43XX_H_ */
+
+
+
+
+
+

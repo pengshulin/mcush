@@ -159,3 +159,9 @@ uint32_t Chip_AES_OperateDMA(uint32_t channel_id, uint8_t *dataOutAddr, uint8_t 
 #endif
 
 #endif /* __AES_18XX_43XX_H_ */
+
+
+
+
+
+

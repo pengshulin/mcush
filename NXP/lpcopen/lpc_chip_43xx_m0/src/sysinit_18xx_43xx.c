@@ -82,7 +82,7 @@ void Chip_SetupCoreClock(CHIP_CGU_CLKIN_T clkin, uint32_t core_freq, bool setbas
 {
 	int i;
 	volatile uint32_t delay = 500;
-	uint32_t direct = 0;
+	uint32_t direct = 0, pdivide = 0;
 	PLL_PARAM_T ppll;
 
 	if (clkin == CLKIN_CRYSTAL) {
@@ -97,20 +97,14 @@ void Chip_SetupCoreClock(CHIP_CGU_CLKIN_T clkin, uint32_t core_freq, bool setbas
 	Chip_Clock_CalcMainPLLValue(core_freq, &ppll);
 
 	if (core_freq > 110000000UL) {
-		if (!(ppll.ctrl & (1 << 7)) || ppll.psel) {
-			PLL_PARAM_T lpll;
-			/* Calculate the PLL Parameters */
-			lpll.srcin = clkin;
-			Chip_Clock_CalcMainPLLValue(110000000UL, &lpll);
-			Chip_Clock_SetupMainPLL(&lpll);
-			/* Wait for the PLL to lock */
-			while(!Chip_Clock_MainPLLLocked()) {}
-			Chip_Clock_SetBaseClock(CLK_BASE_MX, CLKIN_MAINPLL, true, false);
-			while(delay --){}
-			delay = 500;
-		} else {
+		if (ppll.ctrl & (1 << 6)) {
+			while(1);		// to run in integer mode above 110 MHz, you need to use IDIV clock to boot strap CPU to that freq
+		} else if (ppll.ctrl & (1 << 7)){
 			direct = 1;
 			ppll.ctrl &= ~(1 << 7);
+		} else {
+			pdivide = 1;
+			ppll.psel++;
 		}
 	}
 
@@ -123,12 +117,16 @@ void Chip_SetupCoreClock(CHIP_CGU_CLKIN_T clkin, uint32_t core_freq, bool setbas
 	/* Set core clock base as PLL1 */
 	Chip_Clock_SetBaseClock(CLK_BASE_MX, CLKIN_MAINPLL, true, false);
 
-	while(delay --){} /* Wait for approx 50 uSec */
 	if (direct) {
-		delay = 500;
+		delay = 1000;
+		while(delay --){} /* Wait for approx 50 uSec -- for power supply to stabilize*/
 		ppll.ctrl |= 1 << 7;
 		Chip_Clock_SetupMainPLL(&ppll); /* Set DIRECT to operate at full frequency */
-		while(delay --){} /* Wait for approx 50 uSec */
+	} else if (pdivide) {
+		delay = 1000;
+		while(delay --){} /* Wait for approx 50 uSec -- for power supply to stabilize */
+		ppll.psel--;
+		Chip_Clock_SetupMainPLL(&ppll); /* Set PDIV to operate at full frequency */
 	}
 
 	if (setbase) {
@@ -160,3 +158,9 @@ void Chip_SystemInit(void)
 	/* Initial internal clocking */
 	Chip_SetupIrcClocking();
 }
+
+
+
+
+
+

@@ -398,3 +398,9 @@ int Chip_I2C_IsStateChanged(I2C_ID_T id);
 #endif
 
 #endif /* __I2C_18XX_43XX_H_ */
+
+
+
+
+
+

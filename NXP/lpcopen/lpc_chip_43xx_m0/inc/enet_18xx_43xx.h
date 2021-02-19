@@ -678,3 +678,9 @@ void Chip_ENET_DeInit(LPC_ENET_T *pENET);
 #endif
 
 #endif /* __ENET_18XX_43XX_H_ */
+
+
+
+
+
+

@@ -255,3 +255,9 @@ Status Chip_ADC_ReadByte(LPC_ADC_T *pADC, ADC_CHANNEL_T channel, uint8_t *data)
 	return rt;
 }
 
+
+
+
+
+
+

@@ -5,7 +5,6 @@
 #include "lwip_config.h"
 #include "lwip/dhcp.h"
 #include "mcush.h"
-#include "FreeRTOS.h"
 #include "task_dhcpc.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,7 +114,7 @@ int cmd_lan8720( int argc, char *argv[] )
     int value, reg, reg2;
     uint8_t name_set=0, value_set=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -433,6 +432,7 @@ void ETH_CheckLinkStatus(uint16_t PHYAddress)
 {
     static uint8_t check_link_retry = 0;
 
+    (void)PHYAddress;
     if( ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & PHY_Linked_Status )
     {
         check_link_retry = ETH_CHECK_LINK_RETRY;
@@ -535,7 +535,7 @@ void ETH_link_callback(struct netif *netif)
             /* Write to ETHERNET MACCR */
             ETH->MACCR = (uint32_t)tmpreg;
 
-            _eth_delay_(ETH_REG_WRITE_DELAY);
+            os_task_delay_ms(ETH_REG_WRITE_DELAY/10);
             tmpreg = ETH->MACCR;
             ETH->MACCR = tmpreg;
         }
@@ -565,6 +565,7 @@ void ETH_EXTERN_GetSpeedAndDuplex(uint32_t PHYAddress, ETH_InitTypeDef* ETH_Init
 {
     uint32_t RegValue;
 
+    (void)PHYAddress;
     /* LAN8720A */
     /* Read status register, register number 31 = 0x1F */
     RegValue = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, 0x1F);

@@ -115,3 +115,9 @@ void Chip_TIMER_ExtMatchControlSet(LPC_TIMER_T *pTMR, int8_t initial_state,
 				(((uint32_t) matchState) << (4 + (matchnum * 2)));
 }
 
+
+
+
+
+
+

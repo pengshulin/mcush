@@ -744,3 +744,9 @@ uint8_t Chip_GPDMA_GetFreeChannel(LPC_GPDMA_T *pGPDMA,
 	return 0;
 }
 
+
+
+
+
+
+
