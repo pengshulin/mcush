@@ -7,15 +7,16 @@ extern "C" {
 #endif
 
 
-#define TASK_BLINK_STACK_SIZE  (224)
-#define TASK_BLINK_PRIORITY    (OS_PRIORITY_NORMAL)
+#define TASK_BLINK_NAME         "blinkT"
+#define TASK_BLINK_STACK_SIZE   224
+#define TASK_BLINK_PRIORITY     OS_PRIORITY_NORMAL
 
 #ifndef ERRNO_LED_NORMAL
-    #define ERRNO_LED_NORMAL  0
+    #define ERRNO_LED_NORMAL    0
 #endif
 
 #ifndef ERRNO_LED_ERROR
-    #define ERRNO_LED_ERROR   ERRNO_LED_NORMAL
+    #define ERRNO_LED_ERROR     ERRNO_LED_NORMAL
 #endif
 
 void task_blink_init(void);

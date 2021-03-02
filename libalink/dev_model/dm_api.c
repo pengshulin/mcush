@@ -582,6 +582,8 @@ int iotx_dm_cota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_cota_perform_sync(buffer, buffer_len);
 #else
+    (void)buffer;
+    (void)buffer_len;
     return -1;
 #endif
 }
@@ -591,6 +593,9 @@ int iotx_dm_cota_get_config(_IN_ const char *config_scope, const char *get_type,
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_cota_get_config(config_scope, get_type, attribute_keys);
 #else
+    (void)config_scope;
+    (void)get_type;
+    (void)attribute_keys;
     return -1;
 #endif
 }
@@ -600,6 +605,8 @@ int iotx_dm_fota_perform_sync(_OU_ char *buffer, _IN_ int buffer_len)
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_fota_perform_sync(buffer, buffer_len);
 #else
+    (void)buffer;
+    (void)buffer_len;
     return -1;
 #endif
 }
@@ -609,6 +616,8 @@ int iotx_dm_fota_request_image(const char *version, int buffer_len)
 #if defined(OTA_ENABLED) && !defined(BUILD_AOS)
     return dm_fota_request_image(version, buffer_len);
 #else
+    (void)version;
+    (void)buffer_len;
     return -1;
 #endif
 }

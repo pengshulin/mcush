@@ -511,8 +511,9 @@ void vApplicationMallocFailedHook(void)
     halt("malloc fail");
 }
 
-
-void vApplicationStackOverflowHook( xTaskHandle xTask, signed portCHAR *pcTaskName )
+     
+void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName )
+//void vApplicationStackOverflowHook( xTaskHandle xTask, signed portCHAR *pcTaskName )
 {
     (void)xTask;
     (void)pcTaskName;

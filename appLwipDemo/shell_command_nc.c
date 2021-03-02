@@ -52,6 +52,8 @@ void nc_hostname_dns_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 {
     (void)name;
     (void)arg;
+    if( ncb == NULL )
+        return;
     if( ipaddr )
         ncb->server_ip = *ipaddr;
     else

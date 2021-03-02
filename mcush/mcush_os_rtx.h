@@ -24,6 +24,7 @@
 #define OS_TICK_RATE     (OS_TICK_FREQ)
 #define OS_TICKS_MS(ms)  (ms*OS_TICK_FREQ/1000)
 #define OS_TICKS_S(s)    (s*OS_TICK_FREQ)
+#define OS_MS_PER_TICK   (1000/OS_TICK_RATE)
 
 typedef uint32_t os_tick_t;
 typedef osThreadId_t os_task_handle_t;

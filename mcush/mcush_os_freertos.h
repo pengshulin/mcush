@@ -32,6 +32,7 @@
 #define OS_TICK_RATE     configTICK_RATE_HZ
 #define OS_TICKS_MS(ms)  (ms*configTICK_RATE_HZ/1000)
 #define OS_TICKS_S(s)    (s*configTICK_RATE_HZ)
+#define OS_MS_PER_TICK   (1000/configTICK_RATE_HZ)
 
 typedef TickType_t os_tick_t;
 typedef TaskHandle_t os_task_handle_t;

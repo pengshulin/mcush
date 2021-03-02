@@ -47,18 +47,13 @@ extern "C" {
 /* Uncomment the line below if you want to use user defined Delay function
    (for precise timing), otherwise default _eth_delay_ function defined within
    the Ethernet driver is used (less precise timing) */
-#define USE_Delay
+//#define USE_HAL_DELAY
 
-#ifdef USE_Delay
-#include "hal.h"
 
-#define _eth_delay_    hal_delay_10ms     /* User can provide more timing precise _eth_delay_ function
-                                      ex. use Systick with time base of 10 ms (as done in the provided 
-                                      STM32F4x7xx demonstrations) */
-#else
+
 extern void ETH_Delay(__IO uint32_t nCount);
-#define _eth_delay_    ETH_Delay /* Default _eth_delay_ function with less precise timing */
-#endif
+#define _eth_delay_  ETH_Delay
+
 
 /* Uncomment the line below to allow custom configuration of the Ethernet driver buffers */
 //#define CUSTOM_DRIVER_BUFFERS_CONFIG
@@ -73,7 +68,7 @@ extern void ETH_Delay(__IO uint32_t nCount);
 
 
 /* PHY configuration section **************************************************/
-#ifdef USE_Delay
+
 /* PHY Reset delay */
 #define PHY_RESET_DELAY         ((uint32_t)0x000000FF)
 /* PHY Configuration delay */
@@ -82,16 +77,16 @@ extern void ETH_Delay(__IO uint32_t nCount);
 #define ETH_REG_WRITE_DELAY     ((uint32_t)0x00000001)
 /* LAN8742A Reset delay */
 #define LAN8742A_RESET_DELAY    ((uint32_t)0x00000005)
-#else
-/* PHY Reset delay */
-#define PHY_RESET_DELAY         ((uint32_t)0x000FFFFF)
-/* PHY Configuration delay */
-#define PHY_CONFIG_DELAY        ((uint32_t)0x00FFFFFF)
-/* Delay when writing to Ethernet registers*/
-#define ETH_REG_WRITE_DELAY     ((uint32_t)0x0000FFFF)
-/* LAN8742A Reset delay */
-#define LAN8742A_RESET_DELAY    ((uint32_t)0x00FFFFFF)
-#endif
+
+///* PHY Reset delay */
+//#define PHY_RESET_DELAY         ((uint32_t)0x000FFFFF)
+///* PHY Configuration delay */
+//#define PHY_CONFIG_DELAY        ((uint32_t)0x00FFFFFF)
+///* Delay when writing to Ethernet registers*/
+//#define ETH_REG_WRITE_DELAY     ((uint32_t)0x0000FFFF)
+///* LAN8742A Reset delay */
+//#define LAN8742A_RESET_DELAY    ((uint32_t)0x00FFFFFF)
+
 
 /*******************  PHY Extended Registers section : ************************/
 

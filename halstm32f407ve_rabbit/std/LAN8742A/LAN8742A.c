@@ -1,10 +1,9 @@
-#include "stm32f4x7_eth.h"
+#include "mcush.h"
 #include "lwip/opt.h"
-#include "LAN8742A.h"
 #include "lwip/netif.h"
 #include "lwip_config.h"
 #include "lwip/dhcp.h"
-#include "mcush.h"
+#include "hal_eth.h"
 #include "FreeRTOS.h"
 #include "task_dhcpc.h"
 
@@ -115,7 +114,7 @@ int cmd_lan8720( int argc, char *argv[] )
     int value, reg, reg2;
     uint8_t name_set=0, value_set=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )
@@ -132,7 +131,7 @@ int cmd_lan8720( int argc, char *argv[] )
             {
                 if( parse_int( opt.value, &value ) == 0 )
                 {
-                    shell_write_line("val err");
+                    shell_write_err(shell_str_value);
                     return 1;
                 }
                 value_set = 1;
@@ -440,6 +439,7 @@ void ETH_CheckLinkStatus(uint16_t PHYAddress)
 {
     static uint8_t check_link_retry = 0;
 
+    (void)PHYAddress;
     if( ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, PHY_BSR) & PHY_Linked_Status )
     {
         check_link_retry = ETH_CHECK_LINK_RETRY;
@@ -572,6 +572,7 @@ void ETH_EXTERN_GetSpeedAndDuplex(uint32_t PHYAddress, ETH_InitTypeDef* ETH_Init
 {
     uint32_t RegValue;
 
+    (void)PHYAddress;
     /* LAN8720A */
     /* Read status register, register number 31 = 0x1F */
     RegValue = ETH_ReadPHYRegister(ETHERNET_PHY_ADDRESS, 0x1F);
@@ -601,4 +602,31 @@ void ETH_EXTERN_GetSpeedAndDuplex(uint32_t PHYAddress, ETH_InitTypeDef* ETH_Init
     }
     /* LAN8720A */
 }
+
+
+int hal_eth_init(void)
+{
+    ETH_BSP_Config();
+    return 1;
+}
+
+
+int hal_eth_is_linked(void)
+{
+    return EthStatus & (ETH_INIT_FLAG|ETH_LINK_FLAG) ? 1 : 0;
+}
+
+
+void hal_eth_check_link_status(int phy_addr)
+{
+    ETH_CheckLinkStatus( phy_addr );
+}
+
+
+void hal_eth_link_callback(struct netif *netif)
+{
+    ETH_link_callback( netif );
+}
+
+
 

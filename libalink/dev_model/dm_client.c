@@ -47,6 +47,9 @@ static dm_client_uri_map_t g_dm_client_uri_map[] = {
 static int _dm_client_subscribe_filter(char *uri, char *uri_name, char product_key[IOTX_PRODUCT_KEY_LEN + 1],
                                        char device_name[IOTX_DEVICE_NAME_LEN + 1])
 {
+    (void)uri_name;
+    (void)product_key;
+    (void)device_name;
 #if !defined(DEVICE_MODEL_RAWDATA_SOLO)
     int res = 0;
 #endif
@@ -181,6 +184,8 @@ static void _dm_client_event_cloud_disconnect_handle(void)
 
 void dm_client_event_handle(int fd, iotx_cm_event_msg_t *event, void *context)
 {
+    (void)fd;
+    (void)context;
     switch (event->type) {
         case IOTX_CM_EVENT_CLOUD_CONNECTED: {
             _dm_client_event_cloud_connected_handle();
@@ -204,6 +209,9 @@ void dm_client_thing_model_down_raw(int fd, const char *topic, const char *paylo
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -219,6 +227,9 @@ void dm_client_thing_model_up_raw_reply(int fd, const char *topic, const char *p
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -233,6 +244,10 @@ void dm_client_thing_service_property_set(int fd, const char *topic, const char 
         void *context)
 {
     int res = 0;
+    
+    (void)fd;
+    (void)context;
+
     dm_msg_source_t source;
     dm_msg_dest_t dest;
     dm_msg_request_payload_t request;
@@ -306,6 +321,9 @@ void dm_client_thing_service_request(int fd, const char *topic, const char *payl
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -321,6 +339,9 @@ void dm_client_thing_event_post_reply(int fd, const char *topic, const char *pay
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -330,6 +351,8 @@ void dm_client_thing_event_post_reply(int fd, const char *topic, const char *pay
 
     dm_msg_proc_thing_event_post_reply(&source);
 }
+
+
 #ifdef DEVICE_MODEL_SHADOW
 void dm_client_thing_property_desired_get_reply(int fd, const char *topic, const char *payload,
         unsigned int payload_len, void *context)
@@ -367,6 +390,9 @@ void dm_client_thing_deviceinfo_update_reply(int fd, const char *topic, const ch
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -381,6 +407,9 @@ void dm_client_thing_deviceinfo_delete_reply(int fd, const char *topic, const ch
         void *context)
 {
     dm_msg_source_t source;
+
+    (void)fd;
+    (void)context;
 
     memset(&source, 0, sizeof(dm_msg_source_t));
 
@@ -397,6 +426,9 @@ void dm_client_thing_dynamictsl_get_reply(int fd, const char *topic, const char 
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -412,6 +444,9 @@ void dm_client_rrpc_request_wildcard(int fd, const char *topic, const char *payl
 {
     dm_msg_source_t source;
 
+    (void)fd;
+    (void)context;
+
     memset(&source, 0, sizeof(dm_msg_source_t));
 
     source.uri = topic;
@@ -425,6 +460,9 @@ void dm_client_rrpc_request_wildcard(int fd, const char *topic, const char *payl
 void dm_client_ntp_response(int fd, const char *topic, const char *payload, unsigned int payload_len, void *context)
 {
     dm_msg_source_t source;
+
+    (void)fd;
+    (void)context;
 
     memset(&source, 0, sizeof(dm_msg_source_t));
 

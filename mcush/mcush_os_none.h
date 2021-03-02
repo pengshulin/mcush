@@ -19,8 +19,9 @@
 
 
 #define OS_TICK_RATE     250  /* pesudo defination */
-#define OS_TICKS_MS(ms)  (ms*250/1000)
-#define OS_TICKS_S(s)    (s*250)
+#define OS_TICKS_MS(ms)  (ms*OS_TICK_RATE/1000)
+#define OS_TICKS_S(s)    (s*OS_TICK_RATE)
+#define OS_MS_PER_TICK   (1000/OS_TICK_RATE)
 
 typedef unsigned int os_tick_t;
 typedef void *os_task_handle_t;

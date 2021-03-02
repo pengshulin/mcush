@@ -45,7 +45,7 @@ int get_uint64( cJSON *root, uint64_t *v, const char *name )
     cJSON *item = cJSON_GetObjectItem( root, name );
     if( item && cJSON_IsNumber(item) )
     {
-        *v = item->valuedouble;
+        *v = (uint64_t)item->valuedouble;
         return 1;
     }
     return 0;
@@ -57,7 +57,7 @@ int get_float( cJSON *root, float *v, const char *name )
     cJSON *item = cJSON_GetObjectItem( root, name );
     if( item && cJSON_IsNumber(item) )
     {
-        *v = item->valuedouble;
+        *v = (float)item->valuedouble;
         return 1;
     }
     return 0;
@@ -75,7 +75,7 @@ int get_float_array( cJSON *root, float *v, const char *name, int num )
     while( num-- )
     {
         if( item && cJSON_IsNumber(item) )
-            *v++ = item->valuedouble;
+            *v++ = (float)item->valuedouble;
         else
             return 0;
         item = item->next;

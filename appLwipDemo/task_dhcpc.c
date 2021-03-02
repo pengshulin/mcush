@@ -1,4 +1,6 @@
-/* MCUSH designed by Peng Shulin, all rights reserved. */
+/* DHCP Client task
+ * 
+ * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "task_logger.h"
 #include "lwip_config.h"
@@ -11,8 +13,8 @@
 #include "lwip/tcpip.h"
 #include "lwip/dns.h"
 #include "ethernetif.h"
-#include "hal_eth.h"
 #include "lwip_lib.h"
+#include "hal_eth.h"
 #ifdef USE_LWIP_DEMO
   uint8_t lwip_demo_tasks_started=0;
   #ifdef USE_LWIP_HTTPSERVER_SIMPLE
@@ -54,9 +56,6 @@ const ip_addr_t dns_baidu={.addr=0x4CB4B4B4};  // 180.76.76.76
 const ip_addr_t dns_open={.addr=0xDCDC43D0};  // 208.67.220.220
 const ip_addr_t dns_open2={.addr=0xDEDC43D0};  // 208.67.222.222
 
-/* TODO: move it to hal layer */
-extern __IO uint32_t  EthStatus;  // in driver lan8742a.c
-
 char mac_address_init[6]; 
 
   
@@ -97,11 +96,10 @@ int send_dhcpc_event( uint8_t event )
 
 void timer_dhcpc_callback( os_timer_handle_t timer )
 {
-    //portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     const int8_t evt = DHCPC_EVENT_CHECK_TIMER;
+
     (void)timer;
     os_queue_put_isr( queue_dhcpc, (void*)&evt );
-    //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
  
@@ -121,12 +119,11 @@ void do_lwip_init(void)
     char buf[256];
     ip_addr_t ipaddr, netmask, gateway;
 
-    ETH_BSP_Config();
+    hal_eth_init();
 
     tcpip_init( NULL, NULL );
    
-    if( !load_mac_from_conf_file("/s/mac") && 
-        !load_mac_from_conf_file("/c/mac") )
+    if( !load_mac_from_conf_file("/s/mac") && !load_mac_from_conf_file("/c/mac") )
     {
         logger_const_error( "no mac config" );
         memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
@@ -156,7 +153,7 @@ void do_lwip_init(void)
     netif_add(&gnetif, &ipaddr, &netmask, &gateway, NULL, &ethernetif_init, &tcpip_input);
     netif_set_default(&gnetif);
 
-    if( EthStatus == (ETH_INIT_FLAG | ETH_LINK_FLAG) )
+    if( hal_eth_is_linked() )
     {
         netif_set_up(&gnetif);
         send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
@@ -167,7 +164,7 @@ void do_lwip_init(void)
         send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
     }
 
-    netif_set_link_callback(&gnetif, ETH_link_callback);
+    netif_set_link_callback(&gnetif, hal_eth_link_callback);
 }
 
 
@@ -178,6 +175,7 @@ void task_dhcpc_entry(void *arg)
     int i;
 
     (void)arg;
+
     do_lwip_init();
     os_timer_start( timer_dhcpc );
 
@@ -259,7 +257,7 @@ void task_dhcpc_entry(void *arg)
             } 
             
             /* Check link status */
-            ETH_CheckLinkStatus( ETHERNET_PHY_ADDRESS ); 
+            hal_eth_check_link_status( 0 ); 
             break; 
  
 #if USE_LWIP_DEMO
@@ -300,7 +298,7 @@ int cmd_netstat( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
-          'c', "cmd", "command", "info|up|down|dhcp|ip|dns" },
+          'c', shell_str_cmd, shell_str_command, "info|up|down|dhcp|ip|dns" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
@@ -315,7 +313,7 @@ int cmd_netstat( int argc, char *argv[] )
     {
         if( opt.spec )
         {
-            if( strcmp( opt.spec->name, "cmd" ) == 0 )
+            if( STRCMP( opt.spec->name, shell_str_cmd ) == 0 )
                 cmd = opt.value;
             else
                 STOP_AT_INVALID_ARGUMENT 
@@ -441,12 +439,9 @@ void task_dhcpc_init(void)
 {
     os_task_handle_t task;
 
-    shell_add_cmd_table( cmd_tab_lwip );
-
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_QUEUE_BUFFER( dhcpc, TASK_DHCPC_QUEUE_SIZE, 1 );
-    queue_dhcpc = os_queue_create_static( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1,
-                                    &static_queue_buffer_dhcpc );
+    queue_dhcpc = os_queue_create_static( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1, &static_queue_buffer_dhcpc );
 #else
     queue_dhcpc = os_queue_create( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1 );
 #endif
@@ -455,17 +450,22 @@ void task_dhcpc_init(void)
 
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_TIMER_BUFFER( dhcpc );
-    timer_dhcpc = os_timer_create_static( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, 
-                    timer_dhcpc_callback, &static_timer_buffer_dhcpc );
+    timer_dhcpc = os_timer_create_static( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, timer_dhcpc_callback, &static_timer_buffer_dhcpc );
 #else
     timer_dhcpc = os_timer_create( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, timer_dhcpc_callback );
 #endif
     if( timer_dhcpc == NULL )
         halt( "create dhdpc timer" );
    
-    task = os_task_create( "dhcpcT", task_dhcpc_entry, NULL, 
-                TASK_DHCPC_STACK_SIZE, TASK_DHCPC_PRIORITY );
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( dhcpc, TASK_DHCPC_STACK_SIZE );
+    task = os_task_create_static( TASK_DHCPC_NAME, task_dhcpc_entry, NULL, TASK_DHCPC_STACK_SIZE, TASK_DHCPC_PRIORITY, &static_task_buffer_dhcpc );
+#else
+    task = os_task_create( TASK_DHCPC_NAME, task_dhcpc_entry, NULL, TASK_DHCPC_STACK_SIZE, TASK_DHCPC_PRIORITY );
+#endif
     if( task == NULL )
         halt("create dhcpc task");
+
+    shell_add_cmd_table( cmd_tab_lwip );
 }
 

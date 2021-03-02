@@ -2,6 +2,18 @@
 #include "mcush.h"
 #include "hal.h"
 
+#ifdef MODEL_STRING
+    const char model_string[] = MODEL_STRING;
+#else
+    const char model_string[] = shell_str_mcush;
+#endif
+
+#ifdef VERSION_STRING
+    const char version_string[] = VERSION_STRING;
+#else
+    const char version_string[] = MCUSH_VERSION_STRING;
+#endif
+
 
 #if USE_CMD_SCPI_IDN
 __weak int cmd_scpi_idn( int argc, char *argv[] )
@@ -12,17 +24,9 @@ __weak int cmd_scpi_idn( int argc, char *argv[] )
     (void)argc;
     (void)argv;
 
-#ifndef MODEL_STRING
-    shell_write_str( shell_str_mcush );
-#else
-    shell_write_str( MODEL_STRING );
-#endif
+    shell_write_str( model_string );
     shell_write_char( ',' );
-#ifndef VERSION_STRING
-    shell_write_line( MCUSH_VERSION_STRING );
-#else
-    shell_write_line( VERSION_STRING );
-#endif
+    shell_write_line( version_string );
     buf[0] = 0;
     if( hal_get_serial_number(buf) && strlen(buf) )
         shell_write_line( buf );

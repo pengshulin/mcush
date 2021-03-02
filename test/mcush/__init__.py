@@ -1,6 +1,6 @@
 # coding: utf8
 __doc__ = 'MCUSH module'
-__version__ = '1.4.20'
+__version__ = '1.5.0'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __website__ = 'https://github.com/pengshulin/mcush/'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'

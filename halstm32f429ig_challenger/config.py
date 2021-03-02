@@ -37,7 +37,7 @@ if hal_config.use_fcfs:
     env.appendDefineFlags( [ 'FCFS_ADDR=0x080E0000', ] )
 
 if hal_config.use_eth:
-    env.appendDefineFlags( [ 'USE_ETH=1' ] )
+    env.appendDefineFlags( [ 'HAL_ETH=1' ] )
     hal_config.paths += [hal_dir+'/LAN8742A']
     hal_config.sources += [hal_dir+'/LAN8742A/*.c']
 

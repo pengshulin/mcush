@@ -223,9 +223,9 @@ void task_blink_init(void)
 
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_TASK_BUFFER( blink, TASK_BLINK_STACK_SIZE );
-    task = os_task_create_static( "blinkT", task_blink_entry, 0, TASK_BLINK_STACK_SIZE, TASK_BLINK_PRIORITY, &static_task_buffer_blink );
+    task = os_task_create_static( TASK_BLINK_NAME, task_blink_entry, 0, TASK_BLINK_STACK_SIZE, TASK_BLINK_PRIORITY, &static_task_buffer_blink );
 #else
-    task = os_task_create( "blinkT", task_blink_entry, 0, TASK_BLINK_STACK_SIZE, TASK_BLINK_PRIORITY );
+    task = os_task_create( TASK_BLINK_NAME, task_blink_entry, 0, TASK_BLINK_STACK_SIZE, TASK_BLINK_PRIORITY );
 #endif
     if( task == NULL )
         halt("create blink task");

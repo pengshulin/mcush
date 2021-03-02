@@ -3,4 +3,10 @@
 
 #include "LAN8742A.h"
 
+int hal_eth_init(void);
+int hal_eth_is_linked(void);
+void hal_eth_check_link_status(int phy_addr);
+void hal_eth_link_callback(struct netif *netif);
+
+
 #endif

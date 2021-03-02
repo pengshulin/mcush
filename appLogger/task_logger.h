@@ -55,6 +55,11 @@
     #define LOGGER_TAIL_NUM  10
 #endif
 
+/* default task name */
+#ifndef TASK_LOGGER_NAME
+    #define TASK_LOGGER_NAME  "logT"
+#endif
+
 /* default stack size */
 #ifndef TASK_LOGGER_STACK_SIZE
     #define TASK_LOGGER_STACK_SIZE  (3*1024)

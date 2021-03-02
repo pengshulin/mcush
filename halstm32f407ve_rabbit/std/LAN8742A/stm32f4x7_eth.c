@@ -27,6 +27,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "hal.h"
 #include "stm32f4x7_eth.h"
 #include "stm32f4xx_rcc.h"
 #include <string.h>
@@ -130,7 +131,6 @@ __IO uint32_t Frame_Rx_index;
 * @{
 */
 
-#ifndef USE_Delay
 /**
   * @brief  Inserts a delay time.
   * @param  nCount: specifies the delay time length.
@@ -138,10 +138,9 @@ __IO uint32_t Frame_Rx_index;
   */
 void ETH_Delay(__IO uint32_t nCount)
 {
-    /* NOTE: nCount in 10ms */
+    /* nCount is in 10ms */
     vTaskDelay( nCount * configTICK_RATE_HZ / 100 );
 }
-#endif /* USE_Delay*/
 
 
 /******************************************************************************/
@@ -2867,5 +2866,3 @@ uint32_t ETH_GetMMCRegister(uint32_t ETH_MMCReg)
 /**
 * @}
 */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

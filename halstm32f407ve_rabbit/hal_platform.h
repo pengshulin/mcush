@@ -33,6 +33,10 @@ uint32_t hal_rng_get(void);
 
 #include "hal_platform_spiffs.h"
 
+//#ifdef HAL_ETH
+//#include "hal_eth.h"
+//#endif
+
 #ifdef HAL_MOTION
 #include "hal_motion.h"
 #endif

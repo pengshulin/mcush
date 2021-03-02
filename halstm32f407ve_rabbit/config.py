@@ -39,7 +39,7 @@ if hal_config.use_spiffs:
     hal_config.sources += [hal_dir+'/spiffs/*.c']
 
 if hal_config.use_eth:
-    env.appendDefineFlags( [ 'USE_ETH=1' ] )
+    env.appendDefineFlags( [ 'HAL_ETH=1' ] )
     hal_config.paths += [hal_dir+'/LAN8742A']
     hal_config.sources += [hal_dir+'/LAN8742A/*.c']
 

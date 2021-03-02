@@ -180,6 +180,7 @@ chip_mem_configs = {
 [ 0x20000000, 0x2000FFFC, 'rw', 32, False,  '', ],
 [ 0x28000000, 0x2FFFFFFC, 'rw', 32, False,  'SDRAM', ],
 [ 0x10400000, 0x1040FFFC, 'ro', 32, True,   'ROM', ],
+[ 0x40000000, 0x44FFFFFC, 'rw', 32, False,  'Peripherals', ],
 ],
 
 'mm32f0': [
