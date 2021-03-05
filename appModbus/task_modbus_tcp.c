@@ -15,7 +15,7 @@
 
 LOGGER_MODULE_NAME("modbus");
 
-QueueHandle_t queue_modbus_tcp;
+os_queue_handle_t queue_modbus_tcp;
 
 struct tcp_pcb *modbus_pcb;
 struct tcp_pcb *modbus_client_pcb[MODBUS_TCP_NUM];
@@ -27,7 +27,7 @@ int send_modbus_tcp_event( uint8_t type, uint32_t data )
     modbus_tcp_event_t evt;
     evt.type = type;
     evt.data = data;
-    if( xQueueSend( queue_modbus_tcp, &evt, 0 ) == pdTRUE )
+    if( os_queue_put( queue_modbus_tcp, &evt, 0 ) )
         return 1;
     return 0;
 }
@@ -49,7 +49,8 @@ static void modbus_tcp_free(struct modbus_tcp_state *es)
 
 static void modbus_tcp_close(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
 {
-    int i;
+    int i, id=es->client_id;
+
     tcp_arg(tpcb, NULL);
     tcp_sent(tpcb, NULL);
     tcp_recv(tpcb, NULL);
@@ -57,13 +58,13 @@ static void modbus_tcp_close(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
     tcp_poll(tpcb, NULL, 0);
     modbus_tcp_free(es);
     tcp_close(tpcb);
-    logger_printf_info( "client #%u closed 0x%08X", es->client_id, (void*)tpcb );
     /* unregister the client pcb */
     for( i=0; i<MODBUS_TCP_NUM; i++ )
     {
         if( modbus_client_pcb[i] == tpcb )
             modbus_client_pcb[i] = 0;
     }
+    logger_printf_info( "client #%u closed", id );
 }
 
 
@@ -303,7 +304,7 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
         for( i=0; i<MODBUS_TCP_NUM; i++ )
         {
             es = (struct modbus_tcp_state *)(modbus_client_pcb[i]->callback_arg);
-            if( xTaskGetTickCount() - es->tick_last > MODBUS_TCP_TIMEOUT * configTICK_RATE_HZ )
+            if( os_tick() - es->tick_last > MODBUS_TCP_TIMEOUT * configTICK_RATE_HZ )
             {
                 /* find one, close it */
                 modbus_tcp_close( modbus_client_pcb[i], es );
@@ -335,8 +336,8 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
         tcp_poll(newpcb, modbus_tcp_poll, 0);
         tcp_sent(newpcb, modbus_tcp_sent);
         ret_err = ERR_OK;
-        logger_printf_info( "client #%u connected 0x%08X", es->client_id, (void*)newpcb );
-        logger_info( sprintf_ip( buf, newpcb->remote_ip.addr, "client ip", 0 ) );
+        sprintf_ip( buf, newpcb->remote_ip.addr, 0, 0 );
+        logger_printf_info( "client #%u (%s) connected 0x%08X", es->client_id, buf, (void*)newpcb );
     }
     else
     {
@@ -519,7 +520,7 @@ void task_modbus_tcp_entry(void *arg)
     (void)arg;
     while( 1 )
     {
-        if( xQueueReceive( queue_modbus_tcp, &evt, portMAX_DELAY ) == pdFALSE )
+        if( os_queue_get( queue_modbus_tcp, &evt, -1 ) == 0 )
             continue;
         
         switch( evt.type )
@@ -599,7 +600,7 @@ void task_modbus_tcp_entry(void *arg)
             else
             {
                 /* normal packet, update tick */
-                es->tick_last = xTaskGetTickCount();
+                es->tick_last = os_tick();
             }
             /* send response packet */
             head->bytes = 2 + write;
@@ -610,6 +611,10 @@ void task_modbus_tcp_entry(void *arg)
                 {
                     /* fail to send */
                 }
+            }
+            else
+            {
+                logger_const_error( "tcp_write" );
             }
             es->state = ES_READY;
             break;
@@ -623,17 +628,30 @@ void task_modbus_tcp_entry(void *arg)
 
 void task_modbus_tcp_init(void)
 {
-    TaskHandle_t task_modbus_tcp;
+    os_task_handle_t task;
 
-    queue_modbus_tcp = xQueueCreate( TASK_MODBUS_TCP_QUEUE_SIZE, ( unsigned portBASE_TYPE ) sizeof(modbus_tcp_event_t) );
-    if( !queue_modbus_tcp )
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( modbus_tcp, TASK_MODBUS_TCP_QUEUE_SIZE, sizeof(modbus_tcp_event_t) );
+    queue_modbus_tcp = os_queue_create_static( "modbusTQ", 
+                    TASK_MODBUS_TCP_QUEUE_SIZE, sizeof(modbus_tcp_event_t),
+                    &static_queue_buffer_modbus_tcp );
+#else
+    queue_modbus_tcp = os_queue_create_( "modbusTQ", 
+                    TASK_MODBUS_TCP_QUEUE_SIZE, sizeof(modbus_tcp_event_t) );
+#endif
+    if( queue_modbus_tcp == NULL )
         halt("create modbus tcp queue");
-    vQueueAddToRegistry( queue_modbus_tcp, "modbusTQ" );
 
-    (void)xTaskCreate(task_modbus_tcp_entry, (const char *)"modbusTT",
-                      TASK_MODBUS_TCP_STACK_SIZE / sizeof(portSTACK_TYPE),
-                      NULL, TASK_MODBUS_TCP_PRIORITY, &task_modbus_tcp);
-    if( task_modbus_tcp == NULL )
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( modbus_tcp, TASK_MODBUS_TCP_STACK_SIZE );
+    task = os_task_create_static( "modbusTT", task_modbus_tcp_entry, NULL,
+                TASK_MODBUS_TCP_STACK_SIZE, TASK_MODBUS_TCP_PRIORITY,
+                &static_task_buffer_modbus_tcp );
+#else
+    task = os_task_create( "modbusTT", task_modbus_tcp_entry, NULL,
+                TASK_MODBUS_TCP_STACK_SIZE, TASK_MODBUS_TCP_PRIORITY );
+#endif
+    if( task == NULL )
         halt("create modbus tcp task");
 }
 

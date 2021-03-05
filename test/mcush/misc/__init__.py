@@ -36,6 +36,7 @@ from . import Dallas1W
 from . import Mlx90614
 from . import WitMotion
 from . import Sensirion
+from . import GCode
 from . import Tongmen  # require pymodbus
 from . import Zhouzheng  # require pymodbus
 from . import Miaoguan  # require pymodbus

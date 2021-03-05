@@ -718,10 +718,10 @@ void task_logger_init(void)
     DEFINE_STATIC_TASK_BUFFER( logger, TASK_LOGGER_STACK_SIZE );
     task = os_task_create_static( "logT", task_logger_entry, NULL,
                 TASK_LOGGER_STACK_SIZE, TASK_LOGGER_PRIORITY,
-                &static_task_buffer_logger);
+                &static_task_buffer_logger );
 #else
     task = os_task_create( "logT", task_logger_entry, NULL,
-                TASK_LOGGER_STACK_SIZE, TASK_LOGGER_PRIORITY);
+                TASK_LOGGER_STACK_SIZE, TASK_LOGGER_PRIORITY );
 #endif
     if( task == NULL )
         halt("create logger task");
