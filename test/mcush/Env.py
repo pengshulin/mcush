@@ -57,7 +57,7 @@ else:
         PORTS_LIST = PORTS.split(',')
     except:
         PORTS_LIST = []
-BAUDRATE = getenv_int( 'BAUDRATE', 9600 )
+BAUDRATE = getenv_int( 'BAUDRATE', 0 )
 RTSCTS = getenv_bool( 'RTSCTS' )
 PARITY = getenv( 'PARITY', 'N' )
 TIMEOUT = getenv_int('TIMEOUT', 5)

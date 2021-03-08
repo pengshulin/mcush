@@ -46,6 +46,7 @@ class Instrument:
     DEFAULT_TERMINATOR_WRITE = '\x0A'  # '\n'
     DEFAULT_TERMINATOR_READ = '\x0A'  # '\n'
     DEFAULT_TERMINATOR_RESET = '\x03'  # Ctrl-C
+    DEFAULT_BAUDRATE = 9600
     DEFAULT_TIMEOUT = 5
     DEFAULT_PROMPTS = re_compile( '[=#?!]>' )
     DEFAULT_PROMPTS_MULTILINE = re_compile( '[=#?!]?>' )
@@ -55,6 +56,7 @@ class Instrument:
     DEFAULT_CHECK_IDN = True
     DEFAULT_READ_UNTIL_PROMPTS = True
     DEFAULT_CHECK_RETURN_COMMAND = True
+    DEFAULT_LINE_PROMPT_MODE = False
    
 
     def __init__( self, *args, **kwargs ):
@@ -86,7 +88,10 @@ class Instrument:
         if not 'port' in kwargs:
             kwargs['port'] = Env.PORT
         if not 'baudrate' in kwargs:
-            kwargs['baudrate'] = Env.BAUDRATE
+            if Env.BAUDRATE:
+                kwargs['baudrate'] = Env.BAUDRATE
+            else:
+                kwargs['baudrate'] = self.DEFAULT_BAUDRATE
         if not 'rtscts' in kwargs:
             kwargs['rtscts'] = Env.RTSCTS
         if not 'parity' in kwargs:
@@ -183,6 +188,12 @@ class Instrument:
   
     def readUntilPrompts( self, line_callback=None ):
         '''read until prompts'''
+        if self.DEFAULT_LINE_PROMPT_MODE:
+            return self._readUntilPromptsByLine( line_callback )
+        else:
+            return self._readUntilPromptsByChar( line_callback )
+
+    def _readUntilPromptsByChar( self, line_callback=None ):
         contents, newline_lst, newline_str = [], [], ''
         while True:
             byte = self.port.read(1)
@@ -194,7 +205,6 @@ class Instrument:
                     contents.append( newline_str )
                     self.logger.debug( '[R] '+ newline_str )
                     if line_callback is not None:
-                        # use this carefully
                         line_callback( newline_str )
                     newline_lst, newline_str = [], ''
                 else:
@@ -207,15 +217,36 @@ class Instrument:
                     raise CommandTimeoutError( ' | '.join(contents) )
                 else:
                     raise CommandTimeoutError( 'No response' )
-            #print( newline_str )  # for port debug
             match = self.prompts.match( newline_str )
             if match:
                 contents.append( newline_str )
                 #self.logger.debug( '[P] '+ newline_str )
                 return contents
 
-    def readLine( self, eol='\n', timeout=None, decode_utf8=True, strip=True ):
+    def _readUntilPromptsByLine( self, line_callback=None ):
+        contents = []
+        while True:
+            newline_str = self.readLine( strip=False )
+            if newline_str is None:
+                if contents:
+                    raise Instrument.CommandTimeoutError( ' | '.join(contents) )
+                else:
+                    raise Instrument.CommandTimeoutError( 'No response' )
+            match = self.prompts.match( newline_str )
+            if match:
+                contents.append( newline_str )
+                #self.logger.debug( '[P] '+ newline_str )
+                return contents
+            else:
+                contents.append( newline_str )
+                self.logger.debug( '[R] '+ newline_str )
+                if line_callback is not None:
+                    line_callback( newline_str )
+                
+    def readLine( self, eol=None, timeout=None, decode_utf8=True, strip=True ):
         chars = []
+        if eol is None:
+            eol = self.DEFAULT_TERMINATOR_READ
         if Env.PYTHON_V3:
             eol = bytes(eol, encoding='utf8')
         if timeout is not None:
@@ -228,7 +259,12 @@ class Instrument:
                     break
                 chars.append( char )
             else:
-                break
+                if chars:
+                    ret = Env.EMPTY_BYTE.join(chars)
+                    self.logger.debug( '[E] '+ str(ret) )
+                return None
+                #raise CommandTimeoutError( 'readLine timeout' )
+                #break
         if timeout is not None:
             self.port.timeout = old_timeout
         if chars:
@@ -267,12 +303,12 @@ class Instrument:
         self.writeLine( cmd )
         if self.DEFAULT_READ_UNTIL_PROMPTS:
             ret = self.readUntilPrompts()
-            #for line in [i.strip() for i in ret]:
-            #    self.logger.debug( '[R] '+ line )
             self.checkReturnedPrompt( ret )
             if cmd and self.DEFAULT_CHECK_RETURN_COMMAND and not Env.NO_ECHO_CHECK:
                 self.checkReturnedCommand( ret, cmd )
-            return ret[1:-1] 
+                return ret[1:-1] 
+            else:
+                return ret[:-1] 
         else:
             return []
     
