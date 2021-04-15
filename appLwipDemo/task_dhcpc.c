@@ -127,6 +127,8 @@ void do_lwip_init(void)
     {
         logger_const_error( "no mac config" );
         memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
+        /* TODO: use serial number as mac addr */
+        //hal_get_serial_number(buf);
     }
     logger_info( sprintf_mac( buf, mac_address_init, "mac:", 0 ) );
  

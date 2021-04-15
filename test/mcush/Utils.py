@@ -564,7 +564,10 @@ class FCFS:
     class File():
         def __init__( self, fname, contents ):
             self.fname = fname.encode('utf8')
-            self.contents = contents.encode('utf8')
+            if isinstance( contents, bytes ):
+                self.contents = contents
+            else:
+                self.contents = contents.encode('utf8')
         def __len__( self ):
             return len(self.fname) + len(self.contents) + 2  # two \x00 seperators
         def __bytes__( self ):

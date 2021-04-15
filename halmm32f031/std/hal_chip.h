@@ -9,6 +9,8 @@
 #include "HAL_uart.h"
 #include "HAL_flash.h"
 #include "HAL_tim.h"
+#include "HAL_adc.h"
+#include "HAL_dma.h"
 
 #ifdef USE_FCFS_UID
     #define UNIQUE_ID0  0x0800FC04

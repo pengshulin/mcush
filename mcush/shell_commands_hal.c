@@ -1287,6 +1287,8 @@ int cmd_ws2812( int argc, char *argv[] )
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           0, "glist_file", 0, "/c/glist" },
 #endif
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
+          'L', "load", shell_str_file, "load data file" },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -1315,6 +1317,7 @@ int cmd_ws2812( int argc, char *argv[] )
     int port=HAL_WS2812_PORT, pin=HAL_WS2812_PIN;
     int length=0, offset=0, group=0;
     int dat, i, j;
+    int load_pixels=0;
     char *p;
     
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
@@ -1377,11 +1380,24 @@ int cmd_ws2812( int argc, char *argv[] )
                 }
                 else
                 {
-                    shell_write_err( "file" );
+                    shell_write_err( shell_str_file );
                     return 1;
                 }
             }
 #endif
+            else if( strcmp( opt.spec->name, "load" ) == 0 )
+            {
+                if( mcush_fcfs_get_raw_address( opt.value, (const char**)&p, &i ) )
+                {
+                    load_pixels = i/3; 
+                }
+                else
+                {
+                    shell_write_err( shell_str_file );
+                    return 1;
+                }
+            }
+
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -1409,6 +1425,24 @@ int cmd_ws2812( int argc, char *argv[] )
         ws2812_deinit();
         return 0;
     } 
+
+    /* load pixels from binary file */
+    if( load_pixels )
+    {
+        for( i=offset; (i+offset<ws2812_length) && (i+offset<load_pixels); i++ )
+        {
+            dat = *p++;
+            dat = (dat<<8) + *p++;
+            dat = (dat<<8) + *p++;
+            ws2812_write( i, dat, grb_set );
+        }
+        /* write pixel by pixel */ 
+        if( write_set )
+        {
+            ws2812_flush();
+        } 
+        return 0;
+    }
 
     /* update memory, default parameters */
     if( fill_set )

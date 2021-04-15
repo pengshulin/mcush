@@ -7,6 +7,8 @@
 #define OS_RTX       2
 #define OS_THREADX   3
 #define OS_RTTHREAD  4
+#define OS_CHIBIOS   5
+#define OS_LITEOS    6
 
 #ifndef MCUSH_OS
     #define MCUSH_OS  OS_FREERTOS
@@ -22,6 +24,10 @@
     #include "mcush_os_threadx.h"
 #elif MCUSH_OS == OS_RTTHREAD
     #include "mcush_os_rtthread.h"
+#elif MCUSH_OS == OS_CHIBIOS
+    #include "mcush_os_chibios.h"
+#elif MCUSH_OS == OS_LITEOS
+    #include "mcush_os_liteos.h"
 #else
     #error "MCUSH_OS not defined"
 #endif

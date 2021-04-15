@@ -21,6 +21,7 @@ class _GCodeCommon(Instrument.SerialInstrument):
         self.setTimeout( 90 )
         Instrument.Instrument.connect(self)
         self.setPrompts( old )
+        self.homed = False
  
     def _code( self, prefix, function_code, *args, **kwargs ):
         command = ['%s%u'% (prefix, function_code)]
@@ -79,6 +80,9 @@ class _GCodeCommon(Instrument.SerialInstrument):
             return self.G1( x=x, y=y, z=z, f=feedrate )
         else:
             return self.G0( x=x, y=y, z=z )
+
+    def setOrigin( self, x=0, y=0, z=0 ):
+        self.G( 92, x=x, y=y, z=z )
 
     def gotoHome( self ):
         self.G( 28 )
@@ -260,7 +264,8 @@ ALARM_CODE = {
 
 class Grbl( _GCodeCommon ):
     DEFAULT_NAME = 'GRBL'
-    DEFAULT_PROMPTS = re.compile( '(ok|error:[0-9]+)' )
+    DEFAULT_PROMPTS = re.compile( '(ok|(error|ALARM):[0-9]+)' )
+    #DEFAULT_PROMPTS = re.compile( '(ok|(error|ALARM):[0-9]+|\[MSG:.*\])' )
     CONNECT_PROMPT = re.compile( 'Grbl [0-9]\.[0-9][a-z] \[.*\]' )
     DEFAULT_LINE_PROMPT_MODE = True
     settings = {} 
@@ -271,7 +276,16 @@ class Grbl( _GCodeCommon ):
             error_code = int(prompt[6:])
             raise Instrument.CommandExecuteError( 'error %d (%s)'% 
                                 (error_code, ERROR_CODE[error_code]) )
-    
+        elif prompt.startswith('ALARM:'):
+            alarm_code = int(prompt[6:])
+            raise Instrument.CommandExecuteError( 'alarm %d (%s)'% 
+                                (alarm_code, ALARM_CODE[alarm_code]) )
+        elif prompt.startswith('[MSG:'):
+            raise Instrument.CommandExecuteError( 'msg (%s)'% prompt[5:-1] )
+  
+    def unlock(self):
+        self.writeCommand( '$X' )
+ 
     def writeSetting( self, index, value ):
         cmd = '$%d=%s'% (index, value)
         self.writeCommand( cmd )
@@ -292,8 +306,7 @@ class Grbl( _GCodeCommon ):
                 break
 
     def updateStatus( self ):
-        self.port.write( '?' )
-        line = self.readLine()
+        line = self.writeCommand("?")[0].strip()
         if line[0] == '<' and line[-1] == '>':
             self.status = line[1:-1]
             return self.status
@@ -315,4 +328,8 @@ class Grbl( _GCodeCommon ):
         ret['Z'] = float(z)
         return ret
 
+    def calibHome( self ):
+        self.writeCommand( '$H' )
+        self.homed = True
+         
 

@@ -522,13 +522,15 @@ int cmd_test( int argc, char *argv[] )
           'p', shell_str_pin, shell_str_pin, "port.bit high status" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'f', shell_str_file, shell_str_file, "file exist" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'n', shell_str_not, shell_str_not, shell_str_not },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_command, 0, "cmd with args" },
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
     int8_t bit_mode=-1;
-    uint8_t cmd_set=0;
+    uint8_t cmd_set=0, not_set=0;
     int (*cmd)(int argc, char *argv[]) = 0;
     int port=-1, bit=-1;
     const char *pport=0;
@@ -542,6 +544,8 @@ int cmd_test( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
                 pport = opt.value;
+            else if( STRCMP( opt.spec->name, shell_str_not ) == 0 )
+                not_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
             {
                 cmd_set = 1;
@@ -595,8 +599,13 @@ int cmd_test( int argc, char *argv[] )
         /* check test condition */
         if( hal_gpio_get( port, 1<<bit ) == 0 )
         {
-            /* not matched, ignore command */
-            return 0;
+            if( not_set == 0 )
+                return 0; /* unmatched, ignore command */
+        }
+        else
+        {
+            if( not_set )
+                return 0; /* unmatched, ignore command */
         }
     }
 

@@ -20,7 +20,7 @@
     #define HAL_ADC_PORTS                  {0, 0, 0, 0}
     #define HAL_ADC_PINS                   {0, 1, 2, 3} 
     #define HAL_ADCx                       ADC1
-    #define HAL_ADCx_DATA_REG_ADDR         ((uint32_t)0x4001244C)
+    #define HAL_ADCx_DATA_REG_ADDR         ((uint32_t)0x40012400)
     #define HAL_DMAx                       DMA1 
     #define HAL_DMAx_Channely              DMA1_Channel1
 #endif

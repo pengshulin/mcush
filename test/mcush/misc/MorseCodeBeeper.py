@@ -67,7 +67,6 @@ MorseCode = {
 
 class MorseCodeBeeper():
 
-    freq = 500
     duration_dot = 0.1
     duration_dash = 0.1 * 3  # equal to 3 dot
     pause_bit = 0.1  # equal to 1 dot
@@ -106,7 +105,6 @@ class MorseCodeBeeper():
     def BeepChar( self, char ):
         if not char in MorseCode:
             return
-        #print '%c'%char,
         for bit in list(MorseCode[char]):
             duration = self.duration_dot if bit == '.' else self.duration_dash
             self.beep_function(duration)
@@ -116,7 +114,6 @@ class MorseCodeBeeper():
         '''Beep word'''
         word = word.lower().strip()
         for i in range(len(word)):
-            #print word[i],
             sys.stdout.write( word[i] )
             sys.stdout.flush()
             self.BeepChar( word[i] )
@@ -127,7 +124,6 @@ class MorseCodeBeeper():
         for word in string.strip().split(' '):
             word = word.strip()
             if word:
-                #print word
                 self.BeepWord(word)
                 time.sleep(self.pause_word)
 

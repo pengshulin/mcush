@@ -176,8 +176,8 @@ class ShellLabLamp(Mcush.Mcush):
         self.lamp( c, freq=freq, count=count ) 
 
 
-class ShellLabStrap(Mcush.Mcush):
-    DEFAULT_NAME = 'ShellLabStrap'
+class ShellLabStrip(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLabStrip'
     DEFAULT_IDN = re_compile( 'ShellLab-L2[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
     def __init__( self, *args, **kwargs ):
@@ -221,9 +221,9 @@ class ShellLabStrap(Mcush.Mcush):
         pass
 
     
-class ShellLabStaticStrap(ShellLabStrap):
+class ShellLabStaticStrip(ShellLabStrip):
     def __init__( self, *args, **kwargs ):
-        ShellLabStrap.__init__(self, *args, **kwargs)
+        ShellLabStrip.__init__(self, *args, **kwargs)
         setting = Utils.parseKeyValueLines(self.strap())
         if float(setting['freq']) > 0:
             self.strap( freq=0 )
@@ -257,7 +257,11 @@ class ShellLabStaticStrap(ShellLabStrap):
             
     setColor = color
     setBrightness = brightness
-   
+
+# for compatibility
+ShellLabStrap = ShellLabStrip
+ShellLabStaticStrap = ShellLabStaticStrip
+
 
 class ShellLabCAN(ShellLab):
     DEFAULT_NAME = 'ShellLabCAN'
