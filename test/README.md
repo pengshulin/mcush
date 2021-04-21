@@ -1,10 +1,9 @@
 DESCRIPTION
 ===========
-This is the core module and test suites/framework for MCUSH project.
+The python core module and test suites/framework for MCUSH project.
 It eases the test work and create CLI/GUI applications.
-For more info about MCUSH, visit :
-https://github.com/pengshulin/mcush/
-http://www.linkongsoft.com/
+Code is hosted on github: https://github.com/pengshulin/mcush/
+For commerical support: http://www.linkongsoft.com/
 
 LICENSE
 =======
@@ -15,5 +14,5 @@ LICENSE
 AUTHOR
 ======
 Peng Shulin <trees_peng@163.com>
-Shanghai, China 2020
+Shanghai, China 2021
 

@@ -74,7 +74,11 @@ extern "C" {
                 if( shell_driver_read_char_blocked(&c, OS_TICKS_MS(10)) != -1 ) \
                 { \
                     if( c == 0x03 ) /* Ctrl-C for stop */ \
+                    { \
+                        if( shell_is_script_mode() ) \
+                            shell_set_script( NULL, 0, 0 );  /* abort current script */ \
                         return 0; \
+                    } \
                 } \
             } \
             goto loop_start; \
