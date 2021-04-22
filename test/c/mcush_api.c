@@ -1,5 +1,6 @@
 /* MCUSH device C-API
  * control one/multi devices in C
+ * this demo version uses syscall in blocking mode
  * MCUSH designed by Peng Shulin, all rights reserved.
  */
 #include <stdio.h>
@@ -127,7 +128,8 @@ int mcush_puts( mcush_dev_t *device, const char *str )
 
 int mcush_getc( mcush_dev_t *device, char *c )
 {
-    return read( device->handle, c, 1 );
+    int ret = read( device->handle, c, 1 );
+    return ret;
 }
 
 
@@ -148,20 +150,21 @@ int mcush_wait_until_prompts( mcush_dev_t *device )
     newline_len = receive_len = receive_buf_len = 0;
     while( 1 )
     {
-        if( mcush_getc( device, &c ) < 0 )
-            return -1;  /* timeout */
+        if( mcush_getc( device, &c ) <= 0 )
+            return MCUSH_ERR_TIMEOUT;  /* timeout */
         newline[newline_len++] = c;
         /* compare with prompt */
         if( (newline_len==2) && (newline[1]=='>') )
         {
             switch( newline[0] )
             {
-            case '=': prompt_type=0; break;
-            case '?': prompt_type=1; break;
-            case '!': prompt_type=2; break;
+            case '=': prompt_type=MCUSH_PROMPT_TYPE_NORMAL; break;
+            case '?': prompt_type=MCUSH_PROMPT_TYPE_SYNTAX_ERR; break;
+            case '!': prompt_type=MCUSH_PROMPT_TYPE_EXEC_ERR; break;
             }
             if( prompt_type >= 0 )
             {
+                device->prompt_type = prompt_type;
                 device->prompt[0] = newline[0];
                 device->prompt[1] = newline[1];
                 device->prompt[2] = 0;
@@ -176,7 +179,7 @@ int mcush_wait_until_prompts( mcush_dev_t *device )
                 /* allocate new buf */
                 receive = malloc( MCUSH_ALLOC_BYTES );
                 if( receive == NULL )
-                    return -1; /* memory error */
+                    return MCUSH_ERR_MEMORY;
                 receive_buf_len = MCUSH_ALLOC_BYTES;
                 memcpy( receive, newline, newline_len );
                 receive_len = newline_len;
@@ -188,7 +191,7 @@ int mcush_wait_until_prompts( mcush_dev_t *device )
                 if( p == NULL )
                 {
                     free( receive );
-                    return -1; /* memory error */
+                    return MCUSH_ERR_MEMORY;
                 }
                 receive = p;
                 receive_buf_len += MCUSH_ALLOC_BYTES;
@@ -224,9 +227,9 @@ int mcush_write_command( mcush_dev_t *device, const char *cmd )
     int ret, cmd_len=strlen(cmd);
 
     if( mcush_puts( device, cmd ) != cmd_len )
-        return 0;
+        return MCUSH_ERR_IO;
     if( mcush_putc( device, MCUSH_TERMINATOR_WRITE ) < 0 )
-        return 0;
+        return MCUSH_ERR_IO;
     ret = mcush_wait_until_prompts( device );
     if( ret < 0 )
         return ret;
@@ -235,7 +238,34 @@ int mcush_write_command( mcush_dev_t *device, const char *cmd )
         (device->response[cmd_len] == MCUSH_TERMINATOR_WRITE) )
     {
         device->result = &device->response[cmd_len+1];
+        return strlen(device->result);
     }
     return MCUSH_ERR_RET_CMD_NOT_MATCH;
 }
+
+
+int mcush_scpi_idn( mcush_dev_t *device, char *output )
+{
+    int ret;
+
+    if( output == NULL )
+        return MCUSH_ERR_API;
+    ret = mcush_write_command( device, "*idn?" );
+    if( ret <= 0 )
+        return ret;
+    strcpy( output, device->result );
+    return 1;
+}
+
+
+int mcush_scpi_rst( mcush_dev_t *device )
+{
+    int ret;
+
+    ret = mcush_write_command( device, "*rst" );
+    if( ret <= 0 )
+        return 0;
+    return 1;
+}
+
 
