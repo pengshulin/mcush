@@ -38,3 +38,11 @@ test/fcfs/
 test/build/
 test/dist/
 test/dist-mcush-debug/
+
+Debug/
+Release/
+*.layout
+*.depend
+
+
+
