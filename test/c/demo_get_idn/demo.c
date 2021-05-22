@@ -45,21 +45,6 @@ int main( int argc, char *argv[] )
         printf( "%s", buf );
     mcush_scpi_rst( &dev );
 
-    /* test port disconnect */
-    while( 1 )
-    {
-        ret = mcush_scpi_idn( &dev, buf );
-        if( ret > 0 )
-        {
-            printf( "." );
-            fflush(stdout);
-        }
-        else
-        {
-            printf("\nerror ret %d\n", ret ); 
-            return 1;
-        }
-    }
 
     mcush_close( &dev );
     return 0;
