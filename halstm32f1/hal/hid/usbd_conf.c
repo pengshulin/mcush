@@ -50,8 +50,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "mcush.h"
-#include "stm32f1xx.h"
-#include "stm32f1xx_hal.h"
+#include "hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
 #include "usbd_hid.h"
@@ -303,7 +302,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_FS.Init.battery_charging_enable = DISABLE;
   if (HAL_PCD_Init(&hpcd_USB_FS) != HAL_OK)
   {
-    halt("usb_hid_init");  //_Error_Handler(__FILE__, __LINE__);
+     halt("usb_hid_init");  //_Error_Handler(__FILE__, __LINE__);
   }
 
   HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
@@ -769,8 +768,13 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_FS);
-    if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
-        portEND_SWITCHING_ISR( pdTRUE );
+    //if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
+    //    portEND_SWITCHING_ISR( pdTRUE );
+}
+
+
+void USBWakeUp_IRQHandler(void)
+{
 }
 
 

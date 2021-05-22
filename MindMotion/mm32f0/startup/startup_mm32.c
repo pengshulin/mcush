@@ -61,17 +61,19 @@ extern void __main     (void) __attribute__((noreturn));                        
 
 ////////////////////////////////////////////////////////////////////////////////
 #if defined(__MM3N1)
-#if defined(__KEIL)
-    const DeviceVectors __Vectors __attribute__((section ("RESET")));
-    const DeviceVectors __Vectors = {
-        .pvStack                        = (void*)(&__initial_sp),               ///< Keil Initial Stack Pointer
-#else
-    #pragma section     = ".intvec"
-    #pragma location    = ".intvec"
+//#if defined(__KEIL)
+//    const DeviceVectors __Vectors __attribute__((section ("RESET")));
+//    const DeviceVectors __Vectors = {
+//        .pvStack                        = (void*)(&__initial_sp),               ///< Keil Initial Stack Pointer
+//#else
+//    #pragma section     = ".intvec"
+//    #pragma location    = ".intvec"
+//    const DeviceVectors __vector_table = {
+//        (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
+//#endif
+    const DeviceVectors __vector_table __attribute__((section (".isr_vector")));
     const DeviceVectors __vector_table = {
-        (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
-#endif
-
+    .pvStack                            = (void*)(&_estack),
     .pfnReset_Handler                   = (void*)Reset_Handler,                 ///< Reset Handler
     .pfnNMI_Handler                     = (void*)NMI_Handler,                   ///< NMI Handler
     .pfnHardFault_Handler               = (void*)HardFault_Handler,             ///< Hard Fault Handler
@@ -151,11 +153,9 @@ extern void __main     (void) __attribute__((noreturn));                        
 //    const DeviceVectors __vector_table = {
 //        (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
 //#endif
-    extern char _estack;
     const DeviceVectors __vector_table __attribute__((section (".isr_vector")));
     const DeviceVectors __vector_table = {
     .pvStack                            = (void*)(&_estack),
-
     .pfnReset_Handler                   = (void*)Reset_Handler,                 ///< Reset Handler
     .pfnNMI_Handler                     = (void*)NMI_Handler,                   ///< NMI Handler
     .pfnHardFault_Handler               = (void*)HardFault_Handler,             ///< Hard Fault Handler
@@ -396,8 +396,8 @@ int __low_level_init(void)
     return 0;
 #else
 #if defined(__MM3N1)
-    u32 *pSrc = __section_begin(".intvec");
-    SCB->VTOR = ((u32) pSrc & SCB_VTOR_TBLOFF_Msk);
+    //u32 *pSrc = __section_begin(".intvec");
+    //SCB->VTOR = ((u32) pSrc & SCB_VTOR_TBLOFF_Msk);
 #endif
     return 1;       // if return 0, the data sections will not be initialized
 #endif

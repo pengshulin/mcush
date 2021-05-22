@@ -22,12 +22,14 @@ class ShellLab(Mcush.Mcush):
                 self.led(i, False)
 
     def daq( self, cmd, index=None, value=None ):
-        cmd = 'daq -c %s'% cmd
+        command = 'daq'
+        if cmd is not None:
+            command += ' -c %s'% cmd
         if index is not None:
-            cmd += ' -i %d'% index
+            command += ' -i %d'% index
         if value is not None:
-            cmd += ' -v %d'% value
-        return self.writeCommand( cmd )
+            command += ' -v %d'% value
+        return self.writeCommand( command )
 
     def daq_init( self, freq=None, length=None, channels=[], channel_mask=None ):
         if freq is not None:
@@ -81,15 +83,17 @@ class ShellLab(Mcush.Mcush):
     daqDone = daq_done
     daqRead = daq_read
 
-    def measure( self, cmd, index=None, value=None, fvalue=None ):
-        cmd = 'measure -c %s'% cmd
+    def measure( self, cmd=None, index=None, value=None, fvalue=None ):
+        command = 'measure'
+        if cmd is not None:
+            command += ' -c %s'% cmd
         if index is not None:
-            cmd += ' -i %d'% index
+            command += ' -i %d'% index
         if value is not None:
-            cmd += ' -v %d'% value
+            command += ' -v %d'% value
         if fvalue is not None:
-            cmd += ' -V %f'% fvalue
-        return self.writeCommand( cmd )
+            command += ' -V %f'% fvalue
+        return self.writeCommand( command )
 
     def measure_start( self ):
         self.measure( 'start' )

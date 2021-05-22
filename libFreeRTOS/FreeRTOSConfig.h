@@ -128,9 +128,14 @@ extern uint32_t SystemCoreClock;
     #ifndef __NVIC_PRIO_BITS
         #define __NVIC_PRIO_BITS  4
     #endif
-    
-    #define configPRIO_BITS  __NVIC_PRIO_BITS 
-    #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY   ((1<<configPRIO_BITS)-1)
+   
+    #ifndef configPRIO_BITS 
+        #define configPRIO_BITS  __NVIC_PRIO_BITS 
+    #endif
+
+    #ifndef configLIBRARY_LOWEST_INTERRUPT_PRIORITY
+        #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY   ((1<<configPRIO_BITS)-1)
+    #endif
     
     #define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY    5
     

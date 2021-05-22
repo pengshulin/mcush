@@ -213,11 +213,12 @@ def generateSegmentTableASCII(sa=SA,sb=SB,sc=SC,sd=SD,se=SE,sf=SF,sg=SG,sh=SH):
         # 74 0x4a 'J' 
         sb + sc + sd,
         # 75 0x4b 'K' 
-        0,
+        sb + sd + se + sf + sg,
         # 76 0x4c 'L' 
         sf + se + sd,
         # 77 0x4d 'M' 
         0,
+        se + sf + sa + sb + sc,
         # 78 0x4e 'N' 
         se + sf + sa + sb + sc,
         # 79 0x4f 'O' 
@@ -277,11 +278,11 @@ def generateSegmentTableASCII(sa=SA,sb=SB,sc=SC,sd=SD,se=SE,sf=SF,sg=SG,sh=SH):
         # 106 0x6a 'j' 
         sb + sc + sd,
         # 107 0x6b 'k' 
-        0,
+        sb + sd + se + sf + sg,
         # 108 0x6c 'l' 
         sf + se + sd,
         # 109 0x6d 'm' 
-        0,
+        sa + sc + se + sg,
         # 110 0x6e 'n' 
         sc + se + sg,
         # 111 0x6f 'o' 

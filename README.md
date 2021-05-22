@@ -29,19 +29,11 @@ FEATURES
 
 ROADMAP
 =======
-(done)
-* run the basic shell on STM32 chips
-* use USB virtual com port driver provided by ST
-* add file system support (spiffs...)
-* add file utils (ls,cp,rm,cat,...) for file system
-* add ST/HAL Driver support
-* ported to RTX5 platform
-
 (todo/in progress)
-* test embedded dynamic languages (eg. lua/picolisp/tinyscheme/micropython...)
-* add bootloader and upgrade support
+* add posix/os port for simulation
+* add threadx/chibios/liteos port
+* test embedded dynamic languages (eg. lua/picolisp/tinyscheme/ulisp/micropython...)
 * add practical utilities for lwip network, such as traceroute, ntp update...
-* add remote debug support
 
 
 ENVIRONMENT
@@ -65,6 +57,7 @@ RESOURCES
 HARDWARE
 ========
 * tiny controller: <https://github.com/pengshulin/mcush/tree/master/hardware_tiny>
+* Shell-Lab series controllers: <http://www.linkongsoft.com/shell-lab/>
 
 
 LICENSE
@@ -87,5 +80,5 @@ http://www.linkongsoft.com/
 AUTHOR
 ======
 Peng Shulin <trees_peng@163.com>
-Shanghai, China 2020
+Shanghai, China 2021
 

@@ -302,7 +302,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   hpcd_USB_FS.Init.battery_charging_enable = DISABLE;
   if (HAL_PCD_Init(&hpcd_USB_FS) != HAL_OK)
   {
-     halt("usb_vcp_init");//_Error_Handler(__FILE__, __LINE__);
+     halt("usb_vcp_init");  //_Error_Handler(__FILE__, __LINE__);
   }
 
   HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
@@ -727,9 +727,9 @@ void USBD_LL_Delay(uint32_t Delay)
   */
 void *USBD_static_malloc(uint32_t size)
 {
-  static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
-  (void)size;
-  return mem;
+    (void)size;
+    static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
+    return mem;
 }
 
 /**
@@ -751,18 +751,16 @@ void USBD_static_free(void *p)
 void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 {
     (void)hpcd;
-  /* USER CODE BEGIN 6 */
-  if (state == 1)
-  {
-    /* Configure Low connection state. */
-
-  }
-  else
-  {
-    /* Configure High connection state. */
-
-  }
-  /* USER CODE END 6 */
+    /* USER CODE BEGIN 6 */
+    if (state == 1)
+    {
+        /* Configure Low connection state. */
+    }
+    else
+    {
+        /* Configure High connection state. */
+    }
+    /* USER CODE END 6 */
 }
 
 
@@ -772,7 +770,6 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_FS);
-
     //if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
     //    portEND_SWITCHING_ISR( pdTRUE );
 }

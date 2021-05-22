@@ -398,6 +398,9 @@ void exGPIO_PinAFConfig(GPIO_TypeDef* GPIOx, u16 pin, s32 remap, s8 funcAF)
     (void)remap;
 
 #if defined(__MM3N1)
+    (void)GPIOx;
+    (void)pin;
+    (void)funcAF;
     if (remap > 0) {
         COMMON_EnableIpClock(emCLOCK_EXTI);
         GPIO_PinRemapConfig(remap, ENABLE);

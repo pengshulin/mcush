@@ -395,6 +395,12 @@ int os_semaphore_get_isr( os_semaphore_handle_t semaphore )
 }
 
 
+int os_semaphore_count( os_semaphore_handle_t semaphore )
+{
+    return uxSemaphoreGetCount( semaphore );
+}
+
+
 /* TIMER */
 
 os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback )

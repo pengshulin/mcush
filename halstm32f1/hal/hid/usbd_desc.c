@@ -308,8 +308,8 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
 uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
     char buf[32];
+    
     (void)speed;
-
     hal_get_serial_number( buf );
     USBD_GetString((uint8_t *)buf, USBD_StrDesc, length);
     return USBD_StrDesc;

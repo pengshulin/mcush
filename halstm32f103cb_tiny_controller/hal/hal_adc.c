@@ -32,7 +32,7 @@
     #define HAL_ADC_RCC_DMA_ENABLE_BIT     LL_AHB1_GRP1_PERIPH_DMA1
     #define HAL_ADC_NUM                    4
     #define HAL_ADC_PORT                   GPIOA
-    #define HAL_ADC_PINS                   (GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3)
+    #define HAL_ADC_PINS                   (LL_GPIO_PIN_0|LL_GPIO_PIN_1|LL_GPIO_PIN_2|LL_GPIO_PIN_3)
     #define HAL_ADCx                       ADC1
     #define HAL_ADCx_DATA_REG_ADDR         ((uint32_t)0x4001244C)
     #define HAL_DMAx                       DMA1
@@ -113,7 +113,6 @@ void hal_adc_init( void )
 
     LL_ADC_DeInit( HAL_ADCx );
     adc_init.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
-    //adc_init.Resolution = LL_ADC_RESOLUTION_12B;
     adc_init.SequencersScanMode = LL_ADC_SEQ_SCAN_ENABLE;
     LL_ADC_Init( HAL_ADCx, &adc_init );
 
@@ -126,7 +125,7 @@ void hal_adc_init( void )
 
     for( i = 0; i < HAL_ADC_NUM; i++ )
     {
-        //LL_ADC_SetChannelSamplingTime( HAL_ADCx, __LL_ADC_DECIMAL_NB_TO_CHANNEL(i), LL_ADC_SAMPLINGTIME_1CYCLES_5);
+        //LL_ADC_SetChannelSamplingTime( HAL_ADCx, __LL_ADC_DECIMAL_NB_TO_CHANNEL(i), LL_ADC_SAMPLINGTIME_1CYCLE_5);
         //LL_ADC_SetChannelSamplingTime( HAL_ADCx, __LL_ADC_DECIMAL_NB_TO_CHANNEL(i), LL_ADC_SAMPLINGTIME_7CYCLES_5);
         //LL_ADC_SetChannelSamplingTime( HAL_ADCx, __LL_ADC_DECIMAL_NB_TO_CHANNEL(i), LL_ADC_SAMPLINGTIME_13CYCLES_5);
         //LL_ADC_SetChannelSamplingTime( HAL_ADCx, __LL_ADC_DECIMAL_NB_TO_CHANNEL(i), LL_ADC_SAMPLINGTIME_28CYCLES_5);

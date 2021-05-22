@@ -60,8 +60,8 @@ extern char hal_vcp_tx_buf1[];
 extern char hal_vcp_tx_buf2[];
 extern int hal_vcp_tx_buf1_len, hal_vcp_tx_buf2_len;
 extern uint8_t hal_vcp_tx_use_buf2;
-extern os_queue_handle_t hal_vcp_queue_rx;
-extern os_queue_handle_t hal_vcp_queue_tx;
+extern os_queue_handle_t hal_vcp_rx_queue;
+extern os_queue_handle_t hal_vcp_tx_queue;
 
 /* NOTE: cache the cdc setting from PC 
  * in windows pyserial may raise exception (invalid parameter)
@@ -327,7 +327,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
     /* receive and append to rx queue */
     while( len )
     {
-        if( os_queue_put_isr( hal_vcp_queue_rx, (void*)Buf ) )
+        if( os_queue_put_isr( hal_vcp_rx_queue, (void*)Buf ) )
         {
             Buf++;
             len--;

@@ -7,8 +7,9 @@
 #define OS_RTX       2
 #define OS_THREADX   3
 #define OS_RTTHREAD  4
-#define OS_CHIBIOS   5
-#define OS_LITEOS    6
+#define OS_POSIX     5
+#define OS_CHIBIOS   6
+#define OS_LITEOS    7
 
 #ifndef MCUSH_OS
     #define MCUSH_OS  OS_FREERTOS
@@ -24,6 +25,8 @@
     #include "mcush_os_threadx.h"
 #elif MCUSH_OS == OS_RTTHREAD
     #include "mcush_os_rtthread.h"
+#elif MCUSH_OS == OS_POSIX
+    #include "mcush_os_posix.h"
 #elif MCUSH_OS == OS_CHIBIOS
     #include "mcush_os_chibios.h"
 #elif MCUSH_OS == OS_LITEOS
@@ -95,6 +98,7 @@ int os_semaphore_put( os_semaphore_handle_t semaphore );
 int os_semaphore_put_isr( os_semaphore_handle_t semaphore );
 int os_semaphore_get( os_semaphore_handle_t semaphore, int block_ticks );
 int os_semaphore_get_isr( os_semaphore_handle_t semaphore );
+int os_semaphore_count( os_semaphore_handle_t semaphore );
 
 /* timer */
 os_timer_handle_t os_timer_create( const char *name, int period_ticks,

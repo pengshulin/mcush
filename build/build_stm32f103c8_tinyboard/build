@@ -10,14 +10,14 @@ pushd /mcush/appBlinkErrorNumber
 # black board - use vcp
 rm -f *.hex *.bin *.lst *.map *.elf
 scons -c
-scons
+BLACK_BOARD=1 scons
 mkdir -p $CWD/black_vcp
 cp BlinkErrorNumber* $CWD/black_vcp
 
 # black board - use uart
 rm -f *.hex *.bin *.lst *.map *.elf
 scons -c
-USE_UART=1 scons
+BLACK_BOARD=1 USE_UART=1 scons
 mkdir -p $CWD/black_uart
 cp BlinkErrorNumber* $CWD/black_uart
 

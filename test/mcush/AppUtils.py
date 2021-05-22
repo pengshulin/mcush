@@ -143,7 +143,7 @@ class Task():
         if self.p.is_alive():
             self.p.terminate()
         self.info( _getStr('Stopped') )
-        self.end()
+        #self.end()
 
     def pause( self, prompt ):
         # clear queue

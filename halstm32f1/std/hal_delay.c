@@ -2,7 +2,9 @@
 
 /* stm32f103 @ 72M Hz */
 
-void hal_delay_us(uint32_t us)
+#pragma GCC optimize("O3")
+
+__weak void hal_delay_us(uint32_t us)
 {
     while( us-- )
     {
@@ -13,15 +15,23 @@ void hal_delay_us(uint32_t us)
         __NOP(); __NOP(); __NOP(); __NOP();
         __NOP(); __NOP(); __NOP(); __NOP();
         __NOP(); __NOP(); __NOP(); __NOP();
+        
         __NOP(); __NOP(); __NOP(); __NOP();
         __NOP(); __NOP(); __NOP(); __NOP();
         __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        __NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP();
     }
 }
 
 
-void hal_delay_ms(uint32_t ms)
+__weak void hal_delay_ms(uint32_t ms)
 {
     volatile uint32_t a;
     while(ms--)

@@ -1,4 +1,4 @@
-/* MCUSH device C-API
+/* MCUSH device C-API demo
  * control one/multi devices in C
  * this demo version uses syscall in blocking mode
  * MCUSH designed by Peng Shulin, all rights reserved.
@@ -9,20 +9,58 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <termios.h>
 #include <unistd.h>
+#ifdef WIN32
+    #include <windows.h>
+#else
+    #include <termios.h>
+#endif
 #include "mcush_api.h"
 
 
 int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
 {
-    struct termios newtio;
-    speed_t speed;
-    int ret=0;
-
     if( (device==NULL) || (ttyname==NULL) )
         return MCUSH_ERR_API;
+    memset( (void*)device, 0, sizeof(mcush_dev_t) );
 
+#ifdef WIN32
+    HANDLE handle;
+    COMMTIMEOUTS timeout;
+    DCB dcb;
+
+    handle = CreateFile( ttyname, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                      OPEN_EXISTING,  FILE_ATTRIBUTE_NORMAL, NULL);
+    if( handle == INVALID_HANDLE_VALUE )
+        return MCUSH_ERR_IO;
+
+    device->handle = handle;
+
+    SetupComm( handle, 1024, 1024);
+    timeout.ReadIntervalTimeout = 100;
+    timeout.ReadTotalTimeoutMultiplier = 5000;
+    timeout.ReadTotalTimeoutConstant = 5000;
+    timeout.WriteTotalTimeoutMultiplier = 500;
+    timeout.WriteTotalTimeoutConstant = 2000;
+    SetCommTimeouts(handle, &timeout);
+
+    GetCommState(handle, &dcb);
+    dcb.BaudRate = baudrate;
+    dcb.ByteSize = 8;
+    dcb.Parity = NOPARITY;
+    dcb.StopBits = ONESTOPBIT;
+    SetCommState(handle, &dcb);
+    return 1;
+#else
+    int ret;
+    struct termios newtio;
+    speed_t speed;
+
+    device->handle = open( ttyname, O_RDWR);
+    if( device->handle < 0 )
+        return MCUSH_ERR_IO;
+
+    device->ttyname = strdup(ttyname);
     switch( baudrate )
     {
     case 150: speed = B150; break;
@@ -43,22 +81,15 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     case 460800: speed = B460800; break;
     default: return MCUSH_ERR_API;
     }
-
-    memset( (void*)device, 0, sizeof(mcush_dev_t) );
-    device->handle = open( ttyname, O_RDWR);
-    if( device->handle < 0 )
-        return MCUSH_ERR_IO;
-
-    device->ttyname = strdup(ttyname); 
-    cfsetispeed( &newtio, speed ); 
-    cfsetospeed( &newtio, speed ); 
+    cfsetispeed( &newtio, speed );
+    cfsetospeed( &newtio, speed );
 
     memset( &newtio, 0, sizeof(struct termios) );
     newtio.c_iflag = IGNPAR;
     newtio.c_oflag = 0;
     newtio.c_cflag = CS8 | CLOCAL | CREAD;
     newtio.c_lflag = 0;
-    newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */ 
+    newtio.c_cc[VINTR]    = 0;     /* Ctrl-c */
     newtio.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
     newtio.c_cc[VERASE]   = 0;     /* del */
     newtio.c_cc[VKILL]    = 0;     /* @ */
@@ -66,7 +97,7 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     newtio.c_cc[VTIME]    = 50;    /* inter-character timer unused */
     newtio.c_cc[VMIN]     = 1;     /* blocking read until 1 character arrives */
     newtio.c_cc[VSWTC]    = 0;     /* '\0' */
-    newtio.c_cc[VSTART]   = 0;     /* Ctrl-q */ 
+    newtio.c_cc[VSTART]   = 0;     /* Ctrl-q */
     newtio.c_cc[VSTOP]    = 0;     /* Ctrl-s */
     newtio.c_cc[VSUSP]    = 0;     /* Ctrl-z */
     newtio.c_cc[VEOL]     = 0;     /* '\0' */
@@ -81,7 +112,9 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     ret = tcsetattr( device->handle, TCSANOW, &newtio );
     if( ret < 0 )
         return MCUSH_ERR_IO;
+
     return 1;
+#endif
 }
 
 
@@ -89,7 +122,11 @@ int mcush_close( mcush_dev_t *device )
 {
     if( device->handle )
     {
+#ifdef WIN32
+        CloseHandle(device->handle);
+#else
         close( device->handle );
+#endif
         device->handle = 0;
     }
     return 1;
@@ -98,16 +135,21 @@ int mcush_close( mcush_dev_t *device )
 
 int mcush_putc( mcush_dev_t *device, char c )
 {
-    int ret;
+#ifdef WIN32
+    DWORD wCount;
 
-    ret = write( device->handle, &c, 1 );
+    if( ! WriteFile( device->handle, (PCVOID)&c, 1, &wCount, NULL) )
+        return 0;
+    return wCount ? 1 : 0;
+#else
+    int ret = write( device->handle, &c, 1 );
     if( ret < 0 )
         return ret;
-
     ret = tcdrain( device->handle );
     if( ret < 0 )
         return ret;
     return 1;
+#endif
 }
 
 
@@ -128,8 +170,15 @@ int mcush_puts( mcush_dev_t *device, const char *str )
 
 int mcush_getc( mcush_dev_t *device, char *c )
 {
-    int ret = read( device->handle, c, 1 );
-    return ret;
+#ifdef WIN32
+    DWORD wCount;
+
+    if( ! ReadFile( device->handle, (PVOID)c, 1, &wCount, NULL) )
+        return 0;
+    return wCount ? 1 : 0;
+#else
+    return read( device->handle, c, 1 );
+#endif
 }
 
 
@@ -158,9 +207,15 @@ int mcush_wait_until_prompts( mcush_dev_t *device )
         {
             switch( newline[0] )
             {
-            case '=': prompt_type=MCUSH_PROMPT_TYPE_NORMAL; break;
-            case '?': prompt_type=MCUSH_PROMPT_TYPE_SYNTAX_ERR; break;
-            case '!': prompt_type=MCUSH_PROMPT_TYPE_EXEC_ERR; break;
+            case '=':
+                prompt_type=MCUSH_PROMPT_TYPE_NORMAL;
+                break;
+            case '?':
+                prompt_type=MCUSH_PROMPT_TYPE_SYNTAX_ERR;
+                break;
+            case '!':
+                prompt_type=MCUSH_PROMPT_TYPE_EXEC_ERR;
+                break;
             }
             if( prompt_type >= 0 )
             {
@@ -170,7 +225,7 @@ int mcush_wait_until_prompts( mcush_dev_t *device )
                 device->prompt[2] = 0;
                 device->response = receive;
                 return prompt_type;
-            } 
+            }
         }
         if( c == MCUSH_TERMINATOR_READ )
         {
@@ -206,7 +261,7 @@ int mcush_wait_until_prompts( mcush_dev_t *device )
             }
             newline_len = 0;
         }
-    } 
+    }
     return prompt_type;
 }
 
@@ -234,8 +289,8 @@ int mcush_write_command( mcush_dev_t *device, const char *cmd )
     if( ret < 0 )
         return ret;
     /* check cmd response from the top line */
-    if( (memcmp( cmd, device->response, cmd_len ) == 0) && 
-        (device->response[cmd_len] == MCUSH_TERMINATOR_WRITE) )
+    if( (memcmp( cmd, device->response, cmd_len ) == 0) &&
+            (device->response[cmd_len] == MCUSH_TERMINATOR_WRITE) )
     {
         device->result = &device->response[cmd_len+1];
         return strlen(device->result);

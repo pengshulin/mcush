@@ -5,7 +5,7 @@
 #ifdef MODEL_STRING
     const char model_string[] = MODEL_STRING;
 #else
-    const char model_string[] = shell_str_mcush;
+    const char model_string[] = "mcush";
 #endif
 
 #ifdef VERSION_STRING

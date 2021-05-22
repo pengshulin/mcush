@@ -1,15 +1,18 @@
-#ifndef __MCUSH_H__
-#define __MCUSH_H__
+#ifndef __MCUSH_API_H__
+#define __MCUSH_API_H__
 
 #ifndef MCUSH_TERMINATOR_RESET
     #define MCUSH_TERMINATOR_RESET  '\x03'
 #endif
+
 #ifndef MCUSH_TERMINATOR_WRITE
     #define MCUSH_TERMINATOR_WRITE  '\x0A'
 #endif
+
 #ifndef MCUSH_TERMINATOR_READ
     #define MCUSH_TERMINATOR_READ  '\x0A'
 #endif
+
 #ifndef MCUSH_DEFAULT_BAUDRATE
     #define MCUSH_DEFAULT_BAUDRATE  9600
 #endif
@@ -35,8 +38,11 @@
 
 typedef struct {
     const char *ttyname;
+#ifdef WIN32
+    void *handle;
+#else
     int handle;
-    int errno;
+#endif
     char prompt[4];
     int prompt_type;
     char *response;

@@ -7,7 +7,9 @@
 
 #if defined(__MM3N1)
     #define __MPU_PRESENT               (0)                                     ///< mm32f103/mm32l3xx does not provide a MPU present or not
-    #define __NVIC_PRIO_BITS            (4)                                     ///< mm32f103/mm32l3xx uses 4 Bits for the Priority Levels
+    #ifndef __NVIC_PRIO_BITS
+        #define __NVIC_PRIO_BITS        (4)                                     ///< mm32f103/mm32l3xx uses 4 Bits for the Priority Levels
+    #endif
     #define __Vendor_SysTickConfig      (0)                                     ///< Set to 1 if different SysTick Config is used
 #endif
 

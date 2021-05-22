@@ -123,7 +123,7 @@ int hal_uart_init( uint32_t baudrate )
     LL_USART_EnableIT_RXNE( HAL_UARTx );
 
     /* Interrupt Enable */  
-    HAL_NVIC_SetPriority( HAL_UARTx_IRQn, 10, 0 );
+    HAL_NVIC_SetPriority( HAL_UARTx_IRQn, 15, 0 );
     HAL_NVIC_EnableIRQ( HAL_UARTx_IRQn );
     return 1;
 }

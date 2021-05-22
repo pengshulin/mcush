@@ -1,5 +1,5 @@
 # Simplified-Chinese translations for MCUSH
-# Peng Shulin <trees_peng@163.com> 2019
+# Peng Shulin <trees_peng@163.com> 2021
 # All rights reserved
 #
 msgid ""
@@ -623,6 +623,7 @@ msgstr "高度"
 msgid "Weight"
 msgstr "重量"
 
-
+msgid "New task"
+msgstr "新建任务"
 
 

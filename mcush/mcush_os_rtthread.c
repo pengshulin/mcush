@@ -124,12 +124,16 @@ os_task_handle_t os_task_create_static( const char *name, os_task_function_t ent
 
 void os_task_delete( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = rt_thread_self();
     rt_thread_delete( task );
 }
 
 
 void os_task_suspend( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = rt_thread_self();
     rt_thread_suspend( task );
 }
 

@@ -1,5 +1,24 @@
 #include "hal.h"
 
+#if HAL_TEST_CLK_OUTPUT
+/* PA8 - MCO */
+static void _test_clk_output(void)
+{
+    GPIO_InitTypeDef gpio_init;
+
+    LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_GPIOA );
+    //RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+    //GPIO_StructInit(&gpio_init);
+    gpio_init.Pin = GPIO_PIN_8;
+    gpio_init.Speed = GPIO_SPEED_FREQ_HIGH;
+    gpio_init.Mode = GPIO_MODE_AF_PP;
+    gpio_init.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init( GPIOA, &gpio_init );
+    //RCC_MCOConfig(RCC_MCO_SYSCLK);
+    __HAL_RCC_MCO1_CONFIG(RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
+}
+#endif
+
 
 void hal_clk_init(void)
 {  
@@ -31,13 +50,13 @@ void hal_clk_init(void)
     {
         while(1);  // Error_Handler();  
     }
+
     LL_RCC_HSE_EnableCSS();
     LL_RCC_HSE_Enable();
 
     /* Wait till HSE is ready */
     while(LL_RCC_HSE_IsReady() != 1)
     {
-      
     }
 
 #if HSE_VALUE == 8000000
@@ -84,4 +103,7 @@ void hal_clk_init(void)
     /* NVIC_PriorityGroup_4: 4 bits for pre-emption priority, 0 bits for subpriority */
     HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4);
 
+#if HAL_TEST_CLK_OUTPUT
+    _test_clk_output();
+#endif
 }

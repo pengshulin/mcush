@@ -30,11 +30,11 @@
 #ifndef HAL_UARTx_BAUDRATE
     #define HAL_UARTx_BAUDRATE              9600
 #endif
-#ifndef HAL_UART_QUEUE_RX_LEN
-    #define HAL_UART_QUEUE_RX_LEN           128
+#ifndef HAL_UART_RX_QUEUE_LEN
+    #define HAL_UART_RX_QUEUE_LEN           128
 #endif
-#ifndef HAL_UART_QUEUE_TX_LEN
-    #define HAL_UART_QUEUE_TX_LEN           128
+#ifndef HAL_UART_TX_QUEUE_LEN
+    #define HAL_UART_TX_QUEUE_LEN           128
 #endif
 #ifndef HAL_UART_QUEUE_ADD_TO_REG
     #define HAL_UART_QUEUE_ADD_TO_REG       1
@@ -44,10 +44,14 @@
 os_queue_handle_t hal_uart_queue_rx;
 /* tx buffer: ringbuffer instead of os_queue */
 //os_queue_handle_t hal_uart_queue_tx;
+#if OS_SUPPORT_STATIC_ALLOCATION
+DEFINE_STATIC_QUEUE_BUFFER( uart_rx, HAL_UART_RX_QUEUE_LEN/2, 1 );
+//DEFINE_STATIC_QUEUE_BUFFER( uart_tx, HAL_UART_TX_QUEUE_LEN, 1 );
+#endif
 
 RINGBUFF_T rb_uart_tx, rb_uart_rx;
-#define RB_UART_TX_LEN  HAL_UART_QUEUE_TX_LEN
-#define RB_UART_RX_LEN  HAL_UART_QUEUE_RX_LEN/2
+#define RB_UART_TX_LEN  HAL_UART_TX_QUEUE_LEN
+#define RB_UART_RX_LEN  HAL_UART_RX_QUEUE_LEN/2
 char buffer_uart_tx[RB_UART_TX_LEN], buffer_uart_rx[RB_UART_RX_LEN];
 
 
@@ -56,28 +60,26 @@ int hal_uart_init(uint32_t baudrate)
     RingBuffer_Init( &rb_uart_rx, (void*)buffer_uart_rx, 1, RB_UART_RX_LEN );
     RingBuffer_Init( &rb_uart_tx, (void*)buffer_uart_tx, 1, RB_UART_TX_LEN );
 #if OS_SUPPORT_STATIC_ALLOCATION
-#if HAL_UART_QUEUE_RX_LEN
-    DEFINE_STATIC_QUEUE_BUFFER( uart_rx, HAL_UART_QUEUE_RX_LEN/2, 1 );
-    hal_uart_queue_rx = os_queue_create_static( "rxQ", HAL_UART_QUEUE_RX_LEN/2, 1,
+#if HAL_UART_RX_QUEUE_LEN
+    hal_uart_queue_rx = os_queue_create_static( "rxQ", HAL_UART_RX_QUEUE_LEN/2, 1,
                                             &static_queue_buffer_uart_rx );
     if( hal_uart_queue_rx == NULL )
         return 0;
 #endif
-//#if HAL_UART_QUEUE_TX_LEN
-//    DEFINE_STATIC_QUEUE_BUFFER( uart_tx, HAL_UART_QUEUE_TX_LEN, 1 );
-//    hal_uart_queue_tx = os_queue_create_static( "txQ", HAL_UART_QUEUE_TX_LEN, 1,
+//#if HAL_UART_TX_QUEUE_LEN
+//    hal_uart_queue_tx = os_queue_create_static( "txQ", HAL_UART_TX_QUEUE_LEN, 1,
 //                                            &static_queue_buffer_uart_tx );
 //    if( hal_uart_queue_rx == NULL )
 //        return 0;
 //#endif
 #else
-#if HAL_UART_QUEUE_RX_LEN
-    hal_uart_queue_rx = os_queue_create( "rxQ", HAL_UART_QUEUE_RX_LEN/2, 1 );
+#if HAL_UART_RX_QUEUE_LEN
+    hal_uart_queue_rx = os_queue_create( "rxQ", HAL_UART_RX_QUEUE_LEN/2, 1 );
     if( hal_uart_queue_rx == NULL )
         return 0;
 #endif
-//#if HAL_UART_QUEUE_TX_LEN
-//    hal_uart_queue_tx = os_queue_create( "txQ", HAL_UART_QUEUE_TX_LEN, 1 );
+//#if HAL_UART_TX_QUEUE_LEN
+//    hal_uart_queue_tx = os_queue_create( "txQ", HAL_UART_TX_QUEUE_LEN, 1 );
 //    if( hal_uart_queue_tx == NULL )
 //        return 0;
 //#endif
@@ -93,7 +95,9 @@ int hal_uart_init(uint32_t baudrate)
     //Chip_UART_SetupFIFOS(HAL_UARTx, (UART_FCR_FIFO_EN | UART_FCR_RX_RS | UART_FCR_TX_RS | UART_FCR_TRG_LEV3)); // 14Bytes
     //Chip_UART_IntEnable(HAL_UARTx, (UART_IER_RBRINT | UART_IER_RLSINT));
     Chip_UART_IntEnable(HAL_UARTx, (UART_IER_RBRINT | UART_IER_THREINT | UART_IER_RLSINT));
-    NVIC_SetPriority(HAL_UARTx_IRQn, 6);
+    NVIC_SetPriority( HAL_UARTx_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), \
+                    //configLIBRARY_LOWEST_INTERRUPT_PRIORITY, 0));
+                    7, 0));
     NVIC_EnableIRQ(HAL_UARTx_IRQn);
     return 1;
 }
@@ -102,7 +106,7 @@ int hal_uart_init(uint32_t baudrate)
 
 int hal_uart_putc( char c, os_tick_t block_ticks )
 {
-#if HAL_UART_QUEUE_TX_LEN
+#if HAL_UART_TX_QUEUE_LEN
     int written;
 
     (void)block_ticks;
@@ -118,7 +122,7 @@ int hal_uart_putc( char c, os_tick_t block_ticks )
 
 int hal_uart_getc( char *c, os_tick_t block_ticks )
 {
-#if HAL_UART_QUEUE_RX_LEN
+#if HAL_UART_RX_QUEUE_LEN
     return os_queue_get( hal_uart_queue_rx, c, block_ticks );
 #else
     return 0;
@@ -149,10 +153,10 @@ void HAL_UARTx_IRQHandler(void)
 
 void hal_uart_reset(void)
 {
-#if HAL_UART_QUEUE_RX_LEN
+#if HAL_UART_RX_QUEUE_LEN
     os_queue_reset( hal_uart_queue_rx );
 #endif
-//#if HAL_UART_QUEUE_TX_LEN
+//#if HAL_UART_TX_QUEUE_LEN
 //    os_queue_reset( hal_uart_queue_tx );
 //#endif
     os_enter_critical();

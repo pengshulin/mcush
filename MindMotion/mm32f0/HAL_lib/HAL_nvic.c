@@ -75,19 +75,45 @@ void NVIC_PriorityGroupConfig(u32 NVIC_PriorityGroup)
 void NVIC_Init(NVIC_InitTypeDef* pInitStruct)
 {
 #if defined(__MM3N1)
-    if (pInitStruct->NVIC_IRQChannelCmd != DISABLE) {
-        u32 pri = (SCB_AIRCR_PRIGROUP & ~(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk)) >> SCB_AIRCR_PRIGROUP_Pos;
+    /////if (pInitStruct->NVIC_IRQChannelCmd != DISABLE) {
+    /////    u32 pri = (SCB_AIRCR_PRIGROUP & ~(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk)) >> SCB_AIRCR_PRIGROUP_Pos;
 
-        pri = (((u32)pInitStruct->NVIC_IRQChannelPreemptionPriority << (0x4 - pri)) |
-               pInitStruct->NVIC_IRQChannelSubPriority & (0x0F >> pri))
-              << 0x04;
+    /////    pri = (((u32)pInitStruct->NVIC_IRQChannelPreemptionPriority << (0x4 - pri)) |
+    /////           (pInitStruct->NVIC_IRQChannelSubPriority & (0x0F >> pri)))
+    /////          << 0x04;
 
-        NVIC->IP[pInitStruct->NVIC_IRQChannel]           = pri;
-        NVIC->ISER[pInitStruct->NVIC_IRQChannel >> 0x05] = 0x01 << (pInitStruct->NVIC_IRQChannel & 0x1F);
+    /////    NVIC->IP[pInitStruct->NVIC_IRQChannel]           = pri;
+    /////    NVIC->ISER[pInitStruct->NVIC_IRQChannel >> 0x05] = 0x01 << (pInitStruct->NVIC_IRQChannel & 0x1F);
+    /////}
+    /////else {
+    /////    NVIC->ICER[pInitStruct->NVIC_IRQChannel >> 0x05] = 0x01 << (pInitStruct->NVIC_IRQChannel & 0x1F);
+    /////}
+    uint32_t tmppriority = 0x00, tmppre = 0x00, tmpsub = 0x0F;
+    if (pInitStruct->NVIC_IRQChannelCmd != DISABLE)
+    {
+        /* Compute the Corresponding IRQ Priority --------------------------------*/
+        tmppriority = (0x700 - ((SCB->AIRCR) & (uint32_t)0x700)) >> 0x08;
+        tmppre = (0x4 - tmppriority);
+        tmpsub = tmpsub >> tmppriority;
+
+        tmppriority = (uint32_t)pInitStruct->NVIC_IRQChannelPreemptionPriority << tmppre;
+        tmppriority |= pInitStruct->NVIC_IRQChannelSubPriority & tmpsub;
+        tmppriority = tmppriority << 0x04;
+
+        NVIC->IP[pInitStruct->NVIC_IRQChannel] = tmppriority;
+
+        /* Enable the Selected IRQ Channels --------------------------------------*/
+        NVIC->ISER[pInitStruct->NVIC_IRQChannel >> 0x05] =
+            (uint32_t)0x01 << (pInitStruct->NVIC_IRQChannel & (uint8_t)0x1F);
     }
-    else {
-        NVIC->ICER[pInitStruct->NVIC_IRQChannel >> 0x05] = 0x01 << (pInitStruct->NVIC_IRQChannel & 0x1F);
+    else
+    {
+        /* Disable the Selected IRQ Channels -------------------------------------*/
+        NVIC->ICER[pInitStruct->NVIC_IRQChannel >> 0x05] =
+            (uint32_t)0x01 << (pInitStruct->NVIC_IRQChannel & (uint8_t)0x1F);
     }
+
+    tmppre = NVIC->ISER[pInitStruct->NVIC_IRQChannel >> 0x05];
 #endif
 
 #if defined(__MM0N1) || defined(__MM0P1) || defined(__MM0Q1)
@@ -119,7 +145,7 @@ void exNVIC_Init(exNVIC_Init_TypeDef* pInitStruct)
         pri = (SCB_AIRCR_PRIGROUP & ~(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk)) >> SCB_AIRCR_PRIGROUP_Pos;
 
         pri = (((u32)pInitStruct->NVIC_IRQChannelPreemptionPriority << (0x4 - pri)) |
-                     pInitStruct->NVIC_IRQChannelSubPriority & (0x0F >> pri)) << 0x04;
+                     (pInitStruct->NVIC_IRQChannelSubPriority & (0x0F >> pri))) << 0x04;
 
         NVIC->IP[pInitStruct->NVIC_IRQChannel] = pri;
         NVIC->ISER[pInitStruct->NVIC_IRQChannel >> 0x05] = 0x01 << (pInitStruct->NVIC_IRQChannel & 0x1F);
