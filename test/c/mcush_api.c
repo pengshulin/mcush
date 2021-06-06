@@ -138,7 +138,7 @@ int mcush_putc( mcush_dev_t *device, char c )
 #ifdef WIN32
     DWORD wCount;
 
-    if( ! WriteFile( device->handle, (PCVOID)&c, 1, &wCount, NULL) )
+    if( ! WriteFile( device->handle, (void*)&c, 1, &wCount, NULL) )
         return 0;
     return wCount ? 1 : 0;
 #else
@@ -173,7 +173,7 @@ int mcush_getc( mcush_dev_t *device, char *c )
 #ifdef WIN32
     DWORD wCount;
 
-    if( ! ReadFile( device->handle, (PVOID)c, 1, &wCount, NULL) )
+    if( ! ReadFile( device->handle, (void *)c, 1, &wCount, NULL) )
         return 0;
     return wCount ? 1 : 0;
 #else

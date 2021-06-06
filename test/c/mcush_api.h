@@ -1,6 +1,11 @@
 #ifndef __MCUSH_API_H__
 #define __MCUSH_API_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifndef MCUSH_TERMINATOR_RESET
     #define MCUSH_TERMINATOR_RESET  '\x03'
 #endif
@@ -64,6 +69,8 @@ int mcush_scpi_idn( mcush_dev_t *device, char *output );
 int mcush_scpi_rst( mcush_dev_t *device );
 
 
-
+#ifdef __cplusplus
+}
 #endif
 
+#endif

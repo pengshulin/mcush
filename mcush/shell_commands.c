@@ -315,7 +315,7 @@ const shell_cmd_t CMD_TAB[] = {
 #if USE_CMD_TEST
 {   0, 'T', "test",  cmd_test, 
     "condition test and run command",
-    "test [-p|f] <cmd and args>"  },
+    "test [-np] <cmd and args>"  },
 #endif
 {   CMD_END  } };
 
@@ -404,17 +404,16 @@ int cmd_loop( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
-                parse_int(opt.value, (int*)&loop_delay);
+                if( parse_int(opt.value, (int*)&loop_delay) == 0 )
+                    return -1;
             }
             else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
             {
-                parse_int(opt.value, (int*)&cycle_limit);
-                if( cycle_limit > 0 )
-                {
-                    cycle_set = 1;
-                }
-                else
+                if( parse_int(opt.value, (int*)&cycle_limit) == 0 )
                     return -1;
+                if( cycle_limit <= 0 )
+                    return -1;
+                cycle_set = 1;
             }
             else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
             {
@@ -474,7 +473,8 @@ int cmd_delay( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_time ) == 0 )
-                parse_int(opt.value, (int*)&ms);
+                if( parse_int(opt.value, (int*)&ms) == 0 )
+                    return -1;
         }
         else
             STOP_AT_INVALID_ARGUMENT 
@@ -515,6 +515,10 @@ int cmd_echo( int argc, char *argv[] )
 
 
 #if USE_CMD_TEST
+#ifndef USE_CMD_TEST_ERRNO
+    #define USE_CMD_TEST_ERRNO  1
+    extern int get_errno(void);
+#endif
 int cmd_test( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
@@ -522,6 +526,10 @@ int cmd_test( int argc, char *argv[] )
           'p', shell_str_pin, shell_str_pin, "port.bit high status" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'f', shell_str_file, shell_str_file, "file exist" },
+#if USE_CMD_TEST_ERRNO
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'e', shell_str_error, shell_str_error, "errno match" },
+#endif
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'n', shell_str_not, shell_str_not, shell_str_not },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
@@ -533,6 +541,10 @@ int cmd_test( int argc, char *argv[] )
     uint8_t cmd_set=0, not_set=0;
     int (*cmd)(int argc, char *argv[]) = 0;
     int port=-1, bit=-1;
+#if USE_CMD_TEST_ERRNO
+    uint8_t errno_set=0;
+    int errno;
+#endif
     const char *pport=0;
     char *pbit;
     int port_num = hal_gpio_get_port_num();
@@ -546,6 +558,14 @@ int cmd_test( int argc, char *argv[] )
                 pport = opt.value;
             else if( STRCMP( opt.spec->name, shell_str_not ) == 0 )
                 not_set = 1;
+#if USE_CMD_TEST_ERRNO
+            else if( STRCMP( opt.spec->name, shell_str_error ) == 0 )
+            {
+                if( parse_int(opt.value, (int*)&errno) == 0 )
+                    return -1;
+                errno_set = 1;
+            }
+#endif
             else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
             {
                 cmd_set = 1;
@@ -608,6 +628,22 @@ int cmd_test( int argc, char *argv[] )
                 return 0; /* unmatched, ignore command */
         }
     }
+
+#if USE_CMD_TEST_ERRNO
+    if( errno_set )
+    {
+        if( get_errno() != errno )
+        {
+            if( not_set == 0 )
+                return 0; /* unmatched, ignore command */
+        }
+        else
+        {
+            if( not_set )
+                return 0; /* unmatched, ignore command */
+        }
+    }
+#endif
 
     if( cmd( argc, argv ) != 0 )
         return 1;

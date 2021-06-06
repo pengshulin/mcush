@@ -650,7 +650,6 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
     if( url == NULL || protocol == NULL || server == NULL || port == NULL || pathfile == NULL )
         return -1;
     *protocol = *server = *pathfile = 0;
-    *port = 0;
     p = (char*)url;
     /* check out protocol */
     while( *p )
@@ -693,7 +692,12 @@ int split_url( const char *url, char **protocol, char **server, int *port, char 
             p++;
     }
     if( p2 && *p2 )
-        parse_int( (const char*)p2, port );
+    {
+        if( parse_int( (const char*)p2, port ) == 0 )
+            return 2;
+    }
+    else
+        *port = -1;
     //if( *pathfile == NULL )
     //    return 2;
     return 0;

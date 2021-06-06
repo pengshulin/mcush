@@ -84,7 +84,7 @@ int cmd_gpio( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    unsigned int loop=0, loop_delay=1000, loop_tick;
+    unsigned int loop=0, loop_delay, loop_tick;
     char c;
     int port=-1, bit=-1, bit_mode=-1, pull=0;
     const char *pport=0, *pinput=0, *poutput=0, *pset=0, *pclr=0, *ptoggle=0;
@@ -140,7 +140,10 @@ int cmd_gpio( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_loop ) == 0 )
             {
                 loop=1;
-                parse_int(opt.value, (int*)&loop_delay);
+                if( STRCMP( opt.value, shell_str_nil ) == 0 )
+                    loop_delay = 1000;
+                else if( parse_int(opt.value, (int*)&loop_delay) == 0 )
+                    return -1;
             }
         }
         else
@@ -290,7 +293,10 @@ int cmd_led( int argc, char *argv[] )
             else if( STRCMP( opt.spec->name, shell_str_toggle ) == 0 )
                 cmd = 2;
             else if( STRCMP( opt.spec->name, shell_str_index ) == 0 )
-                parse_int(opt.value, (int*)&index);
+            {
+                if( parse_int(opt.value, (int*)&index) == 0 )
+                    return -1;
+            }
             else if( STRCMP( opt.spec->name, shell_str_number ) == 0 )
             {
                 shell_printf( "%d\n", led_num );
@@ -356,7 +362,7 @@ int cmd_beep( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    int freq=-1, ms=-1;
+    int freq=4000, ms=50;
 
     mcush_opt_parser_init( &parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -364,18 +370,20 @@ int cmd_beep( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_frequency ) == 0 )
-                parse_int(opt.value, (int*)&freq);
+            {
+                if( parse_int(opt.value, (int*)&freq) == 0 )
+                    return -1;
+            }
             else if( STRCMP( opt.spec->name, shell_str_ms ) == 0 )
-                parse_int(opt.value, (int*)&ms);
+            {
+                if( (STRCMP(opt.value, shell_str_nil) != 0) && 
+                    (parse_int(opt.value, (int*)&ms) == 0) )
+                    return -1;
+            }
         }
         else
              STOP_AT_INVALID_ARGUMENT  
     }
-
-    if( freq == -1 )
-        freq = 4000;
-    if( ms == -1 )
-        ms = 50;
 
     if( !( (freq >= 20) && (freq <= 10000) ) )
         STOP_AT_INVALID_ARGUMENT  
@@ -1093,12 +1101,14 @@ int cmd_can( int argc, char *argv[] )
 #ifndef HAL_WS2812_PIN
 #define HAL_WS2812_PIN  0
 #endif
-#define LENGTH_MAX  1000
+#ifndef WS2812_LENGTH_MAX
+    #define WS2812_LENGTH_MAX  3000
+#endif
 static int ws2812_length;
 static int ws2812_group_length;
 static int *ws2812_buf;  /* memory needs: 3*length bytes */
 static uint8_t *ws2812_r, *ws2812_g, *ws2812_b;
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+#if MCUSH_FCFS && SUPPORT_WS2812_GROUP_LENGTH_LIST
 static int ws2812_group_length_list_length;
 static uint8_t *ws2812_group_length_list;
 #endif
@@ -1106,9 +1116,6 @@ static uint8_t *ws2812_group_length_list;
 
 int ws2812_init( int length, int group_length, int port, int pin )
 {
-    if( (length <= 0) || (length > LENGTH_MAX) || (group_length <= 0) )
-        return 0;
-
     if( ws2812_buf )
     {
         os_free( ws2812_buf );
@@ -1135,7 +1142,7 @@ int ws2812_init( int length, int group_length, int port, int pin )
 }
 
 
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+#if MCUSH_FCFS && SUPPORT_WS2812_GROUP_LENGTH_LIST
 void ws2812_init_group_length_list( uint8_t *list, int list_length )
 {
     if( list == NULL )
@@ -1241,7 +1248,7 @@ void ws2812_flush(void)
 {
     int i, j, c;
     uint8_t *r, *g, *b;
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+#if MCUSH_FCFS && SUPPORT_WS2812_GROUP_LENGTH_LIST
     uint8_t list_idx=0;
 #endif
 
@@ -1253,7 +1260,7 @@ void ws2812_flush(void)
     for( i=0, r=ws2812_r, g=ws2812_g, b=ws2812_b; i<ws2812_length; i++ )
     {
         c = (*r<<16)+(*g<<8)+*b;
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+#if MCUSH_FCFS && SUPPORT_WS2812_GROUP_LENGTH_LIST
         if( ws2812_group_length_list_length )
         {
             for( j=0; j<ws2812_group_length_list[list_idx]; j++ )
@@ -1283,12 +1290,14 @@ int cmd_ws2812( int argc, char *argv[] )
           'l', shell_str_length, shell_str_length, "number of groups" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'G', shell_str_group, shell_str_group, "number of pixels per group" },
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+#if MCUSH_FCFS && SUPPORT_WS2812_GROUP_LENGTH_LIST
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           0, "glist_file", 0, "/c/glist" },
 #endif
+#if MCUSH_FCFS
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'L', "load", shell_str_file, "load data file" },
+#endif
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'D', shell_str_deinit, 0, shell_str_deinit },
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
@@ -1371,7 +1380,7 @@ int cmd_ws2812( int argc, char *argv[] )
                 pushb_set = 1;
             else if( strcmp( opt.spec->name, "fill" ) == 0 )
                 fill_set = 1;
-#if SUPPORT_WS2812_GROUP_LENGTH_LIST
+#if MCUSH_FCFS && SUPPORT_WS2812_GROUP_LENGTH_LIST
             else if( strcmp( opt.spec->name, "glist_file" ) == 0 )
             {
                 if( mcush_fcfs_get_raw_address( "glist", (const char**)&p, &i ) )
@@ -1385,6 +1394,7 @@ int cmd_ws2812( int argc, char *argv[] )
                 }
             }
 #endif
+#if MCUSH_FCFS
             else if( strcmp( opt.spec->name, "load" ) == 0 )
             {
                 if( mcush_fcfs_get_raw_address( opt.value, (const char**)&p, &i ) )
@@ -1397,7 +1407,7 @@ int cmd_ws2812( int argc, char *argv[] )
                     return 1;
                 }
             }
-
+#endif
         }
         else
             STOP_AT_INVALID_ARGUMENT  
@@ -1411,6 +1421,11 @@ int cmd_ws2812( int argc, char *argv[] )
         {
             shell_write_err( shell_str_length );
             return -1;
+        }
+        if( (length <= 0) || (length > WS2812_LENGTH_MAX) || (group <= 0) )
+        {
+            shell_write_err( shell_str_length );
+            return 1;
         }
         if( ws2812_init( length, group, port, pin ) == 0 )
         {

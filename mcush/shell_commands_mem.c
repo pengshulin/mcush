@@ -256,9 +256,15 @@ int cmd_dump( int argc, char *argv[] )
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
                 parse_int(opt.value, (int*)&addr);
             else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
-                parse_int(opt.value, (int*)&length);
+            {
+                if( parse_int(opt.value, (int*)&length) == 0 )
+                    return -1;
+            }
             else if( STRCMP( opt.spec->name, shell_str_width ) == 0 )
-                parse_int(opt.value, (int*)&width);
+            {
+                if( parse_int(opt.value, (int*)&width) == 0 )
+                    return -1;
+            }
             else if( STRCMP( opt.spec->name, shell_str_compact ) == 0 )
                 compact_mode = 1;
             else if( STRCMP( opt.spec->name, shell_str_ascii ) == 0 )

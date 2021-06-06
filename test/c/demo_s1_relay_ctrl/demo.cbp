@@ -32,9 +32,11 @@
 			<Add option="-Wall" />
 			<Add directory=".." />
 		</Compiler>
-		<Unit filename="demo.c" />
-		<Unit filename="../mcush_api.c" />
+		<Unit filename="../mcush_api.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../mcush_api.h" />
+		<Unit filename="demo.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

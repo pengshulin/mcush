@@ -29,7 +29,7 @@ class LEDS():
 
     DEFAULT_CMD_LINE_LIMIT = 110
 
-    def write( self, mem, offset=0, push=None, fill=None, length=None ):
+    def write( self, mem, offset=0, push=None, fill=None, length=None, flush=True ):
         #mem = mem[:self.length-offset]  # ignore the invalid portion
         cmd = 'W'
         if offset:
@@ -50,15 +50,18 @@ class LEDS():
         while True:
             if len(mem) == 0:
                 if count_data:
-                    # the final line left
-                    if ((len(cmd)+3) >= self.DEFAULT_CMD_LINE_LIMIT) or ((count_argv+1) >= self.controller.DEFAULT_CMD_ARGV_LIMIT):
-                        # too full to add -w option
+                    if not flush:
                         self.controller.writeCommand( cmd )
-                        self.controller.writeCommand( 'W -w')
                     else:
-                        # add -w option
-                        self.controller.writeCommand( cmd.replace('W', 'W -w') )
-                else:
+                        # the final line left
+                        if ((len(cmd)+3) >= self.DEFAULT_CMD_LINE_LIMIT) or ((count_argv+1) >= self.controller.DEFAULT_CMD_ARGV_LIMIT):
+                            # too full to add -w option
+                            self.controller.writeCommand( cmd )
+                            self.controller.writeCommand( 'W -w')
+                        else:
+                            # add -w option
+                            self.controller.writeCommand( cmd.replace('W', 'W -w') )
+                elif flush:
                     # all data written, but not flushed
                     self.controller.writeCommand( 'W -w')
                 break
@@ -83,15 +86,18 @@ class LEDS():
                 count_data = 0
                 count_argv = len(cmd.split())
 
-    def pushf( self, mem, offset=None, length=None ):
-        self.write( mem, offset=offset, push='f', length=length )
+    def flush( self, flush=True ):
+        if flush:
+            self.controller.writeCommand( 'W -w')
 
-    def pushb( self, mem, offset=None, length=None ):
-        self.write( mem, offset=offset, push='b', length=length )
+    def pushf( self, mem, offset=None, length=None, flush=True ):
+        self.write( mem, offset=offset, push='f', length=length, flush=flush )
 
-    def fill( self, mem, offset=None, length=None ):
-        self.write( mem, offset=offset, fill=True, length=length )
+    def pushb( self, mem, offset=None, length=None, flush=True ):
+        self.write( mem, offset=offset, push='b', length=length, flush=flush )
 
+    def fill( self, mem, offset=None, length=None, flush=True ):
+        self.write( mem, offset=offset, fill=True, length=length, flush=flush )
 
 
 class LEDS8(LEDS):

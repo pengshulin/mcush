@@ -6,10 +6,9 @@
 #include "mcush_api.h"
 
 #ifdef WIN32
-const char device_name[] = "\\\\.\\COM14";
+const char device_name[] = "\\\\.\\COM17";
 #else
-//const char device_name[] = "/dev/ttyUSB0";
-const char device_name[] = "/dev/ttyACM1";
+const char device_name[] = "/dev/ttyACM0";
 #endif
 
 void delay_ms(int ms)

@@ -267,6 +267,38 @@ ShellLabStrap = ShellLabStrip
 ShellLabStaticStrap = ShellLabStaticStrip
 
 
+class ShellLabSpotLight(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLabSpotLight'
+    DEFAULT_IDN = re_compile( 'ShellLab-SpotLight,([0-9]+\.[0-9]+.*)' )
+
+    def light( self, index=None, power=None, freq=None, count=None, reset=None, sync=None ):
+        cmd = 's'
+        if index is not None:
+            cmd += ' -i %d'% index
+        if power is not None:
+            cmd += ' -p %d'% power
+        if freq is not None:
+            cmd += ' -f %s'% freq
+        if count is not None:
+            cmd += ' -c %d'% count
+        if reset:
+            cmd += ' -r'
+        if sync:
+            cmd += ' -s'
+        return self.writeCommand(cmd)
+
+    def reset( self ):
+        self.light( reset=True )
+
+    def sync( self ):
+        self.light( sync=True )
+
+
+class ShellLabTowerLamp(ShellLabSpotLight):
+    # TODO: optimize tower lamp APIs 
+    pass
+
+
 class ShellLabCAN(ShellLab):
     DEFAULT_NAME = 'ShellLabCAN'
     DEFAULT_IDN = re_compile( 'ShellLab-C[0-9a-zA-Z\-]*,([0-9]+\.[0-9]+.*)' )
