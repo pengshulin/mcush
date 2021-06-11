@@ -55,7 +55,7 @@ typedef struct {
     char *result;
 } mcush_dev_t;
 
-int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate );
+int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate, int timeout );
 int mcush_close( mcush_dev_t *device );
 int mcush_connect( mcush_dev_t *device );
 int mcush_wait_until_prompts( mcush_dev_t *device );

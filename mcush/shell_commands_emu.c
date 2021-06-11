@@ -6,7 +6,8 @@
 /* Multiple emulated I2C controller                                      */
 /*************************************************************************/
 
-#if USE_CMD_I2C
+#if SUPPORT_I2C
+
 #ifndef CMD_I2C_SDA_PORT
 #define CMD_I2C_SDA_PORT  0
 #endif
@@ -409,7 +410,8 @@ err_port:
 /* Multiple emulated SPI controller                                      */
 /*************************************************************************/
 
-#if USE_CMD_SPI
+#if SUPPORT_SPI
+
 #ifndef CMD_SPI_SDI_PORT
 #define CMD_SPI_SDI_PORT  0
 #endif
@@ -857,7 +859,8 @@ err_port:
 /* Pulses generator                                                      */
 /*************************************************************************/
 
-#if USE_CMD_PULSE
+#if SUPPORT_PULSE
+
 #ifndef CMD_PULSE_PORT
 #define CMD_PULSE_PORT  0
 #endif
@@ -1045,7 +1048,7 @@ err_port:
 /* Dallas 1-wire                                                         */
 /*************************************************************************/
 
-#if USE_CMD_DS1W
+#if SUPPORT_DS1W
 
 #ifndef CMD_DS1W_PORT
 #define CMD_DS1W_PORT  0

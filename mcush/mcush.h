@@ -198,15 +198,19 @@ extern "C" {
 #endif
 #ifndef USE_CMD_I2C
     #define USE_CMD_I2C  1
+    #define SUPPORT_I2C  1
 #endif
 #ifndef USE_CMD_SPI
     #define USE_CMD_SPI  1
+    #define SUPPORT_SPI  1
 #endif
 #ifndef USE_CMD_PULSE
     #define USE_CMD_PULSE  1
+    #define SUPPORT_PULSE  1
 #endif
 #ifndef USE_CMD_DS1W
     #define USE_CMD_DS1W  1
+    #define SUPPORT_DS1W  1
 #endif
 #ifndef USE_CMD_PWM
     #define USE_CMD_PWM  0
@@ -341,7 +345,7 @@ extern "C" {
 
 /* gpio emulated buses */
 
-#if USE_CMD_I2C
+#if defined(SUPPORT_I2C)
 typedef struct {
     uint8_t port_scl, port_sda;
     uint8_t pin_scl, pin_sda;
@@ -358,7 +362,7 @@ int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_by
 #endif
 
  
-#if USE_CMD_SPI
+#if defined(SUPPORT_SPI)
 typedef struct {
     uint8_t port_sdi, port_sdo, port_sck, port_cs;
     uint8_t pin_sdi, pin_sdo, pin_sck, pin_cs;
@@ -377,7 +381,7 @@ spi_cb_t *emu_spi_get_cb( int spi_index );
 #endif
 
 
-#if USE_CMD_PULSE
+#if defined(SUPPORT_PULSE)
 typedef struct {
     uint8_t port;
     uint8_t pin;
@@ -393,7 +397,7 @@ int emu_pulse_generate(int pulse_index, int number );
 #endif
 
 
-#if USE_CMD_DS1W
+#if defined(SUPPORT_DS1W)
 typedef struct {
     uint8_t port;
     uint8_t pin;

@@ -726,6 +726,19 @@ class ShellLabSensor(Mcush.Mcush):
         return self.writeCommand( command ) 
 
  
+class ShellLabSensorT(ShellLabSensor):
+    '''DS18B20 based temperature sensor'''
+    DEFAULT_NAME = 'ShellLab-Sensor-T'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-T,([0-9]+\.[0-9]+.*)' )
+
+    def getT( self ):
+        ret = self.measure()
+        k,v = ret[0].split(':')
+        if k == 'T':
+            return float(v)
+        return None 
+
+
 class ShellLabSensorTH(ShellLabSensor):
     '''SHT30 based temperature/humidity sensor'''
     DEFAULT_NAME = 'ShellLab-Sensor-TH'

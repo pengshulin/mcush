@@ -96,6 +96,10 @@ extern uint32_t SystemCoreClock;
     #define configQUEUE_REGISTRY_SIZE           8
 #endif
 
+#ifndef configUSE_TICKLESS_IDLE
+    #define configUSE_TICKLESS_IDLE             0
+#endif
+
 
 
 #define INCLUDE_vTaskDelay                      1

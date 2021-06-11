@@ -528,7 +528,11 @@ int cmd_test( int argc, char *argv[] )
           'f', shell_str_file, shell_str_file, "file exist" },
 #if USE_CMD_TEST_ERRNO
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
-          'e', shell_str_error, shell_str_error, "errno match" },
+          'e', shell_str_error, "errno_cmp", "errno ==" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'G', "gt", "errno_cmp", "errno >" },
+        { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
+          'L', "lt", "errno_cmp", "errno <" },
 #endif
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           'n', shell_str_not, shell_str_not, shell_str_not },
@@ -542,12 +546,14 @@ int cmd_test( int argc, char *argv[] )
     int (*cmd)(int argc, char *argv[]) = 0;
     int port=-1, bit=-1;
 #if USE_CMD_TEST_ERRNO
-    uint8_t errno_set=0;
-    int errno;
+    char errno_cmp_set=0;
+    int errno_compare;
 #endif
     const char *pport=0;
     char *pbit;
     int port_num = hal_gpio_get_port_num();
+    const char *pfile=0;
+    int pass=0;
  
     mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
@@ -556,14 +562,16 @@ int cmd_test( int argc, char *argv[] )
         {
             if( STRCMP( opt.spec->name, shell_str_pin ) == 0 )
                 pport = opt.value;
+            else if( STRCMP( opt.spec->name, shell_str_file ) == 0 )
+                pfile = opt.value;
             else if( STRCMP( opt.spec->name, shell_str_not ) == 0 )
                 not_set = 1;
 #if USE_CMD_TEST_ERRNO
-            else if( STRCMP( opt.spec->name, shell_str_error ) == 0 )
+            else if( strcmp( opt.spec->value, "errno_cmp" ) == 0 )
             {
-                if( parse_int(opt.value, (int*)&errno) == 0 )
+                if( parse_int(opt.value, (int*)&errno_compare) == 0 )
                     return -1;
-                errno_set = 1;
+                errno_cmp_set = opt.spec->alias;
             }
 #endif
             else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
@@ -585,7 +593,13 @@ int cmd_test( int argc, char *argv[] )
     /* command not found, exec error */ 
     if( cmd == 0 )
         return 1;
- 
+
+    if( pfile )
+    {
+        if( mcush_file_exists( pfile ) )
+            pass = 1;
+    }
+
     if( pport )
     {
         port = strtol( pport, &pbit, 10 );
@@ -617,38 +631,40 @@ int cmd_test( int argc, char *argv[] )
             goto port_error;
 
         /* check test condition */
-        if( hal_gpio_get( port, 1<<bit ) == 0 )
-        {
-            if( not_set == 0 )
-                return 0; /* unmatched, ignore command */
-        }
-        else
-        {
-            if( not_set )
-                return 0; /* unmatched, ignore command */
-        }
+        if( hal_gpio_get( port, 1<<bit ) != 0 )
+            pass = 1;
     }
 
 #if USE_CMD_TEST_ERRNO
-    if( errno_set )
+    if( errno_cmp_set )
     {
-        if( get_errno() != errno )
+        switch( errno_cmp_set )
         {
-            if( not_set == 0 )
-                return 0; /* unmatched, ignore command */
-        }
-        else
-        {
-            if( not_set )
-                return 0; /* unmatched, ignore command */
+        case 'G':  
+            if( get_errno() > errno_compare )
+                pass = 1;
+            break;
+        case 'L':  
+            if( get_errno() < errno_compare )
+                pass = 1;
+            break;
+        case 'e':  
+            if( get_errno() == errno_compare )
+                pass = 1;
+            break;
         }
     }
 #endif
 
-    if( cmd( argc, argv ) != 0 )
-        return 1;
+    if( not_set )
+        pass ^= 1;
 
-    return 0;
+    if( pass  )
+        //return cmd( argc, argv ) != 0 ? 1 : 0;
+        return cmd( argc, argv );
+    else
+        return 0;
+ 
 port_error:
     shell_write_err( shell_str_port_bit );
     return 1;

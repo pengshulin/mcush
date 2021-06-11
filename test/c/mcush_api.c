@@ -18,7 +18,7 @@
 #include "mcush_api.h"
 
 
-int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
+int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate, int timeout )
 {
     if( (device==NULL) || (ttyname==NULL) )
         return MCUSH_ERR_API;
@@ -26,7 +26,7 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
 
 #ifdef WIN32
     HANDLE handle;
-    COMMTIMEOUTS timeout;
+    COMMTIMEOUTS com_timeout;
     DCB dcb;
 
     handle = CreateFile( ttyname, GENERIC_READ | GENERIC_WRITE, 0, NULL,
@@ -37,12 +37,12 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     device->handle = handle;
 
     SetupComm( handle, 1024, 1024);
-    timeout.ReadIntervalTimeout = 100;
-    timeout.ReadTotalTimeoutMultiplier = 5000;
-    timeout.ReadTotalTimeoutConstant = 5000;
-    timeout.WriteTotalTimeoutMultiplier = 500;
-    timeout.WriteTotalTimeoutConstant = 2000;
-    SetCommTimeouts(handle, &timeout);
+    com_timeout.ReadIntervalTimeout = (timeout==0) ? 1 : timeout*1000;
+    com_timeout.ReadTotalTimeoutMultiplier = 1;
+    com_timeout.ReadTotalTimeoutConstant = timeout*1000;
+    com_timeout.WriteTotalTimeoutMultiplier = 1;
+    com_timeout.WriteTotalTimeoutConstant = timeout*1000;
+    SetCommTimeouts(handle, &com_timeout);
 
     GetCommState(handle, &dcb);
     dcb.BaudRate = baudrate;
@@ -56,11 +56,6 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     struct termios newtio;
     speed_t speed;
 
-    device->handle = open( ttyname, O_RDWR);
-    if( device->handle < 0 )
-        return MCUSH_ERR_IO;
-
-    device->ttyname = strdup(ttyname);
     switch( baudrate )
     {
     case 150: speed = B150; break;
@@ -81,10 +76,20 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     case 460800: speed = B460800; break;
     default: return MCUSH_ERR_API;
     }
-    cfsetispeed( &newtio, speed );
-    cfsetospeed( &newtio, speed );
 
+    device->handle = open( ttyname, O_RDWR);
+    if( device->handle < 0 )
+        return MCUSH_ERR_IO;
+
+    device->ttyname = strdup(ttyname);
     memset( &newtio, 0, sizeof(struct termios) );
+    ret = tcgetattr( device->handle, &newtio );
+    if( ret < 0 )
+        return MCUSH_ERR_IO;
+    ret = tcflush( device->handle, TCIOFLUSH );
+    if( ret < 0 )
+        return MCUSH_ERR_IO;
+
     newtio.c_iflag = IGNPAR;
     newtio.c_oflag = 0;
     newtio.c_cflag = CS8 | CLOCAL | CREAD;
@@ -94,8 +99,8 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     newtio.c_cc[VERASE]   = 0;     /* del */
     newtio.c_cc[VKILL]    = 0;     /* @ */
     newtio.c_cc[VEOF]     = 0;     /* Ctrl-d */
-    newtio.c_cc[VTIME]    = 50;    /* inter-character timer unused */
-    newtio.c_cc[VMIN]     = 1;     /* blocking read until 1 character arrives */
+    newtio.c_cc[VTIME]    = (timeout==0) ? 1 : timeout*10;    /* inter-character timer */
+    newtio.c_cc[VMIN]     = 0;     /* blocking read */
     newtio.c_cc[VSWTC]    = 0;     /* '\0' */
     newtio.c_cc[VSTART]   = 0;     /* Ctrl-q */
     newtio.c_cc[VSTOP]    = 0;     /* Ctrl-s */
@@ -106,9 +111,7 @@ int mcush_open( mcush_dev_t *device, const char *ttyname, int baudrate )
     newtio.c_cc[VWERASE]  = 0;     /* Ctrl-w */
     newtio.c_cc[VLNEXT]   = 0;     /* Ctrl-v */
     newtio.c_cc[VEOL2]    = 0;     /* '\0' */
-    ret = tcflush( device->handle, TCIFLUSH );
-    if( ret < 0 )
-        return MCUSH_ERR_IO;
+    cfsetspeed( &newtio, speed );
     ret = tcsetattr( device->handle, TCSANOW, &newtio );
     if( ret < 0 )
         return MCUSH_ERR_IO;
@@ -130,6 +133,13 @@ int mcush_close( mcush_dev_t *device )
         device->handle = 0;
     }
     return 1;
+}
+
+
+int mcush_set_timeout( mcush_dev_t *device, int timeout )
+{
+    /* TODO: modify new timeout and return the old one */
+    return 0;
 }
 
 
