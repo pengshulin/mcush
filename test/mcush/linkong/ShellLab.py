@@ -210,6 +210,8 @@ class ShellLabStrip(Mcush.Mcush):
             cmd += ' -C %d'% count
         return self.writeCommand(cmd)
 
+    strip = strap
+
     def reset( self, freq=1 ):
         self.strap( 0, freq=freq )
 

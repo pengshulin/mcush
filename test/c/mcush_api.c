@@ -328,7 +328,7 @@ int mcush_scpi_rst( mcush_dev_t *device )
     int ret;
 
     ret = mcush_write_command( device, "*rst" );
-    if( ret <= 0 )
+    if( ret < 0 )
         return 0;
     return 1;
 }
