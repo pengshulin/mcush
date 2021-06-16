@@ -18,7 +18,7 @@ void delay_ms(int ms)
 }
 
 
-void print_usage( int argc, char *argv[] )
+static void print_usage( int argc, char *argv[] )
 {
     fprintf(stderr, "Usage: %s [-p port] [-b baudrate] [-t timeout] command [<parms>]\n", argv[0]);
     fprintf(stderr, "commands list:\n");
