@@ -268,6 +268,12 @@ def dt2s( dt, need_ms=False ):
     else:
         return '%d:%02d:%02d'% (hour, minute, sec)
 
+def s2dt( ts ):
+    # format 0:00:00.000 -> float
+    h, m, s = ts.split(':')
+    h, m, s = int(h), int(m), float(s)
+    return h*3600+m*60+s
+
 # array convert 
 def s2fa( val ):
     length = int(len(val)/4)

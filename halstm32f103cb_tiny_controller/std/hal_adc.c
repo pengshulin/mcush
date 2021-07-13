@@ -113,7 +113,7 @@ void hal_adc_deinit( void )
 {
     int i;
     for( i=0; i<HAL_ADC_NUM; i++ )
-        hal_gpio_set_input( _adc_ports[i], 1<<(_adc_pins[i]) );
+        hal_gpio_set_input( _adc_ports[i], 1<<(_adc_pins[i]), 0 );
     ADC_DeInit( HAL_ADCx );
     DMA_Cmd( HAL_DMAx_Channely, DISABLE );
     DMA_DeInit( HAL_DMAx_Channely );

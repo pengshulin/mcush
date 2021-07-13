@@ -119,7 +119,7 @@ void hal_pwm_deinit( void )
 {
     int i;
     for( i=0; i<HAL_PWM_NUM; i++ )
-        hal_gpio_set_input( _pwm_ports[i], 1<<(_pwm_pins[i]) );
+        hal_gpio_set_input( _pwm_ports[i], 1<<(_pwm_pins[i]), 0 );
 }
 
 

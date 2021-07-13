@@ -395,7 +395,7 @@ class ShellLabCANopen(ShellLabCAN):
 
     # Object dictionaries
     def readObject( self, id, index, subindex ):
-        self.canWrite( RSDO+id, [0x5F, index&0xFF, (index>>8)&0xFF, subindex, 0, 0, 0, 0] )
+        self.canWrite( RSDO+id, [0x40, index&0xFF, (index>>8)&0xFF, subindex, 0, 0, 0, 0] )
         bytes_required = None
         t0 = time.time()
         responsed = None
