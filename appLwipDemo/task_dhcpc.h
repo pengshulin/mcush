@@ -4,7 +4,7 @@
 
 
 #define TASK_DHCPC_NAME         "dhcpcT"
-#define TASK_DHCPC_STACK_SIZE   (2*1024)  // (3*1024)
+#define TASK_DHCPC_STACK_SIZE   (3*1024)
 #define TASK_DHCPC_PRIORITY     OS_PRIORITY_LOW
 #define TASK_DHCPC_QUEUE_SIZE   4
 

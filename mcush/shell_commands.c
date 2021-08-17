@@ -386,6 +386,8 @@ int cmd_loop( int argc, char *argv[] )
           'l', shell_str_loop, "loop_delay_ms", "default 1000ms" },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED,
           'n', shell_str_number, "cycle_limit", "cycle_limit" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'N', "newline", 0, "newline" },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED, 
           0, shell_str_command, 0, "cmd with args" },
         { MCUSH_OPT_NONE } };
@@ -393,7 +395,7 @@ int cmd_loop( int argc, char *argv[] )
     mcush_opt opt;
     unsigned int loop=1, loop_delay=1000, loop_tick;
     char c;
-    uint8_t cycle_set=0, cmd_set=0;
+    uint8_t cycle_set=0, cmd_set=0, newline_set=0;
     int cycle_current=0, cycle_limit=-1;
     int (*cmd)(int argc, char *argv[]) = 0;
  
@@ -415,6 +417,8 @@ int cmd_loop( int argc, char *argv[] )
                     return -1;
                 cycle_set = 1;
             }
+            else if( strcmp( opt.spec->name, "newline" ) == 0 )
+                newline_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_command ) == 0 )
             {
                 cmd_set = 1;
@@ -448,6 +452,9 @@ loop_start:
             return 0;
     }
     
+    if( newline_set )
+        shell_newline();
+ 
     LOOP_CHECK 
     return 0;
 }

@@ -266,7 +266,7 @@ class Grbl( _GCodeCommon ):
     DEFAULT_NAME = 'GRBL'
     DEFAULT_PROMPTS = re.compile( '(ok|(error|ALARM):[0-9]+)' )
     #DEFAULT_PROMPTS = re.compile( '(ok|(error|ALARM):[0-9]+|\[MSG:.*\])' )
-    CONNECT_PROMPT = re.compile( 'Grbl [0-9]\.[0-9][a-z] \[.*\]' )
+    CONNECT_PROMPT = re.compile( 'Grbl [0-9]\.[0-9][a-z].* \[.*\]' )
     DEFAULT_LINE_PROMPT_MODE = True
     settings = {} 
 
@@ -297,7 +297,7 @@ class Grbl( _GCodeCommon ):
         
     def printSettings( self ):
         for k,v in self.settings.items():
-            print( '$%d = %f (%s)'% (k,v,SET_CODE[k]) )
+            print( '$%d = %f (%s)'% (k,v,SET_CODE.get(k)) )
 
     def waitForReady( self ):
         while True:

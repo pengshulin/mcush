@@ -4,7 +4,7 @@
 #define _TASK_MODBUS_TCP_H_
 
 #define TASK_MODBUS_TCP_STACK_SIZE  (4*1024)
-#define TASK_MODBUS_TCP_PRIORITY    (MCUSH_PRIORITY-1)
+#define TASK_MODBUS_TCP_PRIORITY    (OS_PRIORITY_LOW)
 #define TASK_MODBUS_TCP_QUEUE_SIZE  (8)
 
 #ifndef MODBUS_TCP_NUM
@@ -51,10 +51,12 @@ struct modbus_tcp_state
     uint8_t state;
     uint8_t retries;
     uint16_t client_id;
-    struct tcp_pcb *pcb;
+    struct tcp_pcb *tpcb;
     struct pbuf *p;  /* chain buffer */
     int buf_len;
     char buf[MODBUS_TCP_BUF_LEN_MAX];
+    uint32_t packet_count;
+    uint32_t tick_connect;
     uint32_t tick_last;
 };
 

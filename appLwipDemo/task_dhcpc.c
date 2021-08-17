@@ -116,8 +116,9 @@ void reset_address(void)
 
 void do_lwip_init(void)
 {
-    char buf[256];
     ip_addr_t ipaddr, netmask, gateway;
+    char buf[256];
+    int i;
 
     hal_eth_init();
 
@@ -125,10 +126,13 @@ void do_lwip_init(void)
    
     if( !load_mac_from_conf_file("/s/mac") && !load_mac_from_conf_file("/c/mac") )
     {
-        logger_const_error( "no mac config" );
-        memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
-        /* TODO: use serial number as mac addr */
-        //hal_get_serial_number(buf);
+        logger_const_warn( "no mac config" );
+        /* fixed address: conflicts when there's more than one device */
+        //memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
+        memcpy( mac_address_init, (void*)"\x4C\x4B\x53\x4F\x46\x54", 6 ); /* LKSOFT */
+        /* dynamic address: use serial number to encrypt the last 3 bytes of mac addr */
+        for( i=0; i<hal_get_serial_number(buf); i++ )
+            mac_address_init[3+i%3] ^= buf[i];
     }
     logger_info( sprintf_mac( buf, mac_address_init, "mac:", 0 ) );
  

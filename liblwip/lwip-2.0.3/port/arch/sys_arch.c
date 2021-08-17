@@ -109,6 +109,7 @@ void sys_mbox_free(sys_mbox_t* mbox)
 #endif /* SYS_STATS */
 
         // TODO notify the user of failure.
+        //halt("mbox freed while not empty");  // for debug
     }
 
     vQueueDelete( *mbox );

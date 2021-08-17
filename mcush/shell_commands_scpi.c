@@ -16,7 +16,7 @@
 
 
 #if USE_CMD_SCPI_IDN
-__weak int cmd_scpi_idn( int argc, char *argv[] )
+int _def_cmd_scpi_idn( int argc, char *argv[] )
 {
     char buf[64];
 
@@ -33,11 +33,17 @@ __weak int cmd_scpi_idn( int argc, char *argv[] )
 
     return 0;
 }
+
+
+__weak int cmd_scpi_idn( int argc, char *argv[] )
+{
+    return _def_cmd_scpi_idn( argc, argv );
+}
 #endif
 
 
 #if USE_CMD_SCPI_RST
-__weak int cmd_scpi_rst( int argc, char *argv[] )
+int _def_cmd_scpi_rst( int argc, char *argv[] )
 {
     /* *rst command ignore all arguments */
     (void)argc;
@@ -45,6 +51,12 @@ __weak int cmd_scpi_rst( int argc, char *argv[] )
 
     hal_platform_reset();
     return 0;
+}
+
+
+__weak int cmd_scpi_rst( int argc, char *argv[] )
+{
+    return _def_cmd_scpi_rst( argc, argv );
 }
 #endif
 

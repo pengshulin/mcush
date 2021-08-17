@@ -756,7 +756,6 @@ int cmd_fcfs( int argc, char *argv[] )
 
 #if USE_CMD_SPIFFS
 #include "mcush_vfs_spiffs.h"
-#include "spi_flash.h"
 int cmd_spiffs( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {
@@ -815,21 +814,20 @@ int cmd_spiffs( int argc, char *argv[] )
     }
     else if( strcmp( cmd, shell_str_erase ) == 0 )
     {
-        /* umount and erase bulk/sector and remount */
-        if( ! mcush_spiffs_umount() )
+        i = mcush_spiffs_mounted();
+        if( i && !mcush_spiffs_umount() )
             return 1;
-        if( addr == (void*)-1 )
-            sFLASH_EraseBulk();
-        else
-            sFLASH_EraseSector( (uint32_t)addr );
-        if( ! mcush_spiffs_mount() )
+        if( hal_spiffs_flash_erase( (uint32_t)addr, (uint32_t)0x100 ) != SPIFFS_OK )
+            return 1;
+        if( i && !mcush_spiffs_mount() )
             return 1;
     }
     else if( strcmp( cmd, shell_str_read ) == 0 )
     {
         if( addr == (void*)-1 )
             addr = 0;
-        sFLASH_ReadBuffer( (void*)buf, (int)addr, 256 );
+        if( hal_spiffs_flash_read( (uint32_t)addr, 256, (uint8_t*)buf ) != SPIFFS_OK )
+            return 1;
         if( compact_mode )
             ascii_mode = 0;
         for( i=0; i<16; i++ )
@@ -860,8 +858,10 @@ int cmd_spiffs( int argc, char *argv[] )
         if( shell_make_16bits_data_buffer( &p, &len ) ) 
         {
             len *= 2;
-            sFLASH_WritePage( (uint8_t*)p, (int)addr, len > 256 ? 256 : (uint16_t)len );
+            i = hal_spiffs_flash_write( (uint32_t)addr, len>256?256:len, (uint8_t*)p );
             os_free( p );
+            if( i != SPIFFS_OK )
+                return 1;
         }
         else
             return 1;

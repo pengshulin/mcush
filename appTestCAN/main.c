@@ -7,8 +7,6 @@
 int main(void)
 {
     mcush_init();
-    //test_delay_us();
-    //test_delay_ms();
     task_blink_init(); 
     task_logger_init(); 
     task_can_init(); 

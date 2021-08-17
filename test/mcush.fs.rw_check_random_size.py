@@ -5,7 +5,7 @@ from mcush import *
 
 def main(argv=None):
     random.seed()
-    s = Mcush.Mcush()
+    s = Mcush.Mcush( check_idn=False )
     #print( "formating..." )
     #s.spiffsFormat()
     for i in xrange( Env.RETRY):

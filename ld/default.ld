@@ -1,6 +1,4 @@
-/* deault link scripts */
-
-USER_STACK_ADDR = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+/* deault link scripts: code in FLASH and .bss in SRAM */
 
 SECTIONS
 {
@@ -17,18 +15,6 @@ SECTIONS
         KEEP(*(.signature))
     } > FLASH
 
-    /* obseleted, use /r/init or /c/init instead */
-    /*.init_script :
-    {
-        _isdata = . ;
-        KEEP(*(.init_script))
-        BYTE(0);
-    } > FLASH */
-
-    /*    __exidx_start = . ;
-        .ARM.exidx : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
-        __exidx_end = .;
-    */
     .text :
     {
         . = ALIGN(4);
@@ -77,16 +63,11 @@ SECTIONS
         . = . + USER_HEAP_SIZE ;
         . = ALIGN(4);
         _eheap = . ;
+        . = . + USER_STACK_SIZE ; /* request stack area just for usage statistics */
     } > SRAM
 
-    .userstack (USER_STACK_ADDR) :
-    {
-        . = ALIGN(4);
-        _sstack = . ;
-        . = . + USER_STACK_SIZE ;
-        . = ALIGN(4);
-        _estack = . ;
-    } > SRAM 
+    _sstack = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+    _estack = ORIGIN(SRAM) + LENGTH(SRAM);
 
     /DISCARD/ :
     {
@@ -103,5 +84,5 @@ SECTIONS
 
 
 ASSERT( _sidata + SIZEOF(.data) <= ORIGIN(FLASH) + LENGTH(FLASH), "flash full, fail to append data image" )
-ASSERT( _eheap <= _sstack, "heap size too large" )
+ASSERT( _eheap <= _sstack, "heap/stack conflict" )
 

@@ -1,6 +1,4 @@
-/* deault link scripts for programs running in sram */
-
-USER_STACK_ADDR = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+/* code runs in sram */
 
 SECTIONS
 {
@@ -52,16 +50,12 @@ SECTIONS
         . = . + USER_HEAP_SIZE ;
         . = ALIGN(4);
         _eheap = . ;
+        . = . + USER_STACK_SIZE ; /* request stack area just for usage statistics */
     } > SRAM
 
-    .userstack (USER_STACK_ADDR) :
-    {
-        . = ALIGN(4);
-        _sstack = . ;
-        . = . + USER_STACK_SIZE ;
-        . = ALIGN(4);
-        _estack = . ;
-    } > SRAM 
+    _sstack = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+    _estack = ORIGIN(SRAM) + LENGTH(SRAM);
+
 
     /DISCARD/ :
     {
@@ -78,4 +72,5 @@ SECTIONS
 
 
 ASSERT( _sidata + SIZEOF(.data) <= ORIGIN(SRAM) + LENGTH(SRAM), "sram full, fail to append data image" )
+ASSERT( _eheap <= _sstack, "heap/stack conflict" )
 

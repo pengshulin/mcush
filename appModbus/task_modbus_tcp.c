@@ -15,11 +15,17 @@
 
 LOGGER_MODULE_NAME("modbus");
 
+#define DEBUG_MODBUS  1
+
+
 os_queue_handle_t queue_modbus_tcp;
 
-struct tcp_pcb *modbus_pcb;
-struct tcp_pcb *modbus_client_pcb[MODBUS_TCP_NUM];
+struct tcp_pcb *modbus_tpcb;
+struct tcp_pcb *modbus_client_tpcb[MODBUS_TCP_NUM];
 unsigned int modbus_client_id_new;
+
+void do_modbus_tcp_close(struct tcp_pcb *tpcb, struct modbus_tcp_state *es);
+//void do_modbus_tcp_send(struct tcp_pcb *tpcb, struct modbus_tcp_state *es);
 
 
 int send_modbus_tcp_event( uint8_t type, uint32_t data )
@@ -33,179 +39,98 @@ int send_modbus_tcp_event( uint8_t type, uint32_t data )
 }
 
 
-static void modbus_tcp_free(struct modbus_tcp_state *es)
+void modbus_tcp_error_cb(void *arg, err_t err)
 {
-    if( es != NULL )
-    {
-        if( es->p )
-        {
-            /* free the buffer chain if present */
-            pbuf_free(es->p);
-        }
-        mem_free(es);
-    }
-}
-
-
-static void modbus_tcp_close(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
-{
-    int i, id=es->client_id;
-
-    tcp_arg(tpcb, NULL);
-    tcp_sent(tpcb, NULL);
-    tcp_recv(tpcb, NULL);
-    tcp_err(tpcb, NULL);
-    tcp_poll(tpcb, NULL, 0);
-    modbus_tcp_free(es);
-    tcp_close(tpcb);
-    /* unregister the client pcb */
-    for( i=0; i<MODBUS_TCP_NUM; i++ )
-    {
-        if( modbus_client_pcb[i] == tpcb )
-            modbus_client_pcb[i] = 0;
-    }
-    logger_printf_info( "client #%u closed", id );
-}
-
-
-static void modbus_tcp_send(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
-{
-    struct pbuf *ptr;
-    err_t wr_err = ERR_OK;
-
-    while( (wr_err == ERR_OK) && (es->p != NULL) && (es->p->len <= tcp_sndbuf(tpcb)))
-    {
-        ptr = es->p;
-
-        /* enqueue data for transmission */
-        wr_err = tcp_write(tpcb, "MODBUS RETURN:", 14, 1);
-        wr_err = tcp_write(tpcb, ptr->payload, ptr->len, 1);
-        if( wr_err == ERR_OK )
-        {
-            u16_t plen;
-            plen = ptr->len;
-            /* continue with next pbuf in chain (if any) */
-            es->p = ptr->next;
-            if(es->p != NULL)
-            {
-                /* new reference! */
-                pbuf_ref(es->p);
-            }
-            /* chop first pbuf from chain */
-            pbuf_free(ptr);
-            /* we can read more data now */
-            tcp_recved(tpcb, plen);
-        }
-        else if(wr_err == ERR_MEM)
-        {
-            /* we are low on memory, try later / harder, defer to poll */
-            es->p = ptr;
-        }
-        else
-        {
-            /* other problem ?? */
-        }
-    }
-}
-
-
-static void modbus_tcp_error(void *arg, err_t err)
-{
-    struct modbus_tcp_state *es;
-
-    LWIP_UNUSED_ARG(err);
-
-    es = (struct modbus_tcp_state *)arg;
-                
-    logger_const_error( "tcp_err" );
-
-    modbus_tcp_free(es);
-}
-
-
-static err_t modbus_tcp_poll(void *arg, struct tcp_pcb *tpcb)
-{
-    err_t ret_err;
-    struct modbus_tcp_state *es;
-
-    es = (struct modbus_tcp_state *)arg;
-    if( es != NULL )
-    {
-        if( es->p != NULL )
-        {
-            /* there is a remaining pbuf (chain)  */
-            modbus_tcp_send(tpcb, es);
-        }
-        else
-        {
-            /* no remaining pbuf (chain)  */
-            if(es->state == ES_CLOSING)
-            {
-                modbus_tcp_close(tpcb, es);
-            }
-        }
-        ret_err = ERR_OK;
-    }
+#if DEBUG_MODBUS
+    LOGGER_MODULE_NAME("modbus.err");
+    struct modbus_tcp_state *es=(struct modbus_tcp_state *)arg;
+    if( err == ERR_ABRT )
+        logger_printf_debug( "#%d abrt", es->client_id );
+    else if( err == ERR_RST )
+        logger_printf_debug( "#%d rst", es->client_id );
     else
+        logger_printf_debug( "#%d err", es->client_id );
+#else
+    (void)(arg);
+    (void)(err);
+#endif
+}
+
+
+err_t modbus_tcp_poll_cb(void *arg, struct tcp_pcb *tpcb)
+{
+#if DEBUG_MODBUS
+    LOGGER_MODULE_NAME("modbus.poll");
+    err_t ret_err = ERR_OK;
+    struct modbus_tcp_state *es=(struct modbus_tcp_state *)arg;
+
+    if( es != NULL )
     {
-        /* nothing to be done */
-        tcp_abort(tpcb);
-        ret_err = ERR_ABRT;
+        logger_printf_debug( "#%u 0x%08X", es->client_id, (uint32_t)tpcb );
     }
     return ret_err;
+#else
+    (void)(arg);
+    (void)(tpcb);
+    return ERR_OK;
+#endif
 }
 
 
-static err_t modbus_tcp_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
+err_t modbus_tcp_sent_cb(void *arg, struct tcp_pcb *tpcb, u16_t len)
 {
-    struct modbus_tcp_state *es;
+#if DEBUG_MODBUS
+    //LOGGER_MODULE_NAME("modbus.sent");
+    //struct modbus_tcp_state *es=(struct modbus_tcp_state *)arg;
 
-    LWIP_UNUSED_ARG(len);
-
-    es = (struct modbus_tcp_state *)arg;
-    es->retries = 0;
-
-    if( es->p != NULL )
-    {
-        /* still got pbufs to send */
-        tcp_sent(tpcb, modbus_tcp_sent);
-        modbus_tcp_send(tpcb, es);
-    }
-    else
-    {
-        /* no more pbufs to send */
-        if(es->state == ES_CLOSING)
-        {
-            modbus_tcp_close(tpcb, es);
-        }
-    }
+    (void)arg;
+    (void)tpcb;
+    (void)len;
+    //logger_printf_debug( "#%d %d bytes sent", es->client_id, len );
     return ERR_OK;
+
+    //es->retries = 0;
+
+    //if( es->p != NULL )
+    //{
+    //    /* still got pbufs to send */
+    //    tcp_sent(tpcb, modbus_tcp_sent_cb);
+    //    do_modbus_tcp_send(tpcb, es);
+    //}
+    //else
+    //{
+    //    /* no more pbufs to send */
+    //    if(es->state == ES_CLOSING)
+    //    {
+    //        logger_const_error( "modbus_tcp_sent_cb ES_CLOSING" );
+    //        do_modbus_tcp_close(tpcb, es);
+    //    }
+    //}
+    //return ERR_OK;
+#else
+    (void)(arg);
+    (void)(tpcb);
+    (void)(len);
+    return ERR_OK;
+#endif
 }
 
             
-static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
+    LOGGER_MODULE_NAME("modbus.recv");
     struct modbus_tcp_state *es;
     err_t ret_err;
     struct pbuf *p2;
     modbus_tcp_head_t *head;
 
-    LWIP_ASSERT("arg != NULL",arg != NULL);
     es = (struct modbus_tcp_state *)arg;
     if( p == NULL )
     {
         /* remote host closed connection */
         es->state = ES_CLOSING;
-        if( es->p == NULL )
-        {
-            /* we're done sending, close it */
-            modbus_tcp_close(tpcb, es);
-        }
-        else
-        {
-            /* we're not done yet */
-            modbus_tcp_send(tpcb, es);
-        }
+        //logger_const_info( "remote closed" );
+        do_modbus_tcp_close(tpcb, es);
         ret_err = ERR_OK;
     }
     else if(err != ERR_OK)
@@ -213,6 +138,7 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
         /* cleanup, for unknown reason */
         if( p != NULL )
         {
+            logger_const_warn( "unknown" );
             pbuf_free(p);
         }
         ret_err = err;
@@ -227,7 +153,7 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
             if( p2->len + es->buf_len + 1 > MODBUS_TCP_BUF_LEN_MAX )
             {
                 //logger_const_error( "buffer too small to recv" );
-                memcpy( es->buf+es->buf_len, p2->payload, MODBUS_TCP_BUF_LEN_MAX-p2->len );
+                memcpy( es->buf+es->buf_len, p2->payload, MODBUS_TCP_BUF_LEN_MAX-es->buf_len );
                 es->buf_len = MODBUS_TCP_BUF_LEN_MAX;
                 break;
             }
@@ -247,7 +173,7 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
             if( es->buf_len != sizeof(modbus_tcp_head_t) - 2 + head->bytes )
             {
                 /* invalid data length */
-                logger_const_warn( "length err" );
+                //logger_const_warn( "length err" );
             }
             else
             {
@@ -271,6 +197,7 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     else
     {
         /* ignore all data when state not ready */
+        logger_const_warn( "not ready, ignored" );
         tcp_recved(tpcb, p->tot_len);
         pbuf_free(p);
         ret_err = ERR_OK;
@@ -279,8 +206,9 @@ static err_t modbus_tcp_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
 }
 
 
-static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
+err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
 {
+    LOGGER_MODULE_NAME("modbus.accept");
     err_t ret_err;
     struct modbus_tcp_state *es;
     int i;
@@ -289,13 +217,14 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
     LWIP_UNUSED_ARG(arg);
     if((err != ERR_OK) || (newpcb == NULL))
     {
+        logger_const_debug( "err" );
         return ERR_VAL;
     }
 
     /* search for free slot and register */
     for( i=0; i<MODBUS_TCP_NUM; i++ )
     {
-        if( modbus_client_pcb[i] == NULL )
+        if( modbus_client_tpcb[i] == NULL )
             break;
     }
     if( i >= MODBUS_TCP_NUM )
@@ -303,18 +232,19 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
         /* check for the the first timeout socket (this is not the best policy) */
         for( i=0; i<MODBUS_TCP_NUM; i++ )
         {
-            es = (struct modbus_tcp_state *)(modbus_client_pcb[i]->callback_arg);
+            es = (struct modbus_tcp_state *)(modbus_client_tpcb[i]->callback_arg);
             if( os_tick() - es->tick_last > MODBUS_TCP_TIMEOUT * configTICK_RATE_HZ )
             {
                 /* find one, close it */
-                modbus_tcp_close( modbus_client_pcb[i], es );
+                logger_const_error( "modbus_tcp_accept_cb gc" );
+                do_modbus_tcp_close( modbus_client_tpcb[i], es );
                 break;
             }
         }
         if( i >= MODBUS_TCP_NUM )
             return ERR_VAL;  /* fail */
     }
-    modbus_client_pcb[i] = newpcb;
+    modbus_client_tpcb[i] = newpcb;
 
     /* Unless this pcb should have NORMAL priority, set its priority now.
        When running out of pcbs, low priority pcbs can be aborted to create
@@ -325,27 +255,103 @@ static err_t modbus_tcp_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
     if (es != NULL) 
     {
         es->state = ES_READY;
-        es->pcb = newpcb;
+        es->tpcb = newpcb;
+        es->packet_count = 0;
         es->retries = 0;
         es->client_id = ++modbus_client_id_new;
         es->p = NULL;
+        es->tick_connect = es->tick_last = os_tick();
         /* pass newly allocated es to our callbacks */
         tcp_arg(newpcb, es);
-        tcp_recv(newpcb, modbus_tcp_recv);
-        tcp_err(newpcb, modbus_tcp_error);
-        tcp_poll(newpcb, modbus_tcp_poll, 0);
-        tcp_sent(newpcb, modbus_tcp_sent);
-        ret_err = ERR_OK;
+        tcp_recv(newpcb, modbus_tcp_recv_cb);
+        tcp_err(newpcb, modbus_tcp_error_cb);
+        tcp_sent(newpcb, modbus_tcp_sent_cb);
+        //tcp_poll(newpcb, modbus_tcp_poll_cb, 0);
         sprintf_ip( buf, newpcb->remote_ip.addr, 0, 0 );
-        logger_printf_info( "client #%u (%s) connected 0x%08X", es->client_id, buf, (void*)newpcb );
+        logger_printf_info( "client #%u (%s/%d) connected 0x%08X", es->client_id, buf, newpcb->remote_port, (void*)newpcb );
+        ret_err = ERR_OK;
     }
     else
     {
-        ret_err = ERR_MEM;
         logger_const_error( "mem err" );
+        ret_err = ERR_MEM;
     }
     return ret_err;
 }
+
+
+void do_modbus_tcp_close(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
+{
+    int i;
+
+    if( tpcb != NULL )
+    {
+        //tcp_arg(tpcb, NULL);
+        //tcp_sent(tpcb, NULL);
+        //tcp_recv(tpcb, NULL);
+        //tcp_err(tpcb, NULL);
+        //tcp_poll(tpcb, NULL, 0);
+        tcp_close(tpcb);
+
+        /* unregister the client pcb */
+        os_enter_critical();
+        for( i=0; i<MODBUS_TCP_NUM; i++ )
+        {
+            if( modbus_client_tpcb[i] == tpcb )
+                modbus_client_tpcb[i] = 0;
+        }
+        os_exit_critical();
+    }
+
+    if( es != NULL )
+    {
+        i = es->client_id;
+        mem_free(es);
+        logger_printf_info( "client #%u closed", i );
+    }
+}
+
+
+//void do_modbus_tcp_send(struct tcp_pcb *tpcb, struct modbus_tcp_state *es)
+//{
+//    struct pbuf *ptr;
+//    err_t wr_err = ERR_OK;
+//
+//    while( (wr_err == ERR_OK) && (es->p != NULL) && (es->p->len <= tcp_sndbuf(tpcb)))
+//    {
+//        ptr = es->p;
+//
+//        /* enqueue data for transmission */
+//        //wr_err = tcp_write(tpcb, "MODBUS RETURN:", 14, 1);  // debug
+//        wr_err = tcp_write(tpcb, ptr->payload, ptr->len, 1);
+//        if( wr_err == ERR_OK )
+//        {
+//            u16_t plen;
+//            plen = ptr->len;
+//            /* continue with next pbuf in chain (if any) */
+//            es->p = ptr->next;
+//            if(es->p != NULL)
+//            {
+//                /* new reference! */
+//                pbuf_ref(es->p);
+//            }
+//            /* chop first pbuf from chain */
+//            pbuf_free(ptr);
+//            /* we can read more data now */
+//            tcp_recved(tpcb, plen);
+//        }
+//        else if(wr_err == ERR_MEM)
+//        {
+//            /* we are low on memory, try later / harder, defer to poll */
+//            es->p = ptr;
+//        }
+//        else
+//        {
+//            /* other problem ?? */
+//        }
+//    }
+//}
+
 
 
 int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uint16_t size, uint16_t *payload, int *write )
@@ -539,15 +545,16 @@ void task_modbus_tcp_entry(void *arg)
             break;
 
         case MODBUS_TCP_EVENT_START:
-            modbus_pcb = tcp_new_ip_type( IPADDR_TYPE_ANY );
-            if( modbus_pcb != NULL )
+            //logger_const_info( "evt_start" );
+            modbus_tpcb = tcp_new_ip_type( IPADDR_TYPE_ANY );
+            if( modbus_tpcb != NULL )
             {
-                err = tcp_bind(modbus_pcb, IP_ANY_TYPE, MODBUS_TCP_PORT);
+                err = tcp_bind(modbus_tpcb, IP_ANY_TYPE, MODBUS_TCP_PORT);
                 if (err == ERR_OK)
                 {
-                    modbus_pcb = tcp_listen(modbus_pcb);
-                    tcp_accept( modbus_pcb, modbus_tcp_accept );
-                    logger_printf_debug( "listening on port %d, pcb=0x%08X", MODBUS_TCP_PORT, modbus_pcb );
+                    modbus_tpcb = tcp_listen(modbus_tpcb);
+                    tcp_accept( modbus_tpcb, modbus_tcp_accept_cb );
+                    logger_printf_debug( "listening on port %d, tpcb=0x%08X", MODBUS_TCP_PORT, modbus_tpcb );
                 }
                 else
                 {
@@ -562,20 +569,22 @@ void task_modbus_tcp_entry(void *arg)
 
         case MODBUS_TCP_EVENT_CLOSE:
             /* close all registered client pcb */
+            //logger_const_info( "evt_close" );
             for( i=0; i<MODBUS_TCP_NUM; i++ )
             {
-                if( modbus_client_pcb[i] != NULL )
-                    modbus_tcp_close( modbus_client_pcb[i], modbus_client_pcb[i]->callback_arg );
+                if( modbus_client_tpcb[i] != NULL )
+                    do_modbus_tcp_close( modbus_client_tpcb[i], modbus_client_tpcb[i]->callback_arg );
             }
-            if( modbus_pcb != NULL )
+            if( modbus_tpcb != NULL )
             {
-                tcp_close( modbus_pcb );
-                modbus_pcb = 0;
+                tcp_close( modbus_tpcb );
+                modbus_tpcb = 0;
                 logger_const_info( "closed" );
             }
             break;
 
         case MODBUS_TCP_EVENT_PACKET:
+            //logger_const_info( "evt_packet" );
             es = (struct modbus_tcp_state *)(evt.data);
             head = (modbus_tcp_head_t*)es->buf;
             transaction_id = head->transaction_id;
@@ -605,16 +614,13 @@ void task_modbus_tcp_entry(void *arg)
             /* send response packet */
             head->bytes = 2 + write;
             swap_bytes( (uint8_t*)&(head->bytes), ((uint8_t*)&(head->bytes))+1 );
-            if( ERR_OK == tcp_write( es->pcb, (char*)es->buf, sizeof(modbus_tcp_head_t) + write, 1 ) )
+            if( ERR_OK == tcp_write( es->tpcb, (char*)es->buf, sizeof(modbus_tcp_head_t) + write, 1 ) )
             {
-                if( ERR_OK == tcp_output( es->pcb ) )
-                {
-                    /* fail to send */
-                }
+                tcp_output( es->tpcb );
             }
             else
             {
-                logger_const_error( "tcp_write" );
+                logger_const_error( "evt_pkt/tcp_write" );
             }
             es->state = ES_READY;
             break;
@@ -624,6 +630,72 @@ void task_modbus_tcp_entry(void *arg)
         }
     }
 }
+
+        
+
+int cmd_modbus_tcp( int argc, char *argv[] )
+{
+    static const mcush_opt_spec opt_spec[] = {
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
+          'r', shell_str_reset, 0, "reset connections" },
+        { MCUSH_OPT_NONE } };
+    mcush_opt_parser parser;
+    mcush_opt opt;
+    uint8_t reset_set=0;
+    struct tcp_pcb *pcb;
+    struct modbus_tcp_state *es;
+    int i;
+    char buf[32];
+    
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
+    while( mcush_opt_parser_next( &opt, &parser ) )
+    {
+        if( opt.spec )
+        {
+            if( STRCMP( opt.spec->name, shell_str_reset ) == 0 )
+            {
+                reset_set = 1;
+            }
+        }            
+        else
+            STOP_AT_INVALID_ARGUMENT
+    }
+
+    if( reset_set )
+    {
+        return send_modbus_tcp_event( MODBUS_TCP_EVENT_RESET, 0 ) ? 0 : 1;
+    }
+
+ 
+    if( modbus_tpcb == NULL )
+    {
+        shell_write_line("stopped");
+        return 0;
+    }
+
+    for( i=0; i<MODBUS_TCP_NUM; i++ )
+    {
+        pcb = modbus_client_tpcb[i];
+        if( pcb == NULL )
+            continue;
+        es = (struct modbus_tcp_state *)(pcb->callback_arg);
+        shell_printf("#%d 0x%08X", es->client_id, (uint32_t)pcb);
+        sprintf_ip( buf, pcb->remote_ip.addr, 0, 0 );
+        shell_printf(" %s %d", buf, pcb->remote_port);
+        get_tick_time_str( buf, os_tick()-es->tick_connect, 0 );
+        shell_printf(" %s", buf);
+        shell_newline();
+    } 
+
+    return 0;
+}
+
+
+const shell_cmd_t cmd_tab_modbus_tcp[] = {
+{   0, 'M', "modbustcp",  cmd_modbus_tcp, 
+    "modbus control",
+    "modbus"  },
+{   CMD_END  } };
 
 
 void task_modbus_tcp_init(void)
@@ -653,5 +725,7 @@ void task_modbus_tcp_init(void)
 #endif
     if( task == NULL )
         halt("create modbus tcp task");
+    
+    shell_add_cmd_table( cmd_tab_modbus_tcp );
 }
 

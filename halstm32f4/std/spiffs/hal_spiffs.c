@@ -54,7 +54,7 @@ int hal_spiffs_flash_read_status(void)
 }
 
 
-void hal_spiffs_flash_lock(int lock)
+s32_t hal_spiffs_flash_lock(int lock)
 {
 #if USE_LOCK
     os_mutex_get( mutex_spiflash, -1 );
@@ -66,10 +66,11 @@ void hal_spiffs_flash_lock(int lock)
 #if USE_LOCK
     os_mutex_put( mutex_spiflash );
 #endif
+    return SPIFFS_OK;
 }
 
 
-s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
+s32_t hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 {
 #if USE_LOCK
     os_mutex_get( mutex_spiflash, -1 );
@@ -82,7 +83,7 @@ s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst)
 }
 
 
-s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
+s32_t hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
 {
 #if USE_LOCK
     os_mutex_get( mutex_spiflash, -1 );
@@ -95,7 +96,7 @@ s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src)
 }
 
 
-s32_t *hal_spiffs_flash_erase(u32_t addr, u32_t size)
+s32_t hal_spiffs_flash_erase(u32_t addr, u32_t size)
 {
     (void)size;
 #if USE_LOCK

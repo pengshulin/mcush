@@ -138,22 +138,51 @@ int shell_printf( char *fmt, ... )
 }
 
 
-void shell_write_int( int i )
+void shell_write_int( int val )
 {
-    shell_printf( "%d", i );
+    shell_printf( "%d", val );
 }
 
 
-void shell_write_float( float f )
+void shell_write_int_line( int val )
 {
-    shell_printf( "%f", f );
+    shell_write_int( val );
+    shell_newline();
 }
 
 
-void shell_write_hex( int x )
+void shell_write_int01_line( int val )
 {
-    shell_printf( "0x%08X", x );
+    shell_write_line( val == 0 ? shell_str_0 : shell_str_1 );
 }
+
+
+
+void shell_write_float( float val )
+{
+    shell_printf( "%f", val );
+}
+
+
+void shell_write_float_line( float val )
+{
+    shell_write_float( val );
+    shell_newline();
+}
+
+
+void shell_write_hex( int val )
+{
+    shell_printf( "0x%X", val );
+}
+
+
+void shell_write_hex_line( int val )
+{
+    shell_write_hex( val );
+    shell_newline();
+}
+
 
 void shell_write_mem( const char *mem, int length )
 {

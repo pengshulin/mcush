@@ -5,6 +5,10 @@
 #include "hal.h"
 
 #ifndef SPIFLASH_AUTO_DETECT
+    #define SPIFLASH_AUTO_DETECT  1
+#endif
+
+#if ! SPIFLASH_AUTO_DETECT
     #ifndef SPIFLASH_CFG_PHYS_SZ
         #error "SPIFLASH_CFG_PHYS_SZ not defined"
     #endif
@@ -33,10 +37,10 @@
 void hal_spiffs_flash_init(void);
 int hal_spiffs_flash_read_id(void);
 int hal_spiffs_flash_read_status(void);
-void hal_spiffs_flash_lock(int lock);
-s32_t *hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst);
-s32_t *hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src);
-s32_t *hal_spiffs_flash_erase(u32_t addr, u32_t size);
+s32_t hal_spiffs_flash_lock(int lock);
+s32_t hal_spiffs_flash_read(u32_t addr, u32_t size, u8_t *dst);
+s32_t hal_spiffs_flash_write(u32_t addr, u32_t size, u8_t *src);
+s32_t hal_spiffs_flash_erase(u32_t addr, u32_t size);
 
 int mcush_spiffs_mount( void );
 int mcush_spiffs_umount( void );

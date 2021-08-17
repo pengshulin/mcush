@@ -1,7 +1,4 @@
-/* modified link scripts for stm32 */
-/* put .bss into ccmsram and expand the heap area */
-
-USER_STACK_ADDR = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+/* put .bss into ccmsram (for STM32 only)  */
 
 SECTIONS
 {
@@ -66,16 +63,11 @@ SECTIONS
         . = . + USER_HEAP_SIZE ;
         . = ALIGN(4);
         _eheap = . ;
+        . = . + USER_STACK_SIZE ; /* request stack area just for usage statistics */
     } > SRAM
 
-    .userstack (USER_STACK_ADDR) :
-    {
-        . = ALIGN(4);
-        _sstack = . ;
-        . = . + USER_STACK_SIZE ;
-        . = ALIGN(4);
-        _estack = . ;
-    } > SRAM 
+    _sstack = ORIGIN(SRAM) + LENGTH(SRAM) - USER_STACK_SIZE;
+    _estack = ORIGIN(SRAM) + LENGTH(SRAM);
 
     .bss :
     {
@@ -103,5 +95,5 @@ SECTIONS
 
 
 ASSERT( _sidata + SIZEOF(.data) <= ORIGIN(FLASH) + LENGTH(FLASH), "flash full, fail to append data image" )
-ASSERT( _eheap <= _sstack, "heap size too large" )
+ASSERT( _eheap <= _sstack, "heap/stack conflict" )
 

@@ -3,6 +3,8 @@
 
 static char _wdg_enable=0;
 
+void hal_wdg_enable(void);
+
 void hal_wdg_init(void)
 {
     IWDG_WriteAccessCmd( IWDG_WriteAccess_Enable );

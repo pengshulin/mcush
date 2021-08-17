@@ -1,6 +1,5 @@
 /* beeper control service task 
  * control the beeper to play single-tone note or notes list
- *
  * 
  * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"

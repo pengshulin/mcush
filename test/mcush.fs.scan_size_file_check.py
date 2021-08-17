@@ -3,7 +3,7 @@ import sys
 import random
 from mcush import *
 
-Env.TEST_MAXID = 10
+Env.TEST_MAXID = 20
 
 def main(argv=None):
     random.seed()

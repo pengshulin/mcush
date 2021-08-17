@@ -65,11 +65,11 @@
     #define TASK_LOGGER_STACK_SIZE  (3*1024)
 #endif
 
-/* default priority is one level higher than the idle task, so if you 
-   found the logger queue blocked, check if some other tasks refuse to
+/* default priority is LOWER (one level higher than the idle task which is LOWEST),
+   so if you found the logger queue blocked, check if some other tasks refuse to
    give back the cpu */
 #ifndef TASK_LOGGER_PRIORITY
-    #define TASK_LOGGER_PRIORITY    (OS_PRIORITY_LOWEST)
+    #define TASK_LOGGER_PRIORITY    (OS_PRIORITY_LOWER)
 #endif
 
 /* default queue size */

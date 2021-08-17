@@ -1031,7 +1031,8 @@ tcp_output(struct tcp_pcb *pcb)
   /* useg should point to last segment on unacked queue */
   useg = pcb->unacked;
   if (useg != NULL) {
-    for (; useg->next != NULL; useg = useg->next);
+    for (; useg->next != NULL; useg = useg->next); /* bug? useg will finally point to NULL */
+    //while( useg->next != NULL ) { useg = useg->next; }
   }
 
   netif = ip_route(&pcb->local_ip, &pcb->remote_ip);
@@ -1145,6 +1146,7 @@ tcp_output(struct tcp_pcb *pcb)
         /* In the case of fast retransmit, the packet should not go to the tail
          * of the unacked queue, but rather somewhere before it. We need to check for
          * this case. -STJ Jul 27, 2004 */
+        LWIP_ASSERT("useg != NULL", useg != NULL);
         if (TCP_SEQ_LT(lwip_ntohl(seg->tcphdr->seqno), lwip_ntohl(useg->tcphdr->seqno))) {
           /* add segment to before tail of unacked list, keeping the list sorted */
           struct tcp_seg **cur_seg = &(pcb->unacked);

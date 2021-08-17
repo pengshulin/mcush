@@ -100,7 +100,13 @@ int mcush_spiffs_mount( void )
         default:  return 0;
         }
         break;
-    // TODO: support these chips
+    case 0x1F:  /* Adesto */
+        switch( (id>>8) & 0x1F )
+        {
+        case 0x08: cfg.phys_size = 8*1024*1024;  break;
+        default:  return 0;
+        }
+        break;
     //case 0xBF:  /* Microchip */
     //    break;
     default:  /* unknown */

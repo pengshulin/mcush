@@ -3,9 +3,10 @@ __doc__ = 'Vibration Analysis Platform Series'
 __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
-from .. import Mcush, Utils
+from .. import Mcush, Utils, Env
 import time
-
+import logging
+import math
 
 class _vap( Mcush.Mcush ):
     DEFAULT_NAME = 'VAP'
@@ -51,6 +52,30 @@ class VAP100( _vap):
     DEFAULT_IDN = re_compile( 'VAP1[0-9]*.*,([0-9]+\.[0-9]+.*)' )
 
 
+__CHANNEL_REMAP = [7,6,5,4,0,1,2,3]
+__CHANNEL_POLARITY_INV = [0,0,0,0,1,1,1,1]
+def _process_vap200_adc_val( obj, channel, index, adc, float_mode ):
+    # check head index
+    head = adc >> 24
+    adc_idx = head & 0x7
+    if adc_idx != __CHANNEL_REMAP[channel]:
+        info = 'data index not match %d(%d required)'% (adc_idx, __CHANNEL_REMAP[channel])
+        obj.logger.error(info)
+        raise Exception(info)
+    # check value
+    adc_val = Utils.I2i((adc&0xFFFFFF)<<8)/256
+    if __CHANNEL_POLARITY_INV[channel]:
+        adc_val = -adc_val
+    if float_mode:
+        adc_fval = adc_val * 5.0 / (2**23) * 5.0
+        #obj.logger.debug('%d 0x%08X -> %d -> %f'% (index, adc, adc_val, adc_fval))
+        return adc_fval
+    else:
+        #obj.logger.debug('%d 0x%08X -> %d'% (index, adc, adc_val))
+        return adc_val
+
+
+
 
 class VAP200( _vap ):
     '''VAP 2xx Series'''
@@ -84,17 +109,17 @@ class VAP200( _vap ):
             if int(self.ad7768('record_done')[0]):
                 break
             time.sleep(wait_tick)
- 
+
     def setSampleRate( self, sample_rate=25600 ):
         self.ad7768( 'record_sample_rate', value=sample_rate )
 
     def getSampleRate( self ):
         return float(self.ad7768('record_sample_rate')[0])
 
-    def setChannel( self, channel=0xFF ):
+    def setChannelBitmap( self, channel=0xFF ):
         self.ad7768( 'record_channel', value=channel )
 
-    def getChannel( self ):
+    def getChannelBitmap( self ):
         return int(self.ad7768('record_channel')[0], 16)
 
     def setSampleLength( self, length=1024 ):
@@ -112,9 +137,6 @@ class VAP200( _vap ):
                 ret.append( [int(a), int(b, 16)] ) 
         return ret
 
-    CHANNEL_REMAP = [7,6,5,4,0,1,2,3]
-    CHANNEL_POLARITY_INV = [0,0,0,0,1,1,1,1]
-
     def readBufferMem( self, channel, float_mode=True ):
         dat, dat_addr = [], None
         for ch, addr in self.getRecordBuffers():
@@ -125,28 +147,9 @@ class VAP200( _vap ):
         sample_length = self.getSampleLength()
         self.logger.info( "read memory from 0x%08X, length %d"% (dat_addr,sample_length*4) )
         mem = self.readMem( dat_addr, length=sample_length*4, width=4, compact_mode=True)
-        inv = self.CHANNEL_POLARITY_INV[channel]
         for i in range(sample_length):
-            offset=i*4
-            adc = Utils.s2I(mem[offset:offset+4])
-            head = adc>>24
-            # check head index
-            adc_idx = head&0x7
-            if adc_idx != self.CHANNEL_REMAP[channel]:
-                info = 'data index not match %d(%d required) @+0x%08X'% (adc_idx, self.CHANNEL_REMAP[channel],i*4)
-                self.logger.error(info)
-                raise Exception(info)
-            # check value
-            adc_val = Utils.I2i((adc&0xFFFFFF)<<8)/256
-            if inv:
-                adc_val = -adc_val
-            if float_mode:
-                adc_fval = adc_val * 5.0 / (2**23) * 5.0
-                self.logger.debug('%d 0x%08X -> %d -> %f'% (i, adc, adc_val, adc_fval))
-                dat.append(adc_fval)
-            else:
-                self.logger.debug('%d 0x%08X -> %d'% (i, adc, adc_val))
-                dat.append(adc_val)
+            adc = Utils.s2I(mem[i*4:i*4+4])
+            dat.append( _process_vap200_adc_val(self, channel, i, adc, float_mode) )
         return dat
 
     def enterRemoteMode( self ):
@@ -155,11 +158,59 @@ class VAP200( _vap ):
     def exitRemoteMode( self ):
         self.daq( 'remote', value=0 )
 
-    def setSensorPower( self, on=True ):
-        self.daq( 'pwr_s', value=int(on) )
+    def setRelayPower( self, on=True ):
+        self.daq( 'pwr_r', value=int(bool(on)) )
  
-    def setSensorSpeedMode( self, mode=0x00 ):
-        self.daq( 'speed_mode', value=mode )
+    def setExtendPower( self, on=True ):
+        self.daq( 'pwr_e', value=int(bool(on)) )
+
+    def setSensorPower( self, on=True ):
+        self.daq( 'pwr_s', value=int(bool(on)) )
+ 
+    def getSensorPower( self ):
+        return int(self.daq( 'pwr_s' )[0])
+ 
+    def setSpeedBitmap( self, bitmap=0x00 ):
+        self.daq( 'speed', value=bitmap )
+    
+    def getSpeedBitmap( self ):
+        return int(self.daq( 'speed' )[0])
+ 
+    def setMCLK( self, mclk_idx=0 ):
+        self.daq( 'mclk', value=mclk_idx )
+
+    def setTachoLEDEnable( self, enable=True ):
+        self.daq( 'tacho_led', value=int(bool(enable)) )
+
+    def setTachoMeasEnable( self, enable=True ):
+        self.daq( 'tacho_meas', value=int(bool(enable)) )
+
+    def setTachoTrigEnable( self, enable=True ):
+        self.daq( 'tacho_trig', value=int(bool(enable)) )
+
+    def isTachoWaiting( self ):
+        return bool(int(self.daq( 'tacho_waiting' )[0]))
+
+    def isTachoTriggered( self ):
+        return bool(int(self.daq( 'tacho_triggered' )[0]))
+
+    def tachoStart( self ):
+        self.daq( 'tacho_start' )
+    
+    def tachoStop( self ):
+        self.daq( 'tacho_stop' )
+
+    def getTachoFreq( self ):
+        val = self.daq('tacho')[0]
+        if val == 'disable':
+            return None
+        return float(val)
+
+    def readSwitchConfig( self ):
+        return int(self.daq('config')[0])
+ 
+    def setMCLK( self, clk=0 ):
+        self.daq( 'mclk', value=int(clk) )
  
     def daq_lock( self ):
         self.daq('lock')
@@ -175,17 +226,7 @@ class VAP200( _vap ):
 
     def daq_busy( self ):
         return bool(int(self.daq('busy')[0]))
-
-    def daq_tacho( self, info=None ):
-        val = None
-        if info is None:
-            info = self.daq('info')
-        for l in info:
-            if l.startswith('tac:'):
-                val = float(l.split(': ')[1].strip())
-                break
-        return val
-    
+   
     def daq_channel_info( self, info=None ):
         ret = {}
         if info is None:
@@ -200,3 +241,209 @@ class VAP200( _vap ):
                 ret[idx] = {'cnt': cnt, 'avg': avg, 'rms': rms}
         return ret
                  
+
+import pymodbus
+import pymodbus.client
+import pymodbus.client.sync
+
+# general group
+REG_REMOTE_MODE         = 10
+REG_POWER_SENSOR        = 11
+REG_POWER_RELAY         = 12
+REG_CHANNEL_BITMAP      = 13
+REG_SPEED_BITMAP        = 14
+REG_MCLK_MODE           = 15
+REG_SAMPLE_RATE_X10     = 16
+# tacho group
+REG_TACHO_LED_EN        = 20
+REG_TACHO_MEAS_EN       = 21
+REG_TACHO_TRIG_EN       = 22
+REG_TACHO_START         = 23
+REG_TACHO_FREQ_X100     = 24
+REG_TACHO_WAITING       = 25
+REG_TACHO_TRIGGERED     = 26
+# record group
+REG_RECORD_LENGTH       = 30
+REG_RECORD_RUN          = 31
+REG_RECORD_DONE         = 32
+REG_BUFFER_MAP_SEL      = 33
+# waveform buffer mapping
+REG_BUFFER_BEGIN        = 10000
+REG_BUFFER_END          = 59999
+
+REG_RECORD_LENGTH_MAX = int((REG_BUFFER_END-REG_BUFFER_BEGIN+1)/2)
+
+# common registers
+REG_MODEL_STR       = 60000
+REG_VERSION_STR     = 60020
+REG_SN_STR          = 60040
+REG_ERRNO_VAL       = 60070  # 2 words, int32_t
+REG_UPTIME_VAL      = 60072  # 2 words, uint32_t
+
+class _modbus_controller():
+    PORT = 502
+
+    def connect( self ):
+        self.client = pymodbus.client.sync.ModbusTcpClient(self.ip, port=self.PORT)
+        self.client.connect()
+        self.updateInfo()
+
+    def disconnect( self ):
+        self.client.close()
+ 
+    def updateInfo( self ):
+        # read model string 
+        _len = self.client.read_holding_registers(REG_MODEL_STR, 1).registers[0]
+        model_str = ''.join(map(chr, self.client.read_holding_registers(REG_MODEL_STR+1, _len).registers))
+        # read version string 
+        _len = self.client.read_holding_registers(REG_VERSION_STR, 1).registers[0]
+        version_str = ''.join(map(chr, self.client.read_holding_registers(REG_VERSION_STR+1, _len).registers))
+          
+        self.model = model_str
+        self.version = version_str
+
+    def errno( self, errno ):
+        self.client.write_registers(REG_ERRNO_VAL, [errno&0xFFFF, (errno>>16)&0xFFFF])
+
+
+ 
+
+class VAP200_ModbusTCP(_modbus_controller):
+    '''VAP 2xx Series over ModbusTCP'''
+    DEFAULT_NAME = 'VAP_Modbus'
+
+    def __init__( self, ip, *args, **kwargs ):
+        # logging level 
+        self.verbose = Env.VERBOSE
+        self.debug = Env.DEBUG
+        self.info = Env.INFO
+        self.warning = Env.WARNING
+        if self.debug:
+            level = logging.DEBUG
+        elif self.info:
+            level = logging.INFO
+        elif self.warning:
+            level = logging.WARNING
+        else:
+            level = logging.ERROR
+        logging.basicConfig( level=level, format=Env.LOG_FORMAT, datefmt=Env.LOG_DATEFMT )
+        self.logger = logging.getLogger( self.DEFAULT_NAME )
+
+        self.ip = ip
+        self.port = self.PORT
+        self.model = None
+        self.version = None
+        self.sn = None
+        self.sample_length = None
+        self.sample_rate = None
+        if kwargs.get('connect', True):
+            self.connect()
+
+    def enterRemoteMode( self ):
+        self.client.write_registers(REG_REMOTE_MODE, [1])
+    
+    def exitRemoteMode( self ):
+        self.client.write_registers(REG_REMOTE_MODE, [0])
+       
+    def setRelayPower( self, on=True ):
+        self.client.write_registers(REG_POWER_RELAY, [int(bool(on))])
+ 
+    def getRelayPower( self ):
+        return bool(self.client.read_holding_registers(REG_POWER_RELAY, 1).registers[0])
+
+    def setSensorPower( self, on=True ):
+        self.client.write_registers(REG_POWER_SENSOR, [int(bool(on))])
+    
+    def getSensorPower( self ):
+        return bool(self.client.read_holding_registers(REG_POWER_SENSOR, 1).registers[0])
+ 
+    def setSpeedBitmap( self, bitmap=0x00 ):
+        self.client.write_registers(REG_SPEED_BITMAP, [bitmap] )
+ 
+    def getSpeedBitmap( self ):
+        return self.client.read_holding_registers(REG_SPEED_BITMAP, 1).registers[0]
+
+    def setTachoLEDEnable( self, enable=True ):
+        self.client.write_registers(REG_TACHO_LED_EN, [int(bool(enable))])
+ 
+    def setTachoMeasEnable( self, enable=True ):
+        self.client.write_registers(REG_TACHO_MEAS_EN, [int(bool(enable))])
+    
+    def setTachoTrigEnable( self, enable=True ):
+        self.client.write_registers(REG_TACHO_TRIG_EN, [int(bool(enable))])
+
+    def isTachoWaiting( self ):
+        return bool(self.client.read_holding_registers(REG_TACHO_WAITING, 1).registers[0])
+
+    def isTachoTriggered( self ):
+        return bool(self.client.read_holding_registers(REG_TACHO_TRIGGERED, 1).registers[0])
+
+    def tachoStart( self ):
+        self.client.write_registers(REG_TACHO_START, [1])
+    
+    def tachoStop( self ):
+        self.client.write_registers(REG_TACHO_START, [0])
+
+    def getTachoFreq( self ):
+        val = self.client.read_holding_registers(REG_TACHO_FREQ_X100, 1).registers[0]
+        if val == 65535:
+            return None
+        return float(val)/100.0
+
+    def recordStart( self ):
+        self.client.write_registers(REG_RECORD_RUN, [1])
+
+    def recordStop( self ):
+        self.client.write_registers(REG_RECORD_RUN, [0])
+
+    def setMCLK( self, mclk_idx=0 ):
+        self.client.write_registers(REG_MCLK_MODE, [mclk_idx])
+
+    def setSampleRate( self, sample_rate=25600 ):
+        self.client.write_registers(REG_SAMPLE_RATE_X10, [int(sample_rate/10.0)])
+        self.sample_rate = sample_rate
+
+    def getSampleRate( self ):
+        self.sample_rate = self.client.read_holding_registers(REG_SAMPLE_RATE_X10, 1).registers[0]*10.0
+        return self.sample_rate
+
+    def setSampleLength( self, length=1024 ):
+        if length > REG_RECORD_LENGTH_MAX:
+            # due to modbus reg width, waveform buffer is mapped at limited area
+            raise Exception('sample lenght no more than %d'% REG_RECORD_LENGTH_MAX)
+        self.client.write_registers(REG_RECORD_LENGTH, [length])
+        self.sample_length = length
+
+    def getSampleLength( self ):
+        self.sample_length = self.client.read_holding_registers(REG_RECORD_LENGTH, 1).registers[0]
+        return self.sample_length
+
+    def setChannelBitmap( self, bitmap ):
+        self.client.write_registers(REG_CHANNEL_BITMAP, [bitmap])
+
+    def getChannelBitmap( self ):
+        return self.client.read_holding_registers(REG_CHANNEL_BITMAP, 1).registers[0]
+ 
+    def recordWaitForDone( self, wait_tick=0.1 ):
+        while True:
+            if self.client.read_holding_registers(REG_RECORD_DONE, 1).registers[0]: 
+                break
+            time.sleep(wait_tick)
+
+    def readBufferMem( self, channel, float_mode=True ):
+        self.client.write_registers(REG_BUFFER_MAP_SEL, [channel])
+        mem, read = [], 0
+        while read < self.sample_length*2:
+            required = self.sample_length*2 - read
+            if required > 125:
+                required = 125
+            mem.extend( self.client.read_holding_registers(REG_BUFFER_BEGIN+read, required).registers )
+            read += required 
+
+        dat = []
+        for i in range(self.sample_length):
+            adc = (mem[i*2+1]<<16)+mem[i*2]
+            dat.append( _process_vap200_adc_val(self, channel, i, adc, float_mode) )
+        return dat
+
+
