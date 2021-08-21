@@ -10,7 +10,7 @@ int hal_get_serial_number( char *buf )
     id[1] = *(int*)UNIQUE_ID1;
 
     hexlify( (const char*)id, buf, 8, 1 );
-    return 8;
+    return strlen(buf);
 }
 
 

@@ -162,7 +162,7 @@ class FY6900( Instrument.SerialInstrument ):
     def outputDisableA( self ):
         self.outputEnableA( False )
     
-    def outputDisableB( self, enable=True ):
+    def outputDisableB( self ):
         self.outputEnableB( False )
 
     def beepEnable( self, enable=True ):

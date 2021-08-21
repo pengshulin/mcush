@@ -55,6 +55,11 @@
 
 #define TCP_WND                         (2*TCP_MSS)  /* TCP receive window. */
 
+#define LWIP_TCP_KEEPALIVE              1
+#define TCP_KEEPIDLE_DEFAULT            30000
+#define TCP_KEEPINTVL_DEFAULT           3000
+#define TCP_KEEPCNT_DEFAULT             2
+
 
 #define LWIP_ICMP                       1
 

@@ -14,8 +14,8 @@ class OpenOCD( Instrument.SocketInstrument ):
     DEFAULT_CHECK_IDN = False
         
     def __init__( self, *args, **kwargs ):
-        kwargs['ip'] = kwargs.get('ip','localhost')
-        kwargs['port'] = kwargs.get('port','4444')
+        kwargs['net_addr'] = kwargs.get('net_addr','localhost')
+        kwargs['net_port'] = kwargs.get('net_port','4444')
         Instrument.SocketInstrument.__init__( self, *args, **kwargs )
 
     def checkReturnedCommand( self, ret, cmd ):

@@ -31,6 +31,7 @@
 
 #include "chip.h"
 
+
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
@@ -69,7 +70,7 @@ STATIC void SSP_Write1BFifo(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_setup)
 	xf_setup->tx_cnt++;
 }
 
-/** SSP macro: read 1 bytes from FIFO buffer */
+/** SSP macro: read 2 bytes from FIFO buffer */
 STATIC void SSP_Read2BFifo(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_setup)
 {
 	uint16_t rDat;
@@ -85,7 +86,7 @@ STATIC void SSP_Read2BFifo(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_setup)
 	}
 }
 
-/** SSP macro: read 2 bytes from FIFO buffer */
+/** SSP macro: read 1 byte from FIFO buffer */
 STATIC void SSP_Read1BFifo(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_setup)
 {
 	uint16_t rDat;
@@ -100,6 +101,7 @@ STATIC void SSP_Read1BFifo(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_setup)
 		xf_setup->rx_cnt++;
 	}
 }
+
 
 /* Returns clock index for the register interface */
 STATIC CHIP_CCU_CLK_T Chip_SSP_GetClockIndex(LPC_SSP_T *pSSP)

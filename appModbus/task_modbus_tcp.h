@@ -29,13 +29,6 @@ typedef struct {
     uint32_t data;
 } modbus_tcp_event_t;
 
-enum modbus_tcp_states
-{
-    ES_NONE = 0,
-    ES_READY,
-    ES_BUSY,
-    ES_CLOSING
-};
 
 typedef struct {
     uint16_t transaction_id;
@@ -46,9 +39,7 @@ typedef struct {
 } modbus_tcp_head_t;
 
 
-struct modbus_tcp_state
-{
-    uint8_t state;
+typedef struct {
     uint8_t retries;
     uint16_t client_id;
     struct tcp_pcb *tpcb;
@@ -58,7 +49,7 @@ struct modbus_tcp_state
     uint32_t packet_count;
     uint32_t tick_connect;
     uint32_t tick_last;
-};
+} modbus_tcp_client_t;
 
 #define MODBUS_TCP_EVENT_NET_UP          1
 #define MODBUS_TCP_EVENT_NET_DOWN        2

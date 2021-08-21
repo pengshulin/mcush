@@ -27,7 +27,6 @@ __weak int hal_wdg_is_enable(void)
 __weak void hal_wdg_enable(void)
 {
     Chip_WWDT_Start(LPC_WWDT);
-    Chip_WWDT_Feed(LPC_WWDT);
     _wdg_enable = 1;
 }
 

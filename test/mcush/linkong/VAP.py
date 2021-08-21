@@ -4,6 +4,7 @@ __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
 from .. import Mcush, Utils, Env
+from . import McushModbus
 import time
 import logging
 import math
@@ -51,7 +52,10 @@ class VAP100( _vap):
     DEFAULT_NAME = 'VAP100'
     DEFAULT_IDN = re_compile( 'VAP1[0-9]*.*,([0-9]+\.[0-9]+.*)' )
 
-
+# NOTE: this process the original ADC value read from SRAM, 
+# head flags (channel index/filter settled/...) can be checked in detail
+# kept here just for debugging, this will be obselected in the future
+# data will be locally converted and read out only in float mode
 __CHANNEL_REMAP = [7,6,5,4,0,1,2,3]
 __CHANNEL_POLARITY_INV = [0,0,0,0,1,1,1,1]
 def _process_vap200_adc_val( obj, channel, index, adc, float_mode ):
@@ -110,6 +114,9 @@ class VAP200( _vap ):
                 break
             time.sleep(wait_tick)
 
+    def recordFloatConvert( self, index=None ):
+        self.ad7768( 'record_fconv', index=index )
+
     def setSampleRate( self, sample_rate=25600 ):
         self.ad7768( 'record_sample_rate', value=sample_rate )
 
@@ -158,18 +165,22 @@ class VAP200( _vap ):
     def exitRemoteMode( self ):
         self.daq( 'remote', value=0 )
 
-    def setRelayPower( self, on=True ):
+    def setAlarmOutput( self, on=True ):
         self.daq( 'pwr_r', value=int(bool(on)) )
  
-    def setExtendPower( self, on=True ):
-        self.daq( 'pwr_e', value=int(bool(on)) )
+    def getAlarmOutput( self ):
+        return int(self.daq( 'pwr_r' )[0])
 
     def setSensorPower( self, on=True ):
         self.daq( 'pwr_s', value=int(bool(on)) )
  
     def getSensorPower( self ):
         return int(self.daq( 'pwr_s' )[0])
- 
+
+    # to be obseleted, only for debug
+    def setExtendPower( self, on=True ):
+        self.daq( 'pwr_e', value=int(bool(on)) )
+
     def setSpeedBitmap( self, bitmap=0x00 ):
         self.daq( 'speed', value=bitmap )
     
@@ -212,103 +223,93 @@ class VAP200( _vap ):
     def setMCLK( self, clk=0 ):
         self.daq( 'mclk', value=int(clk) )
  
-    def daq_lock( self ):
+    def daqLock( self ):
         self.daq('lock')
 
-    def daq_unlock( self ):
+    def daqUnlock( self ):
         self.daq('unlock')
 
-    def daq_enable( self ):
+    def daqEnable( self ):
         self.daq('enable')
 
-    def daq_disable( self ):
+    def daqDisable( self ):
         self.daq('disable')
 
-    def daq_busy( self ):
+    def daqIsBusy( self ):
         return bool(int(self.daq('busy')[0]))
    
-    def daq_channel_info( self, info=None ):
+    def daqChannelInfo( self, info=None ):
         ret = {}
         if info is None:
             info = self.daq('info')
         for l in info:
             if l.startswith('#'):
-                a, b, c, d = l.split('  ')
+                a, b, c = l.split('  ')
                 idx = int(a.lstrip('#'))
-                cnt = int(b.split(': ')[-1]) 
-                avg = float(c.split(': ')[-1]) 
-                rms = float(d.split(': ')[-1]) 
-                ret[idx] = {'cnt': cnt, 'avg': avg, 'rms': rms}
+                avg = float(b.split(': ')[-1]) 
+                rms = float(c.split(': ')[-1]) 
+                ret[idx] = {'offset': avg, 'rms': rms}
         return ret
                  
-
-import pymodbus
-import pymodbus.client
-import pymodbus.client.sync
 
 # general group
 REG_REMOTE_MODE         = 10
 REG_POWER_SENSOR        = 11
-REG_POWER_RELAY         = 12
+REG_ALARM_OUTPUT        = 12
 REG_CHANNEL_BITMAP      = 13
 REG_SPEED_BITMAP        = 14
 REG_MCLK_MODE           = 15
 REG_SAMPLE_RATE_X10     = 16
+REG_LOCAL_COUNTER       = 17
 # tacho group
 REG_TACHO_LED_EN        = 20
 REG_TACHO_MEAS_EN       = 21
 REG_TACHO_TRIG_EN       = 22
 REG_TACHO_START         = 23
-REG_TACHO_FREQ_X100     = 24
+REG_TACHO_RPM           = 24
 REG_TACHO_WAITING       = 25
 REG_TACHO_TRIGGERED     = 26
 # record group
 REG_RECORD_LENGTH       = 30
 REG_RECORD_RUN          = 31
 REG_RECORD_DONE         = 32
-REG_BUFFER_MAP_SEL      = 33
+REG_RECORD_FLOAT_CONV   = 33
+REG_BUFFER_MAP_SEL      = 34
+# local group
+REG_LOCAL_OFFSET_MV_0       = 40
+REG_LOCAL_OFFSET_MV_1       = 41
+REG_LOCAL_OFFSET_MV_2       = 42
+REG_LOCAL_OFFSET_MV_3       = 43
+REG_LOCAL_OFFSET_MV_4       = 44
+REG_LOCAL_OFFSET_MV_5       = 45
+REG_LOCAL_OFFSET_MV_6       = 46
+REG_LOCAL_OFFSET_MV_7       = 47
+REG_LOCAL_RMS_MV_0          = 50
+REG_LOCAL_RMS_MV_1          = 51
+REG_LOCAL_RMS_MV_2          = 52
+REG_LOCAL_RMS_MV_3          = 53
+REG_LOCAL_RMS_MV_4          = 54
+REG_LOCAL_RMS_MV_5          = 55
+REG_LOCAL_RMS_MV_6          = 56
+REG_LOCAL_RMS_MV_7          = 57
+REG_LOCAL_THRESHOLD_MV_0    = 60
+REG_LOCAL_THRESHOLD_MV_1    = 61
+REG_LOCAL_THRESHOLD_MV_2    = 62
+REG_LOCAL_THRESHOLD_MV_3    = 63
+REG_LOCAL_THRESHOLD_MV_4    = 64
+REG_LOCAL_THRESHOLD_MV_5    = 65
+REG_LOCAL_THRESHOLD_MV_6    = 66
+REG_LOCAL_THRESHOLD_MV_7    = 67
+
 # waveform buffer mapping
 REG_BUFFER_BEGIN        = 10000
 REG_BUFFER_END          = 59999
 
 REG_RECORD_LENGTH_MAX = int((REG_BUFFER_END-REG_BUFFER_BEGIN+1)/2)
 
-# common registers
-REG_MODEL_STR       = 60000
-REG_VERSION_STR     = 60020
-REG_SN_STR          = 60040
-REG_ERRNO_VAL       = 60070  # 2 words, int32_t
-REG_UPTIME_VAL      = 60072  # 2 words, uint32_t
-
-class _modbus_controller():
-    PORT = 502
-
-    def connect( self ):
-        self.client = pymodbus.client.sync.ModbusTcpClient(self.ip, port=self.PORT)
-        self.client.connect()
-        self.updateInfo()
-
-    def disconnect( self ):
-        self.client.close()
- 
-    def updateInfo( self ):
-        # read model string 
-        _len = self.client.read_holding_registers(REG_MODEL_STR, 1).registers[0]
-        model_str = ''.join(map(chr, self.client.read_holding_registers(REG_MODEL_STR+1, _len).registers))
-        # read version string 
-        _len = self.client.read_holding_registers(REG_VERSION_STR, 1).registers[0]
-        version_str = ''.join(map(chr, self.client.read_holding_registers(REG_VERSION_STR+1, _len).registers))
-          
-        self.model = model_str
-        self.version = version_str
-
-    def errno( self, errno ):
-        self.client.write_registers(REG_ERRNO_VAL, [errno&0xFFFF, (errno>>16)&0xFFFF])
-
-
  
 
-class VAP200_ModbusTCP(_modbus_controller):
+class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
     '''VAP 2xx Series over ModbusTCP'''
     DEFAULT_NAME = 'VAP_Modbus'
 
@@ -345,11 +346,11 @@ class VAP200_ModbusTCP(_modbus_controller):
     def exitRemoteMode( self ):
         self.client.write_registers(REG_REMOTE_MODE, [0])
        
-    def setRelayPower( self, on=True ):
-        self.client.write_registers(REG_POWER_RELAY, [int(bool(on))])
+    def setAlarmOutput( self, on=True ):
+        self.client.write_registers(REG_ALARM_OUTPUT, [int(bool(on))])
  
-    def getRelayPower( self ):
-        return bool(self.client.read_holding_registers(REG_POWER_RELAY, 1).registers[0])
+    def getAlarmOutput( self ):
+        return bool(self.client.read_holding_registers(REG_ALARM_OUTPUT, 1).registers[0])
 
     def setSensorPower( self, on=True ):
         self.client.write_registers(REG_POWER_SENSOR, [int(bool(on))])
@@ -385,10 +386,10 @@ class VAP200_ModbusTCP(_modbus_controller):
         self.client.write_registers(REG_TACHO_START, [0])
 
     def getTachoFreq( self ):
-        val = self.client.read_holding_registers(REG_TACHO_FREQ_X100, 1).registers[0]
+        val = self.client.read_holding_registers(REG_TACHO_RPM, 1).registers[0]
         if val == 65535:
             return None
-        return float(val)/100.0
+        return float(val)/60.0
 
     def recordStart( self ):
         self.client.write_registers(REG_RECORD_RUN, [1])
@@ -429,6 +430,9 @@ class VAP200_ModbusTCP(_modbus_controller):
             if self.client.read_holding_registers(REG_RECORD_DONE, 1).registers[0]: 
                 break
             time.sleep(wait_tick)
+
+    def recordFloatConvert( self, index=None ):
+        self.client.write_registers(REG_BUFFER_FLOAT_CONV, [0xFFFF if index is None else index])
 
     def readBufferMem( self, channel, float_mode=True ):
         self.client.write_registers(REG_BUFFER_MAP_SEL, [channel])

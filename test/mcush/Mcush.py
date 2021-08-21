@@ -955,7 +955,21 @@ class Mcush( Instrument.SerialInstrument ):
         self.writeCommand( str(gateway) )
         self.setPrompts()
         self.writeCommand('')
-        
+       
+    def waitForIP( self, timeout=10 ):
+        t0 = time.time()
+        while True:
+            r = self.writeCommand( "netstat" )
+            ns = Utils.parseKeyValueLines(r)
+            if 'ip' in ns:
+                return ns['ip']
+            if time.time() > t0 + timeout:
+                last_line = r[-1].strip()
+                if last_line == 'Disconnected':
+                    raise Exception('Cable disconnected')
+                else:
+                    raise Exception('IP addr not assigned')
+            time.sleep(0.5)
 
     # NOTE: to be obseleted
     #DEFAULT_TIMEOUT_UPGRADE = 20

@@ -118,23 +118,40 @@ void do_lwip_init(void)
 {
     ip_addr_t ipaddr, netmask, gateway;
     char buf[256];
+    unsigned int hash;
+    int len, no_config;
     int i;
 
     hal_eth_init();
 
     tcpip_init( NULL, NULL );
-   
+ 
+    no_config = 0; 
     if( !load_mac_from_conf_file("/s/mac") && !load_mac_from_conf_file("/c/mac") )
     {
-        logger_const_warn( "no mac config" );
-        /* fixed address: conflicts when there's more than one device */
-        //memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );
+        no_config = 1; 
+        /* fixed address: may conflicts when there are two or more devices */
+        //memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );  /* simple integer */
         memcpy( mac_address_init, (void*)"\x4C\x4B\x53\x4F\x46\x54", 6 ); /* LKSOFT */
         /* dynamic address: use serial number to encrypt the last 3 bytes of mac addr */
-        for( i=0; i<hal_get_serial_number(buf); i++ )
-            mac_address_init[3+i%3] ^= buf[i];
+        len = hal_get_serial_number(buf);
+        if( len )
+        {
+            for( i=0, hash=0x534F4654; i<len; i++ )
+            {
+                //hash = hash * 521 ^ ((hash>>8)&0xFFFF);
+                //hash ^= buf[i]<<(8*(i%3));
+                hash ^= ((hash << 3) + buf[i] + (hash >> 2));  /* simple and quick */
+            }
+            mac_address_init[3] = (hash>>16)&0xFF; 
+            mac_address_init[4] = (hash>>8)&0xFF; 
+            mac_address_init[5] = hash&0xFF; 
+        }
     }
-    logger_info( sprintf_mac( buf, mac_address_init, "mac:", 0 ) );
+    sprintf_mac( buf, mac_address_init, "mac:", 0 );
+    if( no_config )
+        strcat( buf, " (no config)" );
+    logger_info( buf );
  
     if( !load_ip_from_conf_file("/s/ip", &ipaddr, &netmask, &gateway) && 
         !load_ip_from_conf_file("/c/ip", &ipaddr, &netmask, &gateway) )

@@ -556,7 +556,7 @@ class SocketPort(Port):
     def connect( self ):
         if self._connected:
             return
-        self.s.connect( (self.ip, int(self.port)) )
+        self.s.connect( (self.net_addr, int(self.net_port)) )
         self.s.settimeout( self.timeout )
         self._connected = True
 
