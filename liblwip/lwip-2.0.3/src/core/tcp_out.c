@@ -1031,8 +1031,7 @@ tcp_output(struct tcp_pcb *pcb)
   /* useg should point to last segment on unacked queue */
   useg = pcb->unacked;
   if (useg != NULL) {
-    for (; useg->next != NULL; useg = useg->next); /* bug? useg will finally point to NULL */
-    //while( useg->next != NULL ) { useg = useg->next; }
+    for (; useg->next != NULL; useg = useg->next);
   }
 
   netif = ip_route(&pcb->local_ip, &pcb->remote_ip);

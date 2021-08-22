@@ -45,7 +45,8 @@ os_timer_handle_t timer_dhcpc;
 
 uint8_t dhcp_state, ip_manual;
 struct netif gnetif;
-    
+ip_addr_t reset_ipaddr, reset_netmask, reset_gateway;
+
 const ip_addr_t dns_google={.addr=0x08080808};  // 8.8.8.8
 const ip_addr_t dns_google2={.addr=0x04040808};  // 8.8.4.4
 const ip_addr_t dns_alibaba={.addr=0x050505DF};  // 223.5.5.5
@@ -105,12 +106,12 @@ void timer_dhcpc_callback( os_timer_handle_t timer )
  
 void reset_address(void)
 {
-    ip_addr_t ipaddr, netmask, gw;
-
-    ipaddr.addr = 0;
-    netmask.addr = 0;
-    gw.addr = 0;
-    netif_set_addr(&gnetif, &ipaddr, &netmask, &gw);
+    netif_set_addr( &gnetif, &reset_ipaddr, &reset_netmask, &reset_gateway );
+    dns_setserver( 0, (const ip_addr_t *)&reset_gateway );
+#if DNS_MAX_SERVERS > 1
+    //dns_setserver( 1, (const ip_addr_t *)&dns_google );
+    //dns_setserver( 1, (const ip_addr_t *)&dns_114 );
+#endif
 }
 
 
@@ -157,20 +158,18 @@ void do_lwip_init(void)
         !load_ip_from_conf_file("/c/ip", &ipaddr, &netmask, &gateway) )
     {
         logger_const_warn( "no ip config" );
-        ipaddr.addr = 0;
-        netmask.addr = 0;
-        gateway.addr = 0;
+        reset_ipaddr.addr = 0;
+        reset_netmask.addr = 0;
+        reset_gateway.addr = 0;
         ip_manual = 0;
     }
     else
     {
         logger_info( sprintf_ip_mask_gw( buf, ipaddr.addr, netmask.addr, gateway.addr, "config", 0 ) );
+        reset_ipaddr.addr = ipaddr.addr;
+        reset_netmask.addr = netmask.addr;
+        reset_gateway.addr = gateway.addr;
         ip_manual = 1;
-        dns_setserver( 0, (const ip_addr_t *)&gateway );
-#if DNS_MAX_SERVERS > 1
-        dns_setserver( 1, (const ip_addr_t *)&dns_google );
-        //dns_setserver( 1, (const ip_addr_t *)&dns_114 );
-#endif
     }
     
     netif_add(&gnetif, &ipaddr, &netmask, &gateway, NULL, &ethernetif_init, &tcpip_input);
@@ -212,6 +211,7 @@ void task_dhcpc_entry(void *arg)
         case DHCPC_EVENT_NETIF_UP:
             logger_const_info( "cable connected" );
             gnetif.flags |= NETIF_FLAG_LINK_UP;
+            reset_address();
             if( ip_manual ) 
             {
                 dhcp_state = DHCP_ADDRESS_MANUAL;
@@ -225,7 +225,6 @@ void task_dhcpc_entry(void *arg)
             else
             {
                 logger_const_info( "dhcp discover..." );
-                reset_address();
                 dhcp_state = DHCP_WAIT_ADDRESS;
                 dhcp_start(&gnetif);
             }

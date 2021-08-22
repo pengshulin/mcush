@@ -142,6 +142,7 @@ extern const char shell_str_usage[];
 extern const char shell_str_used[];
 extern const char shell_str_val[];
 extern const char shell_str_value[];
+extern const char shell_str_verbose[];
 extern const char shell_str_version[];
 extern const char shell_str_warn[];
 extern const char shell_str_warning[];

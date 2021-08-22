@@ -133,6 +133,7 @@ __byte_aligned const char shell_str_usage[] = "usage";
 __byte_aligned const char shell_str_used[] = "used";
 __byte_aligned const char shell_str_val[] = "val";
 __byte_aligned const char shell_str_value[] = "value";
+__byte_aligned const char shell_str_verbose[] = "verbose";
 __byte_aligned const char shell_str_version[] = "version";
 __byte_aligned const char shell_str_warn[] = "warn";
 __byte_aligned const char shell_str_warning[] = "warning";

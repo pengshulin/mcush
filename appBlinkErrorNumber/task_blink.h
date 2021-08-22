@@ -27,13 +27,16 @@ int set_errno(int num);
 
 int cmd_error( int argc, char *argv[] );
 
-/****************************************************************************/
-/* reserved error code id (range from 1 ~ 9) */
-/****************************************************************************/
+/***************************************************************/
+/* lower IDs 1 ~ 99 are all freely used by user application    */
+/* reserved IDs range from 100 ~ 199                           */
+/* higher IDs 200 ~ 100000000 are also available               */
+/***************************************************************/
 
-#define ERRNO_RTC_ERROR                     1
-#define ERRNO_FILE_SYSTEM_INIT_ERROR        2
-#define ERRNO_FILE_READ_WRITE_ERROR         3
+#define ERRNO_FILE_SYSTEM_INIT_CHECKING     100
+#define ERRNO_FILE_SYSTEM_INIT_ERROR        101
+#define ERRNO_FILE_READ_WRITE_ERROR         102
+
 
 
 #ifdef __cplusplus

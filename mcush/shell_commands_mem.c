@@ -24,6 +24,8 @@ int cmd_mapi( int argc, char *argv[] )
 #endif
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
           'f', shell_str_free, 0, "free memory" },
+        { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED, 
+          'v', shell_str_verbose, 0, shell_str_verbose },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
           'b', shell_str_address, shell_str_address, shell_str_base_address },
         { MCUSH_OPT_VALUE, MCUSH_OPT_USAGE_REQUIRED | MCUSH_OPT_USAGE_VALUE_REQUIRED, 
@@ -33,7 +35,7 @@ int cmd_mapi( int argc, char *argv[] )
     mcush_opt opt;
     void *addr=(void*)-1;
     int length=-1;
-    uint8_t malloc_set=0, free_set=0, test_mode=0;
+    uint8_t malloc_set=0, free_set=0, test_mode=0, verbose_mode=0;
 #if USE_CMD_MAPI_INFO
     uint8_t info_set=0;
 #endif
@@ -67,6 +69,8 @@ int cmd_mapi( int argc, char *argv[] )
                 free_set = 1;
             else if( STRCMP( opt.spec->name, shell_str_test ) == 0 )
                 test_mode = 1;
+            else if( STRCMP( opt.spec->name, shell_str_verbose ) == 0 )
+                verbose_mode = 1;
 #if USE_CMD_MAPI_INFO
             else if( STRCMP( opt.spec->name, shell_str_info ) == 0 )
                 info_set = 1;
@@ -95,7 +99,8 @@ int cmd_mapi( int argc, char *argv[] )
             if( mlist[i] )
             {
                 k += j;
-                shell_printf( "[%d] 0x%08X %d\n", i+1, (unsigned int)mlist[i], j );
+                if( verbose_mode )
+                    shell_printf( "[%d] 0x%08X %d\n", i+1, (unsigned int)mlist[i], j );
                 i++;
             }
             else
