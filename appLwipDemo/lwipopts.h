@@ -4,7 +4,7 @@
 
 #include "mcush.h"
 
-#define SYS_LIGHTWEIGHT_PROT            0  // Inter-tasks protection
+#define SYS_LIGHTWEIGHT_PROT            1
 
 #define ETHARP_TRUST_IP_MAC             0
 #define IP_REASSEMBLY                   0
@@ -18,16 +18,18 @@
 #endif
 
 #if MEM_LIBC_MALLOC
-#define mem_clib_malloc                 pvPortMalloc
-#define mem_clib_calloc                 pvPortCalloc
-#define mem_clib_free                   vPortFree
+#define mem_clib_malloc                 os_malloc
+#define mem_clib_calloc                 os_realloc
+#define mem_clib_free                   os_free
 #endif
 
 #define MEM_ALIGNMENT                   4  // 4Bytes for ARM
 
 #ifndef MEM_SIZE
-#define MEM_SIZE                        (10*1024)  // heap size
+#define MEM_SIZE                        (20*1024)  // heap size
 #endif
+
+#define MEM_USE_POOLS                   0  /* needs customized pool defination */
 
 #define MEMP_NUM_PBUF                   100  // memp size
 #define MEMP_NUM_UDP_PCB                6  // UDP protocol control blocks
@@ -35,6 +37,9 @@
 #define MEMP_NUM_TCP_PCB_LISTEN         5  // listening TCP connections
 #define MEMP_NUM_TCP_SEG                20  // simultaneously queued TCP segments
 #define MEMP_NUM_SYS_TIMEOUT            10  // simulateously active timeouts
+
+/* add ld section tag for memory pools */
+#define LWIP_DECLARE_MEMORY_ALIGNED(name, bytes)  u8_t name[LWIP_MEM_ALIGN_BUFFER(bytes)] __attribute__((section(".bss.lwip_mem")))
 
 
 #define PBUF_POOL_SIZE                  40  // pool size
@@ -83,6 +88,7 @@
 #define LWIP_SOCKET                     1  // Enable Socket API (sockets.c)
 
 #if DEBUG
+#define TCP_DEBUG_PCB_LISTS             1
 #define LWIP_DEBUG                      1
 //#define LWIP_DEBUG_TIMERNAMES           1
 //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_WARNING
@@ -117,7 +123,7 @@
 #define LWIP_PLATFORM_DIAG(message)     do{logger_printf_debug2 message;}while(0)
 #define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
 #else
-#define LWIP_DEBUG                      0
+#undef LWIP_DEBUG                      
 /* NOTE:
    in release mode, there are two different methods below */
 /* 1: ignore ASSERT and the lwip stack MAY STILL WORKS (MAYBE NOT) */

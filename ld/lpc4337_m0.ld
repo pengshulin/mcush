@@ -8,7 +8,7 @@ MEMORY
     FLASH2 (rx)  : ORIGIN = 0x1B000000, LENGTH = 512K
     SRAM (rw)    : ORIGIN = 0x10000000, LENGTH = 32K 
     SRAM2 (rw)   : ORIGIN = 0x10080000, LENGTH = 32K 
-    SHARE (rw)   : ORIGIN = 0x10088000, LENGTH = 8K 
+    BKPSRAM (rw) : ORIGIN = 0x10088000, LENGTH = 8K 
     AHBSRAM (rw) : ORIGIN = 0x20000000, LENGTH = 64K 
     SDRAM (rw)   : ORIGIN = 0x28000000, LENGTH = 64M 
 }
@@ -139,7 +139,14 @@ SECTIONS
         . = ALIGN(4);
         *(.share)
         . = ALIGN(4);
-    } >SHARE
+    } >BKPSRAM
+
+    .bkpsram (NOLOAD):
+    {
+        . = ALIGN(4);
+        *(.bkpsram)
+        . = ALIGN(4);
+    } >BKPSRAM
 
     .sdram (NOLOAD):
     {

@@ -7,15 +7,27 @@ import pymodbus.client
 import pymodbus.client.sync
 
 
-# common registers
+# MCUSH platform general purpose registers
 REG_MODEL_STR       = 60000
 REG_VERSION_STR     = 60020
 REG_SN_STR          = 60040
-REG_ERRNO_VAL       = 60070  # 2 words, int32_t
-REG_UPTIME_VAL      = 60072  # 2 words, uint32_t
+REG_ERRNO           = 60070  # 2 words, int32_t
+REG_UPTIME          = 60072  # 2 words, uint32_t
+REG_REBOOT_COUNTER  = 60074  # 2 words, uint32_t
+REG_REBOOT_COMMAND  = 60076
+REG_RTC_SYNCED      = 60080
+REG_RTC_UPDATE      = 60081
+REG_RTC_YEAR        = 60082
+REG_RTC_MONTH       = 60083
+REG_RTC_DAY         = 60084
+REG_RTC_HOUR        = 60085
+REG_RTC_MINUTE      = 60086
+REG_RTC_SECOND      = 60087
+
 
 
 class McushModbus():
+    DEFAULT_TIMEOUT = 5
 
     def disconnect( self ):
         self.client.close()
@@ -42,10 +54,13 @@ class McushModbusRTU(McushModbus):
 
 
 class McushModbusTCP(McushModbus):
-    PORT = 502
-   
+    DEFAULT_NET_PORT = 502
+    DEFAULT_TIMEOUT = 30  # longer for network
+ 
     def connect( self ):
-        self.client = pymodbus.client.sync.ModbusTcpClient(self.ip, port=self.PORT)
+        self.client = pymodbus.client.sync.ModbusTcpClient(
+                        self.net_addr, port=self.net_port,
+                        timeout=self.DEFAULT_TIMEOUT )
         self.client.connect()
         self.updateInfo()
 

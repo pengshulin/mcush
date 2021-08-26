@@ -1142,6 +1142,12 @@ tcp_output(struct tcp_pcb *pcb)
         useg = seg;
       /* unacked list is not empty? */
       } else {
+
+        useg = pcb->unacked;
+        if (useg != NULL) {
+          for (; useg->next != NULL; useg = useg->next);
+        }
+
         /* In the case of fast retransmit, the packet should not go to the tail
          * of the unacked queue, but rather somewhere before it. We need to check for
          * this case. -STJ Jul 27, 2004 */
@@ -1160,6 +1166,7 @@ tcp_output(struct tcp_pcb *pcb)
           useg->next = seg;
           useg = useg->next;
         }
+    
       }
     /* do not queue empty segments on the unacked list */
     } else {

@@ -313,7 +313,7 @@ class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
     '''VAP 2xx Series over ModbusTCP'''
     DEFAULT_NAME = 'VAP_Modbus'
 
-    def __init__( self, ip, *args, **kwargs ):
+    def __init__( self, net_addr, *args, **kwargs ):
         # logging level 
         self.verbose = Env.VERBOSE
         self.debug = Env.DEBUG
@@ -330,13 +330,17 @@ class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
         logging.basicConfig( level=level, format=Env.LOG_FORMAT, datefmt=Env.LOG_DATEFMT )
         self.logger = logging.getLogger( self.DEFAULT_NAME )
 
-        self.ip = ip
-        self.port = self.PORT
+        self.net_addr = net_addr
+        self.net_port = self.DEFAULT_NET_PORT
         self.model = None
         self.version = None
         self.sn = None
         self.sample_length = None
         self.sample_rate = None
+
+        if 'timeout' in kwargs:
+            self.DEFAUT_TIMEOUT = kwargs['timeout']
+
         if kwargs.get('connect', True):
             self.connect()
 

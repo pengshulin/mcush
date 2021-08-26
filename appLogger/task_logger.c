@@ -69,7 +69,7 @@ static char *convert_logger_event_to_str( logger_event_t *evt, char *buf )
 {
     char tp[2];
 
-#if HAL_RTC
+#if HAL_RTC && LOGGER_SUPPORT_RTC_TIMESTAMP
     if( ! get_rtc_tick_str( buf, evt->time ) )
         get_tick_time_str( buf, evt->time, 1 );
 #else

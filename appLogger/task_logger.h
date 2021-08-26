@@ -92,6 +92,11 @@
     #define TASK_LOGGER_LAZY_CLOSE_MS  (200)
 #endif
 
+/* if rtc is synced, use timestamp YYYY-MM-DD HH:MM:SS instead of os tick string */
+#ifndef LOGGER_SUPPORT_RTC_TIMESTAMP
+    #define LOGGER_SUPPORT_RTC_TIMESTAMP  1
+#endif
+
 
 #define LOG_DEBUG   0x01
 #define LOG_INFO    0x02
