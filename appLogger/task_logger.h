@@ -7,7 +7,11 @@
    no matter it's disabled or not, real-time shell log monitoring
    is always available  */
 #ifndef LOGGER_ENABLE
-    #define LOGGER_ENABLE  1
+    #if MCUSH_SPIFFS
+        #define LOGGER_ENABLE  1
+    #else
+        #define LOGGER_ENABLE  0
+    #endif
 #endif
 
 /* default full log file pathname */
@@ -74,7 +78,7 @@
 
 /* default queue size */
 #ifndef TASK_LOGGER_QUEUE_SIZE
-    #define TASK_LOGGER_QUEUE_SIZE  (20)
+    #define TASK_LOGGER_QUEUE_SIZE  (30)
 #endif
 
 /* default shell monitor queue size, events from logger queue will be

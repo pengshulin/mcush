@@ -477,7 +477,7 @@ int cmd_sgpio( int argc, char *argv[] )
                 shell_str_input, cfg->input_mode,
                 shell_str_loop, cfg->loop_mode?'1':'0', 
                 shell_str_frequency, cfg->freq );
-            shell_printf( "buf_out:0x%08X  buf_in:0x%08X  %s:%d\n", 
+            shell_printf( "buf_out:%p  buf_in:%p  %s:%d\n", 
                 cfg->buf_out, cfg->buf_in, 
                 shell_str_length, cfg->buf_len );
         } 
@@ -1564,9 +1564,9 @@ int cmd_upgrade( int argc, char *argv[] )
 
     if( !cmd || strcmp( cmd, shell_str_info ) == 0 )
     {
-        shell_printf( "%s: 0x%08X\n", shell_str_address, FLASH_UPGRADE_ADDR_BASE );
+        shell_printf( "%s: %p\n", shell_str_address, FLASH_UPGRADE_ADDR_BASE );
         shell_printf( "%s: %u\n", shell_str_size, FLASH_UPGRADE_SIZE );
-        shell_printf( "flags_%s: 0x%08X\n", shell_str_address, FLASH_BOOTLOADER_FLAG_ADDR_BASE );
+        shell_printf( "flags_%s: %p\n", shell_str_address, FLASH_BOOTLOADER_FLAG_ADDR_BASE );
         shell_printf( "flags_%s: %u\n", shell_str_size, FLASH_BOOTLOADER_FLAG_SIZE );
     }
     else if( strcmp( cmd, shell_str_erase ) == 0 )
@@ -1590,7 +1590,7 @@ int cmd_upgrade( int argc, char *argv[] )
             }
         }
         else
-            shell_printf( "0x%08X\n", offset );
+            shell_printf( "%p\n", offset );
     }
     else if( (strcmp( cmd, shell_str_program ) == 0) || (strcmp( cmd, "p" ) == 0) )
     {

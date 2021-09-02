@@ -136,7 +136,7 @@ extern "C" {
     #define USE_CMD_WRITE  1
 #endif
 #ifndef USE_CMD_MFILL
-    #define USE_CMD_MFILL  1
+    #define USE_CMD_MFILL  0
 #endif
 #ifndef USE_CMD_DELAY
     #define USE_CMD_DELAY  1

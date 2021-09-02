@@ -654,7 +654,7 @@ void os_task_info_print(void)
 #endif
             strncpy( name, thread->name, 8 );
             name[8] = 0;
-            shell_printf("%8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n", name, c, (uint32_t)thread,
+            shell_printf("%8s %c %p %d/%d %p %p (free %d)\n", name, c, (uint32_t)thread,
                         thread->current_priority, thread->init_priority,
                         (uint32_t)thread->stack_addr, (uint32_t)thread->sp, free_bytes);
         }
@@ -696,7 +696,7 @@ void os_queue_info_print(void)
                 pool_bytes = m->max_msgs * m->msg_size;
                 strncpy( name, m->parent.parent.name, 8 );
                 name[8] = 0;
-                shell_printf("%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n",
+                shell_printf("%8s %p  %5d %4d %4d  %p - %p (%p)\n",
                             name, (uint32_t)m,
                             m->max_msgs, m->msg_size, m->entry, 
                             (int)m->msg_pool, (int)m->msg_pool+pool_bytes,

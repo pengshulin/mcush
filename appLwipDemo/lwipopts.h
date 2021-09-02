@@ -4,6 +4,10 @@
 
 #include "mcush.h"
 
+#if NO_SYS
+#error "NO_SYS not supported"
+#endif
+
 #define SYS_LIGHTWEIGHT_PROT            1
 
 #define ETHARP_TRUST_IP_MAC             0
@@ -11,22 +15,27 @@
 #define IP_FRAG                         0
 #define ARP_QUEUEING                    0
 
-#define NO_SYS                          0
-
 #ifndef MEM_LIBC_MALLOC
-#define MEM_LIBC_MALLOC                 0  /* 1 - use default malloc, 0 - use lwip mem management */
+    #define MEM_LIBC_MALLOC             1  /* 1 - use default malloc, 0 - use lwip mem management */
 #endif
 
 #if MEM_LIBC_MALLOC
-#define mem_clib_malloc                 os_malloc
-#define mem_clib_calloc                 os_realloc
-#define mem_clib_free                   os_free
+    #define mem_clib_malloc             os_malloc
+    #define mem_clib_calloc             os_calloc
+    #define mem_clib_free               os_free
+#else
+    #if DEBUG
+        #define MEM_SANITY_CHECK        1  /* supports mem_sanity() */
+        //#define MEM_OVERFLOW_CHECK      0  /* 0 - no check (default) */
+        //#define MEM_OVERFLOW_CHECK      1  /* 1 - single element when freed */
+        #define MEM_OVERFLOW_CHECK      2  /* 2 - all elements when malloced/freed */
+    #endif
 #endif
 
 #define MEM_ALIGNMENT                   4  // 4Bytes for ARM
 
 #ifndef MEM_SIZE
-#define MEM_SIZE                        (20*1024)  // heap size
+#define MEM_SIZE                        (10*1024)  // heap size
 #endif
 
 #define MEM_USE_POOLS                   0  /* needs customized pool defination */
@@ -40,6 +49,8 @@
 
 /* add ld section tag for memory pools */
 #define LWIP_DECLARE_MEMORY_ALIGNED(name, bytes)  u8_t name[LWIP_MEM_ALIGN_BUFFER(bytes)] __attribute__((section(".bss.lwip_mem")))
+
+#define LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT      0
 
 
 #define PBUF_POOL_SIZE                  40  // pool size
@@ -56,7 +67,7 @@
 #define TCP_SND_BUF                     (5*TCP_MSS) /* TCP sender buffer space (bytes). */
 
 /* TCP sender buffer space (pbufs). This must be at least as much as (2 * TCP_SND_BUF/TCP_MSS) for things to work. */
-#define TCP_SND_QUEUELEN                (4* TCP_SND_BUF/TCP_MSS)
+#define TCP_SND_QUEUELEN                (4*TCP_SND_BUF/TCP_MSS)
 
 #define TCP_WND                         (2*TCP_MSS)  /* TCP receive window. */
 
@@ -88,48 +99,49 @@
 #define LWIP_SOCKET                     1  // Enable Socket API (sockets.c)
 
 #if DEBUG
-#define TCP_DEBUG_PCB_LISTS             1
-#define LWIP_DEBUG                      1
-//#define LWIP_DEBUG_TIMERNAMES           1
-//#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_WARNING
-//#define ETHARP_DEBUG                    LWIP_DBG_ON
-//#define NETIF_DEBUG                     LWIP_DBG_ON
-//#define PBUF_DEBUG                      LWIP_DBG_ON
-//#define API_LIB_DEBUG                   LWIP_DBG_ON
-//#define SOCKETS_DEBUG                   LWIP_DBG_ON
-//#define ICMP_DEBUG                      LWIP_DBG_ON
-//#define IGMP_DEBUG                      LWIP_DBG_ON
-//#define INET_DEBUG                      LWIP_DBG_ON
-//#define IP_DEBUG                        LWIP_DBG_ON
-//#define MEM_DEBUG                       LWIP_DBG_ON
-//#define MEMP_DEBUG                      LWIP_DBG_ON
-//#define SYS_DEBUG                       LWIP_DBG_ON
-//#define TIMERS_DEBUG                    LWIP_DBG_ON
-//#define TCP_DEBUG                       LWIP_DBG_ON
-//#define TCP_INPUT_DEBUG                 LWIP_DBG_ON
-//#define TCP_FR_DEBUG                    LWIP_DBG_ON
-//#define TCP_RTO_DEBUG                   LWIP_DBG_ON
-//#define TCP_CWND_DEBUG                  LWIP_DBG_ON
-//#define TCP_WND_DEBUG                   LWIP_DBG_ON
-//#define TCP_OUTPUT_DEBUG                LWIP_DBG_ON
-//#define TCP_RST_DEBUG                   LWIP_DBG_ON
-//#define TCP_QLEN_DEBUG                  LWIP_DBG_ON
-//#define TCPIP_DEBUG                     LWIP_DBG_ON
-//#define UDP_DEBUG                       LWIP_DBG_ON
-//#define SLIP_DEBUG                      LWIP_DBG_ON
-//#define DHCP_DEBUG                      LWIP_DBG_ON
-//#define DNS_DEBUG                       LWIP_DBG_ON
-#include "task_logger.h"
-#define LWIP_PLATFORM_DIAG(message)     do{logger_printf_debug2 message;}while(0)
-#define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
+    #define TCP_DEBUG_PCB_LISTS             1
+    #define LWIP_DEBUG                      1
+    //#define LWIP_DEBUG_TIMERNAMES           1
+    //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_WARNING
+    #define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ALL
+    //#define ETHARP_DEBUG                    LWIP_DBG_ON
+    //#define NETIF_DEBUG                     LWIP_DBG_ON
+    //#define API_LIB_DEBUG                   LWIP_DBG_ON
+    //#define SOCKETS_DEBUG                   LWIP_DBG_ON
+    //#define ICMP_DEBUG                      LWIP_DBG_ON
+    //#define IGMP_DEBUG                      LWIP_DBG_ON
+    //#define INET_DEBUG                      LWIP_DBG_ON
+    //#define IP_DEBUG                        LWIP_DBG_ON
+    //#define PBUF_DEBUG                      LWIP_DBG_ON
+    //#define MEM_DEBUG                       LWIP_DBG_ON
+    //#define MEMP_DEBUG                      LWIP_DBG_ON
+    //#define SYS_DEBUG                       LWIP_DBG_ON
+    //#define TIMERS_DEBUG                    LWIP_DBG_ON
+    //#define TCP_DEBUG                       LWIP_DBG_ON
+    //#define TCP_INPUT_DEBUG                 LWIP_DBG_ON
+    //#define TCP_FR_DEBUG                    LWIP_DBG_ON
+    //#define TCP_RTO_DEBUG                   LWIP_DBG_ON
+    //#define TCP_CWND_DEBUG                  LWIP_DBG_ON
+    //#define TCP_WND_DEBUG                   LWIP_DBG_ON
+    //#define TCP_OUTPUT_DEBUG                LWIP_DBG_ON
+    //#define TCP_RST_DEBUG                   LWIP_DBG_ON
+    //#define TCP_QLEN_DEBUG                  LWIP_DBG_ON
+    //#define TCPIP_DEBUG                     LWIP_DBG_ON
+    //#define UDP_DEBUG                       LWIP_DBG_ON
+    //#define SLIP_DEBUG                      LWIP_DBG_ON
+    //#define DHCP_DEBUG                      LWIP_DBG_ON
+    //#define DNS_DEBUG                       LWIP_DBG_ON
+    #include "task_logger.h"
+    #define LWIP_PLATFORM_DIAG(message)     do{logger_printf_debug2 message;}while(0)
+    #define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
 #else
-#undef LWIP_DEBUG                      
-/* NOTE:
-   in release mode, there are two different methods below */
-/* 1: ignore ASSERT and the lwip stack MAY STILL WORKS (MAYBE NOT) */
-//#define LWIP_PLATFORM_ASSERT(message)  /* define macro as ignored */
-/* 2: halt the cpu on ASSERT, then reset by wdg */
-#define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
+    #undef LWIP_DEBUG                      
+    /* NOTE:
+       in release mode, there are two different methods below */
+    /* 1: ignore ASSERT and the lwip stack MAY STILL WORKS (MAYBE NOT) */
+    //#define LWIP_PLATFORM_ASSERT(message)  /* define macro as ignored */
+    /* 2: halt the cpu on ASSERT, then reset by wdg */
+    #define LWIP_PLATFORM_ASSERT(message)   do{halt(message);}while(0)
 #endif
 
 #define LWIP_DNS                        1  // Enable DNS API
@@ -149,12 +161,15 @@
 
 #define TCPIP_THREAD_NAME               "tcpipT"
 #define TCPIP_THREAD_STACKSIZE          4*1024
-#define TCPIP_MBOX_SIZE                 5
+#define TCPIP_THREAD_PRIO               OS_PRIORITY_LOW
+#define TCPIP_MBOX_SIZE                 16
+
+#define DEFAULT_THREAD_STACKSIZE        2*1024
+#define DEFAULT_THREAD_PRIO             OS_PRIORITY_LOW
+
 #define DEFAULT_UDP_RECVMBOX_SIZE       2000
 #define DEFAULT_TCP_RECVMBOX_SIZE       2000
 #define DEFAULT_ACCEPTMBOX_SIZE         2000
-#define DEFAULT_THREAD_STACKSIZE        2*1024
-#define TCPIP_THREAD_PRIO               (MCUSH_PRIORITY - 1)
 
 #define LWIP_COMPAT_MUTEX               0
 

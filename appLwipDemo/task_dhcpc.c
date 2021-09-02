@@ -12,6 +12,7 @@
 #include "lwip/ip.h"
 #include "lwip/tcpip.h"
 #include "lwip/dns.h"
+#include "lwip/stats.h"
 #include "ethernetif.h"
 #include "lwip_lib.h"
 #include "hal_eth.h"
@@ -124,7 +125,7 @@ void do_lwip_init(void)
     int i;
 
     hal_eth_init();
-
+   
     tcpip_init( NULL, NULL );
  
     no_config = 0; 
@@ -307,11 +308,48 @@ void task_dhcpc_entry(void *arg)
 }
 
 
+__weak int lwip_test(void)
+{
+    return 1; 
+}
+
+
 int cmd_lwip( int argc, char *argv[] )
 {
-    (void)argc;
-    (void)argv;
-    stats_display();
+    char *name;
+    int idx, i;
+
+    if( argc < 2 )
+    {
+        /* not argument, print all */
+        stats_display();
+        return 0;
+    }
+    
+    for( idx=1; idx<argc; idx++ )
+    {
+        name = argv[idx];
+        if( strcasecmp( name, "sys" ) == 0 )
+        {
+            SYS_STATS_DISPLAY();
+        }
+        else if( strcasecmp( name, "heap" ) == 0 )
+        {
+            MEM_STATS_DISPLAY();
+        }
+        else if( strcasecmp( name, "memp" ) == 0 )
+        {
+            for( i=0; i<MEMP_MAX; i++ )
+                MEMP_STATS_DISPLAY(i);
+        }
+        /* TODO: other stats if necessary */ 
+        else if( strcasecmp( name, "test" ) == 0 )
+        {
+            /* do some test */
+            return lwip_test() ? 0 : 1;
+        }
+    }
+     
     return 0;
 }
 

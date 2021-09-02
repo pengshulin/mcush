@@ -529,6 +529,9 @@ static int print (
                 **out = 'x';
                 *out += 1;
                 pc += 2;
+                if( width == 0 )  /* if not assigned width */
+                    width = flag_half ? 4 : 8;  /* 16bits / 32bits address */
+                pad |= PAD_ZERO;
 			__fallthrough
             case 'X':
             {

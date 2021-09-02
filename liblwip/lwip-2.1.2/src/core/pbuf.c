@@ -83,6 +83,8 @@
 #if LWIP_CHECKSUM_ON_COPY
 #include "lwip/inet_chksum.h"
 #endif
+#include "task_logger.h"
+LOGGER_MODULE_NAME("pbuf");
 
 #include <string.h>
 
@@ -295,7 +297,8 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
       LWIP_ASSERT("pbuf_alloc: erroneous type", 0);
       return NULL;
   }
-  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_alloc(length=%"U16_F") == %p\n", length, (void *)p));
+  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_alloc(layer=%u length=%"U16_F") == %p\n", layer, length, (void *)p));
+    //logger_printf_debug("alloc layer=%d len=%d type=0x%X --> %p",layer,length,type,p);
   return p;
 }
 
@@ -515,8 +518,8 @@ pbuf_add_header_impl(struct pbuf *p, size_t header_size_increment, u8_t force)
       return 1;
     }
   }
-  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_add_header: old %p new %p (%"U16_F")\n",
-              (void *)p->payload, (void *)payload, increment_magnitude));
+  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_add_header: old %p new %p (%"U16_F"), p=%p\n",
+              (void *)p->payload, (void *)payload, increment_magnitude, p));
 
   /* modify pbuf fields */
   p->payload = payload;
@@ -727,6 +730,8 @@ pbuf_free(struct pbuf *p)
   u8_t alloc_src;
   struct pbuf *q;
   u8_t count;
+    
+    //logger_printf_debug("free %p, ref=%d",p,p->ref);
 
   if (p == NULL) {
     LWIP_ASSERT("p != NULL", p != NULL);

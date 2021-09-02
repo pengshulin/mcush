@@ -898,7 +898,7 @@ fail:
 
 /* load priority sequence:
  * 1. /c/init    (user configured)
- * 2. /r/init    (compiler builtin)
+ * 2. /r/init    (builtin romfs contents)
  */
 static int load_init_script(void)
 {

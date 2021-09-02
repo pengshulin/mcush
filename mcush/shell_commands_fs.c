@@ -643,7 +643,7 @@ int cmd_crc( int argc, char *argv[] )
         return 1;
     if( mcush_file_crc32(fname, &crc) == 0 )
         return 1;     
-    shell_printf("0x%08X\n", crc);
+    shell_printf("%p\n", crc);
     return 0;
 }
 #endif
@@ -692,7 +692,7 @@ int cmd_fcfs( int argc, char *argv[] )
 
     if( !cmd || strcmp( cmd, shell_str_info ) == 0 )
     {
-        shell_printf( "%s: 0x%08X\n", shell_str_address, FLASH_FCFS_ADDR_BASE );
+        shell_printf( "%s: %p\n", shell_str_address, FLASH_FCFS_ADDR_BASE );
         shell_printf( "%s: %u\n", shell_str_size, FLASH_FCFS_SIZE );
         shell_printf( "uid: %s\n", hexlify((const char*)(head->uid), (char*)buf, sizeof(head->uid), 1) );
     }
@@ -715,7 +715,7 @@ int cmd_fcfs( int argc, char *argv[] )
             }
         }
         else
-            shell_printf( "0x%08X\n", offset );
+            shell_printf( "%p\n", offset );
     }
     else if( (strcmp( cmd, shell_str_program ) == 0) || 
              (strcmp( cmd, "p") == 0) )
@@ -978,7 +978,7 @@ int cmd_fatfs( int argc, char *argv[] )
         shell_printf( "Type: %d\n", hsd.SdCard.CardType );
         shell_printf( "Version: %d\n", hsd.SdCard.CardVersion );
         shell_printf( "Class: %d\n", hsd.SdCard.Class );
-        shell_printf( "RelCardAdd: 0x%08X\n", hsd.SdCard.RelCardAdd );
+        shell_printf( "RelCardAdd: %p\n", hsd.SdCard.RelCardAdd );
         shell_printf( "BlockNbr: %d\n", hsd.SdCard.BlockNbr );
         shell_printf( "BlockSize: %d\n", hsd.SdCard.BlockSize );
         shell_printf( "LogBlockNbr: %d\n", hsd.SdCard.LogBlockNbr );

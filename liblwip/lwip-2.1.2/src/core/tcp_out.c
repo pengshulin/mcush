@@ -913,6 +913,7 @@ tcp_split_unsent_seg(struct tcp_pcb *pcb, u16_t split)
 
   seg = tcp_create_segment(pcb, p, remainder_flags, lwip_ntohl(useg->tcphdr->seqno) + split, optflags);
   if (seg == NULL) {
+    p = NULL; /* Freed by tcp_create_segment */
     LWIP_DEBUGF(TCP_OUTPUT_DEBUG | LWIP_DBG_LEVEL_SERIOUS,
                 ("tcp_split_unsent_seg: could not create new TCP segment\n"));
     goto memerr;
@@ -1384,10 +1385,9 @@ tcp_output(struct tcp_pcb *pcb)
         /* unacked list is not empty? */
       } else {
 
-        useg = pcb->unacked;
-        if (useg != NULL) {
-          for (; useg->next != NULL; useg = useg->next);
-        }
+        //useg = pcb->unacked;
+        //while( (useg != NULL) && (useg->next != NULL) )
+        //    useg = useg->next;
 
         /* In the case of fast retransmit, the packet should not go to the tail
          * of the unacked queue, but rather somewhere before it. We need to check for

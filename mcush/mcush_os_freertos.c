@@ -460,6 +460,13 @@ void *os_malloc( size_t bytes )
 }
 
 
+void *os_calloc( size_t nmemb, size_t size )
+{
+    return pvPortCalloc( nmemb, size );
+}
+
+
+
 void *os_realloc( void *old_mem, size_t bytes )
 {
     return pvPortRealloc( old_mem, bytes );
@@ -549,7 +556,7 @@ void os_task_info_print(void)
         default: c = '?'; break;
         } 
         
-        shell_printf( "%2d %8s %c 0x%08X %d/%d 0x%08X 0x%08X (free %d)\n",
+        shell_printf( "%2d %8s %c %p %d/%d %p %p (free %d)\n",
                     task_status_array[i].xTaskNumber,
                     task_status_array[i].pcTaskName, c, 
                     task_status_array[i].xHandle,
@@ -575,7 +582,7 @@ void os_queue_info_print(void)
         {
             if( mcushGetQueueInfo( queue, &qinfo ) )
             {
-                shell_printf( "%8s 0x%08X  %5d %4d %4d  0x%08X - 0x%08X (0x%08X)\n", name, (int)queue, 
+                shell_printf( "%8s %p  %5d %4d %4d  %p - %p (%p)\n", name, (int)queue, 
                     qinfo.uxLength, qinfo.uxItemSize, qinfo.uxMessagesWaiting, 
                     (int)qinfo.pcHead, (int)qinfo.pcTail, ((int)qinfo.pcTail-(int)qinfo.pcHead) );
             }

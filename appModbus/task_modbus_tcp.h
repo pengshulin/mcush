@@ -3,7 +3,7 @@
 #ifndef _TASK_MODBUS_TCP_H_
 #define _TASK_MODBUS_TCP_H_
 
-#define TASK_MODBUS_TCP_STACK_SIZE  (4*1024)
+#define TASK_MODBUS_TCP_STACK_SIZE  (3*1024)
 #define TASK_MODBUS_TCP_PRIORITY    (OS_PRIORITY_LOW)
 #define TASK_MODBUS_TCP_QUEUE_SIZE  (32)
 
@@ -26,12 +26,6 @@
 #ifndef MODBUS_TCP_ERR_COUNT
     #define MODBUS_TCP_ERR_COUNT   10
 #endif
-
-
-//#define CLIENT_MEM_MALLOC   os_malloc
-//#define CLIENT_MEM_FREE     os_free
-#define CLIENT_MEM_MALLOC   mem_malloc
-#define CLIENT_MEM_FREE     mem_free
 
 
 #define MODBUS_MULTI_REGISTER_LIMIT  (125)
@@ -63,8 +57,8 @@ typedef struct {
     uint8_t buf_locked;
     uint16_t client_id;
     uint16_t transaction_id;
+    uint16_t request_len;
     uint16_t reply_len;
-    uint16_t buf_len;
     uint16_t err_cnt;
     char buf[MODBUS_TCP_BUF_LEN_MAX];
     uint32_t tick_connect;
@@ -79,8 +73,6 @@ typedef struct {
 #define MODBUS_TCP_EVENT_RESET           13
 #define MODBUS_TCP_EVENT_START           14
 #define MODBUS_TCP_EVENT_CLOSE           15
-#define MODBUS_TCP_EVENT_REQUEST         20
-#define MODBUS_TCP_EVENT_REPLY           21
 
 #define MODBUS_LOG_FILE  "/s/modbus.log"
 

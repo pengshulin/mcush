@@ -487,8 +487,8 @@ void os_task_info_print(void)
         case osThreadTerminated: c='T'; break;
         default: c='?'; break;
         }
-        //shell_printf( "%02X%02X %8s %c 0x%08X %02d/%02d 0x%08X[+%05X] 0x%08X"
-        shell_printf( "%8s %c 0x%08X %02d/%02d 0x%08X[+%05X] 0x%08X"
+        //shell_printf( "%02X%02X %8s %c %p %02d/%02d %p[+%05X] %p"
+        shell_printf( "%8s %c %p %02d/%02d %p[+%05X] %p"
 #if OS_STACK_WATERMARK
                       " (free %d)"
 #endif

@@ -112,7 +112,7 @@ int cmd_system( int argc, char *argv[] )
     else if( strcmp( type, "heap" ) == 0 )
     {
         extern char *heap_end, _sheap, _eheap;
-        shell_printf( "%s: 0x%08X\n%s: 0x%08X\n%s: 0x%08X\n", 
+        shell_printf( "%s: %p\n%s: %p\n%s: %p\n", 
                         shell_str_start,  &_sheap, 
                         shell_str_current, heap_end,
                         shell_str_end, &_eheap ); 
@@ -123,7 +123,7 @@ int cmd_system( int argc, char *argv[] )
     {
         extern char _sstack, _estack;
         for( p=&_sstack, i=0; p<&_estack && (*p == 0xA5); p++, i++ );
-        shell_printf( "%s: 0x%08X\n%s: 0x%08X\n%s: %d\n", shell_str_start, &_sstack, shell_str_end, &_estack, shell_str_free, i );
+        shell_printf( "%s: %p\n%s: %p\n%s: %d\n", shell_str_start, &_sstack, shell_str_end, &_estack, shell_str_free, i );
     }
 #endif
 #if USE_CMD_SYSTEM_IDLE

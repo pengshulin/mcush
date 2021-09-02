@@ -27,6 +27,9 @@ static unsigned int modbus_client_id_new;
 
 void do_modbus_tcp_client_close(modbus_tcp_client_t *client);
 
+int pre_process_modbus_tcp_request( modbus_tcp_client_t *client );
+int post_process_modbus_tcp_reply( modbus_tcp_client_t *client );
+
 
 int send_modbus_tcp_event( uint8_t type, int8_t tag, uint32_t data )
 {
@@ -53,15 +56,6 @@ void modbus_server_restart_timer( void *arg )
     if( send_modbus_tcp_event( MODBUS_TCP_EVENT_START, -1, 0 ) )
         sys_untimeout( modbus_server_restart_timer, 0 );
 }
-
-
-void modbus_reply_resend_timer( void *arg )
-{
-    //logger_const_debug( "reply resend timer" );
-    if( send_modbus_tcp_event( MODBUS_TCP_EVENT_REPLY, -2, (uint32_t)arg ) )
-        sys_untimeout( modbus_reply_resend_timer, arg );
-}
-
 
 
 void modbus_tcp_error_cb(void *arg, err_t err)
@@ -91,18 +85,24 @@ void modbus_tcp_error_cb(void *arg, err_t err)
 }
 
 
-//err_t modbus_tcp_poll_cb(void *arg, struct tcp_pcb *tpcb)
-//{
-//    LOGGER_MODULE_NAME("modbus.poll");
-//    err_t ret_err = ERR_OK;
-//    modbus_tcp_client_t *client=(modbus_tcp_client_t *)arg;
-//
-//    if( client != NULL )
-//    {
-//        logger_printf_debug( "#%u 0x%08X", client->client_id, (uint32_t)tpcb );
-//    }
-//    return ret_err;
-//}
+err_t modbus_tcp_poll_cb(void *arg, struct tcp_pcb *tpcb)
+{
+    //LOGGER_MODULE_NAME("modbus.poll");
+    err_t ret_err = ERR_OK;
+    modbus_tcp_client_t *client=(modbus_tcp_client_t *)arg;
+
+    (void)tpcb;
+    post_process_modbus_tcp_reply( client );
+    //if( (client == NULL) || (client == CLIENT_CLOSED_MARK) )
+    //{
+    //    logger_const_error( "client invalid" );
+    //    return ERR_ABRT;
+    //}
+    //
+    //logger_printf_debug( "#%u %p", client->client_id, (uint32_t)tpcb );
+
+    return ret_err;
+}
 
 
 //err_t modbus_tcp_sent_cb(void *arg, struct tcp_pcb *tpcb, u16_t len)
@@ -123,13 +123,19 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
     LOGGER_MODULE_NAME("modbus.recv");
     modbus_tcp_client_t *client=(modbus_tcp_client_t *)arg;
     err_t ret_err;
-    struct pbuf *p2;
+    //struct pbuf *p2;
     modbus_tcp_head_t *head;
+    uint32_t newlen;
 
-    if( (client==NULL) || (client==CLIENT_CLOSED_MARK) )
+    if( tpcb == NULL )
+    {
+        logger_const_error( "null tpcp" );
+        ret_err = ERR_ARG;
+    }
+    else if( (client==NULL) || (client==CLIENT_CLOSED_MARK) )
     {
         logger_const_warn( "closed client" );
-        ret_err = ERR_CLSD; //ERR_OK;
+        ret_err = ERR_CLSD;
     }
     else if( p == NULL )
     {
@@ -141,9 +147,10 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
     else if(err != ERR_OK)
     {
         /* cleanup, for unknown reason */
+        logger_printf_warn( "err=%d", err );
         if( p != NULL )
         {
-            logger_printf_warn( "err=%d", err );
+            tcp_recved(tpcb, p->tot_len);
             pbuf_free(p);
         }
         ret_err = err;
@@ -160,31 +167,26 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
             pbuf_free(p);
             return ERR_OK;
         }
-        /* prepare/pre-check input packet before process */
-        p2 = p;
-        client->buf_len = 0;
-        while( p2 != NULL )
+        if( client->pending_request )
         {
-            if( p2->len + client->buf_len + 1 > MODBUS_TCP_BUF_LEN_MAX )
-            {
-                logger_const_warn( "buffer overflow" );
-                memcpy( client->buf+client->buf_len, p2->payload, MODBUS_TCP_BUF_LEN_MAX-client->buf_len );
-                client->buf_len = MODBUS_TCP_BUF_LEN_MAX;
-                break;
-            }
-            memcpy( client->buf+client->buf_len, p2->payload, p2->len );
-            client->buf_len += p2->len;
-            p2 = p2->next;
+            logger_printf_debug( "#%d request pending, ignore", client->client_id );
+            tcp_recved(tpcb, p->tot_len);
+            pbuf_free(p);
+            return ERR_OK;
         }
+        /* prepare/pre-check input packet before process */
+        client->pending_request = 0;
+        newlen = pbuf_copy_partial( p, client->buf, MODBUS_TCP_BUF_LEN_MAX, 0 ); 
+        client->request_len = newlen;
         tcp_recved(tpcb, p->tot_len);
         pbuf_free(p);
 
         /* process packet */
-        if( client->buf_len >= sizeof(modbus_tcp_head_t) )
+        if( newlen >= sizeof(modbus_tcp_head_t) )
         {
             head = (modbus_tcp_head_t*)client->buf;
             swap_bytes( (uint8_t*)&head->bytes, ((uint8_t*)&head->bytes)+1 );
-            if( client->buf_len != sizeof(modbus_tcp_head_t) - 2 + head->bytes )
+            if( newlen != sizeof(modbus_tcp_head_t) - 2 + head->bytes )
             {
                 /* invalid data length */
                 logger_const_warn( "length err" );
@@ -199,7 +201,15 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
                 }
                 else
                 {
-                    send_modbus_tcp_event( MODBUS_TCP_EVENT_REQUEST, -3, (uint32_t)client );
+                    client->pending_request = 1;
+                    if( pre_process_modbus_tcp_request( client ) )
+                    {
+                        post_process_modbus_tcp_reply( client );
+                    }
+                    else
+                    {
+                        logger_const_error( "request process err" );
+                    }
                 }
             }
         }
@@ -208,6 +218,7 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
             logger_const_warn( "head err" );
             client->err_cnt++;
         }
+
         if( client->err_cnt > MODBUS_TCP_ERR_COUNT )
         {
             do_modbus_tcp_client_close( client );
@@ -247,13 +258,13 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
     {
         if( clients[i] == NULL )
         {
-            client = (modbus_tcp_client_t *)CLIENT_MEM_MALLOC(sizeof(modbus_tcp_client_t));
+            client = (modbus_tcp_client_t *)mem_malloc(sizeof(modbus_tcp_client_t));
             if( client == NULL )
                 logger_const_error( "mem err" );
             break;
         }
     }
-    /* create fail, or slots full, try to reclaim unused clients */
+    /* create failed, or slots full, try to reclaim from existing clients */
     if( (client == NULL) || (i >= MODBUS_TCP_NUM) )
     {
         /* try to reclaim the tpcb with exceptions */
@@ -263,9 +274,11 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
             tpcb = client->tpcb;
             if( tpcb->state != ESTABLISHED )
             {
+                clients[i] = CLIENT_CLOSED_MARK;
                 tcp_arg(tpcb, CLIENT_CLOSED_MARK);
-                //tcp_shutdown(tpcb, 1, 1);
-                tcp_abort(tpcb);
+                tcp_poll(tpcb, NULL, 0);
+                tcp_shutdown(tpcb, 1, 1);
+                //tcp_abort(tpcb);
                 logger_printf_info( "client #d reclaimed", client->client_id );
                 break;
             }
@@ -284,12 +297,11 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
     {
         clients[i] = client;
         client->tpcb = newpcb;
-        client->pending_request = 0;
-        client->pending_reply = 0;
-        client->retries = 0;
+        client->pending_request = client->pending_reply = 0;
         client->client_id = ++modbus_client_id_new;
-        client->buf_len = 0;
+        client->request_len = client->reply_len = 0;
         client->buf_locked = 0;
+        client->retries = 0;
         client->err_cnt = 0;
         client->transaction_id = 0;
         client->tick_connect = client->tick_last = os_tick();
@@ -298,9 +310,10 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
         tcp_arg(newpcb, client);
         tcp_recv(newpcb, modbus_tcp_recv_cb);
         tcp_err(newpcb, modbus_tcp_error_cb);
+        tcp_poll(newpcb, modbus_tcp_poll_cb, 1);  /* every 500ms */
         //tcp_sent(newpcb, modbus_tcp_sent_cb);
         sprintf_ip( buf, newpcb->remote_ip.addr, 0, 0 );
-        logger_printf_info( "client #%u (%s/%d) connected 0x%08X", client->client_id, buf, newpcb->remote_port, (void*)newpcb );
+        logger_printf_info( "client #%u (%s/%d) connected %p", client->client_id, buf, newpcb->remote_port, (void*)newpcb );
         ret_err = ERR_OK;
     }
     else
@@ -325,6 +338,7 @@ void do_modbus_tcp_client_close(modbus_tcp_client_t *client)
     if( tpcb != NULL )
     {
         tcp_arg(tpcb, CLIENT_CLOSED_MARK);
+        tcp_poll(tpcb, NULL, 0);
         tcp_shutdown(tpcb, 1, 1);
     }
     /* unregister from clients list */
@@ -335,12 +349,12 @@ void do_modbus_tcp_client_close(modbus_tcp_client_t *client)
             clients[i] = 0;
     }
     //os_exit_critical();
-    CLIENT_MEM_FREE(client);
-    logger_printf_info( "client #%u closed 0x%08X", client_id, tpcb );
+    mem_free(client);
+    logger_printf_info( "client #%u closed %p", client_id, tpcb );
 }
 
 
-int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uint16_t size, uint16_t *payload, int *write )
+int exec_modbus_tcp_request( modbus_tcp_head_t *head, uint16_t address, uint16_t size, uint16_t *payload, int *write )
 {
     uint16_t *buf = payload + 2;
     uint8_t *buf2 = (uint8_t*)buf;
@@ -500,14 +514,101 @@ int do_process_modbus_tcp_packet( modbus_tcp_head_t *head, uint16_t address, uin
 }
 
 
+int pre_process_modbus_tcp_request( modbus_tcp_client_t *client )
+{
+    modbus_tcp_head_t *head;
+    uint16_t transaction_id, address, size, *payload;
+    int write;
+    int i;
+
+    if( (client == NULL) || (client == CLIENT_CLOSED_MARK) )
+        return 0;
+    if( client->pending_request == 0 )
+        return 0;
+
+    head = (modbus_tcp_head_t*)client->buf;
+    transaction_id = head->transaction_id;
+    address = *(uint16_t*)(client->buf+sizeof(modbus_tcp_head_t));
+    size = *(uint16_t*)(client->buf+sizeof(modbus_tcp_head_t)+2);
+    swap_bytes( (uint8_t*)&transaction_id, ((uint8_t*)&transaction_id)+1 );
+    swap_bytes( (uint8_t*)&address, ((uint8_t*)&address)+1 );
+    swap_bytes( (uint8_t*)&size, ((uint8_t*)&size)+1 );
+    //logger_printf_info( "TID 0x%04X, LEN %u, CODE %u, ADDR 0x%04X, SIZE %u",
+    //    transaction_id, head->bytes, head->function_code, address, size );
+#if MODBUS_TCP_CHECK_TRANSACTION_ID_SEQ
+    if( transaction_id != ((client->transaction_id+1)&0xFFFF) )
+    {
+        logger_printf_warn( "tid err require=%d recv=%d", (client->transaction_id+1)&0xFFFF, transaction_id );
+        do_modbus_tcp_client_close( client );
+        break;
+    }
+#endif
+    payload = (uint16_t*)(client->buf+sizeof(modbus_tcp_head_t));
+    i = exec_modbus_tcp_request( (modbus_tcp_head_t*)client->buf, address, size, payload, &write );
+    if( i )
+    {
+        /* send error response */
+        head->function_code |= 0x80;
+        *((uint8_t*)payload) = i;
+        write = 1;
+        logger_printf_warn( "packet process err=%d", i );
+    }
+    else
+    {
+        /* normal packet, update tick */
+        client->tick_last = os_tick();
+    }
+    client->pending_request = 0;
+    head->bytes = 2 + write;
+    swap_bytes( (uint8_t*)&(head->bytes), ((uint8_t*)&(head->bytes))+1 );
+    client->buf_locked = 1;
+    client->transaction_id = transaction_id;
+    client->reply_len = sizeof(modbus_tcp_head_t) + write;
+    if( client->reply_len > MODBUS_TCP_BUF_LEN_MAX )
+        halt("reply_len too large");
+    client->pending_reply = 1;
+    client->retries = 0;
+    return 1;
+}
+
+
+int post_process_modbus_tcp_reply( modbus_tcp_client_t *client )
+{
+    if( (client == NULL) || (client == CLIENT_CLOSED_MARK) )
+        return 0;
+    if( client->pending_reply == 0 )
+        return 0;
+    if( client->buf_locked == 0 )
+        return 0;
+
+    if( ERR_OK == tcp_write( client->tpcb, (char*)client->buf, client->reply_len, TCP_WRITE_FLAG_COPY ) )
+    {
+        tcp_output( client->tpcb );
+        client->pending_reply = 0;
+        client->buf_locked = 0;
+    }
+    else
+    {
+        /* 10 * 500ms -> 5000ms total */
+        client->retries += 1;
+        if( client->retries <= 10 )
+        {
+            logger_printf_error( "tcp_write err #%d %p, len=%d tid=%d retry=%d", 
+                    client->client_id, client->tpcb, client->reply_len,
+                client->transaction_id, client->retries );
+        }
+        else
+            do_modbus_tcp_client_close( client );
+    }
+    return 1;
+}
+
+
 void task_modbus_tcp_entry(void *arg)
 {
     modbus_tcp_event_t evt;
     err_t err;
-    modbus_tcp_client_t *client;
-    modbus_tcp_head_t *head;
-    uint16_t transaction_id, address, size, *payload;
-    int write;
+    //modbus_tcp_client_t *client;
     int i;
 
     (void)arg;
@@ -536,7 +637,7 @@ void task_modbus_tcp_entry(void *arg)
                 {
                     modbus_tpcb = tcp_listen(modbus_tpcb);  /* the original modbus_tpcb has been freed */
                     tcp_accept( modbus_tpcb, modbus_tcp_accept_cb );
-                    logger_printf_debug( "listening on port %d, tpcb=0x%08X", MODBUS_TCP_PORT, modbus_tpcb );
+                    logger_printf_debug( "listening on port %d, tpcb=%p", MODBUS_TCP_PORT, modbus_tpcb );
                 }
                 else
                 {
@@ -563,91 +664,6 @@ void task_modbus_tcp_entry(void *arg)
                 tcp_close( modbus_tpcb );
                 modbus_tpcb = NULL;
                 logger_const_info( "server closed" );
-            }
-            break;
-
-        case MODBUS_TCP_EVENT_REQUEST:
-            client = (modbus_tcp_client_t *)(evt.data);
-            if( (client == NULL) || (client == CLIENT_CLOSED_MARK) )
-                break;
-            head = (modbus_tcp_head_t*)client->buf;
-            transaction_id = head->transaction_id;
-            address = *(uint16_t*)(client->buf+sizeof(modbus_tcp_head_t));
-            size = *(uint16_t*)(client->buf+sizeof(modbus_tcp_head_t)+2);
-            swap_bytes( (uint8_t*)&transaction_id, ((uint8_t*)&transaction_id)+1 );
-            swap_bytes( (uint8_t*)&address, ((uint8_t*)&address)+1 );
-            swap_bytes( (uint8_t*)&size, ((uint8_t*)&size)+1 );
-            //logger_printf_info( "TID 0x%04X, LEN %u, CODE %u, ADDR 0x%04X, SIZE %u",
-            //    transaction_id, head->bytes, head->function_code, address, size );
-#if MODBUS_TCP_CHECK_TRANSACTION_ID_SEQ
-            if( transaction_id != ((client->transaction_id+1)&0xFFFF) )
-            {
-                logger_printf_warn( "tid err require=%d recv=%d", (client->transaction_id+1)&0xFFFF, transaction_id );
-                do_modbus_tcp_client_close( client );
-                break;
-            }
-#endif
-            payload = (uint16_t*)(client->buf+sizeof(modbus_tcp_head_t));
-            i = do_process_modbus_tcp_packet( (modbus_tcp_head_t*)client->buf, address, size, payload, &write );
-            if( i )
-            {
-                /* send error response */
-                head->function_code |= 0x80;
-                *((uint8_t*)payload) = i;
-                write = 1;
-                logger_printf_warn( "packet process err=%d", i );
-            }
-            else
-            {
-                /* normal packet, update tick */
-                client->tick_last = os_tick();
-            }
-            head->bytes = 2 + write;
-            swap_bytes( (uint8_t*)&(head->bytes), ((uint8_t*)&(head->bytes))+1 );
-            client->buf_locked = 1;
-            client->transaction_id = transaction_id;
-            client->reply_len = sizeof(modbus_tcp_head_t) + write;
-            if( client->reply_len > MODBUS_TCP_BUF_LEN_MAX )
-                halt("reply_len too large");
-            client->pending_reply = 1;
-            client->retries = 0;
-            send_modbus_tcp_event( MODBUS_TCP_EVENT_REPLY, 1, evt.data );
-            break;
-
-        case MODBUS_TCP_EVENT_REPLY:
-            client = (modbus_tcp_client_t *)(evt.data);
-            if( (client == NULL) || (client == CLIENT_CLOSED_MARK) )
-                break;
-            if( ! client->pending_reply )
-                break;
-            if( client->buf_locked == 0 )
-                break;
-            //if( client->reply_len == 0 )
-            //    halt("reply_len == 0");
-            //if( client->tpcb == 0 )
-            //    halt("tpcb == 0");
-            //if( client->buf == 0 )
-            //    halt("buf == 0");
-            if( ERR_OK == tcp_write( client->tpcb, (char*)client->buf, client->reply_len, TCP_WRITE_FLAG_COPY ) )
-            {
-                tcp_output( client->tpcb );
-                client->pending_reply = 0;
-                client->buf_locked = 0;
-                break;
-            }
-            else
-            {
-                /* 10 * 500ms -> 5000ms total */
-                client->retries += 1;
-                if( client->retries <= 10 )
-                {
-                    logger_printf_error( "tcp_write err #%d 0x%08X, len=%d tid=%d retry=%d", 
-                            client->client_id, client->tpcb, client->reply_len,
-                        client->transaction_id, client->retries );
-                    sys_timeout( 500, modbus_reply_resend_timer, client );
-                }
-                else
-                    do_modbus_tcp_client_close( client );
             }
             break;
 
@@ -703,7 +719,7 @@ int cmd_modbus_tcp( int argc, char *argv[] )
         if( client == NULL )
             continue;
         tpcb = client->tpcb;
-        shell_printf("#%d 0x%08X 0x%08X", client->client_id, client, (uint32_t)tpcb);
+        shell_printf("#%d %p %p", client->client_id, client, (uint32_t)tpcb);
         sprintf_ip( buf, tpcb->remote_ip.addr, 0, 0 );
         shell_printf(" %s %d", buf, tpcb->remote_port);
         shell_printf(" %s", tcp_debug_state_str(tpcb->state));
@@ -729,11 +745,11 @@ void task_modbus_tcp_init(void)
 
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_QUEUE_BUFFER( modbus_tcp, TASK_MODBUS_TCP_QUEUE_SIZE, sizeof(modbus_tcp_event_t) );
-    queue_modbus_tcp = os_queue_create_static( "modbusTQ", 
+    queue_modbus_tcp = os_queue_create_static( "mbtcpQ", 
                     TASK_MODBUS_TCP_QUEUE_SIZE, sizeof(modbus_tcp_event_t),
                     &static_queue_buffer_modbus_tcp );
 #else
-    queue_modbus_tcp = os_queue_create_( "modbusTQ", 
+    queue_modbus_tcp = os_queue_create_( "mbtcpQ", 
                     TASK_MODBUS_TCP_QUEUE_SIZE, sizeof(modbus_tcp_event_t) );
 #endif
     if( queue_modbus_tcp == NULL )
@@ -741,11 +757,11 @@ void task_modbus_tcp_init(void)
 
 #if OS_SUPPORT_STATIC_ALLOCATION
     DEFINE_STATIC_TASK_BUFFER( modbus_tcp, TASK_MODBUS_TCP_STACK_SIZE );
-    task = os_task_create_static( "modbusTT", task_modbus_tcp_entry, NULL,
+    task = os_task_create_static( "mbtcpT", task_modbus_tcp_entry, NULL,
                 TASK_MODBUS_TCP_STACK_SIZE, TASK_MODBUS_TCP_PRIORITY,
                 &static_task_buffer_modbus_tcp );
 #else
-    task = os_task_create( "modbusTT", task_modbus_tcp_entry, NULL,
+    task = os_task_create( "mbtcpT", task_modbus_tcp_entry, NULL,
                 TASK_MODBUS_TCP_STACK_SIZE, TASK_MODBUS_TCP_PRIORITY );
 #endif
     if( task == NULL )

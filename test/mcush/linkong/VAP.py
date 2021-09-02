@@ -220,9 +220,6 @@ class VAP200( _vap ):
     def readSwitchConfig( self ):
         return int(self.daq('config')[0])
  
-    def setMCLK( self, clk=0 ):
-        self.daq( 'mclk', value=int(clk) )
- 
     def daqLock( self ):
         self.daq('lock')
 
@@ -447,7 +444,6 @@ class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
                 required = 125
             mem.extend( self.client.read_holding_registers(REG_BUFFER_BEGIN+read, required).registers )
             read += required 
-
         dat = []
         for i in range(self.sample_length):
             adc = (mem[i*2+1]<<16)+mem[i*2]

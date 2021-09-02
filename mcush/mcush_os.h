@@ -112,6 +112,7 @@ void os_timer_delete( os_timer_handle_t timer );
 
 /* memory */
 void *os_malloc( size_t bytes );
+void *os_calloc( size_t nmemb, size_t size );
 void *os_realloc( void *old_mem, size_t bytes );
 void os_free( void *mem );
 
