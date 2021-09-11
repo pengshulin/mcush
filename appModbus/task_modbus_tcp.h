@@ -23,6 +23,10 @@
     #define MODBUS_TCP_CHECK_TRANSACTION_ID_SEQ  0
 #endif
 
+#ifndef MODBUS_TCP_REPLY_RETRY
+    #define MODBUS_TCP_REPLY_RETRY  10  /* retry * 500ms */
+#endif
+
 #ifndef MODBUS_TCP_ERR_COUNT
     #define MODBUS_TCP_ERR_COUNT   10
 #endif

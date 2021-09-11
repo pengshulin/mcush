@@ -7,7 +7,9 @@ SECTIONS
         . = ALIGN(4);
         _sisr_vector = . ;
         KEEP(*(.isr_vector))
+        . = ALIGN(4);
         _eisr_vector = . ;
+        *(.after_vectors)
     } > FLASH
  
     .signature :

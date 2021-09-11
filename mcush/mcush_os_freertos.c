@@ -333,6 +333,12 @@ int os_mutex_get_isr( os_mutex_handle_t mutex )
 }
 
 
+os_task_handle_t os_mutex_holder( os_mutex_handle_t mutex )
+{
+    return xSemaphoreGetMutexHolder( mutex );
+}
+
+
 /* SEMAPHORE */
 
 os_semaphore_handle_t os_semaphore_create( int max_count, int init_count )

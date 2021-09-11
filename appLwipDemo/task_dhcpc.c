@@ -58,20 +58,19 @@ const ip_addr_t dns_baidu={.addr=0x4CB4B4B4};  // 180.76.76.76
 const ip_addr_t dns_open={.addr=0xDCDC43D0};  // 208.67.220.220
 const ip_addr_t dns_open2={.addr=0xDEDC43D0};  // 208.67.222.222
 
-char mac_address_init[6]; 
 
   
 
 /* mac address config file (/?/mac) ascii contents:
    line 1: AA:BB:CC:DD:EE:FF
  */
-int load_mac_from_conf_file(const char *fname)
+int load_mac_from_conf_file(const char *fname, char *mac_addr )
 {
-    char buf[64];
+    char buf[128];
 
     if( ! mcush_file_load_string( fname, buf, 64 ) )
         return 0;
-    return parse_mac_addr( strip(buf), mac_address_init );
+    return parse_mac_addr( strip(buf), mac_addr );
 }
 
 
@@ -104,37 +103,51 @@ void timer_dhcpc_callback( os_timer_handle_t timer )
     os_queue_put_isr( queue_dhcpc, (void*)&evt );
 }
 
+
+__weak void netif_link_callback(struct netif *netif)
+{
+    if( netif_is_link_up( netif ) )
+    {
+        netif_set_up( netif );
+        send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
+    }
+    else
+    {
+        netif_set_down( netif );
+        send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
+    }
+}
+
  
 void reset_address(void)
 {
+    LOCK_TCPIP_CORE();
     netif_set_addr( &gnetif, &reset_ipaddr, &reset_netmask, &reset_gateway );
     dns_setserver( 0, (const ip_addr_t *)&reset_gateway );
 #if DNS_MAX_SERVERS > 1
     //dns_setserver( 1, (const ip_addr_t *)&dns_google );
     //dns_setserver( 1, (const ip_addr_t *)&dns_114 );
 #endif
+    UNLOCK_TCPIP_CORE();
 }
 
 
 void do_lwip_init(void)
 {
+    char mac_addr[6]; 
     ip_addr_t ipaddr, netmask, gateway;
     char buf[256];
     unsigned int hash;
     int len, no_config;
     int i;
 
-    hal_eth_init();
-   
-    tcpip_init( NULL, NULL );
- 
     no_config = 0; 
-    if( !load_mac_from_conf_file("/s/mac") && !load_mac_from_conf_file("/c/mac") )
+    if( !load_mac_from_conf_file("/s/mac", mac_addr) && !load_mac_from_conf_file("/c/mac", mac_addr) )
     {
         no_config = 1; 
         /* fixed address: may conflicts when there are two or more devices */
-        //memcpy( mac_address_init, (void*)"\x00\x11\x22\x33\x44\x55", 6 );  /* simple integer */
-        memcpy( mac_address_init, (void*)"\x4C\x4B\x53\x4F\x46\x54", 6 ); /* LKSOFT */
+        //memcpy( mac_addr, (void*)"\x00\x11\x22\x33\x44\x55", 6 );  /* simple integer */
+        memcpy( mac_addr, (void*)"\x4C\x4B\x53\x4F\x46\x54", 6 ); /* LKSOFT */
         /* dynamic address: use serial number to encrypt the last 3 bytes of mac addr */
         len = hal_get_serial_number(buf);
         if( len )
@@ -145,12 +158,12 @@ void do_lwip_init(void)
                 //hash ^= buf[i]<<(8*(i%3));
                 hash ^= ((hash << 3) + buf[i] + (hash >> 2));  /* simple and quick */
             }
-            mac_address_init[3] = (hash>>16)&0xFF; 
-            mac_address_init[4] = (hash>>8)&0xFF; 
-            mac_address_init[5] = hash&0xFF; 
+            mac_addr[3] = (hash>>16)&0xFF; 
+            mac_addr[4] = (hash>>8)&0xFF; 
+            mac_addr[5] = hash&0xFF; 
         }
     }
-    sprintf_mac( buf, mac_address_init, "mac:", 0 );
+    sprintf_mac( buf, mac_addr, "mac:", 0 );
     if( no_config )
         strcat( buf, " (no config)" );
     logger_info( buf );
@@ -172,7 +185,13 @@ void do_lwip_init(void)
         reset_gateway.addr = gateway.addr;
         ip_manual = 1;
     }
-    
+   
+    hal_eth_init();
+    tcpip_init( NULL, NULL );
+    memcpy( (void*)gnetif.hwaddr, mac_addr, 6 );
+    gnetif.hwaddr_len = 6;
+
+    LOCK_TCPIP_CORE();
     netif_add(&gnetif, &ipaddr, &netmask, &gateway, NULL, &ethernetif_init, &tcpip_input);
     netif_set_default(&gnetif);
 
@@ -187,7 +206,8 @@ void do_lwip_init(void)
         send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
     }
 
-    netif_set_link_callback(&gnetif, hal_eth_link_callback);
+    netif_set_link_callback( &gnetif, netif_link_callback );
+    UNLOCK_TCPIP_CORE();
 }
 
 
@@ -384,7 +404,7 @@ int cmd_netstat( int argc, char *argv[] )
 
     if( cmd==NULL || strcmp(cmd, "info") == 0 )
     {
-        shell_write_line( sprintf_mac( buf, mac_address_init, "mac:", 0) );
+        shell_write_line( sprintf_mac( buf, (char*)gnetif.hwaddr, "mac:", 0) );
         shell_printf( "dhcp: %u\n", ip_manual ? 0 : 1 );
         switch( dhcp_state )
         {

@@ -217,3 +217,12 @@ u32_t sys_now(void)
     return (u32_t)os_tick() * 1000ul / OS_TICK_RATE; /* in ms */
 }
 
+
+extern sys_mutex_t lock_tcpip_core;
+void lwip_assert_core_locked(void)
+{
+    if( lock_tcpip_core == NULL )
+        return;
+    LWIP_ASSERT( "tcpip core locked", os_mutex_holder(lock_tcpip_core) != NULL );
+}
+

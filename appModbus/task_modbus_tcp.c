@@ -9,6 +9,7 @@
 #include "lwip/opt.h"
 #include "lwip/debug.h"
 #include "lwip/stats.h"
+#include "lwip/tcpip.h"
 #include "lwip/tcp.h"
 #include "lwip_lib.h"
 #include "lwip/timeouts.h"
@@ -589,13 +590,12 @@ int post_process_modbus_tcp_reply( modbus_tcp_client_t *client )
     }
     else
     {
-        /* 10 * 500ms -> 5000ms total */
         client->retries += 1;
-        if( client->retries <= 10 )
+        if( client->retries <= MODBUS_TCP_REPLY_RETRY )
         {
-            logger_printf_error( "tcp_write err #%d %p, len=%d tid=%d retry=%d", 
-                    client->client_id, client->tpcb, client->reply_len,
-                client->transaction_id, client->retries );
+            logger_printf_error( "#%d reply retry=%d tid=%d len=%d", 
+                    client->client_id, client->retries, 
+                    client->transaction_id, client->reply_len );
         }
         else
             do_modbus_tcp_client_close( client );
@@ -627,6 +627,7 @@ void task_modbus_tcp_entry(void *arg)
 
         case MODBUS_TCP_EVENT_START:
             //logger_const_info( "evt_start" );
+            LOCK_TCPIP_CORE();
             if( modbus_tpcb == NULL )
                 modbus_tpcb = tcp_new_ip_type( IPADDR_TYPE_ANY );
             if( modbus_tpcb != NULL )
@@ -650,12 +651,14 @@ void task_modbus_tcp_entry(void *arg)
                 logger_const_error( "server tpcb mem err" );
                 sys_timeout( 500, modbus_server_restart_timer, 0 );
             }
+            UNLOCK_TCPIP_CORE();
             break;
 
         case MODBUS_TCP_EVENT_NET_DOWN:
         case MODBUS_TCP_EVENT_CLOSE:
             /* close all registered client pcb */
             //logger_const_info( "evt_close" );
+            LOCK_TCPIP_CORE();
             sys_untimeout( modbus_server_restart_timer, 0 );
             for( i=0; i<MODBUS_TCP_NUM; i++ )
                 do_modbus_tcp_client_close( clients[i] );
@@ -665,6 +668,7 @@ void task_modbus_tcp_entry(void *arg)
                 modbus_tpcb = NULL;
                 logger_const_info( "server closed" );
             }
+            UNLOCK_TCPIP_CORE();
             break;
 
         default:
@@ -673,7 +677,7 @@ void task_modbus_tcp_entry(void *arg)
     }
 }
 
-        
+
 int cmd_modbus_tcp( int argc, char *argv[] )
 {
     static const mcush_opt_spec opt_spec[] = {

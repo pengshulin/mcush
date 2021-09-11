@@ -89,6 +89,7 @@ int os_mutex_put( os_mutex_handle_t mutex );
 int os_mutex_put_isr( os_mutex_handle_t mutex );
 int os_mutex_get( os_mutex_handle_t mutex, int block_ticks );
 int os_mutex_get_isr( os_mutex_handle_t mutex );
+os_task_handle_t os_mutex_holder( os_mutex_handle_t mutex );
 
 /* semaphore */
 os_semaphore_handle_t os_semaphore_create( int max_count, int init_count );

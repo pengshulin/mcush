@@ -23,9 +23,9 @@ SECTIONS
         . = ALIGN(4);
         _sisr_vector = .;
         KEEP(*(.isr_vector))
-        *(.after_vectors)
         . = ALIGN(4);
         _eisr_vector = .;
+        *(.after_vectors*)
     } >FLASH2
  
     .signature :

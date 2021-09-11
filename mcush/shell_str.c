@@ -113,6 +113,7 @@ __byte_aligned const char shell_str_script[] = "script";
 __byte_aligned const char shell_str_search[] = "search";
 __byte_aligned const char shell_str_set[] = "set";
 __byte_aligned const char shell_str_setting[] = "setting";
+__byte_aligned const char shell_str_shell[] = "shell";
 __byte_aligned const char shell_str_size[] = "size";
 __byte_aligned const char shell_str_start[] = "start";
 __byte_aligned const char shell_str_status[] = "status";

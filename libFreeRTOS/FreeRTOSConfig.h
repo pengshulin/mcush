@@ -111,6 +111,7 @@ extern uint32_t SystemCoreClock;
 #define INCLUDE_vTaskCleanUpResources           0
 #define INCLUDE_xTaskGetSchedulerState          1
 #define INCLUDE_vQueueDelete                    1
+#define INCLUDE_xSemaphoreGetMutexHolder        1
 
 #ifndef configUSE_TRACE_FACILITY
     #define configUSE_TRACE_FACILITY            1

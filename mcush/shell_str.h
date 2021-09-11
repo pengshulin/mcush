@@ -121,6 +121,7 @@ extern const char shell_str_script[];
 extern const char shell_str_search[];
 extern const char shell_str_set[];
 extern const char shell_str_setting[];
+extern const char shell_str_shell[];
 extern const char shell_str_signature[];
 extern const char shell_str_size[];
 extern const char shell_str_start[];

@@ -7,7 +7,9 @@ SECTIONS
         . = ALIGN(4);
         _sisr_vector = . ;
         KEEP(*(.isr_vector))
+        . = ALIGN(4);
         _eisr_vector = . ;
+        *(.after_vectors*)
     } > FLASH
  
     .signature :
@@ -15,6 +17,24 @@ SECTIONS
         KEEP(*(.signature))
     } > FLASH
 
+    .global_section_table :
+    {
+        __section_table_start = .;
+        __data_section_table = .;
+        /* copy table: SRC, DEST, LEN */
+        LONG(LOADADDR(.data));
+        LONG(    ADDR(.data));
+        LONG(  SIZEOF(.data));
+        __data_section_table_end = .;
+        __bss_section_table = .;
+        /* zeroing table: START, LEN */
+        LONG(    ADDR(.bss));
+        LONG(  SIZEOF(.bss));
+        __bss_section_table_end = .;
+        __section_table_end = . ;
+    } >FLASH
+ 
+ 
     .text :
     {
         . = ALIGN(4);

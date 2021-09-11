@@ -103,6 +103,7 @@ define init_chip_regs
 python
 chip_mem_configs = {
 
+# Start addr  End addr    RW   BITS CACHED
 'stm32f030': [
 [ 0x08000000, 0x0803FFFC, 'ro', 32, True,  'Flash 256k' ],
 [ 0x20000000, 0x20007FFC, 'rw', 32, False, 'SRAM 32k' ],
@@ -193,7 +194,15 @@ chip_mem_configs = {
 [ 0x08000000, 0x0801FFFC, 'ro', 32, True,  'Flash 128k' ],
 [ 0x20000000, 0x20004FFC, 'rw', 32, False, 'SRAM 20k' ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
+],
+
+'lpc84x': [
+[ 0x00000000, 0x0000FFFC, 'ro', 32, True,  'Flash 64k' ],
+[ 0x0F000000, 0x0F003FFC, 'ro', 32, True, 'ROM 16k' ],
+[ 0x10000000, 0x10003FFC, 'rw', 32, False, 'SRAM 16k' ],
+[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 ]
+
 
 }
 
@@ -213,9 +222,10 @@ python open('/dev/shm/sptk_dsp.fifo','a').write('update\n')
 end
 
 define connect
+set remotetimeout 5000
 shell killall -q st-util 
 shell killall -q openocd
-shell sleep 0.5 
+shell sleep 1
 # gdbserver port:
 #   4242 - st-util
 #   3333 - openocd

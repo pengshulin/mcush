@@ -101,6 +101,8 @@
 #if DEBUG
     #define TCP_DEBUG_PCB_LISTS             1
     #define LWIP_DEBUG                      1
+    extern void lwip_assert_core_locked(void);
+    #define LWIP_ASSERT_CORE_LOCKED         lwip_assert_core_locked
     //#define LWIP_DEBUG_TIMERNAMES           1
     //#define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_WARNING
     #define LWIP_DBG_MIN_LEVEL              LWIP_DBG_LEVEL_ALL

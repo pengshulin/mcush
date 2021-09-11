@@ -764,6 +764,9 @@ int cmd_adc( int argc, char *argv[] )
         return 0;
     }
 
+    if( hal_adc_in_use() == 0 )
+        return 1;
+
 loop_start:
 
     if( index_set )
