@@ -6,11 +6,12 @@ DESCRIPTION
 * MCUSH is the short name for MCU-SHell.
 * A practical project that enhance microcontroller serial port console with shell features like in many linux systems.
 * The goal of the project is to provide a firmware template that will expand commands for new applications, so it should be designed with simple API and easy to use.
-* MCUSH is initially based on FreeRTOS, but can also be adapted to other RTOSes.
+* Initially developed on FreeRTOS, but with os abstract layer, MCUSH has been ported to other RTOSes.
 * The core shell runs as a stand-alone task with middle level priority.
+* Auxiliary micro service tasks can be chosen when you need, such as LED blinker, logger, soft-watchdog...
 * Test suites and templates written in python are privided to ease the test work and create CLI/GUI applications.
 * Hosted on github: <https://github.com/pengshulin/mcush>
-* Python core module released on PYPI and installed by 'pip install mcush'
+* Python core module released on PYPI and installed by 'pip3 install mcush'
 
 
 FEATURES
@@ -58,6 +59,7 @@ HARDWARE
 ========
 * tiny controller: <https://github.com/pengshulin/mcush/tree/master/hardware_tiny>
 * Shell-Lab series controllers: <http://www.linkongsoft.com/shell-lab/>
+* Vibration Analysis Platform: <http://www.linkongsoft.com/vap/>
 
 
 LICENSE

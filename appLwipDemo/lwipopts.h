@@ -25,6 +25,7 @@
     #define mem_clib_free               os_free
 #else
     #if DEBUG
+        #define MEMP_OVERFLOW_CHECK     1
         #define MEM_SANITY_CHECK        1  /* supports mem_sanity() */
         //#define MEM_OVERFLOW_CHECK      0  /* 0 - no check (default) */
         //#define MEM_OVERFLOW_CHECK      1  /* 1 - single element when freed */
@@ -46,6 +47,7 @@
 #define MEMP_NUM_TCP_PCB_LISTEN         5  // listening TCP connections
 #define MEMP_NUM_TCP_SEG                20  // simultaneously queued TCP segments
 #define MEMP_NUM_SYS_TIMEOUT            10  // simulateously active timeouts
+#define MEMP_NUM_TCPIP_MSG_INPKT        16
 
 /* add ld section tag for memory pools */
 #define LWIP_DECLARE_MEMORY_ALIGNED(name, bytes)  u8_t name[LWIP_MEM_ALIGN_BUFFER(bytes)] __attribute__((section(".bss.lwip_mem")))

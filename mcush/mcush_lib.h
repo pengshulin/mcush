@@ -15,6 +15,9 @@ extern void _halt(void);
     #define halt(message)  _halt() 
 #endif
 
+extern int get_errno(void);
+extern int set_errno(int num);
+
 
 uint32_t calc_checksum(void *p, uint32_t len);
 

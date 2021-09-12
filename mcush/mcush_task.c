@@ -32,6 +32,22 @@ void _halt_with_message(const char *message)
 }
 
 
+static int _errno;
+
+__weak int get_errno(void)
+{
+    return _errno;
+}
+
+
+__weak int set_errno(int num)
+{
+    int old = _errno;
+    _errno = num;
+    return old;
+}
+
+
 __weak void hal_pre_init(void)
 {
 }

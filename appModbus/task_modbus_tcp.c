@@ -13,6 +13,9 @@
 #include "lwip/tcp.h"
 #include "lwip_lib.h"
 #include "lwip/timeouts.h"
+#if MODBUS_TCP_SWDG_FEED
+#include "task_swdg.h"
+#endif
 
 #define DEBUG_MODBUS  1
 
@@ -307,7 +310,7 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
         client->transaction_id = 0;
         client->tick_connect = client->tick_last = os_tick();
         newpcb->so_options |= SOF_KEEPALIVE;
-        tcp_setprio(newpcb, TCP_PRIO_MIN);
+        //tcp_setprio(newpcb, TCP_PRIO_MIN);
         tcp_arg(newpcb, client);
         tcp_recv(newpcb, modbus_tcp_recv_cb);
         tcp_err(newpcb, modbus_tcp_error_cb);
@@ -587,6 +590,9 @@ int post_process_modbus_tcp_reply( modbus_tcp_client_t *client )
         tcp_output( client->tpcb );
         client->pending_reply = 0;
         client->buf_locked = 0;
+#if MODBUS_TCP_SWDG_FEED
+        swdg_feed();
+#endif
     }
     else
     {
@@ -729,6 +735,7 @@ int cmd_modbus_tcp( int argc, char *argv[] )
         shell_printf(" %s", tcp_debug_state_str(tpcb->state));
         get_tick_time_str( buf, os_tick()-client->tick_connect, 0 );
         shell_printf(" %s", buf);
+        shell_printf(" %d/%d/%d", client->transaction_id, client->pending_request, client->pending_reply);
         shell_newline();
     } 
 

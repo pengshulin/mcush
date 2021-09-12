@@ -1,4 +1,9 @@
-/* LED blink task that indicates a global error number
+/* Blinker task, blink LED to indicates a global error number
+ *
+ * The task runs as an auxiliary service in MCUSH micro-kerenl RTOS environment,
+ * it aims to help you debug your applications.
+ * To use this service task, include task_blink.h file in your application
+ * and call task_blink_init() before you use it.
  *
  * The errno is a multi-digital positive integer number, it's different from
  * newlib's reentrant errno, don't get confused.
@@ -66,20 +71,6 @@
 #define TICKS_IDLE       OS_TICKS_MS(1000)  /* delay cycle */
 
 
-static int _errno = 0;
-
-int get_errno(void)
-{
-    return _errno;
-}
-
-int set_errno(int num)
-{
-    int old = _errno;
-    _errno = num;
-    return old;
-}
-
 
 int cmd_error( int argc, char *argv[] )
 {
@@ -120,10 +111,10 @@ int cmd_error( int argc, char *argv[] )
 
     if( new == -1 )
     {
-        if( _errno < 0 )
+        if( get_errno() < 0 )
             shell_write_line( "stop" );
         else
-            shell_printf( "%d\n", _errno );
+            shell_printf( "%d\n", get_errno() );
         return 0;
     }
 
@@ -183,7 +174,7 @@ void task_blink_entry(void *arg)
     while( 1 )
     {
         hal_wdg_clear();
-        i = _errno;
+        i = get_errno();
         if( i < 0 )
         {
             /* errno < 0, disable mode */

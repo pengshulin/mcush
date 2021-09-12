@@ -1,10 +1,9 @@
 /* Logger task, save logging events to files or forward to shell
  * 
- * The task runs as an auxiliary service in a micro-kerenl RTOS environment,
+ * The task runs as an auxiliary service in MCUSH micro-kerenl RTOS environment,
  * it aims to help you debug your applications.
- *
- * To use this service task, copy or symbolic link task_logger.c/h files to
- * your application and call task_logger_init() before you use it.
+ * To use this service task, include task_logger.h file in your application
+ * and call task_logger_init() before you use it.
  * 
  * An independent shell command 'log' can control the task behavior including:
  * * enable/disable file writing
@@ -986,5 +985,4 @@ int cmd_logger( int argc, char *argv[] )
     }
     return 0;
 }
-
 
