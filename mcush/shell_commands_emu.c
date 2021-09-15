@@ -21,15 +21,7 @@
 #define CMD_I2C_SCL_PIN  1
 #endif
 
-#if USE_CMD_I2C4
-static i2c_cb_t *i2c_cb[4];
-#elif USE_CMD_I2C3
-static i2c_cb_t *i2c_cb[3];
-#elif USE_CMD_I2C2
-static i2c_cb_t *i2c_cb[2];
-#else
-static i2c_cb_t *i2c_cb[1];
-#endif
+static i2c_cb_t *i2c_cb[SUPPORT_I2C];
 
 /* NOTE: larger r/w buffers in task stack may overflow and cause unpredictable behavior */
 #ifndef I2C_RW_BUF_LEN
@@ -281,8 +273,8 @@ int cmd_i2c( int argc, char *argv[] )
     uint8_t buf_out[I2C_RW_BUF_LEN], buf_in[I2C_RW_BUF_LEN];
     int read_bytes=0, write_bytes;
 
+#if SUPPORT_I2C >= 2
     /* check which command i2c/i2c2/i2c3/i2c4 is used */
-#if USE_CMD_I2C2
     if( parse_int(argv[0]+3, (int*)&i2c_index) )
         i2c_index -= 1;
 #endif
@@ -437,15 +429,7 @@ err_port:
 #define CMD_SPI_CS_PIN  3
 #endif
 
-#if USE_CMD_SPI4
-static spi_cb_t *spi_cb[4];
-#elif USE_CMD_SPI3
-static spi_cb_t *spi_cb[3];
-#elif USE_CMD_SPI2
-static spi_cb_t *spi_cb[2];
-#else
-static spi_cb_t *spi_cb[1];
-#endif
+static spi_cb_t *spi_cb[SUPPORT_SPI];
 
 #ifndef SPI_RW_BUF_LEN
     //#define SPI_RW_BUF_LEN  256  /* 256*2*4=2K stack size */
@@ -690,8 +674,8 @@ int cmd_spi( int argc, char *argv[] )
     uint32_t buf_out[SPI_RW_BUF_LEN], buf_in[SPI_RW_BUF_LEN];
     int length, i, line_count, repeat;
 
+#if SUPPORT_SPI2 >= 2
     /* check which command spi/spi2/spi3/spi4 is used */
-#if USE_CMD_SPI2
     if( parse_int(argv[0]+3, (int*)&spi_index) )
         spi_index -= 1;
 #endif
@@ -868,15 +852,7 @@ err_port:
 #define CMD_PULSE_PIN  0
 #endif
 
-#if USE_CMD_PULSE4
-static pulse_cb_t *pulse_cb[4];
-#elif USE_CMD_PULSE3
-static pulse_cb_t *pulse_cb[3];
-#elif USE_CMD_PULSE2
-static pulse_cb_t *pulse_cb[2];
-#else
-static pulse_cb_t *pulse_cb[1];
-#endif
+static pulse_cb_t *pulse_cb[SUPPORT_PULSE];
 
 void emu_pulse_init_structure(pulse_cb_t *pulse_init)
 {
@@ -979,8 +955,8 @@ int cmd_pulse( int argc, char *argv[] )
     int pulse_index=0;
     int counter;
  
+#if SUPPORT_PULSE >= 2
     /* check which command pulse/pulse2/pulse3/pulse4 is used */
-#if USE_CMD_PULSE2
     if( parse_int(argv[0]+5, (int*)&pulse_index) )
         pulse_index -= 1;
 #endif
@@ -1058,16 +1034,7 @@ err_port:
 #endif
 
 
-#if USE_CMD_DS1W4
-static ds1w_cb_t ds1w_cb[4];
-#elif USE_CMD_DS1W3
-static ds1w_cb_t ds1w_cb[3];
-#elif USE_CMD_DS1W2
-static ds1w_cb_t ds1w_cb[2];
-#else
-static ds1w_cb_t ds1w_cb[1];
-#endif
-
+static ds1w_cb_t ds1w_cb[SUPPORT_DS1W];
 
 void emu_ds1w_init_structure( ds1w_cb_t *ds1w_init )
 {
@@ -1203,8 +1170,8 @@ int cmd_ds1w( int argc, char *argv[] )
     int ds1w_index=0;
     ds1w_cb_t ds1w_init;
     
+#if SUPPORT_DS1W2 >= 2
     /* check which command ds1w/ds1w2/ds1w3/ds1w4 is used */
-#if USE_CMD_DS1W2
     if( parse_int(argv[0]+4, (int*)&ds1w_index) )
         ds1w_index -= 1;
 #endif

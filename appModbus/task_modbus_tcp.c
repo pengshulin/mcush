@@ -127,10 +127,10 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
     LOGGER_MODULE_NAME("modbus.recv");
     modbus_tcp_client_t *client=(modbus_tcp_client_t *)arg;
     err_t ret_err;
-    //struct pbuf *p2;
     modbus_tcp_head_t *head;
     uint32_t newlen;
 
+    (void)err;
     if( tpcb == NULL )
     {
         logger_const_error( "null tpcp" );
@@ -140,6 +140,8 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
     {
         logger_const_warn( "closed client" );
         ret_err = ERR_CLSD;
+        if( p != NULL )
+            halt("p != NULL");
     }
     else if( p == NULL )
     {
@@ -147,17 +149,6 @@ err_t modbus_tcp_recv_cb(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t 
         logger_const_info( "remote closed" );
         do_modbus_tcp_client_close( client );
         ret_err = ERR_OK;
-    }
-    else if(err != ERR_OK)
-    {
-        /* cleanup, for unknown reason */
-        logger_printf_warn( "err=%d", err );
-        if( p != NULL )
-        {
-            tcp_recved(tpcb, p->tot_len);
-            pbuf_free(p);
-        }
-        ret_err = err;
     }
     else if( tpcb->state == ESTABLISHED )
     {
@@ -251,13 +242,15 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
     char buf[64];
 
     (void)(arg);
-    if((err != ERR_OK) || (newpcb == NULL))
+    (void)err;
+    if( newpcb == NULL )
     {
-        logger_const_debug( "err" );
+        logger_const_debug( "pcb err" );
         return ERR_VAL;
     }
 
     /* search for free slot and create new client */
+    client = NULL;
     for( i=0; i<MODBUS_TCP_NUM; i++ )
     {
         if( clients[i] == NULL )
@@ -269,7 +262,7 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
         }
     }
     /* create failed, or slots full, try to reclaim from existing clients */
-    if( (client == NULL) || (i >= MODBUS_TCP_NUM) )
+    if( (i >= MODBUS_TCP_NUM) || (client == NULL) )
     {
         /* try to reclaim the tpcb with exceptions */
         for( i=0; i<MODBUS_TCP_NUM; i++ )
@@ -322,8 +315,8 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
     }
     else
     {
-        tcp_abort(tpcb);
-        ret_err = ERR_ABRT;
+        /* can not accept incoming tcp, please wait for a while */
+        ret_err = ERR_WOULDBLOCK;
     }
     return ret_err;
 }
