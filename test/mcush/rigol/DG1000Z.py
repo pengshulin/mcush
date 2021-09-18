@@ -43,7 +43,7 @@ class DG1022Z( Instrument.SocketInstrument ):
         self.writeCommand( 'outp %s'% ('on' if enable else 'off') )
     
     def outputEnableB( self, enable=True ):
-        self.writeCommand( 'outp:ch2 %s'% ('on' if enable else 'off') )
+        self.writeCommand( 'outp2 %s'% ('on' if enable else 'off') )
 
     def outputDisableA( self ):
         self.outputEnableA( False )
@@ -61,7 +61,7 @@ class DG1022Z( Instrument.SocketInstrument ):
     def outputB( self, mode, amp, freq, offset=0, duty=None, phase=0, enable=True ):
         if mode not in ['sin','squ','ramp','puls','nois','dc','user']:
             raise Exception('mode error')
-        self.writeCommand( 'appl:%s:ch2 %s,%s,%s'% (mode,freq,amp,offset) )
+        self.writeCommand( 'sour2:appl:%s %s,%s,%s'% (mode,freq,amp,offset) )
         if enable:
             self.outputEnableB( True )
 

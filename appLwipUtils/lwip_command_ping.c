@@ -13,7 +13,6 @@
 #include "lwip/timeouts.h"
 #include "lwip/inet_chksum.h"
 #include "lwip/prot/ip4.h"
-#include "lwip_commands.h"
 #include "lwip_lib.h"
 
 LOGGER_MODULE_NAME("ping");

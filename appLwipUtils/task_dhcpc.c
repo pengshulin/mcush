@@ -3,7 +3,6 @@
  * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "task_logger.h"
-#include "lwip_config.h"
 #include "task_dhcpc.h"
 #include "lwip/mem.h"
 #include "lwip/memp.h"
@@ -23,7 +22,7 @@
   #else
     extern void httpd_init(void);
   #endif
-    #include "shell_example.h"
+    //#include "shell_example.h"
 #endif
 #if USE_NETBIOSNS
 #include "lwip/apps/netbiosns.h"

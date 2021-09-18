@@ -38,10 +38,7 @@ int hal_gpio_get_port_num(void)
 
 void hal_gpio_init(void)
 {
-    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
-    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
-    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
-    LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOD);
+    LL_IOP_GRP1_EnableClock( LL_IOP_GRP1_PERIPH_GPIOA | LL_IOP_GRP1_PERIPH_GPIOB | LL_IOP_GRP1_PERIPH_GPIOC | LL_IOP_GRP1_PERIPH_GPIOD);
 }
 
 
@@ -55,7 +52,6 @@ void hal_gpio_set_output(int port, int bits, int open_drain)
 {
     if( open_drain )
         _set_mode( port, bits, LL_GPIO_MODE_OUTPUT, LL_GPIO_OUTPUT_OPENDRAIN, LL_GPIO_PULL_UP, 0 );
-        //_set_mode( port, bits, LL_GPIO_MODE_OUTPUT, LL_GPIO_OUTPUT_OPENDRAIN, LL_GPIO_PULL_NO, 0 );
     else
         _set_mode( port, bits, LL_GPIO_MODE_OUTPUT, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_PULL_NO, 0 );
 }

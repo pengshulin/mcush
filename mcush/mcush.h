@@ -141,7 +141,7 @@ extern "C" {
     #define USE_CMD_ECHO  0  /* to be obseleted */
 #endif
 #ifndef USE_CMD_MKBUF
-    #define USE_CMD_MKBUF  1
+    #define USE_CMD_MKBUF  0
 #endif
 #ifndef USE_CMD_UPTIME
     #define USE_CMD_UPTIME  1
@@ -165,6 +165,9 @@ extern "C" {
     #endif
     #ifndef USE_CMD_SYSTEM_IDLE
         #define USE_CMD_SYSTEM_IDLE  1
+    #endif
+    #ifndef USE_CMD_SYSTEM_VFS
+        #define USE_CMD_SYSTEM_VFS  0
     #endif
 #endif
 
@@ -201,12 +204,12 @@ extern "C" {
     #define SUPPORT_SPI  1
 #endif
 #ifndef USE_CMD_PULSE
-    #define USE_CMD_PULSE  1
-    #define SUPPORT_PULSE  1
+    #define USE_CMD_PULSE  0
+    #define SUPPORT_PULSE  0
 #endif
 #ifndef USE_CMD_DS1W
-    #define USE_CMD_DS1W  1
-    #define SUPPORT_DS1W  1
+    #define USE_CMD_DS1W  0
+    #define SUPPORT_DS1W  0
 #endif
 #ifndef USE_CMD_PWM
     #define USE_CMD_PWM  0
@@ -330,7 +333,11 @@ extern "C" {
 
 #if USE_CMD_CAT
     #ifndef USE_CMD_CAT_WRITE
-        #define USE_CMD_CAT_WRITE  1
+        #if MCUSH_SPIFFS || MCUSH_FATFS
+            #define USE_CMD_CAT_WRITE  1
+        #else
+            #define USE_CMD_CAT_WRITE  0
+        #endif
     #endif
     #ifndef USE_CMD_CAT_B64
         #define USE_CMD_CAT_B64  1

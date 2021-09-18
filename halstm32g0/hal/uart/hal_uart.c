@@ -90,19 +90,18 @@ int hal_uart_init( uint32_t baudrate )
         return 0;
 #endif
 
-    HAL_UART_RCC_GPIO_ENABLE_CMD( HAL_UART_RCC_GPIO_ENABLE_BIT );
+    //HAL_UART_RCC_GPIO_ENABLE_CMD( HAL_UART_RCC_GPIO_ENABLE_BIT );
     HAL_UART_RCC_USART_ENABLE_CMD( HAL_UART_RCC_USART_ENABLE_BIT );
 
     /* Configure USART Rx/Tx as alternate function push-pull */
     gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
     gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-    gpio_init.Pull = LL_GPIO_PULL_NO;
+    gpio_init.Pull = LL_GPIO_PULL_UP;
     gpio_init.Speed = LL_GPIO_SPEED_FREQ_HIGH;
     gpio_init.Pin = HAL_UARTx_TX_PIN;
     gpio_init.Alternate = HAL_UARTx_TX_AF;
     LL_GPIO_Init( HAL_UARTx_TX_PORT, &gpio_init);
     gpio_init.Pin = HAL_UARTx_RX_PIN;
-    gpio_init.Pull = LL_GPIO_PULL_UP;
     gpio_init.Alternate = HAL_UARTx_RX_AF;
     LL_GPIO_Init( HAL_UARTx_RX_PORT, &gpio_init);
 
@@ -128,6 +127,7 @@ int hal_uart_init( uint32_t baudrate )
     /* Interrupt Enable */  
     HAL_NVIC_SetPriority( HAL_UARTx_IRQn, 10, 0 );
     HAL_NVIC_EnableIRQ( HAL_UARTx_IRQn );
+
     return 1;
 }
 

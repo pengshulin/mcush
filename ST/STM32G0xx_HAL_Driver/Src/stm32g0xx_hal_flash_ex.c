@@ -591,6 +591,8 @@ void FLASH_PageErase(uint32_t Banks, uint32_t Page)
 {
   uint32_t tmp;
 
+    (void)Banks;
+
   /* Check the parameters */
   assert_param(IS_FLASH_BANK(Banks));
   assert_param(IS_FLASH_PAGE(Page));

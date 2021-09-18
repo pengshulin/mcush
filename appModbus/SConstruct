@@ -33,37 +33,47 @@ env.appendDefineFlags( [
 
 env.appendPath([
     '.',
-    '/liblwip/lwip-2.0.3/port',
-    '/liblwip/lwip-2.0.3/port/Standalone',
-    '/liblwip/lwip-2.0.3/src/include',
-    '/liblwip/contrib-2.0.1/apps/socket_examples',
-    '/liblwip/contrib-2.0.1/apps/httpserver',
-    '/liblwip/contrib-2.0.1/apps/tcpecho',
-    '/liblwip/contrib-2.0.1/apps/udpecho',
-    '/liblwip/contrib-2.0.1/apps/shell',
-    '/liblwip/lwip-2.0.3/src/include/lwip/apps',
+
+    '/liblwip/port',
+    '/liblwip/port/Standalone',
+
+    '/liblwip/lwip-2.1.2/src/include',
+    #'/liblwip/lwip-2.0.3/src/include',
+
+    #'/liblwip/contrib-2.0.1/apps/socket_examples',
+    #'/liblwip/contrib-2.0.1/apps/httpserver',  # demo
+    #'/liblwip/contrib-2.0.1/apps/tcpecho',
+    #'/liblwip/contrib-2.0.1/apps/udpecho',
+    #'/liblwip/contrib-2.0.1/apps/shell',
+    #'/liblwip/lwip-2.0.3/src/include/lwip/apps',
+
     ])
 
 
 env.appendGlobSource([
     '*.c',
-    '/liblwip/lwip-2.0.3/src/core/*.c',
-    '/liblwip/lwip-2.0.3/src/core/ipv4/*.c',
-    '/liblwip/lwip-2.0.3/src/netif/ethernet.c',
-    '/liblwip/lwip-2.0.3/src/api/*.c',
-    '/liblwip/lwip-2.0.3/src/apps/tftp/*.c',
-    '/liblwip/lwip-2.0.3/port/arch/*.c',
-    '/liblwip/lwip-2.0.3/port/Standalone/*.c',
+
+    '/liblwip/port/arch/*.c',
+    #'/liblwip/port/Standalone/*.c',
+
+    '/liblwip/lwip-2.1.2/src/core/*.c',
+    '/liblwip/lwip-2.1.2/src/core/ipv4/*.c',
+    '/liblwip/lwip-2.1.2/src/netif/ethernet.c',
+    '/liblwip/lwip-2.1.2/src/api/*.c',
+
+    #'/liblwip/lwip-2.0.3/src/apps/tftp/*.c',
     #'/liblwip/contrib-2.0.1/apps/socket_examples/*.c',
     '/liblwip/contrib-2.0.1/apps/httpserver/httpserver-netconn.c',
     #'/liblwip/contrib-2.0.1/apps/ping/*.c',
-    '/liblwip/contrib-2.0.1/apps/tcpecho/*.c',
-    '/liblwip/contrib-2.0.1/apps/udpecho/*.c',
-    '/liblwip/contrib-2.0.1/apps/shell/*.c',
+    #'/liblwip/contrib-2.0.1/apps/tcpecho/*.c',
+    #'/liblwip/contrib-2.0.1/apps/udpecho/*.c',
+    #'/liblwip/contrib-2.0.1/apps/shell/*.c',
     #'/liblwip/lwip-2.0.3/src/apps/mqtt/*.c',
-    '/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
-    '/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
-    '/liblwip/lwip-2.0.3/src/apps/netbiosns/netbiosns.c',
+    #'/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
+    #'/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
+    #'/liblwip/lwip-2.0.3/src/apps/netbiosns/netbiosns.c',
+
+    
 ])
 
 

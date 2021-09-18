@@ -13,12 +13,13 @@ uint8_t coil[COIL_NUM/8];
 
 void net_state_change_hook(int connected)
 {
-    send_modbus_tcp_event( connected ? MODBUS_TCP_EVENT_NET_UP : MODBUS_TCP_EVENT_NET_DOWN, 0 );
+    send_modbus_tcp_event( connected ? MODBUS_TCP_EVENT_NET_UP : MODBUS_TCP_EVENT_NET_DOWN, 0, 0 );
 }
 
 
 int modbus_read_discrete( uint16_t address, uint8_t *value )
 {
+    (void)address;
     *value = 0;
     return 0;
 }
@@ -47,7 +48,7 @@ int modbus_write_coil( uint16_t address, uint8_t value )
 
 int modbus_read_input_register( uint16_t address, uint16_t *value )
 {
-    const float pi=3.141592654;
+    const float pi=3.141592654f;
 
     switch( address )
     {

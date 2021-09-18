@@ -1,7 +1,6 @@
 #include "mcush.h"
 #include "lwip/opt.h"
 #include "lwip/netif.h"
-#include "lwip_config.h"
 #include "lwip/dhcp.h"
 #include "hal_eth.h"
 #include "FreeRTOS.h"

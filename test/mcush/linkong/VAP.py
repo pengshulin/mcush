@@ -4,7 +4,8 @@ __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
 from .. import Mcush, Utils, Env
-from . import McushModbus
+#from . import McushModbus
+from .McushModbus import *
 import time
 import logging
 import math
@@ -306,7 +307,7 @@ REG_RECORD_LENGTH_MAX = int((REG_BUFFER_END-REG_BUFFER_BEGIN+1)/2)
 
  
 
-class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
+class VAP200_ModbusTCP( McushModbusTCP ):
     '''VAP 2xx Series over ModbusTCP'''
     DEFAULT_NAME = 'VAP_Modbus'
 
@@ -334,10 +335,12 @@ class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
         self.sn = None
         self.sample_length = None
         self.sample_rate = None
+        self.auto_reconnect = None
 
         if 'timeout' in kwargs:
             self.DEFAUT_TIMEOUT = kwargs['timeout']
-
+        if kwargs.get('auto_reconnect', None):
+            self.auto_reconnect = True
         if kwargs.get('connect', True):
             self.connect()
 
@@ -433,9 +436,11 @@ class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
             time.sleep(wait_tick)
 
     def recordFloatConvert( self, index=None ):
-        self.client.write_registers(REG_BUFFER_FLOAT_CONV, [0xFFFF if index is None else index])
+        self.client.write_registers(REG_RECORD_FLOAT_CONV, [0xFFFF if index is None else index])
 
     def readBufferMem( self, channel, float_mode=True ):
+        if float_mode:
+            self.recordFloatConvert( channel )
         self.client.write_registers(REG_BUFFER_MAP_SEL, [channel])
         mem, read = [], 0
         while read < self.sample_length*2:
@@ -446,8 +451,12 @@ class VAP200_ModbusTCP( McushModbus.McushModbusTCP ):
             read += required 
         dat = []
         for i in range(self.sample_length):
-            adc = (mem[i*2+1]<<16)+mem[i*2]
-            dat.append( _process_vap200_adc_val(self, channel, i, adc, float_mode) )
+            if float_mode:
+                dat.append( Utils.I2f((mem[i*2+1]<<16)+mem[i*2]) )
+            else:
+                # NOTE: raw int24 processing, will be obsoleted
+                adc = (mem[i*2+1]<<16)+mem[i*2]
+                dat.append( _process_vap200_adc_val(self, channel, i, adc, False) )
         return dat
 
-
+   

@@ -60,7 +60,7 @@ int cmd_system( int argc, char *argv[] )
 #if USE_CMD_SYSTEM_IDLE
             "|(i)dle"
 #endif
-#if MCUSH_VFS_STATISTICS
+#if USE_CMD_SYSTEM_VFS && MCUSH_VFS_STATISTICS
             "|v(f)s"
 #endif
              },
@@ -186,7 +186,7 @@ int cmd_system( int argc, char *argv[] )
         }
     }
 #endif
-#if MCUSH_VFS_STATISTICS
+#if USE_CMD_SYSTEM_VFS && MCUSH_VFS_STATISTICS
     else if( (strcmp( type, "f" ) == 0 ) || (strcmp( type, "vfs" ) == 0) )
     {
         extern mcush_vfs_statistics_t vfs_stat;

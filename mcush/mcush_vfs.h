@@ -13,7 +13,7 @@
 #endif
 
 #ifndef MCUSH_VFS_STATISTICS
-    #define MCUSH_VFS_STATISTICS  1
+    #define MCUSH_VFS_STATISTICS  0
 #endif
 
     

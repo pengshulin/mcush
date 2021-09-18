@@ -22,18 +22,9 @@
 #include "stm32g0xx_ll_utils.h"
 #include "stm32g0xx_ll_adc.h"
 
-
-/* NOTE: stm32g030 has no 96-bit Unique ID, use internal flash instead,
-   so the base address must be assigned correctly */
-#ifndef UNIQUE_ID0
-#define UNIQUE_ID0  0x0800FFF4  /* 12 bytes at the bottom of 64K flash */
-#endif
-#ifndef UNIQUE_ID1
-#define UNIQUE_ID1  ((UNIQUE_ID0)+4)
-#endif
-#ifndef UNIQUE_ID2
-#define UNIQUE_ID2  ((UNIQUE_ID0)+8)
-#endif
+#define UNIQUE_ID0  UID_BASE
+#define UNIQUE_ID1  (UID_BASE+4)
+#define UNIQUE_ID2  (UID_BASE+8)
 
 
 #endif
