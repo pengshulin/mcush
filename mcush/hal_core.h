@@ -25,6 +25,7 @@ void hal_led_set(int index);
 void hal_led_clr(int index);
 void hal_led_toggle(int index);
 int hal_led_get(int index);
+void hal_led_update(void);
 
 int hal_gpio_get_port_num(void);
 void hal_gpio_init(void);

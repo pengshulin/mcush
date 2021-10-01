@@ -6,27 +6,27 @@
 
 __weak void hal_delay_us(uint32_t us)
 {
+    volatile uint32_t a;
     while( us-- )
     {
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        __NOP(); __NOP(); __NOP(); __NOP();
-        //__NOP(); __NOP();
+        for(a=5; a; a--); 
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
+        //__NOP(); __NOP(); __NOP(); __NOP();
     }
 }
 

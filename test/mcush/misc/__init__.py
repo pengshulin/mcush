@@ -42,4 +42,6 @@ from . import Omron
 from . import Tongmen  # require pymodbus
 from . import Zhouzheng  # require pymodbus
 from . import Miaoguan  # require pymodbus
+from . import Sako  # require pymodbus
+
 

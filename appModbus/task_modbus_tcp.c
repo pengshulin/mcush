@@ -516,7 +516,7 @@ int pre_process_modbus_tcp_request( modbus_tcp_client_t *client )
     modbus_tcp_head_t *head;
     uint16_t transaction_id, address, size, *payload;
     int write;
-    int i;
+    int err;
 
     if( (client == NULL) || (client == CLIENT_CLOSED_MARK) )
         return 0;
@@ -541,14 +541,14 @@ int pre_process_modbus_tcp_request( modbus_tcp_client_t *client )
     }
 #endif
     payload = (uint16_t*)(client->buf+sizeof(modbus_tcp_head_t));
-    i = exec_modbus_tcp_request( (modbus_tcp_head_t*)client->buf, address, size, payload, &write );
-    if( i )
+    err = exec_modbus_tcp_request( (modbus_tcp_head_t*)client->buf, address, size, payload, &write );
+    if( err )
     {
         /* send error response */
         head->function_code |= 0x80;
-        *((uint8_t*)payload) = i;
+        *((uint8_t*)payload) = err;
         write = 1;
-        logger_printf_warn( "packet process err=%d", i );
+        logger_printf_warn( "packet process err=%d", err );
     }
     else
     {

@@ -19,6 +19,10 @@
     #define MODBUS_TCP_TIMEOUT  30
 #endif
 
+#ifndef MODBUS_TCP_RECONNECT_TIMEOUT_S
+    #define MODBUS_TCP_RECONNECT_TIMEOUT_S   60
+#endif
+
 #ifndef MODBUS_TCP_CHECK_TRANSACTION_ID_SEQ
     #define MODBUS_TCP_CHECK_TRANSACTION_ID_SEQ  0
 #endif
@@ -34,7 +38,6 @@
 #ifndef MODBUS_TCP_SWDG_FEED
     #define MODBUS_TCP_SWDG_FEED   0
 #endif
-
 
 
 #define MODBUS_MULTI_REGISTER_LIMIT  (125)
@@ -83,9 +86,6 @@ typedef struct {
 #define MODBUS_TCP_EVENT_START           14
 #define MODBUS_TCP_EVENT_CLOSE           15
 
-#define MODBUS_LOG_FILE  "/s/modbus.log"
-
-#define MODBUS_TCP_RECONNECT_TIMEOUT_S   60
 
 
 #define MODBUS_CODE_READ_COILS                      1
@@ -108,7 +108,6 @@ typedef struct {
 #define MODBUS_ERROR_DEVICE_FAULT                   4
 #define MODBUS_ERROR_CONFIRM                        5
 #define MODBUS_ERROR_DEVICE_BUSY                    6
-#define MODBUS_ERROR_CHECK                          8
 
 
 

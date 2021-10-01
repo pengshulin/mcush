@@ -97,21 +97,15 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
     if(pcdHandle->Instance==USB)
     {
-#if HAL_RESET_USB_PINS
-        GPIO_InitTypeDef GPIO_InitStruct;
-        /* pull the DM/DP low, disconnect with the host */
-        hal_gpio_set_output( 0, (3<<11), 0 );
-        hal_gpio_clr( 0, (3<<11) );
-        hal_delay_ms( 5 );
         /* PA11 --- USB_FS_DM
            PA12 --- USB_FS_DP */
-        GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#if HAL_RESET_USB_PINS
+        /* SE0 reset, bus reset */
+        /* pull the DM/DP low >= 10ms */
+        hal_gpio_set_output( 0, (3<<11), 0 );
+        hal_gpio_clr( 0, (3<<11) );
+        hal_delay_ms( 12 );
 #endif
-
         /* Peripheral clock enable */
         __HAL_RCC_USB_CLK_ENABLE();
 
@@ -209,16 +203,15 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
   */
 void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 {
-  /* Inform USB library that core enters in suspend Mode. */
-  USBD_LL_Suspend((USBD_HandleTypeDef*)hpcd->pData);
-  /* Enter in STOP mode. */
-  /* USER CODE BEGIN 2 */
-  if (hpcd->Init.low_power_enable)
-  {
-    /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
-    SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-  }
-  /* USER CODE END 2 */
+    (void)hpcd;
+    /* Inform USB library that core enters in suspend Mode. */
+    USBD_LL_Suspend((USBD_HandleTypeDef*)hpcd->pData);
+    /* Enter in STOP mode. */
+    if (hpcd->Init.low_power_enable)
+    {
+        /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
+        //SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+    }
 }
 
 /**
@@ -229,10 +222,9 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
   */
 void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
 {
-  /* USER CODE BEGIN 3 */
+    (void)hpcd;
 
-  /* USER CODE END 3 */
-  USBD_LL_Resume((USBD_HandleTypeDef*)hpcd->pData);
+    USBD_LL_Resume((USBD_HandleTypeDef*)hpcd->pData);
 }
 
 /**
@@ -294,22 +286,33 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   pdev->pData = &hpcd_USB_FS;
 
   hpcd_USB_FS.Instance = USB;
-  hpcd_USB_FS.Init.dev_endpoints = 8;
+  hpcd_USB_FS.Init.dev_endpoints = 4;
   hpcd_USB_FS.Init.speed = PCD_SPEED_FULL;
-  hpcd_USB_FS.Init.ep0_mps = DEP0CTL_MPS_8;
-  hpcd_USB_FS.Init.low_power_enable = DISABLE;
-  hpcd_USB_FS.Init.lpm_enable = DISABLE;
+  hpcd_USB_FS.Init.ep0_mps = DEP0CTL_MPS_64;
+  hpcd_USB_FS.Init.low_power_enable = ENABLE;//DISABLE;
+  hpcd_USB_FS.Init.lpm_enable = ENABLE;//DISABLE;
   hpcd_USB_FS.Init.battery_charging_enable = DISABLE;
   if (HAL_PCD_Init(&hpcd_USB_FS) != HAL_OK)
   {
      halt("usb_vcp_init");  //_Error_Handler(__FILE__, __LINE__);
   }
 
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0xC0);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x01 , PCD_SNG_BUF, 0x110);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , PCD_SNG_BUF, 0x100);
+  #define EP_ADDR_BASE      0x40  /* max description table 8*8=64Bytes, actually 8*4=32Bytes */
+  #define EP_ADDR_INC       0x40  /* max package size 64Bytes */
+                                  /* last buffer may be be short of memory in some chip familes */
+  /* Endpoint 0 */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x00, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*0);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x80, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*1);
+  /* Endpoint 1 */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x01, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*2);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x81, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*3);
+  /* Endpoint 2 */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x02, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*4);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x82, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*5);
+  /* Endpoint 3 */
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x03, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*6);
+  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData, 0x83, PCD_SNG_BUF, EP_ADDR_BASE+EP_ADDR_INC*7);
+
   return USBD_OK;
 }
 
@@ -728,8 +731,7 @@ void USBD_LL_Delay(uint32_t Delay)
 void *USBD_static_malloc(uint32_t size)
 {
     (void)size;
-    static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef)/4)+1];/* On 32-bit boundary */
-    return mem;
+    return NULL;
 }
 
 /**
@@ -770,8 +772,6 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_FS);
-    //if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
-    //    portEND_SWITCHING_ISR( pdTRUE );
 }
 
 

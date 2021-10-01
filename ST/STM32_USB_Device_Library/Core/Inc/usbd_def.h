@@ -97,9 +97,20 @@
 #define  USB_DESC_TYPE_STRING                              3
 #define  USB_DESC_TYPE_INTERFACE                           4
 #define  USB_DESC_TYPE_ENDPOINT                            5
+// USB 2.0: 9.4 Standard Device Requests, Table 9-5. Descriptor Types
 #define  USB_DESC_TYPE_DEVICE_QUALIFIER                    6
 #define  USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION           7
-#define  USB_DESC_TYPE_BOS                                 0x0F
+#define  USB_DESC_TYPE_INTERFACE_POWER                     8
+// USB 3.0: 9.4 Standard Device Requests, Table 9-5. Descriptor Types
+#define  USB_DESC_TYPE_OTG                                      0x09
+#define  USB_DESC_TYPE_DEBUG                                    0x0A
+#define  USB_DESC_TYPE_INTERFACE_ASSOCIATION                    0x0B
+#define  USB_DESC_TYPE_BOS                                      0x0F
+#define  USB_DESC_TYPE_DEVICE_CAPABILITY                        0x10
+#define  USB_DESC_TYPE_SUPERSPEED_ENDPOINT_COMPANION            0x30
+// USB 3.1: 9.4 Standard Device Requests, Table 9-6. Descriptor Types
+#define  USB_DESC_TYPE_SUPERSPEEDPLUS_ISOCH_ENDPOINT_COMPANION  0x31
+
 
 #define USB_CONFIG_REMOTE_WAKEUP                           2
 #define USB_CONFIG_SELF_POWERED                            1

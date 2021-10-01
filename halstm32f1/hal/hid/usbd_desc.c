@@ -116,8 +116,13 @@
     #define USBD_PRODUCT_STRING             "mcush hid"
 #endif
 
-#define USBD_CONFIGURATION_STRING_FS     "HID Config"
-#define USBD_INTERFACE_STRING_FS         "HID Interface"
+#ifndef USBD_CONFIGURATION_STRING_FS
+    #define USBD_CONFIGURATION_STRING_FS     "HID Config"
+#endif
+
+#ifndef USBD_INTERFACE_STRING_FS
+    #define USBD_INTERFACE_STRING_FS         "HID Interface"
+#endif
 
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
@@ -186,12 +191,11 @@ USBD_DescriptorsTypeDef FS_Desc =
   #pragma data_alignment=4
 #endif /* defined ( __ICCARM__ ) */
 /** USB standard device descriptor. */
-__ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
+const __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 {
   0x12,                       /*bLength */
   USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
-  0x00,                       /*bcdUSB */
-  0x02,
+  0x00, 0x02,                 /*bcdUSB */
   0x00,                       /*bDeviceClass*/
   0x00,                       /*bDeviceSubClass*/
   0x00,                       /*bDeviceProtocol*/
@@ -200,8 +204,7 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   HIBYTE(USBD_VID),           /*idVendor*/
   LOBYTE(USBD_PID_FS),        /*idProduct*/
   HIBYTE(USBD_PID_FS),        /*idProduct*/
-  0x00,                       /*bcdDevice rel. 2.00*/
-  0x02,
+  0x00, 0x02,                 /*bcdDevice rel. 2.00*/
   USBD_IDX_MFC_STR,           /*Index of manufacturer  string*/
   USBD_IDX_PRODUCT_STR,       /*Index of product string*/
   USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
@@ -257,7 +260,7 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
     (void)speed;
     *length = sizeof(USBD_FS_DeviceDesc);
-    return USBD_FS_DeviceDesc;
+    return (uint8_t *)USBD_FS_DeviceDesc;
 }
 
 /**

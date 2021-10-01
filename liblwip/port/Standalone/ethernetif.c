@@ -60,7 +60,7 @@
 //    #error "unknown platform"
 //#endif
 #include <string.h>
-#include "lwip_config.h"
+//#include "lwip_config.h"
 #include "mcush.h"
 
 

@@ -5,4 +5,3 @@ __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from . import ShellKit
 from . import ShellLab
 from . import VAP
-from . import McushModbus  # require pymodbus

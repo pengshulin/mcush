@@ -11,6 +11,7 @@ from . import Instrument
 from . import Register
 from . import Mcush
 from . import AppUtils
+from . import Modbus
 
 try:
     from .android import *

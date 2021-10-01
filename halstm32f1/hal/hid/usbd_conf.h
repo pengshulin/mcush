@@ -90,22 +90,27 @@
   * @{
   */
 
-/*---------- -----------*/
-#define USBD_MAX_NUM_INTERFACES     1
-/*---------- -----------*/
+
+#ifndef USBD_MAX_NUM_INTERFACES
+    #define USBD_MAX_NUM_INTERFACES     1
+#endif
+
 #define USBD_MAX_NUM_CONFIGURATION     1
-/*---------- -----------*/
+
 #define USBD_MAX_STR_DESC_SIZ     512
-/*---------- -----------*/
+
 #define USBD_SUPPORT_USER_STRING     0
-/*---------- -----------*/
+
 #define USBD_DEBUG_LEVEL     0
-/*---------- -----------*/
-#define USBD_SELF_POWERED     1
+
+#ifndef USBD_SELF_POWERED
+    #define USBD_SELF_POWERED     0
+#endif
 
 /****************************************/
 /* #define for FS and HS identification */
-#define DEVICE_FS 		0
+#define DEVICE_FS           0
+#define DEVICE_HS           1
 
 /**
   * @}
