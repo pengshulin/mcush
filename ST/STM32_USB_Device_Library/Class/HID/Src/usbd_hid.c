@@ -138,10 +138,8 @@ USBD_ClassTypeDef  USBD_HID =
 __ALIGN_BEGIN static const uint8_t USBD_HID_CfgDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIGN_END =
 {
     0x09, /* bLength: Configuration Descriptor size */
-    USB_DESC_TYPE_CONFIGURATION, /* bDescriptorType: Configuration */
-    USB_HID_CONFIG_DESC_SIZ,
-    /* wTotalLength: Bytes returned */
-    0x00,
+    USB_DESC_TYPE_CONFIGURATION,    /* bDescriptorType: Configuration */
+    USB_HID_CONFIG_DESC_SIZ, 0x00,  /* wTotalLength: Bytes returned */
     0x01,         /*bNumInterfaces: 1 interface*/
     0x01,         /*bConfigurationValue: Configuration value*/
     0x00,         /*iConfiguration: Index of string descriptor describing

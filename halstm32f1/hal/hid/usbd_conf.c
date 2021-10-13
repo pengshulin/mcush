@@ -188,7 +188,8 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
     break;
 	
   default:
-    speed = USBD_SPEED_FULL;
+    //speed = USBD_SPEED_FULL;
+    speed = USBD_SPEED_LOW;
     break;    
   }
   USBD_LL_SetSpeed((USBD_HandleTypeDef*)hpcd->pData, speed);
@@ -214,7 +215,7 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
         /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
         //SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
     }
-    logger_const_debug_isr("suspend");
+    //logger_const_debug_isr("suspend");
 }
 
 /**
@@ -228,7 +229,7 @@ void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
     (void)hpcd;
 
     USBD_LL_Resume((USBD_HandleTypeDef*)hpcd->pData);
-    logger_const_debug_isr("resume");
+    //logger_const_debug_isr("resume");
 }
 
 /**

@@ -28,7 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_ctlreq.h"
 #include "usbd_ioreq.h"
-
+#include "mcush.h"
 
 /** @addtogroup STM32_USBD_STATE_DEVICE_LIBRARY
   * @{
@@ -344,12 +344,12 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev ,
     if(pdev->dev_speed == USBD_SPEED_HIGH )   
     {
       pbuf   = (uint8_t *)pdev->pClass->GetHSConfigDescriptor(&len);
-      pbuf[1] = USB_DESC_TYPE_CONFIGURATION;
+      //pbuf[1] = USB_DESC_TYPE_CONFIGURATION;
     }
     else
     {
       pbuf   = (uint8_t *)pdev->pClass->GetFSConfigDescriptor(&len);
-      pbuf[1] = USB_DESC_TYPE_CONFIGURATION;
+      //pbuf[1] = USB_DESC_TYPE_CONFIGURATION;
     }
     break;
     
@@ -409,13 +409,13 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev ,
     if(pdev->dev_speed == USBD_SPEED_HIGH  )   
     {
       pbuf   = (uint8_t *)pdev->pClass->GetOtherSpeedConfigDescriptor(&len);
-      pbuf[1] = USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION;
+      //pbuf[1] = USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION;
       break; 
     }
     else
     {
       pbuf   = (uint8_t *)pdev->pClass->GetOtherSpeedConfigDescriptor(&len);
-      pbuf[1] = USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION;
+      //pbuf[1] = USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION;
       break;
       //USBD_CtlError(pdev , req);
       //return;

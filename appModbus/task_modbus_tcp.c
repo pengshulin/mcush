@@ -548,7 +548,7 @@ int pre_process_modbus_tcp_request( modbus_tcp_client_t *client )
         head->function_code |= 0x80;
         *((uint8_t*)payload) = err;
         write = 1;
-        logger_printf_warn( "packet process err=%d", err );
+        logger_printf_warn( "packet process err=%d, code=%d", err, head->function_code&0x7F );
     }
     else
     {

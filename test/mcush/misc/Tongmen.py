@@ -21,7 +21,6 @@ REG_OPP_SET = 0x0022
 
 class ETM( Modbus.ModbusRTU ):
     DEFAULT_NAME = 'TH10S_B'
-    DEFAULT_BAUDRATE = 9600
     
     def outputEnable( self ):
         self.writeReg(REG_OUTPUT, 1)

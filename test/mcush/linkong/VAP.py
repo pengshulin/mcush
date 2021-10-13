@@ -478,6 +478,7 @@ class VAP200_MQTT():
     DEFAULT_NAME = 'VAP200_MQTT'
     DEFAULT_NET_PORT = 1883
     DEFAULT_KEEP_ALIVE = 60
+    DEFAULT_TIMEOUT = 30
 
     def __init__( self, net_addr, device_name=None, *args, **kwargs ):
         # logging level 
@@ -699,4 +700,10 @@ class VAP200_MQTT():
         self.publishCmd( 'waveform', index=int(channel) ) 
         return [] 
 
- 
+    def rtcSync( self ):
+        ts = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.publishCmd( 'rtc', val=ts ) 
+     
+    def rtcRead( self ): 
+        return self.publishCmd( 'rtc', check_reply=True )['V']
+

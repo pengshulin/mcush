@@ -6,8 +6,7 @@ from .. import Env, Utils, Modbus
 
 class DAQM9004( Modbus.ModbusRTU ):
     DEFAULT_NAME = 'DAQM9004'
-    DEFAULT_BAUDRATE = 9600
-        
+    
     def readADC( self ):
         return self.readInputRegs(0x0000, 8)
 

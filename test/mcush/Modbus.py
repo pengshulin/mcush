@@ -118,6 +118,8 @@ class ModbusCommon():
 
   
 class ModbusRTU( ModbusCommon ):
+    DEFAULT_NAME = 'ModbusRTU'
+    DEFAULT_BAUDRATE = 9600
     DEFAULT_TIMEOUT = 5
     DEFAULT_UNIT = 1
 

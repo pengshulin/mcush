@@ -7,7 +7,6 @@ from .. import Env, Utils, Modbus
 
 class TH10S_B( Modbus.ModbusRTU ):
     DEFAULT_NAME = 'TH10S_B'
-    DEFAULT_BAUDRATE = 9600
 
     def readADC( self, addr ):
         val = self.readInputReg( addr )
