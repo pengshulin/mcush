@@ -35,7 +35,7 @@ class DG1022Z( Instrument.SocketInstrument ):
 
     def beepEnable( self, enable=True ):
         self.writeCommand( 'syst:beep:stat %s'% ('on' if enable else 'off') )
- 
+
     def beepDisable( self ):
         self.beepEnable( False )
 

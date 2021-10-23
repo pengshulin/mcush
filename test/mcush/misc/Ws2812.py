@@ -130,7 +130,7 @@ class LEDS24x8(LEDS):
 
 class LEDS32x8(LEDS):
     width, height = 32, 8
- 
+
 class LEDS8x16(LEDS):
     width, height = 8, 16
 

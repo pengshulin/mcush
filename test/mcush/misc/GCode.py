@@ -14,7 +14,7 @@ class _GCodeCommon(Instrument.SerialInstrument):
     DEFAULT_TERMINATOR_RESET = '\x18'  # Ctrl-X
     DEFAULT_CHECK_IDN = False
     DEFAULT_CHECK_RETURN_COMMAND = False
- 
+
     def connect( self ):
         '''connect'''
         old = self.setPrompts( self.CONNECT_PROMPT )
@@ -22,7 +22,7 @@ class _GCodeCommon(Instrument.SerialInstrument):
         Instrument.Instrument.connect(self)
         self.setPrompts( old )
         self.homed = False
- 
+
     def _code( self, prefix, function_code, *args, **kwargs ):
         command = ['%s%u'% (prefix, function_code)]
         command.extend( [str(arg).strip().upper() for arg in args] )
@@ -285,7 +285,7 @@ class Grbl( _GCodeCommon ):
   
     def unlock(self):
         self.writeCommand( '$X' )
- 
+
     def writeSetting( self, index, value ):
         cmd = '$%d=%s'% (index, value)
         self.writeCommand( cmd )
@@ -312,7 +312,7 @@ class Grbl( _GCodeCommon ):
             return self.status
         else:
             raise Instrument.CommandExecuteError( 'Status format error' )
- 
+
     def getPos( self ):
         # eg:
         # <Idle|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>

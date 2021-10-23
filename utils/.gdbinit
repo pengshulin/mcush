@@ -201,8 +201,14 @@ chip_mem_configs = {
 [ 0x0F000000, 0x0F003FFC, 'ro', 32, True, 'ROM 16k' ],
 [ 0x10000000, 0x10003FFC, 'rw', 32, False, 'SRAM 16k' ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
-]
+],
 
+'stm32g030': [
+[ 0x08000000, 0x0803FFFC, 'ro', 32, True,  'Flash 256k' ],
+[ 0x20000000, 0x20007FFC, 'rw', 32, False, 'SRAM 32k' ],
+[ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
+[ 0x50000000, 0x50001FFC, 'rw', 32, False, 'IO Ports', ],
+]
 
 }
 

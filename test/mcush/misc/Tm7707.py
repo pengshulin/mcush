@@ -121,7 +121,7 @@ class Tm7707():
                 MD_NORMAL | self.gain | self.polar | self.buffered | FSYNC_1 ] )
         self.controller.spi( [ REG_SETUP | WRITE | self.channel,
                 MD_NORMAL | self.gain | self.polar | self.buffered | FSYNC_0 ] )
- 
+
     def dataIsReady( self ):
         return self.controller.pinIsLow(self.drdy)
 
@@ -149,10 +149,10 @@ class Tm7707():
                 MD_CAL_ZERO | self.gain | self.polar | self.buffered] )
         while not self.dataIsReady():
             time.sleep(0.1)
- 
+
     def calibFull( self ):
         self.controller.spi( [ REG_SETUP | WRITE | self.channel,
                 MD_CAL_FULL | self.gain | self.polar | self.buffered] )
         while not self.dataIsReady():
             time.sleep(0.1)
- 
+

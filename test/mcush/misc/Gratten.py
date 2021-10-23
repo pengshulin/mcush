@@ -92,7 +92,7 @@ class ATF20E( Instrument.SerialInstrument ):
 
     def disconnect( self ):
         self.command( 'local' )
- 
+
     def writeCommand( self, cmd ):
         self.port.write( chr(self.address) )
         self.port.flush()

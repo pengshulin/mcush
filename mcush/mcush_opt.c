@@ -13,6 +13,9 @@
 #ifdef INLINE
     #undef INLINE
 #endif
+#ifdef ASSERT
+    #undef ASSERT
+#endif
 #if DEBUG
     #define INLINE(type) type
     #define ASSERT(c)    if(!c){halt("opt assert");}
@@ -343,4 +346,4 @@ int mcush_opt_check_invalid_argument(
         return -1;
     } 
 }
- 
+

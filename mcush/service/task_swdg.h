@@ -10,7 +10,7 @@
     #define SWDG_REBOOT_TIMEOUT_S  5*60  /* in seconds */
 #endif
 
- 
+
 void swdg_feed(void);
 void swdg_reboot_hook(void);
 

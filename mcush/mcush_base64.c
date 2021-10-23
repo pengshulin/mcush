@@ -257,7 +257,3 @@ int base64_decode_block(const char* code_in, const int length_in, char* plaintex
     return plainchar - plaintext_out;
 }
 
-
-
-
-

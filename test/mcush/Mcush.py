@@ -256,7 +256,7 @@ class Mcush( Instrument.SerialInstrument ):
         '''fill memory with specific pattern'''
         cmd = 'mfill -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
         self.writeCommand( cmd )
- 
+
     def testMem( self, addr, pattern, width, length ):
         '''test filled memory with specific pattern'''
         cmd = 'mfill -t -b 0x%X -w %d -p 0x%X -l %d'% ( addr, width, pattern, length )
@@ -301,7 +301,7 @@ class Mcush( Instrument.SerialInstrument ):
         r = Utils.parseKeyValueLines(self.writeCommand(''))
         return int(r['address'], 16)
             
- 
+
     def readMem( self, addr, length=1, width=1, compact_mode=False, retry=None ):
         '''get memory'''
         cmd = 'x -b 0x%X -l %d'% ( addr, length )
@@ -555,7 +555,7 @@ class Mcush( Instrument.SerialInstrument ):
             sent += len(d) 
             if segment_done_callback:
                 segment_done_callback(1+i, dat_segments, sent, dat_size)
- 
+
     def spiffs( self, command, value=None, addr=None, compact_mode=None ):
         cmd = 'spiffs -c %s'% command
         if value is not None:
@@ -607,7 +607,7 @@ class Mcush( Instrument.SerialInstrument ):
         mem = Env.EMPTY_BYTE.join( \
                [self.parseMemLine(line.strip(), compact_mode=compact_mode) for line in ret])
         return mem
- 
+
     def spiffsWritePage( self, page, buf, pagesize=256 ):
         self.setPrompts( self.DEFAULT_PROMPTS_MULTILINE )
         ret = self.spiffs( "write", addr=page*pagesize ) 
@@ -627,14 +627,14 @@ class Mcush( Instrument.SerialInstrument ):
     
     def fcfsErase( self ):
         self.writeCommand( 'fcfs -c erase' )
- 
+
     # NOTE: this api will be obselected in the future
     def fcfsFormat( self ):
         self.writeCommand( 'fcfs -c format' )
 
     def fcfsProgram( self, mem ):
-        # append zero to be 4-bytes alignment
-        while len(mem) & 0x3:
+        # append zero to be 8-bytes alignment
+        while len(mem) & 0x7:
             mem += Env.ZERO_BYTE
         # prepare 32bit word list
         words = [Utils.s2I(mem[4*i:4*(i+1)]) for i in range(int(len(mem)/4))]
@@ -645,15 +645,16 @@ class Mcush( Instrument.SerialInstrument ):
                 cmd += ' -o %d'% (offset*4)
             count_argv = len(cmd.split(' '))
             while words:
-                wr = ' %d'% words[0] 
+                wr = ' %d %d'% (words[0], words[1])
                 if len(cmd + wr) > self.DEFAULT_CMD_LINE_LIMIT:
                     break
+                if (count_argv+2) > self.DEFAULT_CMD_ARGV_LIMIT:
+                    break
+                words.pop(0)
                 words.pop(0)
                 cmd += wr
-                offset += 1
-                count_argv += 1
-                if count_argv >= self.DEFAULT_CMD_ARGV_LIMIT:
-                    break
+                offset += 2
+                count_argv += 2
             self.writeCommand( cmd )
 
     def sgpioStop( self ):
@@ -693,7 +694,7 @@ class Mcush( Instrument.SerialInstrument ):
                 addr = int(r[1].split('  ')[1].split(':')[-1], 16)
                 return addr
             time.sleep(0.1)
- 
+
     # emulated i2c bus control
     def i2c_init( self, addr, scl=None, sda=None, lsb=None, delay=None ):
         cmd = 'i2c -a0x%X -I' % (addr)
@@ -773,10 +774,10 @@ class Mcush( Instrument.SerialInstrument ):
         if delay:
             cmd += ' --delay=%s'% delay
         self.writeCommand( cmd )
- 
+
     def spi_deinit( self ):
         self.writeCommand( 'spi -D' )
- 
+
     def spi( self, write=[], read=None ):
         cmd = 'spi'
         if read:
@@ -1065,7 +1066,7 @@ class Mcush( Instrument.SerialInstrument ):
         
 
 
- 
+
     def wget( self, url, local_file, timeout=30 ):
         command = 'wget -u %s -f %s'% (url, local_file)
         oldtimeout = self.setTimeout( timeout )
@@ -1089,13 +1090,13 @@ class Mcush( Instrument.SerialInstrument ):
         ret = self.writeCommand( command )
         return int(ret[0], 16)
         
- 
+
     def luaReset( self ):
         self.writeCommand( 'lua -r' )
 
     def luaStop( self ):
         self.writeCommand( 'lua -s' )
- 
+
     def luaCommand( self, cmd ):
         ret = self.writeCommand( 'lua -c "%s"'% cmd )
         return ret[:-1]
@@ -1159,7 +1160,7 @@ class Mcush( Instrument.SerialInstrument ):
 
     def canFilterSet( self, index, enable, can_id, mask, ext=None, rtr=None ):
         self.can( 'filter', ext=ext, rtr=rtr, args=[index, int(enable), can_id, mask] )
- 
+
     def env( self ):
         return Utils.parseKeyValueLines( self.writeCommand('env') )
 

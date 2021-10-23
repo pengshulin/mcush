@@ -44,7 +44,7 @@ class ModbusCommon():
 
     def disconnect( self ):
         self.client.close()
- 
+
     def checkRet( self, ret ):
         if not ret.isError():
             return ret
@@ -137,9 +137,9 @@ class ModbusRTU( ModbusCommon ):
         self.client = ModbusSerialClient('rtu', port=self.port, baudrate=self.baudrate, timeout=self.timeout)
         self.client.logger = self.logger
         self.client.connect()
- 
 
- 
+
+
 class ModbusTCP( ModbusCommon ):
     DEFAULT_TIMEOUT = 30  # longer for network
     DEFAULT_NET_PORT = 502
@@ -213,7 +213,7 @@ class McushModbus():
         year, mon, day, hour, minute, sec = self.readRegs(REG_RTC_YEAR, 6)
         return (year, mon, day, hour, minute, sec, 0, 1, -1)
 
- 
+
 
 class McushModbusRTU(McushModbus, ModbusRTU):
     def connect( self ):

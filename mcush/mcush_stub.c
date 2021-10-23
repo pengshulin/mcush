@@ -44,7 +44,7 @@ caddr_t _sbrk(int incr)
     heap_end = new_heap_end;
     return (caddr_t)prev_heap_end;
 }
- 
+
 
 char *parse_file_flag( int flag, char *buf )
 {

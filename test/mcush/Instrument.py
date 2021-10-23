@@ -140,11 +140,11 @@ class Instrument:
             logging.basicConfig( level=logging.INFO )
         else:
             logging.basicConfig( level=logging.FATAL )
- 
+
     def setInfo( self, debug ):
         '''set debug'''
         self.debug = debug
- 
+
     def setPrompts( self, prompts=None ):
         '''dynamically modify the prompts'''
         old_prompts = self.prompts
@@ -417,7 +417,7 @@ class Instrument:
             else:
                 ret = (ret<<8) | sn.pop()
         return ret
- 
+
     def printInfo( self ):
         print( '%s, %s'% (self.getModel(), self.getVersion()) )
 
@@ -432,7 +432,7 @@ class Port(object):
 
     def __del__( self ):
         self.disconnect()
- 
+
     def connect( self ):
         raise NotImplementedError
 
@@ -448,7 +448,7 @@ class Port(object):
 
     def write( self, buf ):
         raise NotImplementedError
- 
+
     def flush( self ):
         pass
 
@@ -457,7 +457,7 @@ class Port(object):
 
     def update_baudrate( self, baudrate ):
         pass
- 
+
     def update_timeout( self, timeout ):
         pass 
 
@@ -478,8 +478,8 @@ class Port(object):
     def timeout( self, val ):
         self._timeout = val
         self.update_timeout( val )
- 
- 
+
+
 class SerialPort(Port):
     
     def __init__( self, parent, *args, **kwargs ):
@@ -514,7 +514,7 @@ class SerialPort(Port):
         if self._connected:
             self.ser.close()
             self._connected = False
- 
+
     def update_baudrate( self, baudrate ):
         self.ser.baudrate = baudrate
 
@@ -538,13 +538,13 @@ class SerialPort(Port):
             self.ser.write( buf )
         except self.serial_exception as e:
             raise UnknownPortError( str(e) )
- 
+
     def flush( self ):
         try:
             self.ser.flush()
         except self.serial_exception as e:
             raise UnknownPortError( str(e) )
- 
+
 
 class SocketPort(Port):
         
@@ -582,8 +582,6 @@ class SocketPort(Port):
                 if isinstance(buf, str):
                     buf = buf.encode('utf8')
             self.s.sendall(buf)
- 
-
 
 
 

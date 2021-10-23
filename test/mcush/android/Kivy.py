@@ -59,7 +59,7 @@ class JavaBluetoothPort(Instrument.Port):
     def write( self, buf ):
         if self._connected:
             self.send.write(buf)
- 
+
     def flush( self ):
         if self._connected:
             self.send.flush()

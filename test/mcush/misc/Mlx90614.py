@@ -53,7 +53,7 @@ class Mlx90614():
         id3 = self.readE2prom( MLX90614_ID3 )
         id4 = self.readE2prom( MLX90614_ID4 )
         return (id1, id2, id3, id4)
- 
+
     def readFlags( self ):
         datl, dath, pec = self.controller.i2c( [0xF0], 3 )
         return datl + (dath<<8)
@@ -61,11 +61,11 @@ class Mlx90614():
     def readTempAmb( self ):
         t = self.readRamInt16( MLX90614_TA ) * 0.02 - 273.15
         return t
- 
+
     def readTempObj( self ):
         t = self.readRamInt16( MLX90614_TOBJ1 ) * 0.02 - 273.15
         return t
- 
+
     def readTemp( self ):
         return (self.readTempAmb(), self.readTempObj()) 
 

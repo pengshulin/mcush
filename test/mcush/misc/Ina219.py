@@ -44,7 +44,7 @@ MODE_SHUNT_BUS_CONT = 7
 
 
 class Ina219:
- 
+
     mode = MODE_SHUNT_BUS_CONT
     badc = ADC_12B_128  # 12 bit, slow mode
     sadc = ADC_12B_128  # 12 bit, slow mode

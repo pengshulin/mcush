@@ -85,7 +85,7 @@ class Ssd1306_I2C(Ssd1306_Common):
 
     def cmd( self, b ):
         self.controller.i2c( [0x00, b] )
- 
+
     def dat( self, b ):
         self.controller.i2c( [0x40, b] )
     
@@ -100,7 +100,7 @@ class Ssd1306_I2C(Ssd1306_Common):
                     0xC0, pattern, 0xC0, pattern, 0xC0, pattern, 0xC0, pattern, 
                     0xC0, pattern, 0xC0, pattern, 0xC0, pattern, 0xC0, pattern, 
                     ] )
- 
+
 
 class Ssd1306_SPI(Ssd1306_Common):
 
@@ -124,7 +124,7 @@ class Ssd1306_SPI(Ssd1306_Common):
             self.controller.pinClr( self.dc_pin )
             self.dc = 0
         self.controller.spi( [d] )
- 
+
     def dat( self, d ):
         if self.dc != 1:
             self.controller.pinSet( self.dc_pin )

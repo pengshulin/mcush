@@ -63,7 +63,6 @@ int mcush_fatfs_remove( const char *path )
 {
     if( ! _mounted )
         return 0;
- 
     return 0;
 }
 
@@ -72,7 +71,6 @@ int mcush_fatfs_rename( const char *old, const char *newPath )
 {
     if( ! _mounted )
         return 0;
-
      return 0;
 }
 

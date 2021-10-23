@@ -60,7 +60,7 @@ class KA3000( Instrument.SerialInstrument ):
         volt = self.writeCommand('VSET%d?'% channel, need_response=True)
         amp = self.writeCommand('ISET%d?'% channel, need_response=True)
         return float(volt), float(amp)
- 
+
     def read( self, channel=1 ):
         volt = self.writeCommand('VOUT%d?'% channel, need_response=True)
         amp = self.writeCommand('IOUT%d?'% channel, need_response=True)

@@ -192,7 +192,7 @@ class JY901( Instrument.SerialInstrument ):
     DEFAULT_READ_UNTIL_PROMPTS = False
     DEFAULT_CHECK_IDN = False
     DEFAULT_CHECK_RETURN_COMMAND = False
- 
+
     pending_bytes = []
     read_bytes = 0
     synced = None
@@ -237,12 +237,12 @@ class JY901( Instrument.SerialInstrument ):
         pkt = bytes([0xFF, 0xAA, 0x69, 0x77, 0xA5])
         self.port.write(pkt)
         time.sleep(0.1)
- 
+
     def unlock( self ):
         pkt = bytes([0xFF, 0xAA, 0x69, 0x88, 0xB5])
         self.port.write(pkt)
         time.sleep(0.1)
- 
+
     def writeReg( self, addr, val ):
         if isinstance(addr, str):
             addr = REGS_REV[addr]
@@ -256,7 +256,7 @@ class JY901( Instrument.SerialInstrument ):
 
     def loadDefault( self ):
         self.writeReg('SAVE', 1 )
- 
+
     def calsw( self, mode=0 ):
         self.writeReg('CALSW', mode ) 
 

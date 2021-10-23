@@ -23,7 +23,7 @@ class QPythonBluetoothPort(Instrument.Port):
         import androidhelper
         self.androidhelper = androidhelper
         self.android = androidhelper.Android()
- 
+
     def connect( self ):
         if self._connected:
             return
@@ -43,7 +43,7 @@ class QPythonBluetoothPort(Instrument.Port):
 
     def write( self, buf ):
         self.android.bluetoothWrite( buf, '' )
- 
+
     def flush( self ):
         pass
 

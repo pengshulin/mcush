@@ -140,7 +140,7 @@ class FY6900( Instrument.SerialInstrument ):
         self.writeLine( cmd )
         ret = self.readUntilPrompts()
         return ret
- 
+
     def getModel( self ):
         ret = self.writeCommand("UMO")
         self.readUntilPrompts()

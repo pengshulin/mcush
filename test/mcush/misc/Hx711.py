@@ -40,7 +40,7 @@ class Hx711():
     def setMode( self, mode ):
         self._setMode( mode )
         self.controller.spiUpdate(self.sdi, self.sdo, self.sck, self.cs, width=self.clocks, cpha=True)
- 
+
     def dataIsReady( self ):
         return self.controller.pinIsLow(self.sdi)
 

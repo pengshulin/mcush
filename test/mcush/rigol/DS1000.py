@@ -42,20 +42,20 @@ class DS1000( Instrument.SerialInstrument ):
     def scpiRst( self ):
         Instrument.SerialInstrument.scpiRst(self)
         time.sleep(0.5)
- 
+
     def getSerialNumber( self ):
         return self.scpiIdn().split(',')[-2]
 
     def run( self ):
         # this command does not work, use key('run') instead
         self.writeCommand(":SYST:RUN")
- 
+
     def stop( self ):
         self.writeCommand(":SYST:STOP")
- 
+
     def auto( self ):
         self.writeCommand(":SYST:AUTO")
- 
+
     def snapshot( self ):
         self.writeCommand(":SYST:HARD")
 

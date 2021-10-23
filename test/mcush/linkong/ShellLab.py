@@ -155,7 +155,7 @@ class ShellLabLamp(Mcush.Mcush):
         if freq is not None:
             cmd += ' -f %d'% freq
         return self.writeCommand(cmd)
- 
+
     def reset( self, lamp_freq=1, alarm_freq=1, mode=None ):
         self.lamp( 0, freq=lamp_freq, mode=mode )
         self.alarm( 0, freq=alarm_freq )
@@ -360,7 +360,7 @@ class ShellLabCANopen(ShellLabCAN):
 
     def startNode( self, id ):
         self.writeNMTCommand( NMT_START, id )
- 
+
     def stopNode( self, id ):
         self.writeNMTCommand( NMT_STOP, id )
 
@@ -683,7 +683,7 @@ class ShellLabSegmentDisplay(Mcush.Mcush):
 
     def int(self, val, idx=None):
         self.disp('int', idx=idx, val=val)
- 
+
     def msg(self, msg, idx=None):
         self.disp(idx=idx, msg=msg)
 
@@ -727,7 +727,7 @@ class ShellLabSensor(Mcush.Mcush):
             command += ' -v%d'% val
         return self.writeCommand( command ) 
 
- 
+
 class ShellLabSensorT(ShellLabSensor):
     '''DS18B20 based temperature sensor'''
     DEFAULT_NAME = 'ShellLab-Sensor-T'

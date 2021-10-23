@@ -27,7 +27,7 @@ class ETM( Modbus.ModbusRTU ):
 
     def outputDisable( self ):
         self.writeReg(REG_OUTPUT, 0)
- 
+
     def output( self, volt=None, amp=None, enable=True ):
         if volt is not None:
             volt = float(volt)

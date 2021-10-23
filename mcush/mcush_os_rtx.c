@@ -512,7 +512,7 @@ void os_queue_info_print(void)
 {
 }
 
- 
+
 static void _print_kernel_item_name(const char *name)
 {
     int len=strlen(name);

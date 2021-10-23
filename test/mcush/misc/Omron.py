@@ -17,7 +17,7 @@ REG_PWR = 0xD
 class D6F_PH():
     ADDR = 0x6C
     RANGE = 50  # Pa
- 
+
     def __init__( self, controller, scl=None, sda=None ):
         self.controller = controller
         self.controller.i2c_init( self.ADDR, scl, sda )
@@ -53,7 +53,7 @@ class D6F_PH():
         self.controller.i2c( [REG_ADDR, 0xD0, 0x40, 0x1C] )
         ret = self.controller.i2c( [REG_RD], read=1 )
         return ret[0]
- 
+
     def readPowerStatus( self ):
         ret = self.controller.i2c( [REG_PWR], read=1 )
         return ret[0]
@@ -96,8 +96,8 @@ class D6F_PH():
 class D6F_PH0025AD1(D6F_PH):
     ADDR = 0x6C
     RANGE = 250
- 
+
 class D6F_PH5050AD3(D6F_PH):
     ADDR = 0x6C
     RANGE = 500
- 
+

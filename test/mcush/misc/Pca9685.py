@@ -33,7 +33,7 @@ REG_TESTMODE    = 255
 
 
 class Pca9685():
- 
+
     def __init__( self, controller, addr=0x0, scl=None, sda=None, ext_clk=None ):
         self.controller = controller
         self.controller.i2c_init( (addr&0x3F)|0x40, scl, sda )

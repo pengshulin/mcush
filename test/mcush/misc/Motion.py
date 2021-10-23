@@ -118,7 +118,7 @@ class Mpu6050():
         self.writeByName( "GYRO_CONFIG", 0x18 )  # gyro setting: 0x18(no self test, 2000deg/s)
         self.writeByName( "ACCEL_CONFIG", 0x01 )  # accel setting: 0x01(no self test, 2G, 5Hz)
         #self.writeByName( "PWR_MGMT_1", 0x01 )  # user X/PLL Clk 
- 
+
     def readByIdx( self, idx ):
         return self.controller.i2c( [idx], 1 )[0]
 
@@ -153,7 +153,7 @@ class Mpu6050():
     def getAccelZ( self ):
         a,b = self.controller.i2c( [0x3F], 2 )
         return Utils.s2h( chr(b) + chr(a) ) / 16384.0 * 9.8
- 
+
     def getGyroX( self ):
         a,b = self.controller.i2c( [0x43], 2 )
         return Utils.s2h( chr(b) + chr(a) ) / 16384.0 * 16.4
@@ -165,7 +165,7 @@ class Mpu6050():
     def getGyroZ( self ):
         a,b = self.controller.i2c( [0x47], 2 )
         return Utils.s2h( chr(b) + chr(a) ) / 16384.0 * 16.4
- 
+
 
 
      
@@ -210,21 +210,21 @@ class Adxl345():
             return Utils.s2h( bytes([a, b]) ) / 25.0
         else:
             return Utils.s2h( chr(a) + chr(b) ) / 25.0
- 
+
     def getAccelY( self ):
         a,b = self.controller.i2c( [0x34], 2 )
         if Env.PYTHON_V3:
             return Utils.s2h( bytes([a, b]) ) / 25.0
         else:
             return Utils.s2h( chr(a) + chr(b) ) / 25.0
- 
+
     def getAccelZ( self ):
         a,b = self.controller.i2c( [0x36], 2 )
         if Env.PYTHON_V3:
             return Utils.s2h( bytes([a, b]) ) / 25.0
         else:
             return Utils.s2h( chr(a) + chr(b) ) / 25.0
- 
+
 
 class Adxl313(Adxl345):
     I2C_ADDR = 0x1D

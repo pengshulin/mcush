@@ -68,7 +68,7 @@ typedef struct
 typedef StaticSemaphore_t static_mutex_buffer_t;
 #define DEFINE_STATIC_MUTEX_BUFFER( name )  \
     static static_mutex_buffer_t static_mutex_buffer_##name
- 
+
 typedef StaticSemaphore_t static_semaphore_buffer_t;
 #define DEFINE_STATIC_SEMAPHORE_BUFFER( name )  \
     static static_semaphore_buffer_t static_semaphore_buffer_##name

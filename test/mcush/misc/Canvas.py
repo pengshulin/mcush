@@ -47,7 +47,7 @@ class Canvas():
             self.setPixel( x, y, color, flush=False )
         if flush:
             self.flush()
- 
+
     def drawRectangle( self, x0, y0, x1, y1, color=None, fill=True, flush=True ):
         # draw rectangle 
         if x0 == x1:
@@ -93,7 +93,7 @@ class Canvas():
                         self.setPixel( x, y, color, flush=False )
         if flush:
             self.flush()
- 
+
     def drawBitmap( self, x, y, bitmap, mode='normal', flush=True ):
         # draw bitmap
         for i in range(bitmap.height):

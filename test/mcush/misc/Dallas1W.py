@@ -202,7 +202,7 @@ class DS18B20( Dallas1W ):
         self.write( ((res-9) & 0x3) << 5 )
     
     config = setScratchpad
- 
+
     def convert( self, sn=None ):
         self.reset()
         if sn is not None:
@@ -226,4 +226,4 @@ class DS18B20( Dallas1W ):
 
 class DS1990( Dallas1W ):
     FAMILY_CODE = 0x01
- 
+

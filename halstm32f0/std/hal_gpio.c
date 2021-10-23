@@ -13,13 +13,13 @@ static void _set_mode( int port, int bits, GPIOMode_TypeDef mode, GPIOOType_Type
         
     init.GPIO_Mode = mode;
     init.GPIO_Speed = GPIO_Speed_Level_2;
+    init.GPIO_OType = otype;
+    init.GPIO_PuPd = pull;
     for( i=0; i<32; i++ )
     {
         if( bits & (1<<i) )
         { 
             init.GPIO_Pin = 1<<i;
-            init.GPIO_OType = otype;
-            init.GPIO_PuPd = pull;
             GPIO_Init((GPIO_TypeDef*)ports[port], &init);
         }
     }

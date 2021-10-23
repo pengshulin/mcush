@@ -24,7 +24,7 @@ class Sht30():
         #if crc != c:
         #    raise Exception('CRC error 0x%02X(should be 0x%02X)'% (c, crc))
         return (m<<8) + l
- 
+
     def reset( self, delay=0.1 ):
         self._writeCmd( 0x30A2 )  # soft reset
         time.sleep(delay)

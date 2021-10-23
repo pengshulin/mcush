@@ -42,7 +42,7 @@ class _vap( Mcush.Mcush ):
         
     def env( self ):
         return self.parseEnv( self.writeCommand('env') )
- 
+
     def daq( self, command, index=None, value=None ):
         cmd = 'daq -c %s'% command
         if index is not None:
@@ -173,13 +173,13 @@ class VAP200( _vap ):
 
     def setAlarmOutput( self, on=True ):
         self.daq( 'pwr_r', value=int(bool(on)) )
- 
+
     def getAlarmOutput( self ):
         return int(self.daq( 'pwr_r' )[0])
 
     def setSensorPower( self, on=True ):
         self.daq( 'pwr_s', value=int(bool(on)) )
- 
+
     def getSensorPower( self ):
         return int(self.daq( 'pwr_s' )[0])
 
@@ -192,7 +192,7 @@ class VAP200( _vap ):
     
     def getSpeedBitmap( self ):
         return int(self.daq( 'speed' )[0])
- 
+
     def setMCLK( self, mclk_idx=0 ):
         self.daq( 'mclk', value=mclk_idx )
 
@@ -225,7 +225,7 @@ class VAP200( _vap ):
 
     def readSwitchConfig( self ):
         return int(self.daq('config')[0])
- 
+
     def daqLock( self ):
         self.daq('lock')
 
@@ -313,7 +313,7 @@ REG_BUFFER_END          = 59999
 
 REG_RECORD_LENGTH_MAX = int((REG_BUFFER_END-REG_BUFFER_BEGIN+1)/2)
 
- 
+
 
 class VAP200_ModbusTCP( McushModbusTCP ):
     '''VAP 2xx Series over ModbusTCP'''
@@ -342,7 +342,7 @@ class VAP200_ModbusTCP( McushModbusTCP ):
        
     def setAlarmOutput( self, on=True ):
         self.writeReg( REG_ALARM_OUTPUT, int(bool(on)) )
- 
+
     def getAlarmOutput( self ):
         return bool(self.readReg(REG_ALARM_OUTPUT))
 
@@ -351,16 +351,16 @@ class VAP200_ModbusTCP( McushModbusTCP ):
     
     def getSensorPower( self ):
         return bool(self.readReg(REG_POWER_SENSOR))
- 
+
     def setSpeedBitmap( self, bitmap=0x00 ):
         self.writeReg(REG_SPEED_BITMAP, bitmap)
- 
+
     def getSpeedBitmap( self ):
         return self.readReg(REG_SPEED_BITMAP)
 
     def setTachoLEDEnable( self, enable=True ):
         self.writeReg(REG_TACHO_LED_EN, int(bool(enable)))
- 
+
     def setTachoMeasEnable( self, enable=True ):
         self.writeReg(REG_TACHO_MEAS_EN, int(bool(enable)))
     
@@ -418,7 +418,7 @@ class VAP200_ModbusTCP( McushModbusTCP ):
 
     def getChannelBitmap( self ):
         return self.readReg(REG_CHANNEL_BITMAP)
- 
+
     def recordWaitForDone( self, wait_tick=0.1 ):
         while True:
             if self.readReg(REG_RECORD_DONE): 
@@ -641,22 +641,22 @@ class VAP200_MQTT():
                 if time.time() > t0 + self.DEFAULT_TIMEOUT:
                     break
             return None
- 
+
     def enterRemoteMode( self ):
         self.publishCmd( 'remote' ) 
 
     def exitRemoteMode( self ):
         self.publishCmd( 'local' ) 
- 
+
     def getAlarmOutput( self ):
         return self.publishCmd( 'alarm', check_reply=True )['V']
 
     def setAlarmOutput( self, on=True ):
         self.publishCmd( 'alarm', val=int(on) ) 
- 
+
     def getSensorPower( self ):
         return self.publishCmd( 'pwr_sensor', check_reply=True )['V']
- 
+
     def setSensorPower( self, on=True ):
         self.publishCmd( 'pwr_sensor', val=int(on) ) 
     
@@ -668,13 +668,13 @@ class VAP200_MQTT():
 
     def getSampleRate( self ):
         return self.publishCmd( 'sample_rate', check_reply=True )['V']
- 
+
     def setSampleRate( self, sample_rate=25600 ):
         self.publishCmd( 'sample_rate', val=int(sample_rate) ) 
- 
+
     def getSampleLength( self ):
         return self.publishCmd( 'record_length', check_reply=True )['V']
- 
+
     def setSampleLength( self, length=1024 ):
         self.publishCmd( 'record_length', val=int(length) ) 
 

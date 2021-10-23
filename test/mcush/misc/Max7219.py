@@ -96,10 +96,10 @@ class LED24x8(LED):
 
 class LED32x8(LED):
     width, height = 32, 8
- 
+
 class LED64x8(LED):
     width, height = 64, 8
- 
+
 class LED8x16(LED):
     width, height = 8, 16
 
@@ -187,7 +187,7 @@ class Canvas(_Canvas.Canvas):
         self.dirty = 0xFF
         if flush:
             self.flush()
- 
+
 
 #  
 #      a
@@ -237,7 +237,7 @@ class LED8(LED):
                 segments[-1] |= SegmentTable.SH
         for i, s in enumerate(segments[:self.DIGITS], index):
             self.write_line( i, s )
- 
+
     def display_integer( self, val, hex_mode=False ):
         if hex_mode:
             string = (('%%%dX'% self.DIGITS)% val)[-self.DIGITS:]
@@ -270,4 +270,4 @@ class LED8(LED):
     display_segs = display_segments
 
 
- 
+

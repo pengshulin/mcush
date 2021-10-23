@@ -32,9 +32,6 @@
     #define HAL_UARTx_RX_AF                 LL_GPIO_AF_1
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
-    #define HAL_UARTx_BAUDRATE              9600
-    #define HAL_UART_QUEUE_RX_LEN           128
-    #define HAL_UART_QUEUE_TX_LEN           128
 #endif
 
 
@@ -106,6 +103,7 @@ int hal_uart_init( uint32_t baudrate )
     LL_GPIO_Init( HAL_UARTx_RX_PORT, &gpio_init);
 
     /* USART configuration */
+    usart_init.PrescalerValue = LL_USART_PRESCALER_DIV1;
     usart_init.BaudRate = baudrate ? baudrate : HAL_UARTx_BAUDRATE;
     usart_init.DataWidth = LL_USART_DATAWIDTH_8B;
     usart_init.StopBits = LL_USART_STOPBITS_1;

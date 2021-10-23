@@ -163,7 +163,7 @@ class Task():
 
     def halt( self ):
         self.queue.put( ('halt', None) )
- 
+
     def done( self ):
         self.queue.put( ('done', None) )
 

@@ -195,7 +195,8 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint
       assert_param(IS_FLASH_FAST_PROGRAM_ADDRESS(Address));
 
       /* Fast program a 32 row double-word (64-bit) at a specified address */
-      FLASH_Program_Fast(Address, (uint32_t)Data);
+      /* FIXED: ram function is not used and linked */
+      //FLASH_Program_Fast(Address, (uint32_t)Data);
     }
 
     /* Wait for last operation to be completed */
@@ -211,6 +212,7 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint
   /* return status */
   return status;
 }
+
 
 /**
   * @brief  Program double word or fast program of a row at a specified address with interrupt enabled.

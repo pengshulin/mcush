@@ -388,7 +388,7 @@ int os_semaphore_get( os_semaphore_handle_t semaphore, int block_ticks )
 
     if( block_ticks < 0 )
         block_ticks = RT_WAITING_FOREVER;
- 
+
     err = rt_sem_take( semaphore, block_ticks );
     if( err == RT_EOK )
         return 1;

@@ -178,7 +178,7 @@ def I2f( val ):
 
 def f2i( val ):
     return unpack('i', pack('f', val)) [0]
- 
+
 def f2I( val ):
     return unpack('I', pack('f', val)) [0]
 
@@ -193,27 +193,27 @@ def s2b( val ):
     if Env.PYTHON_V3 and isinstance(val,int):
         return unpack('b', bytes([val])) [0]
     return unpack('b', val) [0]
- 
+
 def s2B( val ):
     if Env.PYTHON_V3 and isinstance(val,int):
         return unpack('B', bytes([val])) [0]
     return unpack('B', val) [0]
- 
+
 def s2h( val ):
     return unpack('h', val) [0]
- 
+
 def s2H( val ):
     return unpack('H', val) [0]
- 
+
 def s2i( val ):
     return unpack('i', val) [0]
- 
+
 def s2I( val ):
     return unpack('I', val) [0]
- 
+
 def s2q( val ):
     return unpack('q', val) [0]
- 
+
 def s2Q( val ):
     return unpack('Q', val) [0]
     
@@ -566,7 +566,7 @@ class FCFS:
             return 4
         def __bytes__( self ):
             return pack('H', self.offset) + pack('H', self.size)
- 
+
     class File():
         def __init__( self, fname, contents ):
             self.fname = fname.encode('utf8')
@@ -578,7 +578,7 @@ class FCFS:
             return len(self.fname) + len(self.contents) + 2  # two \x00 seperators
         def __bytes__( self ):
             return self.fname + b'\x00' + self.contents + b'\x00'
- 
+
     def __init__( self ):
         self.reset()
 
@@ -610,7 +610,7 @@ class FCFS:
                 self.setUID( ''.join(uid) )
         else:
             self.setUID( uid )
- 
+
     def appendSignature( self, item ):
         self.contents.append( item )
 
@@ -636,7 +636,7 @@ class FCFS:
         else:
             output = Env.EMPTY_BYTE.join([o.__bytes__() for o in newlst])
         return output
- 
+
 
 
 

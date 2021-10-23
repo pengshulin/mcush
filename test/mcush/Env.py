@@ -12,11 +12,11 @@ from subprocess import check_output
 
 _bool_true_list = ['1', 'Y', 'y', 'T', 't', 'yes', 'Yes', 'YES', 'true', 'True', 'TRUE']
 
- 
+
 def getenv_bool( key, default=None ):
     ret = getenv(key, default)
     return False if ret is None else bool(ret in _bool_true_list)
- 
+
 def getenv_float( key, default=None ):
     ret = getenv(key, default)
     return None if ret is None else float(ret)
@@ -110,7 +110,7 @@ else:
 
 LOG_DATEFMT = '%Y-%m-%d %H:%M:%S'
 LOG_FORMAT = '%(asctime)s %(name)s %(levelname)s %(message)s'
- 
+
 try:
     if PYTHON_V3:
         from mcush.EnvExtra import *

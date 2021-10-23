@@ -26,7 +26,7 @@ void emu_i2c_deinit( int i2c_index );
 int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_bytes, int read_bytes, int address, int no_stop );
 #endif
 
- 
+
 #if defined(SUPPORT_SPI)
 typedef struct {
     uint8_t port_sdi, port_sdo, port_sck, port_cs;
