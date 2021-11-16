@@ -130,7 +130,7 @@ class ShellLabLamp(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLabLamp'
     DEFAULT_IDN = re_compile( 'ShellLab-L1[a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
-    def lamp( self, color=None, red=None, green=None, blue=None, freq=None, mode=None, count=None ):
+    def lamp( self, color=None, red=None, green=None, blue=None, freq=None, mode=None, count=None, fast=None ):
         cmd = 'lamp'
         if color is not None:
             cmd += ' -c 0x%X'% color
@@ -146,6 +146,8 @@ class ShellLabLamp(Mcush.Mcush):
             cmd += ' -m %d'% mode
         if count is not None:
             cmd += ' -C %d'% count
+        if fast:
+            cmd += ' -F'
         return self.writeCommand(cmd)
 
     def alarm( self, count=None, freq=None ):
@@ -172,12 +174,12 @@ class ShellLabLamp(Mcush.Mcush):
                 raise Exception('Unknown mode name %s'% mode)
         self.lamp(mode=mode)
 
-    def color( self, c, freq=None, count=None ):
+    def color( self, c, freq=None, count=None, fast=None ):
         if isinstance(c, str):
             if not c in COLOR_TAB:
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
-        self.lamp( c, freq=freq, count=count ) 
+        self.lamp( c, freq=freq, count=count, fast=fast ) 
 
 
 class ShellLabStrip(Mcush.Mcush):
@@ -194,7 +196,7 @@ class ShellLabStrip(Mcush.Mcush):
         cmd = 'strap -l%d'% length
         self.writeCommand(cmd)
 
-    def strap( self, color=None, red=None, green=None, blue=None, freq=None, count=None ):
+    def strap( self, color=None, red=None, green=None, blue=None, freq=None, count=None, fast=None ):
         cmd = 'strap'
         if color is not None:
             cmd += ' -c 0x%X'% color
@@ -208,6 +210,8 @@ class ShellLabStrip(Mcush.Mcush):
             cmd += ' -f %s'% freq
         if count is not None:
             cmd += ' -C %d'% count
+        if fast:
+            cmd += ' -F'
         return self.writeCommand(cmd)
 
     strip = strap
@@ -215,12 +219,12 @@ class ShellLabStrip(Mcush.Mcush):
     def reset( self, freq=1 ):
         self.strap( 0, freq=freq )
 
-    def color( self, c, freq=None, count=None ):
+    def color( self, c, freq=None, count=None, fast=None ):
         if isinstance(c, str):
             if not c in COLOR_TAB:
                 raise Exception('Unknown color name %s'% c)
             c = COLOR_TAB[c]
-        self.strap( c, freq=freq, count=count ) 
+        self.strap( c, freq=freq, count=count, fast=fast ) 
 
     def beep( self, freq=None, duration=0.05, times=1 ):
         # not supported
@@ -822,5 +826,213 @@ class ShellLabSensorWeight(ShellLabSensor):
 
     def getWeight( self ):
         return None 
+
+
+class ShellLabHID(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLab-HID'
+    DEFAULT_IDN = re_compile( 'ShellLab-HID,([0-9]+\.[0-9]+.*)' )
+
+    KEY_CODES = {
+        '1': 0x1e, '2': 0x1f, '3': 0x20, '4': 0x21, '5': 0x22,
+        '6': 0x23, '7': 0x24, '8': 0x25, '9': 0x26, '0': 0x27,
+        'A': 0x04, 'B': 0x05, 'C': 0x06, 'D': 0x07, 'E': 0x08,
+        'F': 0x09, 'G': 0x0a, 'H': 0x0b, 'I': 0x0c, 'J': 0x0d,
+        'K': 0x0e, 'L': 0x0f, 'M': 0x10, 'N': 0x11, 'O': 0x12,
+        'P': 0x13, 'Q': 0x14, 'R': 0x15, 'S': 0x16, 'T': 0x17,
+        'U': 0x18, 'V': 0x19, 'W': 0x1a, 'X': 0x1b, 'Y': 0x1c, 'Z': 0x1d,
+
+        'F1': 0x3a, 'F2': 0x3b, 'F3': 0x3c, 'F4': 0x3d, 'F5': 0x3e, 'F6': 0x3f,
+        'F7': 0x40, 'F8': 0x41, 'F9': 0x42, 'F10':0x43, 'F11':0x44, 'F12':0x45,
+
+        'ESC':      0x29, 
+        'MINUS':    0x2d,
+        'PLUS':     0x2e,
+        'TAB':      0x2b,
+        'BKSPACE':  0x2a,
+        'LBRACES':  0x2f,
+        'RBRACES':  0x30,
+        'BAR':      0x31,
+        'CAPSLOCK':   0x39,
+        'SWUNG_DASH': 0x35,
+        'COLON':    0x33,
+        'QUOTE':    0x34,
+        'ENTER':    0x28,
+        'LBRACKET': 0x36,
+        'RBRACKET': 0x37,
+        'QUESTION': 0x38,
+        'PGUP':     0x4b,
+        'SPACE':    0x2c,
+        'MENU':     0x65,
+        'PRTSC':    0x46,
+        'PAUSE':    0x48,
+        'UP':       0x52,
+        'PGDN':     0x4e,
+        'INS':      0x49,
+        'DEL':      0x4c,
+        'HOME':     0x4a,
+        'END':      0x4d,
+        'NUMLOCK':  0x53,
+        'SCRLOCK':  0x47,
+        'LEFT':     0x50,
+        'DOWN':     0x51,
+        'RIGHT':    0x4f,
+
+        'KP_0': 0x62, 'KP_1': 0x59, 'KP_2': 0x5a, 'KP_3': 0x5b, 'KP_4': 0x5c, 
+        'KP_5': 0x5d, 'KP_6': 0x5e, 'KP_7': 0x5f, 'KP_8': 0x60, 'KP_9': 0x61, 
+        'KP_.': 0x63, 'KP_+': 0x57, 'KP_-': 0x56, 'KP_*': 0x55, 'KP_/': 0x54, 
+        }
+
+    KEY_NAME_TRANSFER = {
+        '/': 'QUESTION', ' ': 'SPACE', '-': 'MINUS', '=': 'PLUS',
+        '\t': 'TAB', '\'': 'QUOTE', '\n': 'ENTER', '\b': 'BKSPACE',
+        '[': 'LBRACES', ']': 'RBRACES', ',': 'LBRACKET', '.': 'RBRACKET',
+        '\\': 'BAR', '`': 'SWUNG_DASH', ';': 'COLON',
+        }
+ 
+    def hid( self, cmd=None, idx=None, val=None ):
+        command = 'h'
+        if cmd is not None:
+            command += ' -c%s'% cmd
+        if idx is not None:
+            command += ' -i%d'% idx
+        if val is not None:
+            command += ' -v%d'% val
+        return self.writeCommand( command ) 
+
+    def buttons_s2I( self, left, right, middle ):
+        buttons = 0
+        if left:
+            buttons |= 0x1
+        elif right:
+            buttons |= 0x2
+        elif middle:
+            buttons |= 0x4
+        return buttons
+
+    def checkXY( self, dx, dy ):
+        dx, dy = int(dx), int(dy) 
+        if dx > 127:
+            dx = 127
+        elif dx < -128:
+            dx = -128
+        if dy > 127:
+            dy = 127
+        elif dy < -128:
+            dy = -128
+        return dx, dy 
+
+    def mouse( self, left=True, right=None, middle=None, dx=0, dy=0 ):
+        buttons = self.buttons_s2I( left, right, middle )
+        dx, dy = self.checkXY(dx,dy)
+        if dx == 0 and dy == 0:
+            self.hid( 'm', idx=buttons )
+        else:
+            pos = Utils.s2H( Utils.b2s(dx) + Utils.b2s(dy) )
+            self.hid( 'm', idx=buttons, val=pos )
+
+    def down( self, left=True, right=None, middle=None ):
+        self.hid( 'md', idx=self.buttons_s2I( left, right, middle ) )
+
+    def up( self, left=True, right=None, middle=None ):
+        self.hid( 'mu', idx=self.buttons_s2I( left, right, middle ) )
+          
+    def move( self, dx=0, dy=0, step=1, step_delay=0.05 ):
+        if dx == 0 and dy == 0:
+            self.hid( 'm' )
+        elif step == 1:
+            dx, dy = self.checkXY(dx,dy) 
+            self.hid( 'm', val=Utils.s2H(Utils.b2s(dx)+Utils.b2s(dy)) )
+        else:
+            divx, divy = self.checkXY(float(dx)/step, float(dy)/step)
+            offsetx, offsety = 0, 0
+            for step in range(step):
+                offsetx += divx
+                offsety += divy
+                _dx, _dy = int(offsetx), int(offsety)
+                offsetx -= _dx
+                offsety -= _dy
+                _dx, _dy = self.checkXY(_dx, _dy) 
+                self.hid( 'm', val=Utils.s2H(Utils.b2s(_dx)+Utils.b2s(_dy)) )
+                if step_delay:
+                    time.sleep(step_delay)
+
+    def click( self, left=True, right=None, middle=None, delay=0.1 ):
+        self.hid( 'm', idx=self.buttons_s2I( left, right, middle ) )
+        time.sleep(delay)
+        self.hid( 'm', idx=0 )
+
+    def getKeyCode( self, kval ):
+        if isinstance(kval, int):
+            return kval
+        elif isinstance(kval, str):
+            if kval in self.KEY_NAME_TRANSFER:
+                kval = self.KEY_NAME_TRANSFER[kval]
+            if not kval in self.KEY_CODES:
+                raise Exception('unknown key %s'% kval)
+            return self.KEY_CODES[kval]
+
+    def key( self, kval ):
+        self.hid( 'k', val=self.getKeyCode(kval) )
+
+    def keyPress( self, kval ):
+        self.hid( 'kp', val=self.getKeyCode(kval) )
+
+    def keyRelease( self, kval=None ):
+        if kval is None:
+            self.hid( 'kr' )
+        else:
+            self.hid( 'kr', val=self.getKeyCode(kval) )
+
+    def keys( self, string ):
+        for s in string:
+            self.hid( 'k', val=self.getKeyCode(s) )
+
+    def keyIsNumLocked( self ):
+        locked = int(self.hid('kl')[0])
+        return bool(locked & 0x01)
+
+    def keyIsCapsLocked( self ):
+        locked = int(self.hid('kl')[0])
+        return bool(locked & 0x02)
+
+    def keyIsScrollLocked( self ):
+        locked = int(self.hid('kl')[0])
+        return bool(locked & 0x08)
+
+    def keyNumLock( self, lock=True ):
+        if lock ^ self.keyIsNumLocked():
+            self.key( 'NUMLOCK' )
+
+    def keyCapsLock( self, lock=True ):
+        if lock ^ self.keyIsCapsLocked():
+            self.key( 'CAPSLOCK' )
+
+    def keyScrollLock( self, lock=True ):
+        if lock ^ self.keyIsScrollLocked():
+            self.key( 'SCRLOCK' )
+
+    def keyGetModifier( self ):
+        return int(self.hid('km')[0])
+
+    def keySetModifier( self, lctrl=None, lshift=None, lalt=None, lgui=None, rctrl=None, rshift=None, ralt=None, rgui=None ):
+        value = 0
+        if lctrl:
+            value |= 0x01
+        if lshift:
+            value |= 0x02
+        if lalt:
+            value |= 0x04
+        if lgui:
+            value |= 0x08
+        if rctrl:
+            value |= 0x10
+        if rshift:
+            value |= 0x20
+        if ralt:
+            value |= 0x40
+        if rgui:
+            value |= 0x80
+        self.hid( 'km', val=value )
+
 
 

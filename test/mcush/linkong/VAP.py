@@ -4,7 +4,6 @@ __author__ = 'Peng Shulin <trees_peng@163.com>'
 __license__ = 'MCUSH designed by Peng Shulin, all rights reserved.'
 from re import compile as re_compile
 from .. import Mcush, Utils, Env
-#from . import McushModbus
 from ..Modbus import *
 import time
 import logging
@@ -253,7 +252,26 @@ class VAP200( _vap ):
                 rms = float(c.split(': ')[-1]) 
                 ret[idx] = {'offset': avg, 'rms': rms}
         return ret
-                 
+         
+
+class VAP200Extend( Mcush.Mcush ):
+    '''VAP200 Extend Boards'''
+    DEFAULT_NAME = 'VAP200Extend'
+    DEFAULT_IDN = re_compile( 'VAP200Extend,([0-9]+\.[0-9]+.*)' )
+ 
+    def measure( self, cmd=None, index=None, value=None ):
+        command = 'm'
+        if cmd is not None:
+            command += ' -c %s'% cmd
+        if index is not None:
+            command += ' -i %d'% index
+        if value is not None:
+            command += ' -v %d'% value
+        return self.writeCommand( command )
+     
+    def getValue(self):
+        return [float(l.split()[1]) for l in self.measure()]
+        
 
 #############################################################################
 # MODBUS TCP CLIENT
@@ -706,4 +724,6 @@ class VAP200_MQTT():
      
     def rtcRead( self ): 
         return self.publishCmd( 'rtc', check_reply=True )['V']
+
+
 

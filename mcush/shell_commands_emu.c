@@ -175,8 +175,8 @@ int emu_i2c_init(int i2c_index, i2c_cb_t *i2c_init)
     }
   
     memcpy( i2c, i2c_init, sizeof(i2c_cb_t) );
-    i2c->pin_scl_bit = (uint16_t)(1<<i2c->pin_scl);
-    i2c->pin_sda_bit = (uint16_t)(1<<i2c->pin_sda);
+    i2c->pin_scl_bit = 1<<i2c->pin_scl;
+    i2c->pin_sda_bit = 1<<i2c->pin_sda;
  
     hal_gpio_set_output( i2c->port_scl, i2c->pin_scl_bit, 0 );
     hal_gpio_set_output( i2c->port_sda, i2c->pin_sda_bit, 1 );
@@ -493,10 +493,10 @@ int emu_spi_init( int spi_index, spi_cb_t *spi_init )
     }
 
     memcpy( spi, spi_init, sizeof(spi_cb_t) );
-    spi->pin_sdi_bit = (uint16_t)(1<<spi->pin_sdi);
-    spi->pin_sdo_bit = (uint16_t)(1<<spi->pin_sdo);
-    spi->pin_sck_bit = (uint16_t)(1<<spi->pin_sck);
-    spi->pin_cs_bit = (uint16_t)(1<<spi->pin_cs);
+    spi->pin_sdi_bit = 1<<spi->pin_sdi;
+    spi->pin_sdo_bit = 1<<spi->pin_sdo;
+    spi->pin_sck_bit = 1<<spi->pin_sck;
+    spi->pin_cs_bit = 1<<spi->pin_cs;
 
     hal_gpio_set_input( spi->port_sdi, spi->pin_sdi_bit, 0 );
     hal_gpio_set_output( spi->port_sdo, spi->pin_sdo_bit, 0 );
@@ -519,10 +519,10 @@ int emu_spi_update( int spi_index, spi_cb_t *update )
     if( !spi )
         return 0;
 
-    update->pin_sdi_bit = (uint16_t)(1<<update->pin_sdi);
-    update->pin_sdo_bit = (uint16_t)(1<<update->pin_sdo);
-    update->pin_sck_bit = (uint16_t)(1<<update->pin_sck);
-    update->pin_cs_bit  = (uint16_t)(1<<update->pin_cs);
+    update->pin_sdi_bit = 1<<update->pin_sdi;
+    update->pin_sdo_bit = 1<<update->pin_sdo;
+    update->pin_sck_bit = 1<<update->pin_sck;
+    update->pin_cs_bit  = 1<<update->pin_cs;
 
     if( (update->port_sdi != spi->port_sdi) || (update->pin_sdi != spi->pin_sdi) )
     {
@@ -895,7 +895,7 @@ int emu_pulse_init(int pulse_index, pulse_cb_t *pulse_init)
     }
   
     memcpy( pulse, pulse_init, sizeof(pulse_cb_t) );
-    pulse->pin_bit = (uint16_t)(1<<pulse->pin);
+    pulse->pin_bit = 1<<pulse->pin;
  
     hal_gpio_set_output( pulse->port, pulse->pin_bit, 0 );
     if( pulse->invert )
@@ -1049,7 +1049,7 @@ int emu_ds1w_init( int ds1w_index, ds1w_cb_t *ds1w_init )
 
     ds1w->port = ds1w_init->port;
     ds1w->pin = ds1w_init->pin;
-    ds1w->pin_bit = (uint16_t)(1<<(ds1w_init->pin));
+    ds1w->pin_bit = 1<<(ds1w_init->pin);
     hal_gpio_set_output( ds1w->port, ds1w->pin_bit, 1 ); 
     hal_gpio_set( ds1w->port, ds1w->pin_bit ); 
     return 1;

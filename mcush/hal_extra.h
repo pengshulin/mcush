@@ -14,7 +14,7 @@ extern "C" {
 typedef struct {
     uint8_t port_scl, port_sda;
     uint8_t pin_scl, pin_sda;
-    uint16_t pin_scl_bit, pin_sda_bit;
+    uint32_t pin_scl_bit, pin_sda_bit;
     uint32_t delay_us;
     uint32_t addr;
     uint8_t lsb;
@@ -31,7 +31,7 @@ int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_by
 typedef struct {
     uint8_t port_sdi, port_sdo, port_sck, port_cs;
     uint8_t pin_sdi, pin_sdo, pin_sck, pin_cs;
-    uint16_t pin_sdi_bit, pin_sdo_bit, pin_sck_bit, pin_cs_bit;
+    uint32_t pin_sdi_bit, pin_sdo_bit, pin_sck_bit, pin_cs_bit;
     uint32_t delay_us;
     uint32_t width;
     uint8_t cpol, cpha, lsb;
@@ -51,7 +51,7 @@ typedef struct {
     uint8_t port;
     uint8_t pin;
     uint8_t invert;
-    uint16_t pin_bit;
+    uint32_t pin_bit;
     uint32_t delay_us;
 } pulse_cb_t;
 
@@ -66,7 +66,7 @@ int emu_pulse_generate(int pulse_index, int number );
 typedef struct {
     uint8_t port;
     uint8_t pin;
-    uint16_t pin_bit;
+    uint32_t pin_bit;
 } ds1w_cb_t;
 
 void emu_ds1w_init_structure( ds1w_cb_t *ds1w_init );

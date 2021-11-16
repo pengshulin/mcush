@@ -208,6 +208,7 @@ chip_mem_configs = {
 [ 0x20000000, 0x20007FFC, 'rw', 32, False, 'SRAM 32k' ],
 [ 0x40000000, 0x4007FFFC, 'rw', 32, False, 'Peripherals', ],
 [ 0x50000000, 0x50001FFC, 'rw', 32, False, 'IO Ports', ],
+[ 0x1FFF0000, 0x1FFF78FC, 'ro', 32, False, 'System mem + Option Bytes', ],
 ]
 
 }

@@ -31,10 +31,10 @@
     #define HAL_UARTx_BAUDRATE              9600
 #endif
 #ifndef HAL_UART_RX_QUEUE_LEN
-    #define HAL_UART_RX_QUEUE_LEN           128
+    #define HAL_UART_RX_QUEUE_LEN           64
 #endif
 #ifndef HAL_UART_TX_QUEUE_LEN
-    #define HAL_UART_TX_QUEUE_LEN           128
+    #define HAL_UART_TX_QUEUE_LEN           64
 #endif
 
   
