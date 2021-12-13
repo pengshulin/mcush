@@ -167,6 +167,15 @@ void test_delay_ms(void)
 }
 
 
+char *get_float_tick_time_str(char *buf, uint32_t tick)
+{
+    float fs = tick;
+    fs = fs / OS_TICK_RATE;
+    sprintf(buf, "%.3f", fs );
+    return buf;
+}
+
+
 char *get_tick_time_str(char *buf, uint32_t tick, int ms)
 {
     unsigned int s = tick / OS_TICK_RATE;

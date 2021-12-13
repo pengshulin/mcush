@@ -32,6 +32,7 @@ int test_bit1_position(int v, int msb);
 void test_delay_us(void);
 void test_delay_ms(void);
 
+char *get_float_tick_time_str(char *buf, uint32_t tick);
 char *get_tick_time_str(char *buf, uint32_t tick, int ms);
 char *get_uptime_str(char *buf, int ms);
 char *get_rtc_str(char *buf);

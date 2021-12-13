@@ -1035,4 +1035,85 @@ class ShellLabHID(Mcush.Mcush):
         self.hid( 'km', val=value )
 
 
+class ShellLabKeySwitch(Mcush.Mcush):
+    DEFAULT_NAME = 'ShellLab-KeySwitch'
+    DEFAULT_IDN = re_compile( 'ShellLab-K[0-9][a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
+
+    def key( self, cmd=None, idx=None, val=None ):
+        command = 'k'
+        if cmd is not None:
+            command += ' -c%s'% cmd
+        if idx is not None:
+            command += ' -i%d'% idx
+        if val is not None:
+            command += ' -v%d'% val
+        return self.writeCommand( command ) 
+
+    def getInv( self ):
+        return int(self.key('inv')[0], 16)
+
+    def setInv( self, inv ):
+        self.key('inv', val=inv)
+
+    def getState( self ):
+        return int(self.key()[0], 16)
+
+    def getEvent( self, evt_index=None, evt_mask=None ):
+        try:
+            a, b, c = self.key('E', idx=evt_index, val=evt_mask)[0].strip().split()
+            return [(float(a), b, int(c,16))]
+        except IndexError:
+            return []
+ 
+    def getEvents( self, evt_index=None, evt_mask=None ):
+        ret = []
+        for line in self.key('e', idx=evt_index, val=evt_mask):
+            a, b, c = line.strip().split()
+            ret.append( (float(a), b, int(c,16)) )
+        return ret
+
+    def waitForEvent( self, evt_index=None, evt_mask=None, evt_type='on', timeout=30.0 ):
+        if evt_type in ['on', '+']:
+            evt_type = '+'
+        elif evt_type in ['off', '-']:
+            evt_type = '-'
+        elif evt_type in ['long', '*']:
+            evt_type = '*'
+        elif evt_type in ['', None]:
+            evt_type = None
+        else:
+            raise Exception("unknown event type"); 
+        if evt_index is not None:
+            mask = 1<<evt_index
+        elif evt_mask is not None:
+            mask = evt_mask;
+        else:
+            mask = 0xFFFFFFFF
+        t0 = time.time()
+        while True:
+            for a, b, c in self.getEvent( evt_index, evt_mask ):
+                if b == evt_type:
+                    if c & mask:
+                        return True
+            if timeout is not None:
+                if time.time() > t0 + timeout:
+                    return None
+
+    def enable( self, key_index=None, key_mask=None  ):
+        self.key( 'enable', idx=key_index, val=key_mask )
+
+    def disable( self, key_index=None, key_mask=None  ):
+        self.key( 'disable', idx=key_index, val=key_mask )
+
+    def getCount( self, key_index ):
+        on, off, long = self.key( 'count', idx=key_index )[0].strip().split()
+        return (int(on), int(off), int(long))
+
+    def setDebounce( self, index, on_ms=None, off_ms=None, long_ms=None ):
+        if on_ms is not None:
+            self.key( 'debounce_on', idx=index, val=on_ms )
+        if off_ms is not None:
+            self.key( 'debounce_off', idx=index, val=off_ms )
+        if long_ms is not None:
+            self.key( 'debounce_long', idx=index, val=long_ms )
 

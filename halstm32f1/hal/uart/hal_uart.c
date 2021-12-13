@@ -30,9 +30,6 @@
     #define HAL_UARTx_RX_PIN                GPIO_PIN_10
     #define HAL_UARTx_IRQn                  USART1_IRQn
     #define HAL_UARTx_IRQHandler            USART1_IRQHandler
-    #define HAL_UARTx_BAUDRATE              9600
-    #define HAL_UART_QUEUE_RX_LEN           128
-    #define HAL_UART_QUEUE_TX_LEN           128
 #endif
 
 
@@ -44,9 +41,6 @@
 #endif
 #ifndef HAL_UART_QUEUE_TX_LEN
     #define HAL_UART_QUEUE_TX_LEN           128
-#endif
-#ifndef HAL_UART_QUEUE_ADD_TO_REG
-    #define HAL_UART_QUEUE_ADD_TO_REG       1
 #endif
 
 os_queue_handle_t hal_uart_queue_rx, hal_uart_queue_tx;
@@ -123,7 +117,7 @@ int hal_uart_init( uint32_t baudrate )
     LL_USART_EnableIT_RXNE( HAL_UARTx );
 
     /* Interrupt Enable */  
-    HAL_NVIC_SetPriority( HAL_UARTx_IRQn, 15, 0 );
+    HAL_NVIC_SetPriority( HAL_UARTx_IRQn, 10, 0 );
     HAL_NVIC_EnableIRQ( HAL_UARTx_IRQn );
     return 1;
 }
