@@ -303,6 +303,14 @@ int mcush_write_command( mcush_dev_t *device, const char *cmd )
             (device->response[cmd_len] == MCUSH_TERMINATOR_WRITE) )
     {
         device->result = &device->response[cmd_len+1];
+        /* check prompt type */
+        switch( ret )
+        {
+        case MCUSH_PROMPT_TYPE_SYNTAX_ERR:
+            return MCUSH_ERR_SYNTAX;
+        case MCUSH_PROMPT_TYPE_EXEC_ERR:
+            return MCUSH_ERR_EXEC;
+        }
         return strlen(device->result);
     }
     return MCUSH_ERR_RET_CMD_NOT_MATCH;

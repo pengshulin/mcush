@@ -32,9 +32,9 @@ ROADMAP
 =======
 (todo/in progress)
 * add posix/os port for simulation
-* add threadx/chibios/liteos port
+* add threadx/chibios/liteos/zephyr/osek port
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/ulisp/micropython...)
-* add practical utilities for lwip network, such as traceroute, ntp update...
+* add practical utilities, such as network (traceroute, ntp client...)
 
 
 ENVIRONMENT
@@ -82,5 +82,5 @@ http://www.linkongsoft.com/
 AUTHOR
 ======
 Peng Shulin <trees_peng@163.com>
-Shanghai, China 2021
+Shanghai, China 2022
 

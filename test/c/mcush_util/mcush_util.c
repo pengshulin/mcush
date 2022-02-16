@@ -7,6 +7,16 @@
 #endif
 #include "mcush_api.h"
 
+int baudrate=9600;
+int timeout=5;
+int silent=0;
+#ifdef WIN32
+const char *port = NULL;
+#else
+const char *port = "/dev/ttyUSB0";
+#endif
+const char *model = NULL;
+
 
 void delay_ms(int ms)
 {
@@ -20,17 +30,17 @@ void delay_ms(int ms)
 
 static void print_usage( int argc, char *argv[] )
 {
-    fprintf(stderr, "Usage: %s [-p port] [-b baudrate] [-t timeout] command [<parms>]\n", argv[0]);
-    fprintf(stderr, "commands list:\n");
-    fprintf(stderr, "  reset      scpi *rst command\n");
-    fprintf(stderr, "  check      check if command is supported by device\n");
-    fprintf(stderr, "             <cmd>\n");
-    fprintf(stderr, "  run        run command until done\n");
-    fprintf(stderr, "             <quoted_cmd_args>\n");
-    fprintf(stderr, "  get        get file\n");
-    fprintf(stderr, "             <src_pathname> <local_pathname>\n");
-    fprintf(stderr, "  put        put file\n");
-    fprintf(stderr, "             <local_pathname> <dst_pathname>\n");
+    printf("Usage: %s [-s] [-p port] [-b baudrate] [-t timeout] [-m model] command [<parms>]\n", argv[0]);
+    printf("commands list:\n");
+    printf("  reset      scpi *rst command\n");
+    printf("  check      check if command is supported by device\n");
+    printf("             <cmd>\n");
+    printf("  run        run command until done\n");
+    printf("             <quoted_cmd_args>\n");
+    printf("  get        get file\n");
+    printf("             <src_pathname> <local_pathname>\n");
+    printf("  put        put file\n");
+    printf("             <local_pathname> <dst_pathname>\n");
 }
 
 
@@ -41,11 +51,24 @@ int exec_run_command( mcush_dev_t *dev, const char *command )
     {
         switch( ret )
         {
-        case MCUSH_ERR_RET_CMD_NOT_MATCH:
-            printf( "W/R command does not match\n" );
+        case MCUSH_ERR_API:
+            printf( "API parms error\n" );
             break;
         case MCUSH_ERR_IO:
             printf( "Port IO error\n" );
+            break;
+        case MCUSH_ERR_TIMEOUT:
+            printf( "Timeout error\n" );
+            break;
+        case MCUSH_ERR_SYNTAX:
+            printf( "Syntax error\n" );
+            printf( "%s\n", dev->result );
+            break;
+        case MCUSH_ERR_EXEC:
+            printf( "Execution error\n" );
+            break;
+        case MCUSH_ERR_RET_CMD_NOT_MATCH:
+            printf( "W/R command does not match\n" );
             break;
         default:
             printf( "Error return %d\n", ret );
@@ -54,7 +77,8 @@ int exec_run_command( mcush_dev_t *dev, const char *command )
     }
     else
     {
-        printf( "%s\n", dev->result );
+        if( silent == 0 )
+            printf( "%s\n", dev->result );
     }
     return ret;
 }
@@ -62,6 +86,19 @@ int exec_run_command( mcush_dev_t *dev, const char *command )
 
 int exec_check_command( mcush_dev_t *dev, const char *command )
 {
+    int ret;
+    char buf[512], *p;
+
+    strcpy( buf, "? -c " );
+    strcat( buf, command );
+    ret = exec_run_command( dev, buf );
+    if( ret < 0 )
+        return ret;
+    if( strtol( (const char*)dev->result, &p, 10 ) == 1 )
+    {
+        /* if command is supported, return normal exit code ZERO */
+        return 0;
+    }
     return 1;
 }
 
@@ -85,34 +122,36 @@ int main( int argc, char *argv[] )
     mcush_dev_t dev;
     char buf[512];
     int opt;
-    int baudrate=9600;
-    int timeout=5;
-    const char *port = NULL;
     char *cmd = NULL;
     int err=0;
 
-
-    while( (opt = getopt(argc, argv, "b:p:t:")) != -1 )
+    while( (opt = getopt(argc, argv, "sb:p:t:m:")) != -1 )
     {
-       switch (opt) {
-       case 'b':
-           baudrate = atoi(optarg);
-           break;
-       case 't':
-           timeout = atoi(optarg);
-           break;
-       case 'p':
-           port = optarg;
-           break;
-       default:
-           print_usage( argc, argv );
-           exit(EXIT_FAILURE);
-       }
+        switch (opt) {
+        case 's':
+            silent = 1;
+            break;
+        case 'b':
+            baudrate = atoi(optarg);
+            break;
+        case 't':
+            timeout = atoi(optarg);
+            break;
+        case 'p':
+            port = optarg;
+            break;
+        case 'm':
+            model = optarg;
+            break;
+        default:
+            print_usage( argc, argv );
+            exit(EXIT_FAILURE);
+        }
     }
 
     if( port == NULL )
     {
-        fprintf(stderr, "port not set\n");
+        printf("port not set\n");
         exit(EXIT_FAILURE);
     }
 
@@ -136,7 +175,20 @@ int main( int argc, char *argv[] )
         err = 1;
         goto stop;
     }
-    printf( "%s", buf );
+    if( silent == 0 )
+        printf( "%s", buf );
+
+    /* model match check */
+    if( model != NULL )
+    {
+        if( strncmp(buf, model, strlen(model)) != 0 ||
+            buf[strlen(model)] != ',' )
+        {
+            printf( "model match error\n" );
+            err = 2;
+            goto stop;
+        }
+    }
 
     if( optind >= argc )
         goto stop;  /* nothing to do */
@@ -158,7 +210,7 @@ int main( int argc, char *argv[] )
             err = 1;
             goto stop;
         }
-        err = exec_check_command( &dev, argv[optind] ) ? 0 : 1;
+        err = exec_check_command( &dev, argv[optind] );
     }
     else if( strcmp(cmd, "run") == 0 )
     {
@@ -168,7 +220,7 @@ int main( int argc, char *argv[] )
             err = 1;
             goto stop;
         }
-        exec_run_command( &dev, argv[optind] );
+        err = exec_run_command( &dev, argv[optind] );
     }
     else if( strcmp(cmd, "get") == 0 )
     {
@@ -192,13 +244,13 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        fprintf( stderr, "unsupported command %s\n", cmd );
+        printf("unsupported command %s\n", cmd);
         print_usage( argc, argv );
         err = 1;
     }
 
 stop:
     mcush_close( &dev );
-    return err;
+    exit(err);
 }
 

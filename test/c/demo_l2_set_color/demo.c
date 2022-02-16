@@ -27,7 +27,7 @@ int main( int argc, char *argv[] )
     mcush_dev_t dev;
     char buf[512];
 
-    if( mcush_open( &dev, device_name, 9600 ) <= 0 )
+    if( mcush_open( &dev, device_name, 9600, 5 ) <= 0 )
     {
         printf("fail to open port\n");
         return 0;
@@ -43,6 +43,17 @@ int main( int argc, char *argv[] )
     if( mcush_scpi_idn( &dev, buf ) > 0 )
         printf( "%s", buf );
     //mcush_scpi_rst( &dev );
+
+    mcush_write_command( &dev, "s -l30 -f 1" );
+    while( 1 )
+    {
+        mcush_write_command( &dev, "s -c 0xff" );
+        delay_ms(1000);
+        mcush_write_command( &dev, "s -c 0xff00" );
+        delay_ms(1000);
+        mcush_write_command( &dev, "s -c 0xff0000" );
+        delay_ms(1000);
+    }
 
     mcush_write_command( &dev, "s -l0" );
     mcush_write_command( &dev, "W -l30 -I" );

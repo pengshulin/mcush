@@ -1054,6 +1054,12 @@ class ShellLabKeySwitch(Mcush.Mcush):
 
     def setInv( self, inv ):
         self.key('inv', val=inv)
+    
+    def setExt( self, group ):
+        self.key('ext', val=group)
+
+    def setExtInv( self, index, inv ):
+        self.key('ext_inv', idx=index, val=inv)
 
     def getState( self ):
         return int(self.key()[0], 16)
