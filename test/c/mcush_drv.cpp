@@ -35,7 +35,6 @@ int McushDrv::connect()
 }
 
 
-
 int McushDrv::scpiIdn(char *output)
 {
     return mcush_scpi_idn( &this->device, output );
