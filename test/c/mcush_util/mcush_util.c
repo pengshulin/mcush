@@ -6,6 +6,10 @@
 #include <windows.h>
 #endif
 #include "mcush_api.h"
+#include "mcush_base64.h"
+#include <termios.h>
+#include <pthread.h>
+
 
 int baudrate=9600;
 int timeout=5;
@@ -16,6 +20,9 @@ const char *port = NULL;
 const char *port = "/dev/ttyUSB0";
 #endif
 const char *model = NULL;
+//int shell_alive=0;
+
+pthread_t thread_rx;
 
 
 void delay_ms(int ms)
@@ -44,10 +51,10 @@ static void print_usage( int argc, char *argv[] )
     printf("             <cmd>\n");
     printf("  run        run commands one by one\n");
     printf("             <quoted_cmd1_args> [quoted_cmd2_args] ...\n");
-    printf("  get        get file\n");
-    printf("             <src_pathname> <local_pathname>\n");
-    printf("  put        put file\n");
-    printf("             <local_pathname> <dst_pathname>\n");
+    printf("  get        get/pull file\n");
+    printf("             <dev_pathname> [<local_pathname>]\n");
+    printf("  put        put/push file\n");
+    printf("             <local_pathname> <dev_pathname>\n");
     printf("  shell      interactive shell\n");
 }
 
@@ -64,6 +71,9 @@ int exec_run_command( mcush_dev_t *dev, const char *command )
             break;
         case MCUSH_ERR_IO:
             printf( "Port IO error\n" );
+            break;
+        case MCUSH_ERR_MEMORY:
+            printf( "Memory error\n" );
             break;
         case MCUSH_ERR_TIMEOUT:
             printf( "Timeout error\n" );
@@ -111,26 +121,135 @@ int exec_check_command( mcush_dev_t *dev, const char *command )
 }
 
 
-int exec_get_file( mcush_dev_t *dev, const char *src_pathname, const char *local_pathname )
+/* read file from device and save as local file */
+int exec_get_file( mcush_dev_t *dev, const char *dev_pathname, const char *local_pathname )
 {
-    /* TODO: read file from device and save as local file */
+    int ret;
+    char buf[512];
+    base64_decodestate state_de;
+    char *p, *p2;
+    int i, j;
+    FILE *fout=NULL;
+
+    strcpy( buf, "cat -b " );
+    strcat( buf, dev_pathname );
+    ret = exec_run_command( dev, buf );
+    if( ret < 0 )
+        return ret;
+    /* prepare local file handler */
+    if( local_pathname != NULL )
+    {
+        if( strcmp( local_pathname, "-" ) != 0 )
+        {
+            fout = fopen( local_pathname, "wb+" );
+            if( fout == NULL )
+            {
+                printf( "Failed to write to file %s\n", local_pathname );
+                return 1;
+            }
+        }
+    }
+    /* parse and print/save b64 encoded binary data */
+    base64_init_decodestate( &state_de );
+    p2 = (char*)dev->result;
+    while( 1 )
+    {
+        p = p2;
+        i = 0;
+        while( *p2 && *p2 != '\n')
+        {
+            p2++;
+            i++;
+        }
+        if( !*p2 && !i )
+            break;
+        if( *p2 == '\n' )
+            *p2++ = 0;
+        if( !i )
+            break;
+        j = base64_decode_block( (const char*)p, i, (char*)&buf, &state_de );
+        if( j )
+        {
+            if( fout != NULL )
+            {
+                if( fwrite( buf, 1, j, fout ) != j )
+                {
+                    printf( "Failed to append to file %s\n", local_pathname );
+                    fclose( fout );
+                }
+            }
+            else
+            {
+                for( i=0; i<j; i++ )
+                    putchar( buf[i] );
+            }
+        }
+    }
+    if( fout != NULL )
+        fclose( fout );
     return 0;
 }
 
 
-int exec_put_file( mcush_dev_t *dev, const char *local_pathname, const char *dst_pathname )
+int exec_put_file( mcush_dev_t *dev, const char *local_pathname, const char *dev_pathname )
 {
     /* TODO: read local file and save to device */
     return 0;
 }
 
 
-int exec_shell( mcush_dev_t *dev )
+void *thread_serial_rx_listener(void *arg) 
 {
-    /* TODO: interactive shell for manual debug */
-    return 0;
+    mcush_dev_t *dev = (mcush_dev_t *)arg;
+    char c;
+
+    while( 1 )
+    {
+        if(mcush_getc( dev, &c ) )
+        {
+            putchar( c );
+        }
+        //tcdrain(STDOUT_FILENO);//, &stdout);
+        fflush(stdout);
+    }
+
+    return NULL;
 }
 
+
+/* simple interactive shell for manual debug */
+int exec_shell( mcush_dev_t *dev )
+{
+    struct termios oldattr, newattr;
+    int err;
+    int ch;
+
+    tcgetattr( STDIN_FILENO, &oldattr );
+    newattr = oldattr;
+    newattr.c_lflag &= ~( ICANON | ECHO );
+    newattr.c_cc[VINTR] = 0;  /* Ctrl-C */
+    newattr.c_cc[VSUSP] = 0;  /* Ctrl-Z */
+    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+
+    /* start RX listening thread */
+    err = pthread_create( &thread_rx, NULL, thread_serial_rx_listener, (void*)(dev) );
+    if( err )
+        return err;    
+
+    printf("Shell Mode, Ctrl-] to quit\n");
+    mcush_putc( dev, MCUSH_TERMINATOR_RESET );
+    while( 1 )
+    {
+        ch = getchar();
+        if( ch == 29 )  /* Ctrl - ] */
+            break;
+        mcush_putc( dev, ch );
+    }
+
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+    putchar('\n');
+    return 0;
+}
 
 
 int main( int argc, char *argv[] )
@@ -167,7 +286,7 @@ int main( int argc, char *argv[] )
 
     if( mcush_open( &dev, port, baudrate, timeout ) <= 0 )
     {
-        printf("fail to open port\n");
+        printf("fail to open port %s\n", port);
         exit(EXIT_FAILURE);
     }
 
@@ -250,19 +369,19 @@ int main( int argc, char *argv[] )
     }
     else if( strcmp(cmd, "get") == 0 )
     {
-        if( optind+1 >= argc )
+        if( optind >= argc )
         {
-            printf("<src_pathname> <local_pathname> not set\n");
+            printf("<dev_pathname> [<local_pathname>] not set\n");
             err = 1;
             goto close_stop;
         }
-        exec_get_file( &dev, argv[optind], argv[optind] );
+        exec_get_file( &dev, argv[optind], (optind+1>=argc) ? NULL : argv[optind+1] );
     }
     else if( strcmp(cmd, "put") == 0 )
     {
         if( optind+1 >= argc )
         {
-            printf("<local_pathname> <dst_pathname> not set\n");
+            printf("<local_pathname> <dev_pathname> not set\n");
             err = 1;
             goto close_stop;
         }

@@ -37,6 +37,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../mcush_api.h" />
+		<Unit filename="mcush_base64.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mcush_base64.h" />
 		<Unit filename="mcush_util.c">
 			<Option compilerVar="CC" />
 		</Unit>
