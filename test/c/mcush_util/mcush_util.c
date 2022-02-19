@@ -9,6 +9,7 @@
 #include "mcush_base64.h"
 #include <termios.h>
 #include <pthread.h>
+#include <signal.h>
 
 
 int baudrate=9600;
@@ -22,7 +23,9 @@ const char *port = "/dev/ttyUSB0";
 const char *model = NULL;
 //int shell_alive=0;
 
+int connected=0;
 pthread_t thread_rx;
+pthread_t thread_tx;
 
 
 void delay_ms(int ms)
@@ -203,16 +206,42 @@ void *thread_serial_rx_listener(void *arg)
     mcush_dev_t *dev = (mcush_dev_t *)arg;
     char c;
 
-    while( 1 )
+    while( connected )
     {
         if(mcush_getc( dev, &c ) )
         {
             putchar( c );
         }
-        //tcdrain(STDOUT_FILENO);//, &stdout);
+        else
+        {
+            puts("\n[disconnected]");
+            connected = 0;
+        }
         fflush(stdout);
     }
+    pthread_cancel( thread_tx );
+    return NULL;
+}
 
+
+void *thread_serial_tx_writer(void *arg) 
+{
+    mcush_dev_t *dev = (mcush_dev_t *)arg;
+    int ch;
+
+    printf("Shell Mode, Ctrl-] to quit, ? for help\n");
+    mcush_putc( dev, MCUSH_TERMINATOR_RESET );
+    while( connected )
+    {
+        ch = getchar();
+        if( ch == 29 )  /* Ctrl - ] */
+        {
+            connected = 0;
+            break;
+        }
+        mcush_putc( dev, ch );
+    }
+    pthread_cancel( thread_rx );
     return NULL;
 }
 
@@ -220,10 +249,10 @@ void *thread_serial_rx_listener(void *arg)
 /* simple interactive shell for manual debug */
 int exec_shell( mcush_dev_t *dev )
 {
-    struct termios oldattr, newattr;
+    struct termios oldattr, newattr, serattr;
     int err;
-    int ch;
 
+    /* backup/update terminal behavior */
     tcgetattr( STDIN_FILENO, &oldattr );
     newattr = oldattr;
     newattr.c_lflag &= ~( ICANON | ECHO );
@@ -231,21 +260,29 @@ int exec_shell( mcush_dev_t *dev )
     newattr.c_cc[VSUSP] = 0;  /* Ctrl-Z */
     tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
 
+    /* update serial port into blocking read mode */
+    tcgetattr( dev->handle, &serattr );
+    serattr.c_cc[VTIME] = 0;  /* timeout */
+    serattr.c_cc[VMIN] = 1;  /* blocking read */
+    tcsetattr( dev->handle, TCSANOW, &serattr );
+
     /* start RX listening thread */
     err = pthread_create( &thread_rx, NULL, thread_serial_rx_listener, (void*)(dev) );
     if( err )
-        return err;    
-
-    printf("Shell Mode, Ctrl-] to quit\n");
-    mcush_putc( dev, MCUSH_TERMINATOR_RESET );
-    while( 1 )
+        return err;
+    /* start TX writer thread */
+    err = pthread_create( &thread_tx, NULL, thread_serial_tx_writer, (void*)(dev) );
+    if( err )
     {
-        ch = getchar();
-        if( ch == 29 )  /* Ctrl - ] */
-            break;
-        mcush_putc( dev, ch );
+        pthread_cancel( thread_rx );
+        return err;
     }
 
+    /* wait until tx thread is stopped */
+    pthread_join( thread_rx, NULL );
+    pthread_join( thread_tx, NULL );
+
+    /* restore terminal */
     tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
     putchar('\n');
     return 0;
@@ -293,7 +330,7 @@ int main( int argc, char *argv[] )
     /* connect: send Ctrl-C and wait for prompt */
     if( mcush_connect( &dev ) <= 0 )
     {
-        printf("fail to connect the device\n");
+        printf("fail to connect the device %s\n", port);
         err = 1;
         goto close_stop;
     }
@@ -314,6 +351,7 @@ int main( int argc, char *argv[] )
     /* model match check */
     if( model != NULL )
     {
+        /* just compare the prefix, ignore the remaining */
         if( strncmp(buf, model, strlen(model)) != 0 
             /*|| buf[strlen(model)] != ','*/ )
         {
@@ -323,6 +361,7 @@ int main( int argc, char *argv[] )
         }
     }
 
+    connected = 1;
     /* scpi reset */
     if( rst )
     {

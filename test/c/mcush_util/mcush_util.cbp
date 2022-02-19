@@ -33,6 +33,9 @@
 			<Add option="-Wall" />
 			<Add directory=".." />
 		</Compiler>
+		<Linker>
+			<Add option="-pthread" />
+		</Linker>
 		<Unit filename="../mcush_api.c">
 			<Option compilerVar="CC" />
 		</Unit>
