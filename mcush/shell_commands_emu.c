@@ -195,7 +195,7 @@ int emu_i2c_write(int i2c_index, uint8_t *buf_out, uint8_t *buf_in, int write_by
         return 0;
 
     /* no write/read request, test address response only */
-    if( (write_bytes==0) && (write_bytes==0) )
+    if( (write_bytes==0) && (read_bytes==0) )
     {
         i2c_start(i2c);
         if( ! i2c_write_byte( i2c, address ? (uint8_t)address : (uint8_t)(i2c->addr<<1) ) )

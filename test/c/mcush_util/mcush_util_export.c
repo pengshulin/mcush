@@ -1,3 +1,6 @@
+/* mcush_util_export.c */
+/* .so/.dll utility for mcush controller debug/test */
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

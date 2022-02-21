@@ -1,15 +1,19 @@
+/* mcush_util.c */
+/* command line utility for mcush controller debug/test */
+/* MCUSH designed by Peng Shulin, all rights reserved. */
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #ifdef WIN32
 #include <windows.h>
-#endif
-#include "mcush_api.h"
-#include "mcush_base64.h"
+#else
 #include <termios.h>
 #include <pthread.h>
 #include <signal.h>
+#endif
+#include "mcush_api.h"
+#include "mcush_base64.h"
 
 
 int baudrate=9600;
@@ -21,11 +25,13 @@ const char *port = NULL;
 const char *port = "/dev/ttyUSB0";
 #endif
 const char *model = NULL;
-//int shell_alive=0;
 
 int connected=0;
+
+#ifndef WIN32
 pthread_t thread_rx;
 pthread_t thread_tx;
+#endif
 
 
 void delay_ms(int ms)
@@ -194,14 +200,15 @@ int exec_get_file( mcush_dev_t *dev, const char *dev_pathname, const char *local
 }
 
 
+/* read local file and save to device */
 int exec_put_file( mcush_dev_t *dev, const char *local_pathname, const char *dev_pathname )
 {
-    /* TODO: read local file and save to device */
     return 0;
 }
 
 
-void *thread_serial_rx_listener(void *arg) 
+#ifndef WIN32
+void *thread_serial_rx_listener(void *arg)
 {
     mcush_dev_t *dev = (mcush_dev_t *)arg;
     char c;
@@ -224,7 +231,7 @@ void *thread_serial_rx_listener(void *arg)
 }
 
 
-void *thread_serial_tx_writer(void *arg) 
+void *thread_serial_tx_writer(void *arg)
 {
     mcush_dev_t *dev = (mcush_dev_t *)arg;
     int ch;
@@ -244,11 +251,12 @@ void *thread_serial_tx_writer(void *arg)
     pthread_cancel( thread_rx );
     return NULL;
 }
-
+#endif
 
 /* simple interactive shell for manual debug */
 int exec_shell( mcush_dev_t *dev )
 {
+#ifndef WIN32
     struct termios oldattr, newattr, serattr;
     int err;
 
@@ -285,6 +293,7 @@ int exec_shell( mcush_dev_t *dev )
     /* restore terminal */
     tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
     putchar('\n');
+#endif
     return 0;
 }
 
@@ -352,7 +361,7 @@ int main( int argc, char *argv[] )
     if( model != NULL )
     {
         /* just compare the prefix, ignore the remaining */
-        if( strncmp(buf, model, strlen(model)) != 0 
+        if( strncmp(buf, model, strlen(model)) != 0
             /*|| buf[strlen(model)] != ','*/ )
         {
             printf( "model match error\n" );
