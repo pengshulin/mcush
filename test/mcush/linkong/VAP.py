@@ -182,7 +182,6 @@ class VAP200( _vap ):
     def getSensorPower( self ):
         return int(self.daq( 'pwr_s' )[0])
 
-    # to be obseleted, only for debug
     def setExtendPower( self, on=True ):
         self.daq( 'pwr_e', value=int(bool(on)) )
 
@@ -253,6 +252,9 @@ class VAP200( _vap ):
                 ret[idx] = {'offset': avg, 'rms': rms}
         return ret
          
+    def getExtVoltage(self):
+        return [float(l.split()[1]) for l in self.writeCommand('ext')]
+ 
 
 class VAP200Extend( Mcush.Mcush ):
     '''VAP200 Extend Boards'''
@@ -269,9 +271,9 @@ class VAP200Extend( Mcush.Mcush ):
             command += ' -v %d'% value
         return self.writeCommand( command )
      
-    def getValue(self):
+    def getVoltage(self):
         return [float(l.split()[1]) for l in self.measure()]
-        
+
 
 #############################################################################
 # MODBUS TCP CLIENT
@@ -324,6 +326,16 @@ REG_LOCAL_THRESHOLD_MV_4    = 64
 REG_LOCAL_THRESHOLD_MV_5    = 65
 REG_LOCAL_THRESHOLD_MV_6    = 66
 REG_LOCAL_THRESHOLD_MV_7    = 67
+# extend board group
+REG_EXTEND_EXIST        = 100
+REG_EXTEND_MV_0         = 101
+REG_EXTEND_MV_1         = 102
+REG_EXTEND_MV_2         = 103
+REG_EXTEND_MV_3         = 104
+REG_EXTEND_MV_4         = 105
+REG_EXTEND_MV_5         = 106
+REG_EXTEND_MV_6         = 107
+REG_EXTEND_MV_7         = 108
 
 # waveform buffer mapping
 REG_BUFFER_BEGIN        = 10000
@@ -467,7 +479,15 @@ class VAP200_ModbusTCP( McushModbusTCP ):
                 dat.append( _process_vap200_adc_val(self, channel, i, adc, False) )
         return dat
 
+    def getExtVoltage(self):
+        # return extend board voltage, if board does not exist, return empty list
+        if not self.readReg(REG_EXTEND_EXIST):
+            return []
+        regs = self.readRegs(REG_EXTEND_MV_0, 8)
+        return [r/1000.0 for r in regs]
+ 
 
+ 
 #############################################################################
 # MQTT CLIENT
 
@@ -725,5 +745,8 @@ class VAP200_MQTT():
     def rtcRead( self ): 
         return self.publishCmd( 'rtc', check_reply=True )['V']
 
-
+    def getExtVoltage(self):
+        # return extend board voltage, if board not exists, return empty list
+        return []
+ 
 

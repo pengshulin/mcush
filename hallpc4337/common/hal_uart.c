@@ -36,10 +36,7 @@
 #ifndef HAL_UART_TX_QUEUE_LEN
     #define HAL_UART_TX_QUEUE_LEN           128
 #endif
-#ifndef HAL_UART_QUEUE_ADD_TO_REG
-    #define HAL_UART_QUEUE_ADD_TO_REG       1
-#endif
-  
+ 
 /* rx buffer: half for ringbuffer and half for os_queue */
 os_queue_handle_t hal_uart_queue_rx;
 /* tx buffer: ringbuffer instead of os_queue */
@@ -49,10 +46,10 @@ DEFINE_STATIC_QUEUE_BUFFER( uart_rx, HAL_UART_RX_QUEUE_LEN/2, 1 );
 //DEFINE_STATIC_QUEUE_BUFFER( uart_tx, HAL_UART_TX_QUEUE_LEN, 1 );
 #endif
 
-RINGBUFF_T rb_uart_tx, rb_uart_rx;
+static RINGBUFF_T rb_uart_tx, rb_uart_rx;
 #define RB_UART_TX_LEN  HAL_UART_TX_QUEUE_LEN
 #define RB_UART_RX_LEN  HAL_UART_RX_QUEUE_LEN/2
-char buffer_uart_tx[RB_UART_TX_LEN], buffer_uart_rx[RB_UART_RX_LEN];
+static char buffer_uart_tx[RB_UART_TX_LEN], buffer_uart_rx[RB_UART_RX_LEN];
 
 
 int hal_uart_init(uint32_t baudrate)
@@ -69,7 +66,7 @@ int hal_uart_init(uint32_t baudrate)
 //#if HAL_UART_TX_QUEUE_LEN
 //    hal_uart_queue_tx = os_queue_create_static( "txQ", HAL_UART_TX_QUEUE_LEN, 1,
 //                                            &static_queue_buffer_uart_tx );
-//    if( hal_uart_queue_rx == NULL )
+//    if( hal_uart_queue_tx == NULL )
 //        return 0;
 //#endif
 #else

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -60,6 +61,7 @@ static void print_usage( int argc, char *argv[] )
     printf("             <cmd>\n");
     printf("  run        run commands one by one\n");
     printf("             <quoted_cmd1_args> [quoted_cmd2_args] ...\n");
+    printf("  rtc_sync   sync with local date/time\n");
     printf("  get        get/pull file\n");
     printf("             <dev_pathname> [<local_pathname>]\n");
     printf("  put        put/push file\n");
@@ -207,6 +209,27 @@ int exec_put_file( mcush_dev_t *dev, const char *local_pathname, const char *dev
 }
 
 
+/* rtc sync */
+int exec_rtc_sync( mcush_dev_t *dev )
+{
+    char buf[128];
+    time_t timep;
+    struct tm *p;
+    int ret;
+    
+    time( &timep );
+    p = localtime( &timep );
+    sprintf( buf, "rtc -s %d-%d-%d %02d:%02d:%02d", 
+                p->tm_year+1900, p->tm_mon+1, p->tm_mday,
+                p->tm_hour, p->tm_min, p->tm_sec );
+    puts(buf);
+    ret = exec_run_command( dev, buf );
+    if( ret < 0 )
+        return ret;
+    return 0;
+}
+
+
 #ifndef WIN32
 void *thread_serial_rx_listener(void *arg)
 {
@@ -252,6 +275,7 @@ void *thread_serial_tx_writer(void *arg)
     return NULL;
 }
 #endif
+
 
 /* simple interactive shell for manual debug */
 int exec_shell( mcush_dev_t *dev )
@@ -434,6 +458,10 @@ int main( int argc, char *argv[] )
             goto close_stop;
         }
         exec_put_file( &dev, argv[optind], argv[optind] );
+    }
+    else if( strcmp(cmd, "rtc_sync") == 0 )
+    {
+        exec_rtc_sync( &dev );
     }
     else if( strcmp(cmd, "shell") == 0 )
     {

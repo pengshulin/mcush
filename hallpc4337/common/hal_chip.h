@@ -4,9 +4,8 @@
 
 #include "chip.h"
 
-#define UNIQUE_ID0  0x40045000
-#define UNIQUE_ID1  0x40045004
-
+#define IAP_ADDRESS  *(volatile unsigned int*)(0x10400100)
+#include "hal_iap.h"
 
 
 #endif

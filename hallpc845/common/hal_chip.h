@@ -11,12 +11,8 @@
 #include "fsl_iocon.h"
 #include "fsl_adc.h"
 
-
-
-
-#define UNIQUE_ID0  0x40045000
-#define UNIQUE_ID1  0x40045004
-
+#define IAP_ADDRESS 0x0F001FF1
+#include "hal_iap.h"
 
 
 #endif

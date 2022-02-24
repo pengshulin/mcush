@@ -17,7 +17,6 @@
    RXD_n <------ TXD 
    ----------------------------- 
  */
-#include "mcush.h"
 
 
 #ifndef HAL_UART_DEFINE 
@@ -25,6 +24,7 @@
     #define HAL_UARTx_IRQn                  USART0_IRQn
     #define HAL_UARTx_IRQHandler            USART0_IRQHandler
     #define HAL_UARTx_CLOCK                 kCLOCK_Uart0
+    #define HAL_UARTx_CLOCK_SEL             kUART0_Clk_From_MainClk
 #endif
 
 #ifndef HAL_UARTx_BAUDRATE
@@ -47,7 +47,7 @@ int hal_uart_init(uint32_t baudrate)
 #if OS_SUPPORT_STATIC_ALLOCATION
 #if HAL_UART_RX_QUEUE_LEN
     DEFINE_STATIC_QUEUE_BUFFER( uart_rx, HAL_UART_RX_QUEUE_LEN, 1 );
-    hal_uart_queue_rx = os_queue_create_static( "rxQ", HAL_UART_RX_QUEUE_LEN/2, 1,
+    hal_uart_queue_rx = os_queue_create_static( "rxQ", HAL_UART_RX_QUEUE_LEN, 1,
                                             &static_queue_buffer_uart_rx );
     if( hal_uart_queue_rx == NULL )
         return 0;
@@ -56,12 +56,12 @@ int hal_uart_init(uint32_t baudrate)
     DEFINE_STATIC_QUEUE_BUFFER( uart_tx, HAL_UART_TX_QUEUE_LEN, 1 );
     hal_uart_queue_tx = os_queue_create_static( "txQ", HAL_UART_TX_QUEUE_LEN, 1,
                                             &static_queue_buffer_uart_tx );
-    if( hal_uart_queue_rx == NULL )
+    if( hal_uart_queue_tx == NULL )
         return 0;
 #endif
 #else
 #if HAL_UART_RX_QUEUE_LEN
-    hal_uart_queue_rx = os_queue_create( "rxQ", HAL_UART_RX_QUEUE_LEN/2, 1 );
+    hal_uart_queue_rx = os_queue_create( "rxQ", HAL_UART_RX_QUEUE_LEN, 1 );
     if( hal_uart_queue_rx == NULL )
         return 0;
 #endif
@@ -72,7 +72,7 @@ int hal_uart_init(uint32_t baudrate)
 #endif
 #endif
   
-    CLOCK_EnableClock( HAL_UARTx_CLOCK );
+    CLOCK_Select( HAL_UARTx_CLOCK_SEL );
 
     usart_config_t config;
     config.baudRate_Bps = (baudrate==0) ? HAL_UARTx_BAUDRATE : baudrate;

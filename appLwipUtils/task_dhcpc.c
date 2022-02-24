@@ -246,7 +246,9 @@ void task_dhcpc_entry(void *arg)
             {
                 logger_const_info( "dhcp discover..." );
                 dhcp_state = DHCP_WAIT_ADDRESS;
+                LOCK_TCPIP_CORE();
                 dhcp_start(&gnetif);
+                UNLOCK_TCPIP_CORE();
             }
             break;
 
@@ -259,7 +261,9 @@ void task_dhcpc_entry(void *arg)
             }
             else
             {
+                LOCK_TCPIP_CORE();
                 dhcp_stop(&gnetif);
+                UNLOCK_TCPIP_CORE();
             }
 #if USE_NETBIOSNS && defined(NETBIOS_LWIP_NAME)
             logger_const_info( "netbiosns stop" );
@@ -442,8 +446,10 @@ int cmd_netstat( int argc, char *argv[] )
         reset_address();
         ip_manual = 0;
         dhcp_state = DHCP_WAIT_ADDRESS;
+        LOCK_TCPIP_CORE();
         dhcp_stop(&gnetif);
         dhcp_start(&gnetif);
+        UNLOCK_TCPIP_CORE();
     }
     else if( strcmp(cmd, "ip") == 0 )
     {
@@ -453,13 +459,15 @@ int cmd_netstat( int argc, char *argv[] )
             /* parse manual ip/netmask/gateway setting */
             if( parse_ip_netmask_gateway( (const char*)input, (char*)&ipaddr, (char*)&netmask, (char*)&gateway ) )
             {
+                LOCK_TCPIP_CORE();
                 dhcp_stop(&gnetif);
+                UNLOCK_TCPIP_CORE();
                 netif_set_addr(&gnetif, &ipaddr, &netmask, &gateway);
                 dns_setserver( 0, (const ip_addr_t *)&gateway );
                 ip_manual = 1;
                 succ = 1;
             }
-            vPortFree( (void*)input );
+            os_free( (void*)input );
             if( !succ )
                 return 1;
         }
