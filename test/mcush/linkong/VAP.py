@@ -182,9 +182,6 @@ class VAP200( _vap ):
     def getSensorPower( self ):
         return int(self.daq( 'pwr_s' )[0])
 
-    def setExtendPower( self, on=True ):
-        self.daq( 'pwr_e', value=int(bool(on)) )
-
     def setSpeedBitmap( self, bitmap=0x00 ):
         self.daq( 'speed', value=bitmap )
     
@@ -255,6 +252,13 @@ class VAP200( _vap ):
     def getExtVoltage(self):
         return [float(l.split()[1]) for l in self.writeCommand('ext')]
  
+    def setExtAlarmOutput( self, on=True ):
+        self.daq( 'pwr_e', value=int(bool(on)) )
+
+    def getExtAlarmOutput( self ):
+        return int(self.daq( 'pwr_e' )[0])
+
+
 
 class VAP200Extend( Mcush.Mcush ):
     '''VAP200 Extend Boards'''
@@ -327,15 +331,16 @@ REG_LOCAL_THRESHOLD_MV_5    = 65
 REG_LOCAL_THRESHOLD_MV_6    = 66
 REG_LOCAL_THRESHOLD_MV_7    = 67
 # extend board group
-REG_EXTEND_EXIST        = 100
-REG_EXTEND_MV_0         = 101
-REG_EXTEND_MV_1         = 102
-REG_EXTEND_MV_2         = 103
-REG_EXTEND_MV_3         = 104
-REG_EXTEND_MV_4         = 105
-REG_EXTEND_MV_5         = 106
-REG_EXTEND_MV_6         = 107
-REG_EXTEND_MV_7         = 108
+REG_EXTEND_EXIST            = 100
+REG_EXTEND_ALARM_OUTPUT     = 101
+REG_EXTEND_MV_0             = 102
+REG_EXTEND_MV_1             = 103
+REG_EXTEND_MV_2             = 104
+REG_EXTEND_MV_3             = 105
+REG_EXTEND_MV_4             = 106
+REG_EXTEND_MV_5             = 107
+REG_EXTEND_MV_6             = 108
+REG_EXTEND_MV_7             = 109
 
 # waveform buffer mapping
 REG_BUFFER_BEGIN        = 10000
@@ -486,6 +491,12 @@ class VAP200_ModbusTCP( McushModbusTCP ):
         regs = self.readRegs(REG_EXTEND_MV_0, 8)
         return [r/1000.0 for r in regs]
  
+    def setExtAlarmOutput( self, on=True ):
+        self.writeReg( REG_EXTEND_ALARM_OUTPUT, int(bool(on)) )
+
+    def getExtAlarmOutput( self ):
+        return bool(self.readReg(REG_EXTEND_ALARM_OUTPUT))
+
 
  
 #############################################################################
@@ -749,4 +760,11 @@ class VAP200_MQTT():
         # return extend board voltage, if board not exists, return empty list
         return []
  
+    def setExtAlarmOutput( self, on=True ):
+        self.publishCmd( 'ext_alarm', val=int(on) ) 
+
+    def getExtAlarmOutput( self ):
+        return self.publishCmd( 'ext_alarm', check_reply=True )['V']
+
+
 
