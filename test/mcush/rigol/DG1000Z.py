@@ -22,6 +22,11 @@ class DG1022Z( Instrument.SocketInstrument ):
     def writeCommand( self, cmd ):
         cmd = cmd.strip()
         self.writeLine( cmd )
+        self.writeLine( "SYST:ERR?" )
+        err = self.readLine()
+        err_id = int(err.split(',')[0])
+        if err_id != 0:
+            raise Exception( err )
         return []
 
     def scpiIdn( self, check=True ):
@@ -29,7 +34,7 @@ class DG1022Z( Instrument.SocketInstrument ):
         ret = self.readLine()
         self.logger.debug( 'IDN:%s', ret )
         if not self.DEFAULT_IDN.match( ret ):
-            raise IDNMatchError(ret)
+            raise Instrument.IDNMatchError(ret)
         _, self.model, self.serial_number, self.version = ret.split(',')
         self.idn = ','.join([self.model, self.version])  # cached
 

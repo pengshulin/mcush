@@ -12,6 +12,7 @@
 #endif
 
 extern char _sheap, _sstack;
+extern uint32_t SystemCoreClock;
 
 void os_init(void)
 {
@@ -248,12 +249,12 @@ int os_queue_get_isr( os_queue_handle_t queue, void *data )
 }
 
 
-int os_queue_count( os_queue_handle_t queue )
-{
-    (void)queue;
-    return 0;  // FIXME
-}
-
+//int os_queue_count( os_queue_handle_t queue )
+//{
+//    (void)queue;
+//    return 0;
+//}
+//
 //int os_queue_is_empty( os_queue_handle_t queue )
 //{
 //

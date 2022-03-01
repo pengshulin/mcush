@@ -6,7 +6,7 @@ if not haldir:
 
 env = loadHalConfig( haldir, use_hal_driver=False, use_vfs=True, use_romfs=True, use_spiffs=True, use_eth=True ).env
 
-env.appendDefineFlags( [ 'USE_LWIP_DEMO' ] )
+#env.appendDefineFlags( [ 'USE_LWIP_DEMO' ] )
 #env.appendDefineFlags( [ 'USE_LWIP_HTTPSERVER_SIMPLE' ] )
 
 
@@ -63,13 +63,13 @@ env.appendGlobSource([
 
     #'/liblwip/lwip-2.0.3/src/apps/tftp/*.c',
     #'/liblwip/contrib-2.0.1/apps/socket_examples/*.c',
-    '/liblwip/contrib-2.0.1/apps/httpserver/httpserver-netconn.c',
+    #'/liblwip/contrib-2.0.1/apps/httpserver/httpserver-netconn.c',
     #'/liblwip/contrib-2.0.1/apps/ping/*.c',
     #'/liblwip/contrib-2.0.1/apps/tcpecho/*.c',
     #'/liblwip/contrib-2.0.1/apps/udpecho/*.c',
     #'/liblwip/contrib-2.0.1/apps/shell/*.c',
     #'/liblwip/lwip-2.0.3/src/apps/mqtt/*.c',
-    #'/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
+    '/liblwip/lwip-2.0.3/src/apps/httpd/fs.c',
     #'/liblwip/lwip-2.0.3/src/apps/httpd/httpd.c',
     #'/liblwip/lwip-2.0.3/src/apps/netbiosns/netbiosns.c',
 

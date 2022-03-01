@@ -1,9 +1,9 @@
-/* DHCP Client task
+/* Network Monitor Task
  * 
  * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "task_logger.h"
-#include "task_dhcpc.h"
+#include "task_netmon.h"
 #include "lwip/mem.h"
 #include "lwip/memp.h"
 #include "lwip/opt.h"
@@ -28,7 +28,7 @@
 #include "lwip/apps/netbiosns.h"
 #endif
 
-LOGGER_MODULE_NAME("dhcpc");
+LOGGER_MODULE_NAME("netmon");
 
 #define DHCP_START                  1
 #define DHCP_WAIT_ADDRESS           2
@@ -38,10 +38,10 @@ LOGGER_MODULE_NAME("dhcpc");
 #define DHCP_ADDRESS_MANUAL         6
 
  
-#define DHCPC_TIMER_PERIOD_MS   2000 
+#define NETMON_TIMER_PERIOD_MS   2000 
 
-os_queue_handle_t queue_dhcpc;
-os_timer_handle_t timer_dhcpc;
+os_queue_handle_t queue_netmon;
+os_timer_handle_t timer_netmon;
 
 uint8_t dhcp_state, ip_manual;
 struct netif gnetif;
@@ -88,18 +88,18 @@ int load_ip_from_conf_file(const char *fname, ip_addr_t *ipaddr, ip_addr_t *netm
 }
 
 
-int send_dhcpc_event( uint8_t event )
+int send_netmon_event( uint8_t event )
 {
-    return os_queue_put( queue_dhcpc, &event, 0 );
+    return os_queue_put( queue_netmon, &event, 0 );
 }
 
 
-void timer_dhcpc_callback( os_timer_handle_t timer )
+void timer_netmon_callback( os_timer_handle_t timer )
 {
-    const int8_t evt = DHCPC_EVENT_CHECK_TIMER;
+    const int8_t evt = NETMON_EVENT_CHECK_TIMER;
 
     (void)timer;
-    os_queue_put_isr( queue_dhcpc, (void*)&evt );
+    os_queue_put_isr( queue_netmon, (void*)&evt );
 }
 
 
@@ -108,12 +108,12 @@ __weak void netif_link_callback(struct netif *netif)
     if( netif_is_link_up( netif ) )
     {
         netif_set_up( netif );
-        send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
+        send_netmon_event( NETMON_EVENT_NETIF_UP );
     }
     else
     {
         netif_set_down( netif );
-        send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
+        send_netmon_event( NETMON_EVENT_NETIF_DOWN );
     }
 }
 
@@ -197,12 +197,12 @@ void do_lwip_init(void)
     if( hal_eth_is_linked() )
     {
         netif_set_up(&gnetif);
-        send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
+        send_netmon_event( NETMON_EVENT_NETIF_UP );
     }
     else
     {
         netif_set_down(&gnetif);
-        send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
+        send_netmon_event( NETMON_EVENT_NETIF_DOWN );
     }
 
     netif_set_link_callback( &gnetif, netif_link_callback );
@@ -210,7 +210,7 @@ void do_lwip_init(void)
 }
 
 
-void task_dhcpc_entry(void *arg)
+void task_netmon_entry(void *arg)
 {
     char buf[256];
     uint8_t evt;
@@ -219,16 +219,16 @@ void task_dhcpc_entry(void *arg)
     (void)arg;
 
     do_lwip_init();
-    os_timer_start( timer_dhcpc );
+    os_timer_start( timer_netmon );
 
     while(1)
     {
-        if( os_queue_get( queue_dhcpc, &evt, -1 ) == 0 )
+        if( os_queue_get( queue_netmon, &evt, -1 ) == 0 )
             continue;
 
         switch( evt )
         {
-        case DHCPC_EVENT_NETIF_UP:
+        case NETMON_EVENT_NETIF_UP:
             logger_const_info( "cable connected" );
             gnetif.flags |= NETIF_FLAG_LINK_UP;
             reset_address();
@@ -238,7 +238,7 @@ void task_dhcpc_entry(void *arg)
 #if USE_NET_CHANGE_HOOK
                 net_state_change_hook(1);
 #if USE_LWIP_DEMO
-                send_dhcpc_event( DHCPC_EVENT_START_DEMO );
+                send_netmon_event( DHCPC_EVENT_START_DEMO );
 #endif
 #endif
             }
@@ -252,7 +252,7 @@ void task_dhcpc_entry(void *arg)
             }
             break;
 
-        case DHCPC_EVENT_NETIF_DOWN:
+        case NETMON_EVENT_NETIF_DOWN:
             logger_const_info( "cable disconnected" );
             gnetif.flags &= ~NETIF_FLAG_LINK_UP;
             dhcp_state = DHCP_LINK_DOWN;
@@ -274,7 +274,7 @@ void task_dhcpc_entry(void *arg)
 #endif
             break;
 
-        case DHCPC_EVENT_CHECK_TIMER:
+        case NETMON_EVENT_CHECK_TIMER:
             if( dhcp_state == DHCP_WAIT_ADDRESS )
             {
                 if( gnetif.ip_addr.addr != 0 )
@@ -296,7 +296,7 @@ void task_dhcpc_entry(void *arg)
 #if USE_NET_CHANGE_HOOK
                     net_state_change_hook(1);
 #if USE_LWIP_DEMO
-                    send_dhcpc_event( DHCPC_EVENT_START_DEMO );
+                    send_netmon_event( DHCPC_EVENT_START_DEMO );
 #endif
 #endif
                 }
@@ -307,7 +307,7 @@ void task_dhcpc_entry(void *arg)
             break; 
  
 #if USE_LWIP_DEMO
-        case DHCPC_EVENT_START_DEMO:
+        case NETMON_EVENT_START_DEMO:
             if( lwip_demo_tasks_started )
                 break;
 
@@ -435,11 +435,11 @@ int cmd_netstat( int argc, char *argv[] )
     }
     else if( strcmp(cmd, "up") == 0 )
     {
-        return send_dhcpc_event( DHCPC_EVENT_NETIF_UP ) ? 0 : 1;
+        return send_netmon_event( NETMON_EVENT_NETIF_UP ) ? 0 : 1;
     }
     else if( strcmp(cmd, "down") == 0 )
     {
-        return send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN ) ? 0 : 1;
+        return send_netmon_event( NETMON_EVENT_NETIF_DOWN ) ? 0 : 1;
     }
     else if( strcmp(cmd, "dhcp") == 0 )
     {
@@ -496,7 +496,7 @@ extern int cmd_ping( int argc, char *argv[] );
 extern int cmd_wget( int argc, char *argv[] );
 extern int cmd_nc( int argc, char *argv[] );
 
-const shell_cmd_t cmd_tab_lwip[] = {
+const shell_cmd_t cmd_tab_netmon[] = {
 {   0, 0, "lwip",  cmd_lwip, 
     "lwip stastics",
     "lwip"  },
@@ -522,37 +522,37 @@ const shell_cmd_t cmd_tab_lwip[] = {
 
 
 
-void task_dhcpc_init(void)
+void task_netmon_init(void)
 {
     os_task_handle_t task;
 
 #if OS_SUPPORT_STATIC_ALLOCATION
-    DEFINE_STATIC_QUEUE_BUFFER( dhcpc, TASK_DHCPC_QUEUE_SIZE, 1 );
-    queue_dhcpc = os_queue_create_static( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1, &static_queue_buffer_dhcpc );
+    DEFINE_STATIC_QUEUE_BUFFER( netmon, TASK_NETMON_QUEUE_SIZE, 1 );
+    queue_netmon = os_queue_create_static( "netmonQ", TASK_NETMON_QUEUE_SIZE, 1, &static_queue_buffer_netmon );
 #else
-    queue_dhcpc = os_queue_create( "dhcpcQ", TASK_DHCPC_QUEUE_SIZE, 1 );
+    queue_netmon = os_queue_create( "netmonQ", TASK_NETMON_QUEUE_SIZE, 1 );
 #endif
-    if( queue_dhcpc == NULL )
-        halt( "create dhdpc queue" );
+    if( queue_netmon == NULL )
+        halt( "create netmon queue" );
 
 #if OS_SUPPORT_STATIC_ALLOCATION
-    DEFINE_STATIC_TIMER_BUFFER( dhcpc );
-    timer_dhcpc = os_timer_create_static( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, timer_dhcpc_callback, &static_timer_buffer_dhcpc );
+    DEFINE_STATIC_TIMER_BUFFER( netmon );
+    timer_netmon = os_timer_create_static( "netmon", OS_TICKS_MS(NETMON_TIMER_PERIOD_MS), 1, timer_netmon_callback, &static_timer_buffer_netmon );
 #else
-    timer_dhcpc = os_timer_create( "dhcpc", OS_TICKS_MS(DHCPC_TIMER_PERIOD_MS), 1, timer_dhcpc_callback );
+    timer_netmon = os_timer_create( "netmon", OS_TICKS_MS(NETMON_TIMER_PERIOD_MS), 1, timer_netmon_callback );
 #endif
-    if( timer_dhcpc == NULL )
-        halt( "create dhdpc timer" );
+    if( timer_netmon == NULL )
+        halt( "create netmon timer" );
    
 #if OS_SUPPORT_STATIC_ALLOCATION
-    DEFINE_STATIC_TASK_BUFFER( dhcpc, TASK_DHCPC_STACK_SIZE );
-    task = os_task_create_static( TASK_DHCPC_NAME, task_dhcpc_entry, NULL, TASK_DHCPC_STACK_SIZE, TASK_DHCPC_PRIORITY, &static_task_buffer_dhcpc );
+    DEFINE_STATIC_TASK_BUFFER( netmon, TASK_NETMON_STACK_SIZE );
+    task = os_task_create_static( TASK_NETMON_NAME, task_netmon_entry, NULL, TASK_NETMON_STACK_SIZE, TASK_NETMON_PRIORITY, &static_task_buffer_netmon );
 #else
-    task = os_task_create( TASK_DHCPC_NAME, task_dhcpc_entry, NULL, TASK_DHCPC_STACK_SIZE, TASK_DHCPC_PRIORITY );
+    task = os_task_create( TASK_NETMON_NAME, task_netmon_entry, NULL, TASK_NETMON_STACK_SIZE, TASK_NETMON_PRIORITY );
 #endif
     if( task == NULL )
-        halt("create dhcpc task");
+        halt("create netmon task");
 
-    shell_add_cmd_table( cmd_tab_lwip );
+    shell_add_cmd_table( cmd_tab_netmon );
 }
 

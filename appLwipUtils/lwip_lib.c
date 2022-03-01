@@ -24,7 +24,7 @@ uint16_t tcp_bind_random_port( struct tcp_pcb *pcb )
     if( port == 0 )
     {
         /* init random port (ignore start/end ports) */
-        port = xTaskGetTickCount();
+        port = os_tick();
         while( (port <= LOCAL_PORT_START) || (port >= LOCAL_PORT_END) )
             port *= 997;  /* the largest prime number under 1000 */
     }

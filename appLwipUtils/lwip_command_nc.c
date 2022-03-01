@@ -1,9 +1,8 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #if USE_CMD_NC
 #include "mcush.h"
-#include "timers.h"
 #include "task_logger.h"
-#include "task_dhcpc.h"
+#include "task_netmon.h"
 #include "lwip/opt.h"
 #include "lwip/mem.h"
 #include "lwip/raw.h"
@@ -236,7 +235,7 @@ int cmd_nc( int argc, char *argv[] )
             {
                 if( ncb->dns_resolved )
                     break;
-                if( shell_driver_read_char_blocked(&chr, 100*configTICK_RATE_HZ/1000) != -1 )
+                if( shell_driver_read_char_blocked(&chr, OS_TICKS_MS(100)) != -1 )
                 {
                     if( chr == 0x03 ) /* Ctrl-C for stop */
                     {
@@ -286,7 +285,7 @@ int cmd_nc( int argc, char *argv[] )
         {
             if( ncb->done || ncb->error )
                 break;
-            if( shell_driver_read_char_blocked(&chr, 100*configTICK_RATE_HZ/1000) != -1 )
+            if( shell_driver_read_char_blocked(&chr, OS_TICKS_MS(100)) != -1 )
             {
                 if( chr == 0x03 ) /* Ctrl-C for stop */
                 {

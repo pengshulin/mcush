@@ -1,7 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #if USE_CMD_PING
 #include "mcush.h"
-#include "timers.h"
 #include "task_logger.h"
 #include "lwip/opt.h"
 #include "lwip/mem.h"
@@ -242,7 +241,7 @@ int cmd_ping( int argc, char *argv[] )
             {
                 if( pcb.dns_resolved )
                     break;
-                if( shell_driver_read_char_blocked(&chr, 100*configTICK_RATE_HZ/1000) != -1 )
+                if( shell_driver_read_char_blocked(&chr, OS_TICKS_MS(100)) != -1 )
                 {
                     if( chr == 0x03 ) /* Ctrl-C for stop */
                     {
@@ -280,7 +279,7 @@ int cmd_ping( int argc, char *argv[] )
     /* wait for Ctrl-C */
     while( 1 )
     {
-        if( shell_driver_read_char_blocked(&chr, portMAX_DELAY) != -1 )
+        if( shell_driver_read_char_blocked(&chr, -1) != -1 )
         {
             if( chr == 0x03 ) /* Ctrl-C for stop */
             {

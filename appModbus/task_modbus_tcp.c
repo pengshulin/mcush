@@ -4,7 +4,7 @@
 #include "errno.h"
 #include "task_blink.h"
 #include "task_logger.h"
-#include "task_dhcpc.h"
+#include "task_netmon.h"
 #include "task_modbus_tcp.h"
 #include "lwip/opt.h"
 #include "lwip/debug.h"
@@ -268,6 +268,8 @@ err_t modbus_tcp_accept_cb(void *arg, struct tcp_pcb *newpcb, err_t err)
         for( i=0; i<MODBUS_TCP_NUM; i++ )
         {
             client = clients[i];
+            if( client == NULL )
+                continue;
             tpcb = client->tpcb;
             if( tpcb->state != ESTABLISHED )
             {
