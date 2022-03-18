@@ -13,6 +13,7 @@
 #include "lwip/inet_chksum.h"
 #include "lwip/prot/ip4.h"
 #include "lwip_lib.h"
+#include "lwip/tcpip.h"
 
 LOGGER_MODULE_NAME("ping");
 
@@ -20,35 +21,36 @@ LOGGER_MODULE_NAME("ping");
  * PING_DEBUG: Enable debugging for PING.
  */
 #ifndef PING_DEBUG
-#define PING_DEBUG     LWIP_DBG_ON
+    #define PING_DEBUG     LWIP_DBG_ON
 #endif
 
 /** ping receive timeout - in milliseconds */
 #ifndef PING_RCV_TIMEO
-#define PING_RCV_TIMEO 1000
+    #define PING_RCV_TIMEO 1000
 #endif
 
 /** ping delay - in milliseconds */
 #ifndef PING_DELAY
-#define PING_DELAY     1000
+    #define PING_DELAY     1000
 #endif
 
 /** ping identifier - must fit on a u16_t */
 #ifndef PING_ID
-#define PING_ID        0xAFAF
+    #define PING_ID        0x4B4C  /* ascii: LK */
 #endif
 
 /** ping additional data size to include in the packet */
 #ifndef PING_DATA_SIZE
-#define PING_DATA_SIZE 32
+    #define PING_DATA_SIZE 32
 #endif
 
 /** ping result action - no default action */
 #ifndef PING_RESULT
-#define PING_RESULT(ping_ok)
+    #define PING_RESULT(ping_ok)
 #endif
 
 #define PING_DNS_RESOLVE_TIMEOUT_S  5
+
 typedef struct _ping_cb_t
 {
     struct raw_pcb *ping_pcb;
@@ -79,7 +81,6 @@ void dns_ping_hostname_check_cb(const char *name, ip_addr_t *ipaddr, void *arg)
 }
 
 
-
 void ping_prepare_echo(struct icmp_echo_hdr *iecho, u16_t len)
 {
     size_t i;
@@ -91,9 +92,12 @@ void ping_prepare_echo(struct icmp_echo_hdr *iecho, u16_t len)
     iecho->id     = PING_ID;
     iecho->seqno  = lwip_htons(++(ping_pcb->ping_seq_num));
 
-    /* fill the additional data buffer with some data */
+    /* signature string first */ 
+    memcpy( (void*)(&((char*)iecho)[sizeof(struct icmp_echo_hdr)]), (void*)shell_str_mcush, 5 );
+    data_len -= 5;
+    /* fill remaining buffer with ascii data */
     for(i = 0; i < data_len; i++) {
-        ((char*)iecho)[sizeof(struct icmp_echo_hdr) + i] = (char)i;
+        ((char*)iecho)[sizeof(struct icmp_echo_hdr)+5+i] = (char)(i+0x20);
     }
 
     iecho->chksum = inet_chksum(iecho, len);
@@ -114,9 +118,10 @@ u8_t ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *
         pbuf_header(p, -PBUF_IP_HLEN) == 0) {
       iecho = (struct icmp_echo_hdr *)p->payload;
 
-      if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(ping_pcb->ping_seq_num))) {
+      if ((iecho->id == PING_ID) ) {
         adr = (uint8_t*)&(addr->addr);
-        shell_printf("ping: recv %u.%u.%u.%u  %u ms\n", adr[0], adr[1], adr[2], adr[3],
+        shell_printf("recv %u.%u.%u.%u: seq=%u time=%u ms\n",
+             adr[0], adr[1], adr[2], adr[3], lwip_htons(iecho->seqno),
             (unsigned int)(sys_now()-ping_pcb->ping_time));
 
         /* do some ping result processing */
@@ -138,7 +143,6 @@ void ping_send(struct raw_pcb *raw, ip_addr_t *addr)
     size_t ping_size = sizeof(struct icmp_echo_hdr) + PING_DATA_SIZE;
     uint8_t *adr = (uint8_t*)&(addr->addr);
 
-    shell_printf("ping: send %u.%u.%u.%u\n", adr[0], adr[1], adr[2], adr[3] );
     LWIP_ASSERT("ping_size <= 0xffff", ping_size <= 0xffff);
 
     p = pbuf_alloc(PBUF_IP, (u16_t)ping_size, PBUF_RAM);
@@ -148,6 +152,9 @@ void ping_send(struct raw_pcb *raw, ip_addr_t *addr)
         iecho = (struct icmp_echo_hdr *)p->payload;
 
         ping_prepare_echo(iecho, (u16_t)ping_size);
+
+        shell_printf("send %u.%u.%u.%u: seq=%u\n",
+            adr[0], adr[1], adr[2], adr[3], ping_pcb->ping_seq_num );
 
         raw_sendto(raw, p, addr);
         ping_pcb->ping_time = sys_now();
@@ -191,6 +198,7 @@ int cmd_ping( int argc, char *argv[] )
     char chr;
     ip_addr_t ipaddr;
     char buf[64];
+    err_t err;
 
     ping_pcb = 0;
     memset( &pcb, 0, sizeof(ping_cb_t) );
@@ -229,7 +237,10 @@ int cmd_ping( int argc, char *argv[] )
     if( hostname_set )
     {
         shell_printf("dns resolve: %s\n", pcb.ping_hostname);
-        if( ERR_OK == dns_gethostbyname( pcb.ping_hostname, &ipaddr, (dns_found_callback)dns_ping_hostname_check_cb, NULL ) )
+        LOCK_TCPIP_CORE();
+        err = dns_gethostbyname( pcb.ping_hostname, &ipaddr, (dns_found_callback)dns_ping_hostname_check_cb, NULL );
+        UNLOCK_TCPIP_CORE();
+        if( ERR_OK == err )
         {
             pcb.ping_target.addr = ipaddr.addr;
             pcb.dns_resolved = 1;
@@ -269,12 +280,14 @@ int cmd_ping( int argc, char *argv[] )
         }
     } 
 
+    LOCK_TCPIP_CORE();
     pcb.ping_pcb = raw_new(IP_PROTO_ICMP);
     LWIP_ASSERT("ping_pcb != NULL", pcb.ping_pcb != NULL);
     raw_recv(pcb.ping_pcb, ping_recv, NULL);
     raw_bind(pcb.ping_pcb, IP_ADDR_ANY);
     sys_timeout(PING_DELAY, ping_timeout, pcb.ping_pcb);
     ping_send_now();
+    UNLOCK_TCPIP_CORE();
 
     /* wait for Ctrl-C */
     while( 1 )
@@ -289,8 +302,10 @@ int cmd_ping( int argc, char *argv[] )
         }
     }
  
+    LOCK_TCPIP_CORE();
     sys_untimeout(ping_timeout, pcb.ping_pcb);
     raw_remove(pcb.ping_pcb);
+    UNLOCK_TCPIP_CORE();
     ping_pcb = 0;
     return 0;
 }

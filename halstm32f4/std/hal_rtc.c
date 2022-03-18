@@ -177,4 +177,10 @@ void hal_rtc_init(void)
 }
 
 
+int hal_rtc_is_synced(void)
+{
+    return 1;
+}
+
+
 #endif

@@ -12,8 +12,8 @@ __weak void hal_wdg_init(void)
     IWDG_SetReload( 0xFFF );
     //IWDG_SetPrescaler( IWDG_Prescaler_4 );  /* 4 * 0xfff / 32768 -> 0.5s */
     //IWDG_SetPrescaler( IWDG_Prescaler_8 );  /* 8 * 0xfff / 32768 -> 1s */
-    IWDG_SetPrescaler( IWDG_Prescaler_16 );  /* 16 * 0xfff / 32768 -> 2s */
-    //IWDG_SetPrescaler( IWDG_Prescaler_32 );  /* 32 * 0xfff / 32768 -> 4s */
+    //IWDG_SetPrescaler( IWDG_Prescaler_16 );  /* 16 * 0xfff / 32768 -> 2s */
+    IWDG_SetPrescaler( IWDG_Prescaler_32 );  /* 32 * 0xfff / 32768 -> 4s */
     //IWDG_SetPrescaler( IWDG_Prescaler_64 );  /* 64 * 0xfff / 32768 -> 8s */
     //IWDG_SetPrescaler( IWDG_Prescaler_128 );  /* 128 * 0xfff / 32768 -> 16s */
     //IWDG_SetPrescaler( IWDG_Prescaler_256 );  /* 256 * 0xfff / 32768 -> 32s */

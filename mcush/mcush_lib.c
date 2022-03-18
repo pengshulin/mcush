@@ -654,6 +654,7 @@ int unhexlify( const char *buf_in, char *buf_out, int len )
 /* split url in form of <protocol>://<server>[:<port>]/<path...file>,
    check out protocol/server/path_file sub-strings and port
    return: 0 - success, others for error type
+   NOTE: original url string is split into pieces, backup before function call (if necessary)
  */
 int split_url( const char *url, char **protocol, char **server, int *port, char **pathfile )
 {

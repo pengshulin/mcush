@@ -2,9 +2,10 @@
 #include "lwip/opt.h"
 #include "lwip/netif.h"
 #include "lwip/dhcp.h"
+#include "lwip/tcpip.h"
 #include "hal_eth.h"
 #include "FreeRTOS.h"
-#include "task_dhcpc.h"
+#include "task_netmon.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -253,8 +254,9 @@ static void ETH_MACDMA_Config(void)
     /* Wait for software reset */
     while (ETH_GetSoftwareResetStatus() == SET)
     {
-        vTaskDelay(1);
+        os_task_delay(1);
     }
+    //os_task_delay_ms(100);
 
     /* ETHERNET Configuration --------------------------------------------------*/
     /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
@@ -444,7 +446,9 @@ void ETH_CheckLinkStatus(uint16_t PHYAddress)
         check_link_retry = ETH_CHECK_LINK_RETRY;
         if( ! (EthStatus & ETH_LINK_FLAG)  )
         {
+            LOCK_TCPIP_CORE();
             netif_set_link_up( &gnetif );  /* set link up */
+            UNLOCK_TCPIP_CORE();
             EthStatus |= ETH_LINK_FLAG;
         }
     }
@@ -452,7 +456,9 @@ void ETH_CheckLinkStatus(uint16_t PHYAddress)
     {
         if( check_link_retry == 0 )
         {
+            LOCK_TCPIP_CORE();
             netif_set_link_down( &gnetif );  /* set link down */
+            UNLOCK_TCPIP_CORE();
             EthStatus &= ~ETH_LINK_FLAG;
             check_link_retry = ETH_CHECK_LINK_RETRY;
         }
@@ -549,7 +555,7 @@ void ETH_link_callback(struct netif *netif)
         /* Restart MAC interface */
         ETH_Start();
 
-        send_dhcpc_event( DHCPC_EVENT_NETIF_UP );
+        send_netmon_event( NETMON_EVENT_NETIF_UP );
 
         //netif_set_addr(&gnetif, &ipaddr , &netmask, &gw);
 
@@ -560,7 +566,7 @@ void ETH_link_callback(struct netif *netif)
     {
         ETH_Stop();
 
-        send_dhcpc_event( DHCPC_EVENT_NETIF_DOWN );
+        send_netmon_event( NETMON_EVENT_NETIF_DOWN );
 
         /* When the netif link is down this function must be called.*/
         netif_set_down(&gnetif);
@@ -599,7 +605,6 @@ void ETH_EXTERN_GetSpeedAndDuplex(uint32_t PHYAddress, ETH_InitTypeDef* ETH_Init
     default:
         break;
     }
-    /* LAN8720A */
 }
 
 
@@ -626,6 +631,5 @@ void hal_eth_link_callback(struct netif *netif)
 {
     ETH_link_callback( netif );
 }
-
 
 

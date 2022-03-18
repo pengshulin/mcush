@@ -66,6 +66,8 @@ static void print_usage( int argc, char *argv[] )
     printf("             <dev_pathname> [<local_pathname>]\n");
     printf("  put        put/push file\n");
     printf("             <local_pathname> <dev_pathname>\n");
+    printf("  dump       dump memory to local file\n");
+    printf("             <address> <bytes> <local_pathname>\n");
     printf("  shell      interactive shell\n");
 }
 
@@ -205,6 +207,32 @@ int exec_get_file( mcush_dev_t *dev, const char *dev_pathname, const char *local
 /* read local file and save to device */
 int exec_put_file( mcush_dev_t *dev, const char *local_pathname, const char *dev_pathname )
 {
+    return 0;
+}
+
+
+/* dump memory from device and save as local file */
+int exec_dump( mcush_dev_t *dev, const char *addr, const char *bytes, const char *local_pathname )
+{
+    unsigned int dump_address;
+    unsigned int dump_bytes;
+    char *p;
+
+    (void)local_pathname;
+
+    if( addr == NULL || bytes == NULL || local_pathname == NULL )
+        return -1;
+    dump_address = strtol( addr, &p, 0 );
+    if( *p != 0 )
+        return -1;
+    dump_bytes = strtol( bytes, &p, 0 );
+    if( *p != 0 )
+        return -1;
+
+    printf( "0x%08X %d bytes\n", dump_address, dump_bytes );
+
+    /* TODO: dump parse save */
+
     return 0;
 }
 
@@ -447,7 +475,8 @@ int main( int argc, char *argv[] )
             err = 1;
             goto close_stop;
         }
-        exec_get_file( &dev, argv[optind], (optind+1>=argc) ? NULL : argv[optind+1] );
+        err = exec_get_file( &dev, argv[optind], 
+                    (optind+1>=argc) ? NULL : argv[optind+1] );
     }
     else if( strcmp(cmd, "put") == 0 )
     {
@@ -457,11 +486,21 @@ int main( int argc, char *argv[] )
             err = 1;
             goto close_stop;
         }
-        exec_put_file( &dev, argv[optind], argv[optind] );
+        err = exec_put_file( &dev, argv[optind], argv[optind] );
+    }
+    else if( strcmp(cmd, "dump") == 0 )
+    {
+        if( optind + 3 != argc )
+        {
+            printf("dump <address> <bytes> <local_pathname>\n");
+            err = 1;
+            goto close_stop;
+        }
+        err = exec_dump( &dev, argv[optind], argv[optind+1], argv[optind+2] );
     }
     else if( strcmp(cmd, "rtc_sync") == 0 )
     {
-        exec_rtc_sync( &dev );
+        err = exec_rtc_sync( &dev );
     }
     else if( strcmp(cmd, "shell") == 0 )
     {

@@ -349,10 +349,8 @@ REG_BUFFER_END          = 59999
 REG_RECORD_LENGTH_MAX = int((REG_BUFFER_END-REG_BUFFER_BEGIN+1)/2)
 
 
-
-class VAP200_ModbusTCP( McushModbusTCP ):
-    '''VAP 2xx Series over ModbusTCP'''
-    DEFAULT_NAME = 'VAP200_Modbus'
+class VAP_ModbusTCP( McushModbusTCP ):
+    '''VAP Series over ModbusTCP'''
     EXCEPTION_CODE = {
         1: 'illegal function code',
         2: 'illegal address',
@@ -374,7 +372,15 @@ class VAP200_ModbusTCP( McushModbusTCP ):
     
     def exitRemoteMode( self ):
         self.writeReg( REG_REMOTE_MODE, 0 )
-       
+     
+
+class VAP100_ModbusTCP( VAP_ModbusTCP ):
+    DEFAULT_NAME = 'VAP100_Modbus'
+
+
+class VAP200_ModbusTCP( VAP_ModbusTCP ):
+    DEFAULT_NAME = 'VAP200_Modbus'
+
     def setAlarmOutput( self, on=True ):
         self.writeReg( REG_ALARM_OUTPUT, int(bool(on)) )
 
@@ -664,6 +670,7 @@ class VAP200_MQTT():
             self.client.subscribe(self.topic_device_data)
             self.client.subscribe(self.topic_device_alarm)
             self.client.subscribe(self.topic_device_log)
+            return True
 
    
     def publishCmd( self, cmd, val=None, idx=None, check_reply=False, *args, **kwargs ):

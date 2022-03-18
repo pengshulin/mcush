@@ -16,6 +16,7 @@
 #include "lwip/inet_chksum.h"
 #include "lwip/prot/ip4.h"
 #include "lwip_lib.h"
+#include "lwip/tcpip.h"
 
 #ifndef NC_DEBUG
 #define NC_DEBUG     LWIP_DBG_ON
@@ -162,6 +163,7 @@ int cmd_nc( int argc, char *argv[] )
     ip_addr_t ipaddr;
     int i;
     char buf[64];
+    err_t err;
 
     memset( &lncb, 0, sizeof(nc_cb_t) );
     ncb = &lncb;
@@ -223,7 +225,10 @@ int cmd_nc( int argc, char *argv[] )
     if( hostname_set )
     {
         shell_printf("dns resolve: %s\n", ncb->server_hostname);
-        if( ERR_OK == dns_gethostbyname( ncb->server_hostname, &ipaddr, (dns_found_callback)nc_hostname_dns_cb, NULL ) )
+        LOCK_TCPIP_CORE();
+        err = dns_gethostbyname( ncb->server_hostname, &ipaddr, (dns_found_callback)nc_hostname_dns_cb, NULL );
+        UNLOCK_TCPIP_CORE();
+        if( ERR_OK == err )
         {
             ncb->server_ip.addr = ipaddr.addr;
             ncb->dns_resolved = 1;
@@ -264,7 +269,9 @@ int cmd_nc( int argc, char *argv[] )
     } 
 
     /* tcp connect */
+    LOCK_TCPIP_CORE();
     ncb->pcb = tcp_new();
+    UNLOCK_TCPIP_CORE();
     if( ncb->pcb == NULL )
     {
         shell_write_err( shell_str_memory );
@@ -273,12 +280,17 @@ int cmd_nc( int argc, char *argv[] )
     else
     {
         /* connect and get file */
-        if( ! tcp_bind_random_port(ncb->pcb) )
+        LOCK_TCPIP_CORE();
+        i = tcp_bind_random_port(ncb->pcb);
+        UNLOCK_TCPIP_CORE();
+        if( i == 0 )
         {
             shell_write_err( "bind" );
             return 1;
         }
+        LOCK_TCPIP_CORE();
         tcp_connect( ncb->pcb, &ncb->server_ip, ncb->server_port, nc_tcp_connected_cb );
+        UNLOCK_TCPIP_CORE();
 
         /* wait for done or Ctrl-C */
         while( 1 )
@@ -290,7 +302,9 @@ int cmd_nc( int argc, char *argv[] )
                 if( chr == 0x03 ) /* Ctrl-C for stop */
                 {
                     ncb->cancel = 1;
+                    LOCK_TCPIP_CORE();
                     tcp_abort( ncb->pcb );
+                    UNLOCK_TCPIP_CORE();
                     break;
                 }
                 else if( ncb->connected )
@@ -301,8 +315,10 @@ int cmd_nc( int argc, char *argv[] )
                     ncb->pending = 1;
                     if( ncb->send_len >= NC_SEND_BUF_LEN )
                     {
+                        LOCK_TCPIP_CORE();
                         tcp_write( ncb->pcb, ncb->send_buf, NC_SEND_BUF_LEN, TCP_WRITE_FLAG_COPY );
                         tcp_output( ncb->pcb );
+                        UNLOCK_TCPIP_CORE();
                         ncb->pending = 0;
                         ncb->send_len = 0;
                     }
@@ -312,15 +328,17 @@ int cmd_nc( int argc, char *argv[] )
             {
                 if( ncb->connected && ncb->pending )
                 {
+                    LOCK_TCPIP_CORE();
                     tcp_write( ncb->pcb, ncb->send_buf, ncb->send_len, TCP_WRITE_FLAG_COPY );
                     tcp_output( ncb->pcb );
+                    UNLOCK_TCPIP_CORE();
                     ncb->pending = 0;
                     ncb->send_len = 0;
                 }
             }
         }
     }
-    
+   
     ncb = 0;
     shell_write_char( '\n' );
     return lncb.error ? 1 : 0;

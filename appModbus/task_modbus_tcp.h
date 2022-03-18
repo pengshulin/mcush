@@ -1,7 +1,7 @@
 /* Modbus/TCP implementation based on MCUSH */
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef _TASK_MODBUS_TCP_H_
-#define _TASK_MODBUS_TCP_H_
+#ifndef __TASK_MODBUS_TCP_H__
+#define __TASK_MODBUS_TCP_H__
 
 #define TASK_MODBUS_TCP_STACK_SIZE  (3*1024)
 #define TASK_MODBUS_TCP_PRIORITY    (OS_PRIORITY_LOW)
@@ -88,41 +88,10 @@ typedef struct {
 
 
 
-#define MODBUS_CODE_READ_COILS                      1
-#define MODBUS_CODE_READ_DISCRETE_INPUTS            2
-#define MODBUS_CODE_READ_HOLD_REGISTERS             3
-#define MODBUS_CODE_READ_INPUT_REGISTERS            4
-#define MODBUS_CODE_WRITE_SINGLE_COIL               5
-#define MODBUS_CODE_WRITE_SINGLE_REGISTER           6
-#define MODBUS_CODE_WRITE_MULTI_COILS               15
-#define MODBUS_CODE_WRITE_MULTI_REGISTERS           16
-#define MODBUS_CODE_READ_WRITE_MULTI_REGISTER       23
-#define MODBUS_CODE_DISABLE_WRITE_REGISTER          22
-#define MODBUS_CODE_READ_FILE_RECORD                20
-#define MODBUS_CODE_WRITE_FILE_RECORD               21
-#define MODBUS_CODE_READ_DEVICE_CODE                43
-
-#define MODBUS_ERROR_FUNCTION                       1
-#define MODBUS_ERROR_DATA_ADDRESS                   2
-#define MODBUS_ERROR_DATA_VALUE                     3
-#define MODBUS_ERROR_DEVICE_FAULT                   4
-#define MODBUS_ERROR_CONFIRM                        5
-#define MODBUS_ERROR_DEVICE_BUSY                    6
-
-
-
 int send_modbus_tcp_event( uint8_t type, int8_t tag, uint32_t data );
-
 void task_modbus_tcp_init(void);
 
-/* application hook function */
-int modbus_read_discrete( uint16_t address, uint8_t *value );
-int modbus_read_coil( uint16_t address, uint8_t *value );
-int modbus_write_coil( uint16_t address, uint8_t value );
-int modbus_read_input_register( uint16_t address, uint16_t *value );
-int modbus_read_hold_register( uint16_t address, uint16_t *value );
-int modbus_write_hold_register( uint16_t address, uint16_t value );
-
+#include "modbus_def.h"
 
 #endif
 

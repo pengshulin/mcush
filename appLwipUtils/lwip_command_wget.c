@@ -12,6 +12,7 @@
 #include "lwip/netif.h"
 #include "lwip/sys.h"
 #include "lwip/tcp.h"
+#include "lwip/tcpip.h"
 #include "lwip/timeouts.h"
 #include "lwip/inet_chksum.h"
 #include "lwip/prot/ip4.h"
@@ -261,6 +262,7 @@ int cmd_wget( int argc, char *argv[] )
     char *file = 0;
     int size;
     char buf[64];
+    err_t err;
 
     (void)ip_set;
     memset( &lwcb, 0, sizeof(wget_cb_t) );
@@ -329,7 +331,10 @@ int cmd_wget( int argc, char *argv[] )
     if( hostname_set )
     {
         shell_printf("dns resolve: %s\n", server);
-        if( ERR_OK == dns_gethostbyname( server, &ipaddr, (dns_found_callback)wget_hostname_dns_cb, NULL ) )
+        LOCK_TCPIP_CORE();
+        err = dns_gethostbyname( server, &ipaddr, (dns_found_callback)wget_hostname_dns_cb, NULL );
+        UNLOCK_TCPIP_CORE();
+        if( ERR_OK == err )
         {
             wcb->server_ip.addr = ipaddr.addr;
             wcb->dns_resolved = 1;
@@ -373,7 +378,9 @@ int cmd_wget( int argc, char *argv[] )
     wcb->fd = mcush_open( WGET_TEMP_FILE, "w+" );
     if( wcb->fd != 0 )
     {
+        LOCK_TCPIP_CORE();
         wcb->pcb = tcp_new();
+        UNLOCK_TCPIP_CORE();
         if( wcb->pcb == NULL )
         {
             shell_write_err( shell_str_memory );
@@ -381,7 +388,9 @@ int cmd_wget( int argc, char *argv[] )
         else
         {
             /* connect and get file */
+            LOCK_TCPIP_CORE();
             wget_http_get_file();
+            UNLOCK_TCPIP_CORE();
 
             /* wait for done or Ctrl-C */
             while( 1 )

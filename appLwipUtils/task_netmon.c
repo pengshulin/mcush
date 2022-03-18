@@ -1,5 +1,4 @@
 /* Network Monitor Task
- * 
  * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "task_logger.h"
@@ -100,6 +99,13 @@ void timer_netmon_callback( os_timer_handle_t timer )
 
     (void)timer;
     os_queue_put_isr( queue_netmon, (void*)&evt );
+}
+
+
+__weak err_t ethernetif_init(struct netif *netif)
+{
+    (void)netif;
+    return ERR_OK;
 }
 
 
@@ -461,9 +467,9 @@ int cmd_netstat( int argc, char *argv[] )
             {
                 LOCK_TCPIP_CORE();
                 dhcp_stop(&gnetif);
-                UNLOCK_TCPIP_CORE();
                 netif_set_addr(&gnetif, &ipaddr, &netmask, &gateway);
                 dns_setserver( 0, (const ip_addr_t *)&gateway );
+                UNLOCK_TCPIP_CORE();
                 ip_manual = 1;
                 succ = 1;
             }
@@ -480,8 +486,10 @@ int cmd_netstat( int argc, char *argv[] )
             /* parse manual dns1/dns2 setting */
             if( parse_dns1_dns2( (const char*)input, (char*)&ipaddr, (char*)&netmask ) )
             {
+                LOCK_TCPIP_CORE();
                 dns_setserver( 0, (const ip_addr_t *)&ipaddr );
                 dns_setserver( 1, (const ip_addr_t *)&netmask );
+                UNLOCK_TCPIP_CORE();
             }
         }
     }

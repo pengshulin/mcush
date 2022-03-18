@@ -101,6 +101,6 @@ int modbus_write_hold_register( uint16_t address, uint16_t value )
     }
     else
         return MODBUS_ERROR_DATA_ADDRESS;
-    return 1;
+    return 0;
 }
 
