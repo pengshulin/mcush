@@ -14,8 +14,6 @@ __weak int hal_init(void)
     hal_rtc_init();
 #endif
     hal_platform_init();
-    if( !hal_uart_init(0) )
-        return 0;
     return 1;
 }
 

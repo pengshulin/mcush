@@ -3,7 +3,6 @@ from VEnvironment import *
 if haldir is None:
     # the last one is selected
     haldir = 'stm32f030xx'
-    haldir = 'stm32f103c8_xtw'
     haldir = 'stm32f767zi_nucleo'
     haldir = 'stm32f207zg_nucleo'
     haldir = 'stm32f103ze_redbull'
@@ -14,6 +13,7 @@ if haldir is None:
     haldir = 'stm32f429ig_challenger'
     haldir = 'stm32f103cb_tiny_controller'
     haldir = 'stm32f411ce_weact'
+    haldir = 'stm32f103c8_xtw'
 
 RTOS = 'RTX'
 RTOS = 'RTTHREAD'
@@ -21,6 +21,7 @@ RTOS = 'FREERTOS'
 
 #env = loadHalConfig( haldir ).env
 env = loadHalConfig( haldir, append_rtos=RTOS ).env
+#env = loadHalConfig( haldir, append_rtos=RTOS, use_shell=False ).env
 #env = loadHalConfig( haldir, use_vcp=True ).env
 #env = loadHalConfig( haldir, use_vcp=False ).env
 #env = loadHalConfig( haldir, use_spiffs=True ).env

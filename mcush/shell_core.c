@@ -206,6 +206,7 @@ int shell_get_errnum( void )
 }
 
 
+#ifndef NO_SHELL
 int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 {
     int i;
@@ -223,6 +224,7 @@ int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 #endif
     return 0;
 }
+#endif
 
 
 const char *shell_get_prompt( void )
