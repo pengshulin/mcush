@@ -454,7 +454,7 @@ int cmd_list( int argc, char *argv[] )
         { MCUSH_OPT_NONE } };
     mcush_opt_parser parser;
     mcush_opt opt;
-    char *path=0;
+    char *path=NULL;
     char mount_point[8], file_name[32];
     int i;
 
@@ -471,15 +471,18 @@ int cmd_list( int argc, char *argv[] )
     }
 
     file_name[0] = 0;
-    if( path && ! get_mount_point( path, mount_point ) )
-        return 1;
-    get_file_name( path, file_name );
+    if( path != NULL )
+    {
+        if( !get_mount_point( path, mount_point ) )
+            return 1;
+        get_file_name( path, file_name );
+    }
      
     for( i=0; i< MCUSH_VFS_VOLUME_NUM; i++ )
     {
         if( !vfs_vol_tab[i].mount_point )
             continue;
-        if( !path || strcmp(vfs_vol_tab[i].mount_point, mount_point)==0 )
+        if( (path == NULL) || strcmp(vfs_vol_tab[i].mount_point, mount_point)==0 )
         {
             cmd_list_match_file_name = file_name[0] ? file_name : 0;
             strcpy( mount_point, "/" );

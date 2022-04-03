@@ -170,7 +170,7 @@ void hal_uart_reset(void)
 
 int  shell_driver_init( void )
 {
-    return 1;  /* already inited */
+    return hal_uart_init(0);
 }
 
 
@@ -189,7 +189,7 @@ int shell_driver_read( char *buffer, int len )
 int shell_driver_read_char( char *c )
 {
     if( hal_uart_getc( c, -1 ) )
-        return (int)c;
+        return (int)*c;
     else
         return -1;
 }
@@ -197,7 +197,7 @@ int shell_driver_read_char( char *c )
 int  shell_driver_read_char_blocked( char *c, int block_ticks )
 {
     if( hal_uart_getc( c, block_ticks ) )
-        return (int)c;
+        return (int)*c;
     else
         return -1;
 }

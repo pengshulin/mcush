@@ -72,9 +72,10 @@
 
 
 
+#if 1  //#ifndef NO_SHELL
 int cmd_error( int argc, char *argv[] )
 {
-    static const mcush_opt_spec opt_spec[] = {
+    const mcush_opt_spec opt_spec[] = {
         { MCUSH_OPT_SWITCH, MCUSH_OPT_USAGE_REQUIRED,
           's', shell_str_stop, 0, shell_str_stop },
         { MCUSH_OPT_ARG, MCUSH_OPT_USAGE_REQUIRED,
@@ -112,7 +113,7 @@ int cmd_error( int argc, char *argv[] )
     if( new == -1 )
     {
         if( get_errno() < 0 )
-            shell_write_line( "stop" );
+            shell_write_line( shell_str_stop );
         else
             shell_printf( "%d\n", get_errno() );
         return 0;
@@ -132,7 +133,7 @@ static const shell_cmd_t cmd_tab_blink[] = {
     "error number",
     "e <num>"  },
 {   CMD_END  } };
-
+#endif
 
 static void blink_digit( int digit, int led )
 {
@@ -171,6 +172,8 @@ void task_blink_entry(void *arg)
     int i, digit, pos, skip;
 
     (void)arg;
+    shell_add_cmd_table( cmd_tab_blink );
+
     while( 1 )
     {
         hal_wdg_clear();
@@ -220,7 +223,5 @@ void task_blink_init(void)
 #endif
     if( task == NULL )
         halt("create blink task");
-
-    shell_add_cmd_table( cmd_tab_blink );
 }
 

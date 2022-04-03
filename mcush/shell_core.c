@@ -12,7 +12,7 @@
 #endif
 
 static shell_control_block_t scb;
-
+static const shell_cmd_t *shell_cmd_tables[SHELL_CMD_TABLE_LEN];
 
 int shell_read_char( char *c )
 {
@@ -206,16 +206,19 @@ int shell_get_errnum( void )
 }
 
 
-#ifndef NO_SHELL
 int shell_add_cmd_table( const shell_cmd_t *cmd_table )
 {
+#if NO_SHELL
+    (void)cmd_table;
+    return 1;
+#else
     int i;
 
     for( i=0; i<SHELL_CMD_TABLE_LEN; i++ )
     {
-        if( ! scb.cmd_table[i] )
+        if( ! shell_cmd_tables[i] )
         {
-            scb.cmd_table[i] = cmd_table;
+            shell_cmd_tables[i] = cmd_table;
             return 1;
         }
     }
@@ -223,8 +226,8 @@ int shell_add_cmd_table( const shell_cmd_t *cmd_table )
     halt( "add cmd table" );
 #endif
     return 0;
-}
 #endif
+}
 
 
 const char *shell_get_prompt( void )
@@ -350,7 +353,7 @@ static int shell_split_cmdline_into_argvs( char *cmd_line, uint8_t *argc, char *
 
 static int shell_search_command( int cmdtab_index, char *cmd_name )
 {
-    const shell_cmd_t *ct = scb.cmd_table[cmdtab_index];
+    const shell_cmd_t *ct = shell_cmd_tables[cmdtab_index];
     int i, abbr;
 
     if( ct == 0 )
@@ -615,7 +618,7 @@ static int shell_process_command( void )
         }
         else
         {
-            cmd = ((shell_cmd_t*)(scb.cmd_table[j] + i))->cmd;
+            cmd = ((shell_cmd_t*)(shell_cmd_tables[j] + i))->cmd;
             scb.errnum = (*cmd)( scb.argc, scb.argv );
         }
     }
@@ -634,7 +637,7 @@ int (*shell_get_cmd_by_name( const char *name ))(int argc, char *argv[])
     {
         j = shell_search_command( i, (char*)name );
         if( j != -1 )
-            return ((shell_cmd_t*)(scb.cmd_table[i] + j))->cmd;
+            return ((shell_cmd_t*)(shell_cmd_tables[i] + j))->cmd;
     }
     return 0;
 }
@@ -648,7 +651,7 @@ char shell_get_short_name( const char *name )
     {
         j = shell_search_command( i, (char*)name );
         if( j != -1 )
-            return ((shell_cmd_t*)(scb.cmd_table[i] + j))->sname;
+            return ((shell_cmd_t*)(shell_cmd_tables[i] + j))->sname;
     }
     return 0;
 }
@@ -658,36 +661,36 @@ int shell_print_help( const char *cmd, int show_hidden )
 {
     int i, j;
 
-    for( i = 0; (i < SHELL_CMD_TABLE_LEN) && scb.cmd_table[i]; i++ )
+    for( i = 0; (i < SHELL_CMD_TABLE_LEN) && shell_cmd_tables[i]; i++ )
     {
-        for( j=0; scb.cmd_table[i][j].name; j++ )
+        for( j=0; shell_cmd_tables[i][j].name; j++ )
         {
             if( cmd && *cmd )
             {
                 if( strlen(cmd) > 1 )
                 {
-                    if( strcmp(cmd, scb.cmd_table[i][j].name) != 0 )
+                    if( strcmp(cmd, shell_cmd_tables[i][j].name) != 0 )
                         continue;
                 }
                 else
                 {
-                    if( (strcmp(cmd, scb.cmd_table[i][j].name) != 0) || \
-                        (*cmd != scb.cmd_table[i][j].sname) )
+                    if( (strcmp(cmd, shell_cmd_tables[i][j].name) != 0) || \
+                        (*cmd != shell_cmd_tables[i][j].sname) )
                         continue;
                 }
             }
-            if( !show_hidden && (scb.cmd_table[i][j].flag == CMD_HIDDEN) )
+            if( !show_hidden && (shell_cmd_tables[i][j].flag == CMD_HIDDEN) )
                 continue;
-            shell_write_str( scb.cmd_table[i][j].name );
-            if( scb.cmd_table[i][j].sname )
+            shell_write_str( shell_cmd_tables[i][j].name );
+            if( shell_cmd_tables[i][j].sname )
             {
                 shell_write_char( '/' );
-                shell_write_char( scb.cmd_table[i][j].sname );
+                shell_write_char( shell_cmd_tables[i][j].sname );
             }
             shell_write_str( "  " );
-            shell_write_line( scb.cmd_table[i][j].description );
+            shell_write_line( shell_cmd_tables[i][j].description );
             shell_write_str( "  " );
-            shell_write_line( scb.cmd_table[i][j].usage );
+            shell_write_line( shell_cmd_tables[i][j].usage );
         }
     }
     return 0;
@@ -697,9 +700,9 @@ int shell_print_help( const char *cmd, int show_hidden )
 int shell_init( const shell_cmd_t *cmd_table, const char *init_script )
 {
     memset( &scb, 0, sizeof(shell_control_block_t) );
-    scb.cmd_table[0] = cmd_table;
+    shell_cmd_tables[0] = cmd_table;
     scb.script = init_script;
-    return shell_driver_init();
+    return 1;
 }
 
 
@@ -921,9 +924,12 @@ static int load_init_script(void)
 }
 
 
-void shell_run( void *p )
+void shell_run( void *arg )
 {
-    (void)p;
+    (void)arg;
+
+    if( shell_driver_init() == 0 )
+        halt("shell driver init");
 
 #if ! SHELL_NO_PROMPT_AT_STARTUP
     shell_write_str("\r\n");

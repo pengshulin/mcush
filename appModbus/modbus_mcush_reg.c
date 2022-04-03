@@ -40,12 +40,14 @@ int modbus_read_mcush_hold_register( uint16_t address, uint16_t *value )
     case HOLD_REG_UPTIME_HI:
         *value = (os_tick() >> 16) & 0xFFFF;
         break;
+#if HAL_REBOOT_COUNTER
     case HOLD_REG_REBOOT_COUNTER_LO:
         *value = hal_reboot_counter_get() & 0xFFFF;
         break;
     case HOLD_REG_REBOOT_COUNTER_HI:
         *value = (hal_reboot_counter_get()>>16) & 0xFFFF;
         break;
+#endif
 #if HAL_RTC
     case HOLD_REG_RTC_SYNCED:
         *value = hal_rtc_is_synced();

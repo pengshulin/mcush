@@ -53,24 +53,35 @@ __weak void hal_pre_init(void)
 }
 
 
+void task_mcush_init(void)
+{
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( mcush, MCUSH_STACK_SIZE );
+    task_mcush = os_task_create_static( "mcushT", shell_run, NULL,
+                MCUSH_STACK_SIZE, MCUSH_PRIORITY, 
+                &static_task_buffer_mcush );
+#else
+    task_mcush = os_task_create( "mcushT", shell_run, NULL,
+                MCUSH_STACK_SIZE, MCUSH_PRIORITY );
+#endif
+    if( task_mcush == NULL )
+        halt("mcush task create");
+}
+
+
 void mcush_init(void)
 {
     if( task_mcush != NULL )
         return;
-    
+   
     os_init();
-
     hal_pre_init();
-
     if( !hal_init() )
         halt("hal init");
 
 #ifndef NO_SHELL
-    if( !hal_uart_init(0) )
-        halt("hal uart init");
-
-    if( !shell_init( &CMD_TAB[0], 0 ) )
-        halt("shell init");
+    shell_init( &CMD_TAB[0], 0 );
+    task_mcush_init();
 #endif
 
 #if MCUSH_ROMFS
@@ -84,20 +95,6 @@ void mcush_init(void)
 #endif
 #if MCUSH_FATFS
     mcush_mount( "f", &mcush_fatfs_driver );
-#endif
-
-#ifndef NO_SHELL
-#if OS_SUPPORT_STATIC_ALLOCATION
-    DEFINE_STATIC_TASK_BUFFER( mcush, MCUSH_STACK_SIZE );
-    task_mcush = os_task_create_static( "mcushT", shell_run, NULL,
-                MCUSH_STACK_SIZE, MCUSH_PRIORITY, 
-                &static_task_buffer_mcush );
-#else
-    task_mcush = os_task_create( "mcushT", shell_run, NULL,
-                MCUSH_STACK_SIZE, MCUSH_PRIORITY );
-#endif
-    if( task_mcush == NULL )
-        halt("mcush task create");
 #endif
 }
 

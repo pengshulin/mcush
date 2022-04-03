@@ -6,7 +6,8 @@
    1. only two shell_str_xxxxs can be compared
    2. shell_str_xxxs must be sorted.
  */
-#define STRCMP(a,b)  ((unsigned int)(a)-(unsigned int)(b))
+//#define STRCMP(a,b)  ((unsigned int)(a)-(unsigned int)(b))
+#define STRCMP(a,b)  ((intptr_t)(a)-(intptr_t)(b))
 
 
 extern const char shell_str_0[];

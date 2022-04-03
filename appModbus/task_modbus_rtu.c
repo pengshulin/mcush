@@ -6,13 +6,24 @@
 #if MODBUS_RTU_SWDG_FEED
 #include "task_swdg.h"
 #endif
-#include "hal_modbus.h"
-
 
 //#define DEBUG_MODBUS
 LOGGER_MODULE_NAME("modbus");
 
 modbus_rtu_client_t client;
+
+extern int hal_modbus_init(int baudrate);
+extern int hal_modbus_putc( char c, os_tick_t block_ticks );
+extern int hal_modbus_getc( char *c, os_tick_t block_ticks );
+
+__weak uint8_t hal_modbus_set_address( uint8_t new_address )
+{
+    static uint8_t address = MODBUS_RTU_DEFAULT_UNIT_ID;
+    uint8_t old_address;
+    old_address = address;
+    address = new_address;
+    return old_address;
+}
 
 
 int exec_modbus_rtu_request( uint8_t function_code, uint16_t address, uint16_t size, uint16_t *payload, int *write )

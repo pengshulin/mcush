@@ -111,7 +111,7 @@ typedef struct _shell_control_block_t {
     char cmdline[SHELL_CMDLINE_LEN+1];
     char cmdline_history[SHELL_CMDLINE_HISTORY_LEN+1];
     const char *(*prompt_hook)(void);
-    const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
+    //const shell_cmd_t *cmd_table[SHELL_CMD_TABLE_LEN];
     const char *script;
     const char *script_free;
     uint8_t script_error_stop;
@@ -124,11 +124,11 @@ typedef struct _shell_control_block_t {
 int  shell_init( const shell_cmd_t *cmd_table, const char *init_script );
 void shell_run( void *p );
 void shell_set_prompt_hook( const char *(*hook)(void) );
-#if NO_SHELL
-#define shell_add_cmd_table( cmd_table) 
-#else
+//#if NO_SHELL
+//#define shell_add_cmd_table( cmd_table) 
+//#else
 int  shell_add_cmd_table( const shell_cmd_t *cmd_table );
-#endif
+//#endif
 int  shell_print_help( const char *cmd, int show_hidden );
 int  shell_set_script( const char *script, int need_free, int error_stop );
 int  shell_is_script_mode( void );

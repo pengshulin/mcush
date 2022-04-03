@@ -143,7 +143,7 @@ int hal_uart_init(uint32_t baudrate)
 
 int  shell_driver_init( void )
 {
-    return 1;  /* already inited */
+    return hal_uart_init(0);
 }
 
 
@@ -172,7 +172,7 @@ int  shell_driver_read( char *buffer, int len )
 int  shell_driver_read_char( char *c )
 {
     if( os_queue_get( hal_vcp_rx_queue, c, -1 ) )
-        return (int)c;
+        return (int)*c;
     else
         return -1;
 }
@@ -181,7 +181,7 @@ int  shell_driver_read_char( char *c )
 int  shell_driver_read_char_blocked( char *c, int block_ticks )
 {
     if( os_queue_get( hal_vcp_rx_queue, c, block_ticks ) )
-        return (int)c;
+        return (int)*c;
     else
         return -1;
 }

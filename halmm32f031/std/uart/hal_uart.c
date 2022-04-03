@@ -230,7 +230,7 @@ int hal_uart_feedc( char c, os_tick_t block_ticks )
 
 int shell_driver_init( void )
 {
-    return 1;  /* already inited */
+    return hal_uart_init(0);
 }
 
 
@@ -266,7 +266,7 @@ int  shell_driver_read_char( char *c )
     if( hal_uart_getc( c, -1 ) == 0 )
         return -1;
     else
-        return (int)c;
+        return (int)*c;
 }
 
 
@@ -275,7 +275,7 @@ int  shell_driver_read_char_blocked( char *c, int block_ticks )
     if( hal_uart_getc( c, block_ticks ) == 0 )
         return -1;
     else
-        return (int)c;
+        return (int)*c;
 }
 
 

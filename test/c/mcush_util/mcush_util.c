@@ -328,11 +328,11 @@ int exec_shell( mcush_dev_t *dev )
 
     /* start RX listening thread */
     err = pthread_create( &thread_rx, NULL, thread_serial_rx_listener, (void*)(dev) );
-    if( err )
+    if( err != 0 )
         return err;
     /* start TX writer thread */
     err = pthread_create( &thread_tx, NULL, thread_serial_tx_writer, (void*)(dev) );
-    if( err )
+    if( err != 0 )
     {
         pthread_cancel( thread_rx );
         return err;

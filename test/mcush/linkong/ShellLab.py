@@ -8,19 +8,38 @@ import binascii
 import time
 
 
-class ShellLab(Mcush.Mcush):
-    DEFAULT_NAME = 'ShellLab'
-    DEFAULT_IDN = re_compile( 'ShellLab(-[A-Z][0-9a-zA-Z\-]*)?,([0-9]+\.[0-9]+.*)' )
+class __measure_cls():
+    '''measure commands group'''
+    def measure( self, cmd=None, index=None, value=None, fvalue=None ):
+        command = 'm'
+        if cmd is not None:
+            command += ' -c%s'% cmd
+        if index is not None:
+            command += ' -i%d'% index
+        if value is not None:
+            command += ' -v%d'% value
+        if fvalue is not None:
+            command += ' -V%f'% fvalue
+        return self.writeCommand( command ) 
 
-    def scpiRst( self ):
-        if self.checkCommand("*rst"):
-            self.writeCommand('*rst')
-        else:
-            self.errno( 0 )
-            # clear all leds
-            for i in range(self.getLedNumber()):
-                self.led(i, False)
+    def measure_start( self ):
+        self.measure( 'start' )
 
+    def measure_stop( self ):
+        self.measure( 'stop' )
+    
+    def measure_reset( self ):
+        self.measure( 'reset' )
+
+    measureStart = measure_start
+    measureStop = measure_stop
+    measureReset = measure_reset
+
+
+
+
+class __daq_cls():
+    '''daq commands group'''
     def daq( self, cmd, index=None, value=None ):
         command = 'daq'
         if cmd is not None:
@@ -83,35 +102,22 @@ class ShellLab(Mcush.Mcush):
     daqDone = daq_done
     daqRead = daq_read
 
-    def measure( self, cmd=None, index=None, value=None, fvalue=None ):
-        command = 'measure'
-        if cmd is not None:
-            command += ' -c %s'% cmd
-        if index is not None:
-            command += ' -i %d'% index
-        if value is not None:
-            command += ' -v %d'% value
-        if fvalue is not None:
-            command += ' -V %f'% fvalue
-        return self.writeCommand( command )
 
-    def measure_start( self ):
-        self.measure( 'start' )
 
-    def measure_stop( self ):
-        self.measure( 'stop' )
 
-    def measure_read( self, channel ):
-        ret = self.measure( 'read', index=channel )
-        dat = []
-        for l in ret:
-            for v in l.strip().split(','):
-                dat.append( float(v) )
-        return dat
+class ShellLab(Mcush.Mcush, __measure_cls, __daq_cls):
+    DEFAULT_NAME = 'ShellLab'
+    DEFAULT_IDN = re_compile( 'ShellLab(-[A-Z][0-9a-zA-Z\-]*)?,([0-9]+\.[0-9]+.*)' )
 
-    measureStart = measure_start
-    measureStop = measure_stop
-    measureRead = measure_read
+    def scpiRst( self ):
+        if self.checkCommand("*rst"):
+            self.writeCommand('*rst')
+        else:
+            self.errno( 0 )
+            # clear all leds
+            for i in range(self.getLedNumber()):
+                self.led(i, False)
+
 
 
 COLOR_TAB = {
@@ -655,58 +661,58 @@ class ShellLabSegmentDisplay(Mcush.Mcush):
         Instrument.Instrument.__init__( self, *args, **kwargs )
         self.digits = int(self.disp('digits')[0])
 
-    def disp( self, cmd=None, idx=None, val=None, msg=None ):
+    def disp( self, cmd=None, index=None, value=None, msg=None ):
         command = 'd'
         if cmd is not None:
             command += ' -c%s'% cmd
-        if idx is not None:
-            command += ' -i%d'% idx
-        if val is not None:
-            command += ' -v%d'% val
+        if index is not None:
+            command += ' -i%d'% index
+        if value is not None:
+            command += ' -v%d'% value
         if msg is not None:
             command += ' -m"%s"'% msg
         return self.writeCommand( command ) 
 
     def brightness(self, new_brightness=7):
-        self.disp('brightness', val=new_brightness)
+        self.disp('brightness', value=new_brightness)
 
     def clrscr(self):
         self.disp('clrscr')
 
-    def blink(self, on, idx=None):
-        self.disp('blink', idx=idx, val=on)
+    def blink(self, on, index=None):
+        self.disp('blink', index=index, value=on)
 
-    def raw(self, val, idx):
-        self.disp('raw', idx=idx, val=val)
+    def raw(self, value, index):
+        self.disp('raw', index=index, value=value)
    
-    def hex(self, val, idx):
-        self.disp('hex', idx=idx, val=val)
+    def hex(self, value, index):
+        self.disp('hex', index=index, value=value)
 
-    def ascii(self, val, idx):
-        self.disp('ascii', idx=idx, val=val)
+    def ascii(self, value, index):
+        self.disp('ascii', index=index, value=value)
 
-    def int(self, val, idx=None):
-        self.disp('int', idx=idx, val=val)
+    def int(self, value, index=None):
+        self.disp('int', index=index, value=value)
 
-    def msg(self, msg, idx=None):
-        self.disp(idx=idx, msg=msg)
+    def msg(self, msg, index=None):
+        self.disp(index=index, msg=msg)
 
     def dispString(self, string, align='left'):
         if align == 'right':
             msg_len = len(string.replace('.','').replace(':',''))
-            self.msg( string, idx=self.digits-msg_len )
+            self.msg( string, index=self.digits-msg_len )
         else:
             self.msg( string )
 
-    def dispInteger(self, val, align='right'):
-        self.dispString( '%d'% val, align=align )
+    def dispInteger(self, value, align='right'):
+        self.dispString( '%d'% value, align=align )
 
-    def dispHex(self, val, align='right'):
-        self.dispString( '%X'% val, align=align )
+    def dispHex(self, value, align='right'):
+        self.dispString( '%X'% value, align=align )
 
-    def dispFloat(self, val, precesion=1, align='right'):
+    def dispFloat(self, value, precesion=1, align='right'):
         fmt = '%%.%df'% precesion
-        output_str = fmt% val
+        output_str = fmt% value
         if align == 'right':
             output_len = len(output_str)-1
             if output_len <= self.digits:
@@ -717,24 +723,14 @@ class ShellLabSegmentDisplay(Mcush.Mcush):
             self.dispString( output_str, align='left' )
 
 
-class ShellLabSensor(Mcush.Mcush):
+class ShellLabSensor(Mcush.Mcush, __measure_cls):
     DEFAULT_NAME = 'ShellLab-Sensor'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-[A-Z][0-9a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
-
-    def measure( self, cmd=None, idx=None, val=None ):
-        command = 'm'
-        if cmd is not None:
-            command += ' -c%s'% cmd
-        if idx is not None:
-            command += ' -i%d'% idx
-        if val is not None:
-            command += ' -v%d'% val
-        return self.writeCommand( command ) 
 
 
 class ShellLabSensorT(ShellLabSensor):
     '''DS18B20 based temperature sensor'''
-    DEFAULT_NAME = 'ShellLab-Sensor-T'
+    DEFAULT_NAME = 'ShellLab-T'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-T,([0-9]+\.[0-9]+.*)' )
 
     def getT( self ):
@@ -747,7 +743,7 @@ class ShellLabSensorT(ShellLabSensor):
 
 class ShellLabSensorTH(ShellLabSensor):
     '''SHT30 based temperature/humidity sensor'''
-    DEFAULT_NAME = 'ShellLab-Sensor-TH'
+    DEFAULT_NAME = 'ShellLab-TH'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-TH,([0-9]+\.[0-9]+.*)' )
 
     def configMPS( self, mps=0.5 ):
@@ -761,7 +757,7 @@ class ShellLabSensorTH(ShellLabSensor):
             val = 1
         else:
             val = 0
-        self.measure( 'mps', val=val )
+        self.measure( 'mps', value=val )
     
     def configRepeatability( self, repeatability='high' ):
         if repeatability == 'low':
@@ -770,7 +766,7 @@ class ShellLabSensorTH(ShellLabSensor):
             val = 1
         else:
             val = 0
-        self.measure( 'repeatability', val=val )
+        self.measure( 'repeatability', value=val )
 
     def getTH( self ):
         ret = self.measure()
@@ -784,11 +780,11 @@ class ShellLabSensorTH(ShellLabSensor):
 
 class ShellLabSensorEncoder(ShellLabSensor):
     '''Rotary encoder'''
-    DEFAULT_NAME = 'ShellLab-Sensor-Encoder'
+    DEFAULT_NAME = 'ShellLab-Encoder'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Encoder,([0-9]+\.[0-9]+.*)' )
 
     def setPos( self, pos ):
-        self.measure('pos', val=pos)
+        self.measure('pos', value=pos)
 
     def getPos( self ):
         return float(self.measure('pos')[0])
@@ -803,29 +799,42 @@ class ShellLabSensorEncoder(ShellLabSensor):
 
 class ShellLabSensorPH(ShellLabSensor):
     '''Acid/alkali PH sensor'''
-    DEFAULT_NAME = 'ShellLab-Sensor-PH'
+    DEFAULT_NAME = 'ShellLab-PH'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-PH,([0-9]+\.[0-9]+.*)' )
 
     def getPH( self ):
-        return None 
+        return float(self.measure()[0])
 
 
 class ShellLabSensorPressure(ShellLabSensor):
     '''Pressure sensor'''
-    DEFAULT_NAME = 'ShellLab-Sensor-Pressure'
+    DEFAULT_NAME = 'ShellLab-Pressure'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Pressure,([0-9]+\.[0-9]+.*)' )
 
     def getPressure( self ):
-        return None 
+        return float(self.measure()[0])
 
 
 class ShellLabSensorWeight(ShellLabSensor):
     '''Weight sensor'''
-    DEFAULT_NAME = 'ShellLab-Sensor-Weight'
+    DEFAULT_NAME = 'ShellLab-Weight'
     DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Weight,([0-9]+\.[0-9]+.*)' )
 
     def getWeight( self ):
-        return None 
+        return float(self.measure()[0])
+
+
+class ShellLabSensorTilt(ShellLabSensor):
+    '''Tilt sensor / Incolimeter'''
+    DEFAULT_NAME = 'ShellLab-Tilt'
+    DEFAULT_IDN = re_compile( 'ShellLab-Sensor-Tilt,([0-9]+\.[0-9]+.*)' )
+
+    def getTemperature( self ):
+        return float(self.measure('temp')[0])
+
+    def getAngle( self ):
+        return [float(i) for i in self.measure()[0].split()]
+
 
 
 class ShellLabHID(Mcush.Mcush):
@@ -889,14 +898,14 @@ class ShellLabHID(Mcush.Mcush):
         '\\': 'BAR', '`': 'SWUNG_DASH', ';': 'COLON',
         }
  
-    def hid( self, cmd=None, idx=None, val=None ):
+    def hid( self, cmd=None, index=None, value=None ):
         command = 'h'
         if cmd is not None:
             command += ' -c%s'% cmd
-        if idx is not None:
-            command += ' -i%d'% idx
-        if val is not None:
-            command += ' -v%d'% val
+        if index is not None:
+            command += ' -i%d'% index
+        if value is not None:
+            command += ' -v%d'% value
         return self.writeCommand( command ) 
 
     def buttons_s2I( self, left, right, middle ):
@@ -925,23 +934,23 @@ class ShellLabHID(Mcush.Mcush):
         buttons = self.buttons_s2I( left, right, middle )
         dx, dy = self.checkXY(dx,dy)
         if dx == 0 and dy == 0:
-            self.hid( 'm', idx=buttons )
+            self.hid( 'm', index=buttons )
         else:
             pos = Utils.s2H( Utils.b2s(dx) + Utils.b2s(dy) )
-            self.hid( 'm', idx=buttons, val=pos )
+            self.hid( 'm', index=buttons, value=pos )
 
     def down( self, left=True, right=None, middle=None ):
-        self.hid( 'md', idx=self.buttons_s2I( left, right, middle ) )
+        self.hid( 'md', index=self.buttons_s2I( left, right, middle ) )
 
     def up( self, left=True, right=None, middle=None ):
-        self.hid( 'mu', idx=self.buttons_s2I( left, right, middle ) )
+        self.hid( 'mu', index=self.buttons_s2I( left, right, middle ) )
           
     def move( self, dx=0, dy=0, step=1, step_delay=0.05 ):
         if dx == 0 and dy == 0:
             self.hid( 'm' )
         elif step == 1:
             dx, dy = self.checkXY(dx,dy) 
-            self.hid( 'm', val=Utils.s2H(Utils.b2s(dx)+Utils.b2s(dy)) )
+            self.hid( 'm', value=Utils.s2H(Utils.b2s(dx)+Utils.b2s(dy)) )
         else:
             divx, divy = self.checkXY(float(dx)/step, float(dy)/step)
             offsetx, offsety = 0, 0
@@ -952,14 +961,14 @@ class ShellLabHID(Mcush.Mcush):
                 offsetx -= _dx
                 offsety -= _dy
                 _dx, _dy = self.checkXY(_dx, _dy) 
-                self.hid( 'm', val=Utils.s2H(Utils.b2s(_dx)+Utils.b2s(_dy)) )
+                self.hid( 'm', value=Utils.s2H(Utils.b2s(_dx)+Utils.b2s(_dy)) )
                 if step_delay:
                     time.sleep(step_delay)
 
     def click( self, left=True, right=None, middle=None, delay=0.1 ):
-        self.hid( 'm', idx=self.buttons_s2I( left, right, middle ) )
+        self.hid( 'm', index=self.buttons_s2I( left, right, middle ) )
         time.sleep(delay)
-        self.hid( 'm', idx=0 )
+        self.hid( 'm', index=0 )
 
     def getKeyCode( self, kval ):
         if isinstance(kval, int):
@@ -972,20 +981,20 @@ class ShellLabHID(Mcush.Mcush):
             return self.KEY_CODES[kval]
 
     def key( self, kval ):
-        self.hid( 'k', val=self.getKeyCode(kval) )
+        self.hid( 'k', value=self.getKeyCode(kval) )
 
     def keyPress( self, kval ):
-        self.hid( 'kp', val=self.getKeyCode(kval) )
+        self.hid( 'kp', value=self.getKeyCode(kval) )
 
     def keyRelease( self, kval=None ):
         if kval is None:
             self.hid( 'kr' )
         else:
-            self.hid( 'kr', val=self.getKeyCode(kval) )
+            self.hid( 'kr', value=self.getKeyCode(kval) )
 
     def keys( self, string ):
         for s in string:
-            self.hid( 'k', val=self.getKeyCode(s) )
+            self.hid( 'k', value=self.getKeyCode(s) )
 
     def keyIsNumLocked( self ):
         locked = int(self.hid('kl')[0])
@@ -1032,48 +1041,48 @@ class ShellLabHID(Mcush.Mcush):
             value |= 0x40
         if rgui:
             value |= 0x80
-        self.hid( 'km', val=value )
+        self.hid( 'km', value=value )
 
 
 class ShellLabKeySwitch(Mcush.Mcush):
     DEFAULT_NAME = 'ShellLab-KeySwitch'
     DEFAULT_IDN = re_compile( 'ShellLab-K[0-9][a-zA-Z]*,([0-9]+\.[0-9]+.*)' )
 
-    def key( self, cmd=None, idx=None, val=None ):
+    def key( self, cmd=None, index=None, value=None ):
         command = 'k'
         if cmd is not None:
             command += ' -c%s'% cmd
-        if idx is not None:
-            command += ' -i%d'% idx
-        if val is not None:
-            command += ' -v%d'% val
+        if index is not None:
+            command += ' -i%d'% index
+        if value is not None:
+            command += ' -v%d'% value
         return self.writeCommand( command ) 
 
     def getInv( self ):
         return int(self.key('inv')[0], 16)
 
     def setInv( self, inv ):
-        self.key('inv', val=inv)
+        self.key('inv', value=inv)
     
     def setExt( self, group ):
-        self.key('ext', val=group)
+        self.key('ext', value=group)
 
     def setExtInv( self, index, inv ):
-        self.key('ext_inv', idx=index, val=inv)
+        self.key('ext_inv', index=index, value=inv)
 
     def getState( self ):
         return int(self.key()[0], 16)
 
     def getEvent( self, evt_index=None, evt_mask=None ):
         try:
-            a, b, c = self.key('E', idx=evt_index, val=evt_mask)[0].strip().split()
+            a, b, c = self.key('E', index=evt_index, value=evt_mask)[0].strip().split()
             return [(float(a), b, int(c,16))]
         except IndexError:
             return []
  
     def getEvents( self, evt_index=None, evt_mask=None ):
         ret = []
-        for line in self.key('e', idx=evt_index, val=evt_mask):
+        for line in self.key('e', index=evt_index, value=evt_mask):
             a, b, c = line.strip().split()
             ret.append( (float(a), b, int(c,16)) )
         return ret
@@ -1106,20 +1115,20 @@ class ShellLabKeySwitch(Mcush.Mcush):
                     return None
 
     def enable( self, key_index=None, key_mask=None  ):
-        self.key( 'enable', idx=key_index, val=key_mask )
+        self.key( 'enable', index=key_index, value=key_mask )
 
     def disable( self, key_index=None, key_mask=None  ):
-        self.key( 'disable', idx=key_index, val=key_mask )
+        self.key( 'disable', index=key_index, value=key_mask )
 
     def getCount( self, key_index ):
-        on, off, long = self.key( 'count', idx=key_index )[0].strip().split()
+        on, off, long = self.key( 'count', index=key_index )[0].strip().split()
         return (int(on), int(off), int(long))
 
     def setDebounce( self, index, on_ms=None, off_ms=None, long_ms=None ):
         if on_ms is not None:
-            self.key( 'debounce_on', idx=index, val=on_ms )
+            self.key( 'debounce_on', index=index, value=on_ms )
         if off_ms is not None:
-            self.key( 'debounce_off', idx=index, val=off_ms )
+            self.key( 'debounce_off', index=index, value=off_ms )
         if long_ms is not None:
-            self.key( 'debounce_long', idx=index, val=long_ms )
+            self.key( 'debounce_long', index=index, value=long_ms )
 

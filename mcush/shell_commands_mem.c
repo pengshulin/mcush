@@ -100,7 +100,7 @@ int cmd_mapi( int argc, char *argv[] )
             {
                 k += j;
                 if( verbose_mode )
-                    shell_printf( "[%d] %p %d\n", i+1, (unsigned int)mlist[i], j );
+                    shell_printf( "[%d] %p %d\n", i+1, (uintptr_t)mlist[i], j );
                 i++;
             }
             else
@@ -147,11 +147,11 @@ int cmd_mapi( int argc, char *argv[] )
         {
             addr = os_malloc( length );
         }
-        shell_printf( "%p\n", (unsigned int)addr );
+        shell_printf( "%p\n", (uintptr_t)addr );
     }
     else if( free_set )
     {
-        if( (int)addr == -1 )
+        if( (intptr_t)addr == -1 )
         {
             shell_write_err( shell_str_address );
             return -1;
