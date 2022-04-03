@@ -71,7 +71,6 @@
 #define TICKS_IDLE       OS_TICKS_MS(1000)  /* delay cycle */
 
 
-
 #if 1  //#ifndef NO_SHELL
 int cmd_error( int argc, char *argv[] )
 {
@@ -135,7 +134,8 @@ static const shell_cmd_t cmd_tab_blink[] = {
 {   CMD_END  } };
 #endif
 
-static void blink_digit( int digit, int led )
+
+static void blink_digit( int digit, int led, int wdg_enabled )
 {
     int i;
 
@@ -154,7 +154,8 @@ static void blink_digit( int digit, int led )
             if the blink task is the only running task, in release mode,
             cpu may reboot by the wdg (especially for long digits error 
             code), so clear the wdg on every blink */
-            hal_wdg_clear();
+            if( wdg_enabled )
+                hal_wdg_clear();
         }
     }
     else
@@ -162,21 +163,24 @@ static void blink_digit( int digit, int led )
         hal_led_set(led);
         os_task_delay(TICKS_ZERO);
         hal_led_clr(led);
-        hal_wdg_clear();
+        if( wdg_enabled )
+            hal_wdg_clear();
     }
 }
 
 
 void task_blink_entry(void *arg)
 {
-    int i, digit, pos, skip;
+    int i, digit, pos, skip, wdg_enabled;
 
     (void)arg;
     shell_add_cmd_table( cmd_tab_blink );
 
     while( 1 )
     {
-        hal_wdg_clear();
+        wdg_enabled = hal_wdg_is_enable();
+        if( wdg_enabled )
+            hal_wdg_clear();
         i = get_errno();
         if( i < 0 )
         {
@@ -187,7 +191,7 @@ void task_blink_entry(void *arg)
             if( i == 0 )
             {
                 /* no error */
-                blink_digit( 0, ERRNO_LED_NORMAL );
+                blink_digit( 0, ERRNO_LED_NORMAL, wdg_enabled );
             }
             else
             {
@@ -199,7 +203,7 @@ void task_blink_entry(void *arg)
                     i *= 10;
                     if( skip && !digit && (pos != 1) )
                         continue;
-                    blink_digit( digit, ERRNO_LED_ERROR );
+                    blink_digit( digit, ERRNO_LED_ERROR, wdg_enabled );
                     skip = 0;
                     if( pos != 1 )
                         os_task_delay( TICKS_SEPERATOR );

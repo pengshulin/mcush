@@ -322,7 +322,7 @@ int cmd_dump( int argc, char *argv[] )
     while( count < length )
     {
         if( !compact_mode )
-            shell_printf( "%08X: ", (unsigned int)addr );
+            shell_printf( "%08X: ", (uintptr_t)addr );
         count2 = count;
         addr2 = addr;
         if( width == 1 )
@@ -330,7 +330,7 @@ int cmd_dump( int argc, char *argv[] )
             for( i=0; i<16; i++ )
             {
                 shell_printf( compact_mode ? "%02X" : "%02X ", *(unsigned char*)addr );
-                addr = (void*)(((int)addr) + 1 );
+                addr = (void*)(((uintptr_t)addr) + 1 );
                 count += 1;
                 if( count >= length )
                 {
@@ -351,7 +351,7 @@ int cmd_dump( int argc, char *argv[] )
                         shell_write_char(*(char*)addr2);
                     else
                         shell_write_char('.');
-                    addr2 = (void*)(((int)addr2) + 1 );
+                    addr2 = (void*)(((uintptr_t)addr2) + 1 );
                     count2 += 1;
                     if( count2 >= length )
                         break;
@@ -367,7 +367,7 @@ int cmd_dump( int argc, char *argv[] )
                         shell_printf("%u", *(uint8_t*)addr2);
                     else
                         shell_printf("%d", *(int8_t*)addr2);
-                    addr2 = (void*)(((int)addr2) + 1 );
+                    addr2 = (void*)(((uintptr_t)addr2) + 1 );
                     count2 += 1;
                     if( count2 >= length )
                         break;
@@ -382,7 +382,7 @@ int cmd_dump( int argc, char *argv[] )
             for( i=0; i<8; i++ )
             {
                 shell_printf( compact_mode ? "%04X" : "%04X ", *(unsigned short*)addr );
-                addr = (void*)(((int)addr) + 2 );
+                addr = (void*)(((uintptr_t)addr) + 2 );
                 count += 2;
                 if( count >= length )
                 {
@@ -403,7 +403,7 @@ int cmd_dump( int argc, char *argv[] )
                         shell_printf("%u", *(uint16_t*)addr2);
                     else
                         shell_printf("%d", *(int16_t*)addr2);
-                    addr2 = (void*)(((int)addr2) + 2 );
+                    addr2 = (void*)(((uintptr_t)addr2) + 2 );
                     count2 += 2;
                     if( count2 >= length )
                         break;
@@ -418,7 +418,7 @@ int cmd_dump( int argc, char *argv[] )
             for( i=0; i<4; i++ )
             {
                 shell_printf( compact_mode ? "%08X" : "%08X ", *(unsigned int*)addr );
-                addr = (void*)(((int)addr) + 4 );
+                addr = (void*)(((uintptr_t)addr) + 4 );
                 count += 4;
                 if( count >= length )
                 {
@@ -441,7 +441,7 @@ int cmd_dump( int argc, char *argv[] )
                         shell_printf("%u", *(uint32_t*)addr2);
                     else
                         shell_printf("%d", *(int32_t*)addr2);
-                    addr2 = (void*)(((int)addr2) + 4 );
+                    addr2 = (void*)(((uintptr_t)addr2) + 4 );
                     count2 += 4;
                     if( count2 >= length )
                         break;

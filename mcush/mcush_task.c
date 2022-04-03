@@ -9,7 +9,7 @@ __signature const char mcush_signature[] = "<mcush>";
 os_task_handle_t task_mcush;
 
 
-void _halt(void)
+__weak void _halt(void)
 {
     int i, led_num=hal_led_get_num();
 
@@ -25,7 +25,7 @@ void _halt(void)
 }
 
 char *halt_message;
-void _halt_with_message(const char *message)
+__weak void _halt_with_message(const char *message)
 {
     halt_message = (char*)message;
     _halt();

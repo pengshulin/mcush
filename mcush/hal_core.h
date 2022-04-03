@@ -13,6 +13,7 @@ void hal_clk_init(void);
 
 void hal_wdg_init(void);
 void hal_wdg_clear(void);
+int  hal_wdg_is_enable(void);
 
 void hal_delay_us(uint32_t us);
 void hal_delay_ms(uint32_t ms);

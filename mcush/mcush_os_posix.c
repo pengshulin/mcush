@@ -7,8 +7,6 @@
 
 #if MCUSH_OS == OS_POSIX
 
-struct timespec t0;
-
 typedef struct {
     pthread_t *thread;
     char name[16]; 
@@ -28,6 +26,9 @@ typedef struct {
 #define QUEUES_LIMIT  128
 queue_reg_t queues_list[TASKS_LIMIT];
 int queues_num;
+
+
+struct timespec t0;  /* process base time */
 
 
 void os_init(void)
@@ -62,7 +63,7 @@ os_tick_t os_tick( void )
     struct timespec ts;
     clock_gettime( CLOCK_REALTIME, &ts );
     //printf("tv_sec: %ld,  tv_nsec: %ld\n", ts.tv_sec, ts.tv_nsec);
-    return (ts.tv_sec - t0.tv_sec)*OS_TICK_RATE + ts.tv_nsec/1000000000*OS_TICK_RATE;
+    return (ts.tv_sec - t0.tv_sec)*OS_TICK_RATE + ts.tv_nsec/(1000000000/OS_TICK_RATE);
 }
 
 
@@ -103,6 +104,7 @@ void os_task_delay_s( unsigned int s )
 
 void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks )
 {
+    /* TODO: calculate the actually nano-time to delay */
     //os_tick_t t = *old_tick + inc_ticks;
     //int s, ms;
     //struct timespec ts;
@@ -122,7 +124,6 @@ os_task_handle_t os_task_create( const char *name, os_task_function_t entry, voi
     int ret;
     pthread_t *thread;
    
-    printf("os_task_create %s\n", name);
     thread = (pthread_t*)malloc(sizeof(pthread_t));
     if( thread == NULL )
         return NULL;
@@ -132,6 +133,7 @@ os_task_handle_t os_task_create( const char *name, os_task_function_t entry, voi
         free( thread );
         return NULL;
     }
+    printf("os_task_create %s %p\n", name, thread);
     /* register */
     tasks_list[tasks_num].thread = thread;
     tasks_list[tasks_num].priority = priority;
@@ -268,23 +270,25 @@ int os_queue_put( os_queue_handle_t queue, void *data, int block_ticks )
 {
     int ret;
     struct timespec ts;
+    struct mq_attr attr;
 
+    mq_getattr( *queue, &attr );
     if( block_ticks < 0 )
     {
-        ret = mq_send( (mqd_t)*queue, (const char *)data, 1, 0 );
+        ret = mq_send( (mqd_t)*queue, (const char *)data, attr.mq_msgsize, 0 );
     }
     else
     {
         clock_gettime( CLOCK_REALTIME, &ts );
         inc_os_ticks_to_timespec( &ts, block_ticks );
-        ret = mq_timedsend( (mqd_t)*queue, (const char *)data, 1, 0, (const struct timespec *)&ts );
+        ret = mq_timedsend( (mqd_t)*queue, (const char *)data, attr.mq_msgsize, 0, (const struct timespec *)&ts );
     }
     if( ret == -1 )
     {
-        printf("queue_put: %p, ticks=%d, ret=%d, errno=%d\n", data, block_ticks, ret, errno );
+        //printf("queue_put: %p, ticks=%d, ret=%d, errno=%d\n", data, block_ticks, ret, errno );
         return 0;
     }
-    printf("queue_put: %p, 0x%X, ticks=%d, ret=%d\n", data, *(char*)data, block_ticks, ret );
+    //printf("queue_put: %p, 0x%X, ticks=%d, ret=%d\n", data, *(char*)data, block_ticks, ret );
     return 1;
 }
 
@@ -297,8 +301,6 @@ int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks )
     struct mq_attr attr;
 
     mq_getattr( *queue, &attr );
-    //printf("attr: %ld %ld\n", attr.mq_maxmsg, attr.mq_msgsize);
-
     if( block_ticks < 0 )
     {
         ret = mq_receive( (mqd_t)*queue, (char *)buf, 128, NULL );
@@ -311,11 +313,11 @@ int os_queue_get( os_queue_handle_t queue, void *data, int block_ticks )
     }
     if( ret == -1 )
     {
-        printf("queue_get: %p, ticks=%d, ret=%d, errno=%d\n", data, block_ticks, ret, errno );
+        //printf("queue_get: %p, ticks=%d, ret=%d, errno=%d\n", data, block_ticks, ret, errno );
         return 0;
     }
     memcpy( (void*)data, (void*)buf, attr.mq_msgsize ); 
-    printf("queue_get: %p, 0x%X, ticks=%d, ret=%d\n", data, *(char*)data, block_ticks, ret );
+    //printf("queue_get: %p, 0x%X, ticks=%d, ret=%d\n", data, *(char*)data, block_ticks, ret );
     return 1; 
 }
 
@@ -325,85 +327,64 @@ int os_queue_peek( os_queue_handle_t queue, void *data, int block_ticks )
     (void)queue;
     (void)data;
     (void)block_ticks;
-    //if( block_ticks < 0 )
-    //    block_ticks = portMAX_DELAY;
-    //if( xQueuePeek( queue, data, block_ticks ) != pdPASS )
-    //    return 0;
-    //else
-    //    return 1;
     return 0;
 }
 
 
 int os_queue_put_isr( os_queue_handle_t queue, void *data )
 {
-    (void)queue;
-    (void)data;
-    //if( xQueueSendFromISR( queue, data, NULL ) == errQUEUE_FULL )
-    //    return 0;
-    //else
-    //    return 1;
-    return 0;
+    return os_queue_put( queue, data, 0 );
 }
 
 
 int os_queue_get_isr( os_queue_handle_t queue, void *data )
 {
-    (void)queue;
-    (void)data;
-    //if( xQueueReceiveFromISR( queue, data, NULL ) == pdFAIL )
-    //    return 0;
-    //else
-    //    return 1;
-    return 0;
+    return os_queue_get( queue, data, 0 );
 }
 
 
 int os_queue_count( os_queue_handle_t queue )
 {
-    (void)queue;
-    //return uxQueueMessagesWaiting( queue );
-    return 0;
+    struct mq_attr attr;
+
+    mq_getattr( *queue, &attr );
+    return attr.mq_curmsgs;
 }
 
 
 int os_queue_count_isr( os_queue_handle_t queue )
 {
-    (void)queue;
-    //return uxQueueMessagesWaitingFromISR( queue );
-    return 0;
+    return os_queue_count( queue );
 }
 
 
 int os_queue_is_empty( os_queue_handle_t queue )
 {
-    (void)queue;
-    //return xQueueIsQueueEmpty( queue );
-    return 0;
+    struct mq_attr attr;
+
+    mq_getattr( *queue, &attr );
+    return (attr.mq_curmsgs == 0) ? 1 : 0;
 }
 
 
 int os_queue_is_empty_isr( os_queue_handle_t queue )
 {
-    (void)queue;
-    //return xQueueIsQueueEmptyFromISR( queue );
-    return 0;
+    return os_queue_is_empty( queue );
 }
 
 
 int os_queue_is_full( os_queue_handle_t queue )
 {
-    (void)queue;
-    //return xQueueIsQueueFull( queue );
-    return 0;
+    struct mq_attr attr;
+
+    mq_getattr( *queue, &attr );
+    return (attr.mq_curmsgs == attr.mq_maxmsg) ? 1 : 0;
 }
 
 
 int os_queue_is_full_isr( os_queue_handle_t queue )
 {
-    (void)queue;
-    //return xQueueIsQueueFullFromISR( queue );
-    return 0;
+    return os_queue_is_full( queue );
 }
 
 
@@ -417,10 +398,13 @@ os_mutex_handle_t os_mutex_create( void )
     mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
     if( mutex == NULL )
         return NULL;
-    if( pthread_mutex_init( mutex, NULL ) )
-        return mutex;
-    free( mutex );
-    return NULL;
+    if( pthread_mutex_init( mutex, NULL ) != 0 )
+    {
+        free( mutex );
+        return NULL;
+    }
+    printf("os_mutex_create %p\n", mutex);
+    return mutex;
 }
 
 
@@ -689,6 +673,17 @@ void os_kernel_info_print(void)
 }
 
 
+void _halt(void)
+{
+    printf("HALT\n");
+    exit(1);
+}
 
+
+void _halt_with_message(const char *message)
+{
+    printf("HALT: %s\n", message);
+    exit(1);
+}
 
 #endif

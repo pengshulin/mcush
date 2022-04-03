@@ -49,5 +49,8 @@ env.appendGlobSource([
     '*.c',
 ])
 
+if not env.DEBUG:
+    env.appendDefineFlags( [ 'HAL_WDG_ENABLE=1' ] ) 
+
 env.makeApp()
 
