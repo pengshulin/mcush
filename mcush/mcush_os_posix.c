@@ -455,77 +455,78 @@ int os_mutex_get_isr( os_mutex_handle_t mutex )
 
 os_semaphore_handle_t os_semaphore_create( int max_count, int init_count )
 {
+    sem_t *sem;
+
     (void)max_count;
-    (void)init_count;
-    return NULL;
-    //return xSemaphoreCreateCounting( max_count, init_count );
+    sem = (sem_t *)malloc(sizeof(sem_t));
+    if( sem == NULL )
+        return NULL;
+    if( sem_init( sem, 0, init_count ) != 0 )
+    {
+        free( sem );
+        return NULL;
+    }
+    printf("os_sem_create %p\n", sem);
+    return sem;
 }
 
 
 os_semaphore_handle_t os_semaphore_create_static( int max_count, int init_count, static_semaphore_buffer_t *buf )
 {
-//#if OS_SUPPORT_STATIC_ALLOCATION
-//    return xSemaphoreCreateCountingStatic( max_count, init_count, (StaticSemaphore_t*)buf );
-//#else
-//    return NULL;
-//#endif
-    (void)max_count;
-    (void)init_count;
     (void)buf;
-    return NULL;
+    return os_semaphore_create( max_count, init_count );
 }
 
 
 void os_semaphore_delete( os_semaphore_handle_t semaphore )
 {
     sem_destroy( semaphore );
+    free( semaphore );
 }
 
 
 int os_semaphore_put( os_semaphore_handle_t semaphore )
 {
-//    if( xSemaphoreGive( semaphore ) == pdFAIL )
-//        return 0;
-//    else
-//        return 1;
-    (void)semaphore;
-    return 0;
+    if( sem_post( semaphore ) == -1 )
+        return 0;
+    return 1;
 }
 
 
 int os_semaphore_put_isr( os_semaphore_handle_t semaphore )
 {
-//    if( xSemaphoreGiveFromISR( semaphore, NULL ) == pdTRUE )
-//        return 1;
-//    else
-//        return 0;
-    (void)semaphore;
-    return 0;
+    return os_semaphore_put_isr( semaphore );
 }
 
 
 int os_semaphore_get( os_semaphore_handle_t semaphore, int block_ticks )
 {
-//    if( block_ticks < 0 )
-//        block_ticks = portMAX_DELAY;
-//    if( xSemaphoreTake( semaphore, block_ticks ) == pdFAIL )
-//        return 0;
-//    else
-//        return 1;
-    (void)semaphore;
-    (void)block_ticks;
-    return 0;
+    int ret;
+    struct timespec ts;
+
+    if( block_ticks < 0 )
+    {
+        ret = sem_wait( semaphore );
+    }
+    else
+    {
+        clock_gettime( CLOCK_REALTIME, &ts );
+        inc_os_ticks_to_timespec( &ts, block_ticks );
+        ret = sem_timedwait( semaphore, (const struct timespec *)&ts );
+    }
+    if( ret == -1 )
+    {
+        printf("sem_get: %p, ticks=%d, ret=%d, errno=%d\n", semaphore, block_ticks, ret, errno );
+        return 0;
+    }
+    printf("sem_get: %p, ticks=%d, ret=%d\n", semaphore, block_ticks, ret );
+    return 1;
 }
 
 
 int os_semaphore_get_isr( os_semaphore_handle_t semaphore )
 {
-//    if( xSemaphoreTakeFromISR( semaphore, NULL ) == pdFAIL )
-//        return 0;
-//    else
-//        return 1;
-    (void)semaphore;
-    return 0;
+    return os_semaphore_get( semaphore, 0 );
 }
 
 

@@ -525,15 +525,15 @@ int cmd_write( int argc, char *argv[] )
         {
         case 1:
             *(char*)addr = (char)dat;
-            addr = (void*)(((int)addr) + 1 );
+            addr = (void*)(((uintptr_t)addr) + 1 );
             break;
         case 2:
             *(short*)addr = (short)dat;
-            addr = (void*)(((int)addr) + 2 );
+            addr = (void*)(((uintptr_t)addr) + 2 );
             break;
         case 4:
             *(int*)addr = (int)dat;
-            addr = (void*)(((int)addr) + 4 );
+            addr = (void*)(((uintptr_t)addr) + 4 );
             break;
         } 
         parser.idx++;
@@ -624,7 +624,7 @@ int cmd_mfill( int argc, char *argv[] )
             }
             else
                 *(char*)addr = (char)pattern;
-            addr = (void*)(((int)addr) + 1 );
+            addr = (void*)(((uintptr_t)addr) + 1 );
             break;
         case 2:
             if( test_mode )
@@ -634,7 +634,7 @@ int cmd_mfill( int argc, char *argv[] )
             }
             else 
                 *(short*)addr = (short)pattern;
-            addr = (void*)(((int)addr) + 2 );
+            addr = (void*)(((uintptr_t)addr) + 2 );
             break;
         case 4:
             if( test_mode )
@@ -644,7 +644,7 @@ int cmd_mfill( int argc, char *argv[] )
             }
             else
                 *(int*)addr = (int)pattern;
-            addr = (void*)(((int)addr) + 4 );
+            addr = (void*)(((uintptr_t)addr) + 4 );
             break;
         }
         count += width;
