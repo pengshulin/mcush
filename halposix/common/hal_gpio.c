@@ -1,9 +1,17 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
 #include "hal.h"
 #include <stdio.h>
+#if HAL_DBUS
+#include <stdlib.h>
+#include <string.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus.h>
+#include <unistd.h>
+#endif
+
 
 #ifndef PORT_NUM
-    #define PORT_NUM  10
+    #define PORT_NUM  5
 #endif
 
 int port_mode[PORT_NUM];
@@ -12,7 +20,79 @@ int port_otype[PORT_NUM];
 int port_pullup[PORT_NUM];
 int port_pulldown[PORT_NUM];
 
+#if HAL_DBUS
+DBusError err;
+DBusConnection *connection;
+DBusMessage *msg;
+DBusMessageIter arg;
+int ret;
 
+static int checkDB(void)
+{
+    if( connection != NULL )
+        return 1;
+    
+    dbus_error_init(&err);
+    connection = dbus_bus_get(DBUS_BUS_SESSION, &err);
+    if( dbus_error_is_set(&err) )
+    {
+        printf("Connection Error: %s\n",err.message);
+        dbus_error_free(&err);
+    }
+    if(connection == NULL)
+        return 0;
+
+    ret = dbus_bus_request_name(connection,"mcush.posix.sim.gpio.service",DBUS_NAME_FLAG_REPLACE_EXISTING,&err);
+    if(dbus_error_is_set(&err))
+    {
+        printf("Name Error: %s\n",err.message);
+        dbus_error_free(&err);
+    }
+    if(ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER)
+        return 0; 
+    printf("DBus Connection: %p\n", connection);
+    return 1;
+}
+
+static int sendUpdateSignal(char *cmd, int arg1, int arg2)
+{
+    dbus_uint32_t serial=0;
+
+    msg = dbus_message_new_signal ("/mcush/posix/sim/gpio","mcush.posix.sim.gpio.signal","Update");
+    if( msg == NULL )
+    {
+        printf("Message NULL\n");
+        return 0;
+    }
+
+    dbus_message_iter_init_append( msg, &arg );
+    if( !dbus_message_iter_append_basic( &arg, DBUS_TYPE_STRING, &cmd ) )
+    {
+        printf("Out Of Memory!\n");
+        return 0;
+    }
+    if( !dbus_message_iter_append_basic( &arg, DBUS_TYPE_UINT32, &arg1 ) )
+    {
+        printf("Out Of Memory!\n");
+        return 0;
+    }
+    if( !dbus_message_iter_append_basic( &arg, DBUS_TYPE_UINT32, &arg2 ) )
+    {
+        printf("Out Of Memory!\n");
+        return 0;
+    }
+
+    if( !dbus_connection_send( connection, msg, &serial ) )
+    {
+        printf("Out of Memory!\n");
+        return 0;
+    }
+    dbus_connection_flush( connection );
+    dbus_message_unref( msg );
+    //printf("update signal sent\n");
+    return 1; 
+}
+#endif
 
 static void _set_mode( int port, int bits, int mode, int otype, int pull )
 {
@@ -81,7 +161,12 @@ void hal_gpio_set(int port, int bits)
 {
     port_set[port] |= bits;
     printf("port %d, set 0x%04X\n", port, bits);
- 
+#if HAL_DBUS
+    if( checkDB() )
+    {
+        sendUpdateSignal( "gpio_set", port, bits );
+    }
+#endif
 }
 
 
@@ -89,6 +174,12 @@ void hal_gpio_clr(int port, int bits)
 {
     port_set[port] &= ~bits;
     printf("port %d, clr 0x%04X\n", port, bits);
+#if HAL_DBUS
+    if( checkDB() )
+    {
+        sendUpdateSignal( "gpio_clr", port, bits );
+    }
+#endif
 }
 
 
@@ -96,6 +187,12 @@ void hal_gpio_toggle(int port, int bits)
 {
     port_set[port] ^= bits;
     printf("port %d, toggle 0x%04X\n", port, bits);
+#if HAL_DBUS
+    if( checkDB() )
+    {
+        sendUpdateSignal( "gpio_toggle", port, bits );
+    }
+#endif
 }
 
 

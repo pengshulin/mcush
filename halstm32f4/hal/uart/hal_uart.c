@@ -51,16 +51,9 @@
     
 #if HAL_UART_QUEUE_RX_LEN
 os_queue_handle_t hal_uart_queue_rx;
-#if OS_SUPPORT_STATIC_ALLOCATION
-DEFINE_STATIC_QUEUE_BUFFER( hal_uart_rx, HAL_UART_QUEUE_RX_LEN, 1 );
 #endif
-#endif
-
 #if HAL_UART_QUEUE_TX_LEN
 os_queue_handle_t hal_uart_queue_tx;
-#if OS_SUPPORT_STATIC_ALLOCATION
-DEFINE_STATIC_QUEUE_BUFFER( hal_uart_tx, HAL_UART_QUEUE_TX_LEN, 1 );
-#endif
 #endif
 
 
@@ -72,6 +65,7 @@ int hal_uart_init( uint32_t baudrate )
 
 #if HAL_UART_QUEUE_RX_LEN
 #if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( hal_uart_rx, HAL_UART_QUEUE_RX_LEN, 1 );
     hal_uart_queue_rx = os_queue_create_static( "rxQ", HAL_UART_QUEUE_RX_LEN, 1, &static_queue_buffer_hal_uart_rx );
 #else
     hal_uart_queue_rx = os_queue_create( "rxQ", HAL_UART_QUEUE_RX_LEN, 1 );
@@ -82,6 +76,7 @@ int hal_uart_init( uint32_t baudrate )
 
 #if HAL_UART_QUEUE_TX_LEN
 #if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_QUEUE_BUFFER( hal_uart_tx, HAL_UART_QUEUE_TX_LEN, 1 );
     hal_uart_queue_tx = os_queue_create_static( "txQ", HAL_UART_QUEUE_TX_LEN, 1, &static_queue_buffer_hal_uart_tx );
 #else
     hal_uart_queue_tx = os_queue_create( "txQ", HAL_UART_QUEUE_TX_LEN, 1 );
@@ -267,7 +262,7 @@ int  shell_driver_read_char( char *c )
     if( hal_uart_getc( c, -1 ) == 0 )
         return -1;
     else
-        return (int)*c;
+        return ((int)*c);
 }
 
 
@@ -276,7 +271,7 @@ int  shell_driver_read_char_blocked( char *c, int block_ticks )
     if( hal_uart_getc( c, block_ticks ) == 0 )
         return -1;
     else
-        return (int)*c;
+        return ((int)*c);
 }
 
 

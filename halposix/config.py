@@ -5,8 +5,19 @@ env = VEnvironment()
 hal_config.paths += ['common']
 hal_config.sources += ['common/*.c']
 
+env.appendCompilerFlag( [
+    '-I/usr/include/dbus-1.0',
+    '-I/usr/lib/x86_64-linux-gnu/dbus-1.0/include',
+    '-I/usr/include/glib-2.0',
+    '-I/usr/lib/x86_64-linux-gnu/glib-2.0/include',
+    ] )
+
+env.Append( LIBS=['dbus-glib-1', 'dbus-1', 'gobject-2.0', 'glib-2.0'] )
+
 
 env.appendDefineFlags( [
+    'HAL_DBUS=1',
+    #'HAL_MODBUS=1',
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
     #'USE_CMD_SCPI_RST=0',

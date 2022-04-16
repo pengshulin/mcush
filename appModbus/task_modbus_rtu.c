@@ -267,8 +267,7 @@ void task_modbus_rtu_entry(void *arg)
         if( client.buf[0] != client.unit_id  )
             continue;
         /* crc match */
-        crc = client.buf[client.request_len-1];
-        crc = (crc<<8) + client.buf[client.request_len-2];
+        crc = (client.buf[client.request_len-2]&0xFF) + (client.buf[client.request_len-1]<<8);
         if( crc != crc16_modbus( (uint8_t*)client.buf, client.request_len-2 ) )
             continue;
 

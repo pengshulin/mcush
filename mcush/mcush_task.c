@@ -73,7 +73,7 @@ void mcush_init(void)
 {
     if( task_mcush != NULL )
         return;
-   
+  
     os_init();
     hal_pre_init();
     if( !hal_init() )
@@ -82,6 +82,8 @@ void mcush_init(void)
 #ifndef NO_SHELL
     shell_init( &CMD_TAB[0], 0 );
     task_mcush_init();
+#else
+    task_mcush = (os_task_handle_t)0x48534F4E  ;  /* 'NOSH' place holder */
 #endif
 
 #if MCUSH_ROMFS
