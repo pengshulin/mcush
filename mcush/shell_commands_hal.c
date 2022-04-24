@@ -1230,7 +1230,7 @@ int ws2812_push(int forward, int dat, int swap_rg, int offset, int length)
 }
 
 
-static void ws2812_flush_pixel( int dat )
+__weak void ws2812_flush_pixel( int dat )
 {
     int i;
 

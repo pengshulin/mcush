@@ -18,8 +18,8 @@ if haldir is None:
 
 RTOS = 'RTX'
 RTOS = 'RTTHREAD'
-RTOS = 'FREERTOS'
 RTOS = 'POSIX'
+RTOS = 'FREERTOS'
 
 #env = loadHalConfig( haldir ).env
 env = loadHalConfig( haldir, append_rtos=RTOS ).env

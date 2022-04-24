@@ -33,14 +33,13 @@ static const uint8_t led_num = HAL_LED_NUM;
 #endif
     
 #if HAL_DBUS
-DBusError err;
-DBusConnection *connection;
-DBusMessage *msg;
-DBusMessageIter arg;
-int ret;
+static DBusError err;
+static DBusConnection *connection;
 
 static int checkDB(void)
 {
+    int ret;
+
     if( connection != NULL )
         return 1;
     
@@ -48,16 +47,19 @@ static int checkDB(void)
     connection = dbus_bus_get(DBUS_BUS_SESSION, &err);
     if( dbus_error_is_set(&err) )
     {
-        printf("Connection Error: %s\n",err.message);
+        printf("Error: connection (%s)\n",err.message);
         dbus_error_free(&err);
     }
     if(connection == NULL)
+    {
+        printf("Error: connection NULL\n");
         return 0;
+    }
 
     ret = dbus_bus_request_name(connection,"mcush.posix.sim.led.service",DBUS_NAME_FLAG_REPLACE_EXISTING,&err);
     if(dbus_error_is_set(&err))
     {
-        printf("Name Error: %s\n",err.message);
+        printf("Error: name (%s)\n",err.message);
         dbus_error_free(&err);
     }
     if(ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER)
@@ -66,37 +68,32 @@ static int checkDB(void)
     return 1;
 }
 
-static int sendUpdateSignal(char *cmd, int arg1)
+static int sendSignal(char *cmd, int arg1)
 {
-    dbus_uint32_t serial=0;
+    DBusMessage *msg;
+    DBusMessageIter arg;
 
-    msg = dbus_message_new_signal("/mcush/posix/sim/led","mcush.posix.sim.led.signal","Update");
+    msg = dbus_message_new_signal("/mcush/posix/sim/led","mcush.posix.sim.led.signal",cmd);
     if( msg == NULL )
     {
-        printf("Message NULL\n");
+        printf("Error: message NULL\n");
         return 0;
     }
 
     dbus_message_iter_init_append( msg, &arg );
-    if( !dbus_message_iter_append_basic( &arg, DBUS_TYPE_STRING, &cmd ) )
-    {
-        printf("Out Of Memory!\n");
-        return 0;
-    }
     if( !dbus_message_iter_append_basic( &arg, DBUS_TYPE_UINT32, &arg1 ) )
     {
-        printf("Out Of Memory!\n");
+        printf("Error: append arg1\n");
         return 0;
     }
 
-    if( !dbus_connection_send( connection, msg, &serial ) )
+    if( !dbus_connection_send( connection, msg, NULL ) )
     {
-        printf("Out of Memory!\n");
+        printf("Error: send\n");
         return 0;
     }
     dbus_connection_flush( connection );
     dbus_message_unref( msg );
-    //printf("update signal sent\n");
     return 1; 
 }
 #endif
@@ -139,7 +136,7 @@ void hal_led_set(int index)
 #if HAL_DBUS
     if( checkDB() )
     {
-        sendUpdateSignal( "led_set", index );
+        sendSignal( "led_set", index );
     }
 #endif
 }
@@ -159,7 +156,7 @@ void hal_led_clr(int index)
 #if HAL_DBUS
     if( checkDB() )
     {
-        sendUpdateSignal( "led_clr", index );
+        sendSignal( "led_clr", index );
     }
 #endif
 }
@@ -175,7 +172,7 @@ void hal_led_toggle(int index)
 #if HAL_DBUS
     if( checkDB() )
     {
-        sendUpdateSignal( "led_toggle", index );
+        sendSignal( "led_toggle", index );
     }
 #endif
 }

@@ -31,12 +31,11 @@ COLOR_PNGS = [
 
 def dbus_signal_handler(*args, **kwargs):
     global dialog_main
-    if (len(args) <= 1) or (not isinstance(args[0], str)):
-        return
     #print( args, kwargs )
-    if args[0] in ['gpio_set', 'gpio_clr', 'gpio_toggle', 'led_set', 'led_clr', 'led_toggle']:
+    cmd = kwargs['Type']
+    if cmd in ['gpio_set', 'gpio_clr', 'gpio_toggle', 'led_set', 'led_clr', 'led_toggle']:
         try:
-            wx.PostEvent( dialog_main, UpdateEvent( cmd=args[0], val=args[1:] ) )
+            wx.PostEvent( dialog_main, UpdateEvent( cmd=cmd, val=args ) )
         except RuntimeError:
             pass
 
@@ -70,7 +69,8 @@ class MyDialog(wx.Dialog):
 
         DBusGMainLoop(set_as_default=True)
         bus = dbus.SessionBus()
-        bus.add_signal_receiver(dbus_signal_handler, interface_keyword='mcush.posix.sim', member_keyword='Update')
+        bus.add_signal_receiver(dbus_signal_handler, path='/mcush/posix/sim/gpio', member_keyword='Type')
+        bus.add_signal_receiver(dbus_signal_handler, path='/mcush/posix/sim/led', member_keyword='Type')
 
         self.Bind(wx.EVT_CLOSE, self.OnClose)
         self.Bind(EVT_UPDATE, self.OnUpdate)
