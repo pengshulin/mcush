@@ -8,4 +8,7 @@
 #define HAL_WS2812_PORT  0
 #define HAL_WS2812_PIN   0
 
+#include "hal_daq.h"
+
+
 #endif

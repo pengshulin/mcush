@@ -78,6 +78,14 @@ extern "C" {
     #define MCUSH_FATFS  0
 #endif
 
+#ifndef MCUSH_POSIX
+    #if MCUSH_OS == OS_POSIX
+        #define MCUSH_POSIX  1
+    #else
+        #define MCUSH_POSIX  0
+    #endif
+#endif
+
 
 #if !MCUSH_VFS
     #ifdef MCUSH_ROMFS
@@ -95,6 +103,10 @@ extern "C" {
     #ifdef MCUSH_FATFS
         #undef MCUSH_FATFS
         #define MCUSH_FATFS  0
+    #endif
+    #ifdef MCUSH_POSIX
+        #undef MCUSH_POSIX
+        #define MCUSH_POSIX  0
     #endif
 #endif
 
@@ -333,7 +345,7 @@ extern "C" {
 
 #if USE_CMD_CAT
     #ifndef USE_CMD_CAT_WRITE
-        #if MCUSH_SPIFFS || MCUSH_FATFS
+        #if MCUSH_SPIFFS || MCUSH_FATFS || MCUSH_POSIX
             #define USE_CMD_CAT_WRITE  1
         #else
             #define USE_CMD_CAT_WRITE  0

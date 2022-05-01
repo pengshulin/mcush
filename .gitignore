@@ -44,5 +44,5 @@ Release/
 *.layout
 *.depend
 
-
+.fs/
 

@@ -771,14 +771,14 @@ loop_start:
 
     if( index_set )
     {
-        shell_printf( "%.2f", hal_adc_get(index)+0.005 );
+        shell_printf( "%.2f", hal_adc_get(index)+0.005f );
         shell_write_char( '\n' );
     } 
     else
     {
         for( i=0; i<adc_num; i++ )
         {
-            shell_printf( "%.2f", hal_adc_get(i)+0.005 );
+            shell_printf( "%.2f", hal_adc_get(i)+0.005f );
             shell_write_char( i < (adc_num-1) ? ',' : '\n' );
         }
     }

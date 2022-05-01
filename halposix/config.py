@@ -17,6 +17,9 @@ env.Append( LIBS=['dbus-glib-1', 'dbus-1', 'gobject-2.0', 'glib-2.0'] )
 
 env.appendDefineFlags( [
     'HAL_DBUS=1',
+    'SUPPORT_WS2812=1',
+    'SUPPORT_DS1W=1',
+    'USE_CMD_DS1W=0',
     #'HAL_MODBUS=1',
     #'USE_CMD_HELP=0',
     #'USE_CMD_SCPI_IDN=0',
@@ -37,8 +40,11 @@ env.appendDefineFlags( [
     #'SHELL_QUOTE_PARSE_ENABLE=0',
     #'USE_CMD_BEEP=0',
     #'USE_CMD_SGPIO=0',
-    #'USE_CMD_PWM=0',
-    #'USE_CMD_ADC=0',
+    'USE_CMD_PWM=1',
+    'USE_CMD_ADC=1',
+    #'USE_CMD_DAQ=1',
     #'USE_CMD_CRC=0',
+    'MCUSH_VFS_STATISTICS=1',
+    'USE_CMD_SYSTEM_VFS=1',
     ] )
 

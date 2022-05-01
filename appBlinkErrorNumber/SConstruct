@@ -1,25 +1,10 @@
 from VEnvironment import *
 
-if haldir is None:
-    # the last one is selected
-    haldir = 'stm32f030xx'
-    haldir = 'stm32f767zi_nucleo'
-    haldir = 'stm32f207zg_nucleo'
-    haldir = 'stm32f103ze_redbull'
-    haldir = 'stm32f103rb_pyeasycontrol'
-    haldir = 'stm32f207ve'
-    haldir = 'stm32f103xb'
-    haldir = 'stm32f407zg_eu'
-    haldir = 'stm32f429ig_challenger'
-    haldir = 'stm32f103cb_tiny_controller'
-    haldir = 'stm32f411ce_weact'
-    haldir = 'stm32f103c8_xtw'
+RTOS = getEnv('RTOS', 'FREERTOS')
+if RTOS == 'POSIX':
     haldir = 'posix'
-
-RTOS = 'RTX'
-RTOS = 'RTTHREAD'
-RTOS = 'POSIX'
-RTOS = 'FREERTOS'
+else:
+    haldir = getEnv('HALDIR', 'stm32f103c8_xtw')
 
 #env = loadHalConfig( haldir ).env
 env = loadHalConfig( haldir, append_rtos=RTOS ).env

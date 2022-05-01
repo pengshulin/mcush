@@ -116,6 +116,10 @@ const char *mcush_basename( const char *pathname );
 #include "mcush_vfs_fatfs.h"
 #endif
 
+#if MCUSH_POSIX
+#include "mcush_vfs_posix.h"
+#endif
+
 
 #endif
 

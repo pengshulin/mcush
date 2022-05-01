@@ -98,6 +98,9 @@ void mcush_init(void)
 #if MCUSH_FATFS
     mcush_mount( "f", &mcush_fatfs_driver );
 #endif
+#if MCUSH_POSIX
+    mcush_mount( "p", &mcush_posix_driver );
+#endif
 }
 
 
