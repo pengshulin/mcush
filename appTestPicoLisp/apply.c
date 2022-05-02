@@ -57,7 +57,7 @@ any apply(any ex, any foo, bool cf, int n, cell *p) {
          o = cf? car(data(p[0])) : data(p[0]);
          NeedSymb(ex,o);
          TheCls = NULL,  TheKey = foo;
-         if (expr = method(o)) {
+         if( (expr = method(o)) ) {
             int i;
             any cls = Env.cls, key = Env.key;
             struct {  // bindFrame

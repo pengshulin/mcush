@@ -24,6 +24,7 @@ int lua_wrapper_readline( char *buf, const char *prompt )
 
 void lua_wrapper_writestring( const char *buf, int len )
 {
+    (void)len;
     shell_write_str( buf );
 }
 
@@ -314,7 +315,7 @@ int cmd_lua( int argc, char *argv[] )
     lua_State *L;
     char *script=0;
 
-    mcush_opt_parser_init(&parser, opt_spec, (const char **)(argv+1), argc-1 );
+    mcush_opt_parser_init(&parser, opt_spec, argv+1, argc-1 );
     while( mcush_opt_parser_next( &opt, &parser ) )
     {
         if( opt.spec )

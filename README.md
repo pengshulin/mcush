@@ -31,7 +31,6 @@ FEATURES
 ROADMAP
 =======
 (todo/in progress)
-* add posix/os port for simulation
 * add threadx/chibios/liteos/zephyr/osek port
 * test embedded dynamic languages (eg. lua/picolisp/tinyscheme/ulisp/micropython...)
 * add practical utilities, such as network (traceroute, ntp client...)

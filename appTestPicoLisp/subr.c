@@ -469,7 +469,7 @@ any doDelq(any x) {
 // (replace 'lst 'any1 'any2 ..) -> lst
 any doReplace(any x) {
    any y;
-   int i, n = length(cdr(x = cdr(x))) + 1 & ~1;
+   int i, n = (length(cdr(x = cdr(x))) + 1) & ~1;
    cell c1, c2, c[n];
 
    if (!isCell(data(c1) = EVAL(car(x))))
@@ -964,7 +964,7 @@ any doMmeq(any x) {
    x = cdr(x),  Push(c1, EVAL(car(x)));
    x = cdr(x),  y = EVAL(car(x));
    for (x = Pop(c1);  isCell(x);  x = cdr(x))
-      if (z = memq(car(x), y))
+      if ((z = memq(car(x), y)))
          return z;
    return Nil;
 }
@@ -978,10 +978,12 @@ any doSect(any x) {
    Push(c3, x = Nil);
    while (isCell(data(c1))) {
       if (member(car(data(c1)), data(c2)))
+      {
          if (isNil(x))
             x = data(c3) = cons(car(data(c1)), Nil);
          else
             x = cdr(x) = cons(car(data(c1)), Nil);
+      }
       data(c1) = cdr(data(c1));
    }
    drop(c1);
@@ -997,10 +999,12 @@ any doDiff(any x) {
    Push(c3, x = Nil);
    while (isCell(data(c1))) {
       if (!member(car(data(c1)), data(c2)))
+      {
          if (isNil(x))
             x = data(c3) = cons(car(data(c1)), Nil);
          else
             x = cdr(x) = cons(car(data(c1)), Nil);
+      }
       data(c1) = cdr(data(c1));
    }
    drop(c1);
@@ -1253,12 +1257,12 @@ static any fill(any x, any s) {
       cdr(y) = fill(cdr(x), s) ?: cdr(x);
       return Pop(c1);
    }
-   if (y = fill(car(x), s)) {
+   if ((y = fill(car(x), s))) {
       Push(c1,y);
       y = fill(cdr(x), s);
       return cons(Pop(c1), y ?: cdr(x));
    }
-   if (y = fill(cdr(x), s))
+   if ((y = fill(cdr(x), s)))
       return cons(car(x), y);
    return NULL;
 }
@@ -1269,7 +1273,7 @@ any doFill(any x) {
 
    x = cdr(x),  Push(c1, EVAL(car(x)));
    x = cdr(x),  Push(c2, EVAL(car(x)));
-   if (x = fill(data(c1), data(c2))) {
+   if ((x = fill(data(c1), data(c2)))) {
       drop(c1);
       return x;
    }

@@ -4,7 +4,10 @@
 
 int test_tinyscheme(int argc, char **argv)
 {
+    (void)argc;
+    (void)argv;
     scheme sc;
+
     if( scheme_init(&sc) )
     {
         scheme_deinit(&sc);

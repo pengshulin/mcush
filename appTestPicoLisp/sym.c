@@ -145,7 +145,7 @@ void putByte(int c, int *i, word *p, any *q, cell *cp) {
          Push(*cp, consSym(NULL,0));
          tail(data(*cp)) = *q = consName(*p, Zero);
       }
-      *p = c >> BITS - *i;
+      *p = c >> (BITS - *i);
       *i -= BITS;
    }
    *i += d;
@@ -595,7 +595,7 @@ any doChop(any x) {
       return Nil;
    Save(c1);
    Push(c2, y = cons(mkChar(c), Nil));
-   while (c = getByte(&i, &w, &x))
+   while ((c = getByte(&i, &w, &x)))
       y = cdr(y) = cons(mkChar(c), Nil);
    drop(c1);
    return data(c2);
@@ -694,7 +694,7 @@ any doText(any x) {
             if (n > c)
                pack(data(arg[c]), &i2, &w2, &nm2, &c2);
          }
-      } while (c = getByte(&i1, &w1, &nm1));
+      } while ((c = getByte(&i1, &w1, &nm1)));
       nm2 = popSym(i2, w2, nm2, &c2);
       drop(c1);
       return nm2;
@@ -1151,7 +1151,7 @@ any doLup(any x) {
          data(c1) = cadr(data(c1));
       else if (!isCell(car(data(c1))))
          data(c1) = cddr(data(c1));
-      else if (n = compare(data(c2), caar(data(c1))))
+      else if ((n = compare(data(c2), caar(data(c1)))))
          data(c1) = n < 0? cadr(data(c1)) : cddr(data(c1));
       else {
          drop(c1);
@@ -1512,7 +1512,7 @@ any doMeta(any ex) {
 #define isUppc(c) ((c) >= 'A' && (c) <= 'Z')
 
 static inline bool isLetterOrDigit(int c) {
-   return isLowc(c) || isUppc(c) || (c) >= '0' && (c) <= '9';
+   return isLowc(c) || isUppc(c) || ((c) >= '0' && (c) <= '9');
 }
 
 static int toUpperCase(int c) {
@@ -1550,7 +1550,7 @@ any doLowc(any x) {
       return data(c1);
    Save(c1);
    putByte1(toLowerCase(c), &i2, &w2, &nm);
-   while (c = getByte(&i1, &w1, &x))
+   while ((c = getByte(&i1, &w1, &x)))
       putByte(toLowerCase(c), &i2, &w2, &nm, &c2);
    nm = popSym(i2, w2, nm, &c2);
    drop(c1);
@@ -1572,7 +1572,7 @@ any doUppc(any x) {
       return data(c1);
    Save(c1);
    putByte1(toUpperCase(c), &i2, &w2, &nm);
-   while (c = getByte(&i1, &w1, &x))
+   while ((c = getByte(&i1, &w1, &x)))
       putByte(toUpperCase(c), &i2, &w2, &nm, &c2);
    nm = popSym(i2, w2, nm, &c2);
    drop(c1);
@@ -1598,7 +1598,7 @@ any doFold(any ex) {
    Save(c1);
    n = isCell(cddr(ex))? evNum(ex, cddr(ex)) : 0;
    putByte1(toLowerCase(c), &i2, &w2, &nm);
-   while (c = getByte(&i1, &w1, &x))
+   while ((c = getByte(&i1, &w1, &x)))
       if (isLetterOrDigit(c)) {
          if (!--n)
             break;

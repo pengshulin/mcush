@@ -1,5 +1,10 @@
-/* beeper control service task 
+/* Beeper service task 
  * control the beeper to play single-tone note or notes list
+ *
+ * The task runs as an auxiliary service in MCUSH micro-kerenl RTOS environment,
+ * it aims to help you debug your applications.
+ * To use this service task, include task_beep.h file in your application
+ * and call task_beep_init() before you use it.
  * 
  * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"

@@ -1,6 +1,6 @@
 /* MCUSH designed by Peng Shulin, all rights reserved. */
-#ifndef _TASK_LOGGER_H_
-#define _TASK_LOGGER_H_
+#ifndef __TASK_LOGGER_H__
+#define __TASK_LOGGER_H__
 
 
 /* file write option default state (power-up state),

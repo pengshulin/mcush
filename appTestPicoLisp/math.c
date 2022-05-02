@@ -36,7 +36,7 @@ any symToNum(any s, int scl, int sep, int ign) {
       if (!(c = getByte(&i, &w, &s)))
          return NULL;
    sign = NO;
-   if (c == '+'  ||  c == '-' && (sign = YES))
+   if (c == '+'  || (c == '-' && (sign = YES)))
       if (!(c = getByte(&i, &w, &s)))
          return NULL;
    if ((c -= '0') > 9)
@@ -62,7 +62,7 @@ any symToNum(any s, int scl, int sep, int ign) {
          return NULL;
       if (c >= 5)
          n += 1;
-      while (c = getByte(&i, &w, &s)) {
+      while ((c = getByte(&i, &w, &s))) {
          if ((c -= '0') > 9)
             return NULL;
       }
@@ -460,7 +460,7 @@ any doSqrt(any ex) {
    x = cddr(ex);
    if (isNum(x = EVAL(car(x))))
       n *= unBox(x);
-	m = 1L << BITS-4;
+	m = 1L << (BITS-4);
 	r = 0;
 	do {
 		if ((r += m) > n)

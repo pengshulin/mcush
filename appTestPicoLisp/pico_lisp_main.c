@@ -27,6 +27,7 @@ static jmp_buf ErrRst;
 void giveup(char *msg) {
    //fprintf(stderr, "%s\n", msg);
    shell_printf("%s\n", msg);
+   os_task_delay_ms(100); // wait for serial output   
    exit(1);
 }
 
@@ -59,7 +60,7 @@ void heapAlloc(void) {
    heap *h;
    cell *p;
 
-   h = (heap*)((long)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1) & ~(sizeof(cell)-1));
+   h = (heap*)(((long)alloc(NULL, sizeof(heap) + sizeof(cell)) + (sizeof(cell)-1)) & ~(sizeof(cell)-1));
    h->next = Heaps,  Heaps = h;
    p = h->cells + CELLS-1;
    do
@@ -76,7 +77,7 @@ any doHeap(any x) {
       heap *h = Heaps;
       do
          ++n;
-      while (h = h->next);
+      while ((h = h->next));
       return box(n);
    }
    for (x = Avail;  x;  x = car(x))
@@ -294,7 +295,7 @@ long compare(any x, any y) {
    for (;;) {
       long n;
 
-      if (n = compare(car(x),car(y)))
+      if ((n = compare(car(x),car(y))))
          return n;
       if (!isCell(x = cdr(x)))
          return compare(x, cdr(y));
@@ -370,8 +371,8 @@ void unwind(catchFrame *catch) {
    bindFrame *p;
    catchFrame *q;
 
-   while (q = CatchPtr) {
-      while (p = Env.bind) {
+   while ((q = CatchPtr)) {
+      while ((p = Env.bind)) {
          if ((i = p->i) < 0) {
             j = i, n = 0;
             while (++n, ++j && (p = p->link))
@@ -600,7 +601,7 @@ any mkDat(int y, int m, int d) {
    int n;
    static char mon[13] = {31,31,28,31,30,31,30,31,31,30,31,30,31};
 
-   if (m<1 || m>12 || d<1 || d>mon[m] && (m!=2 || d!=29 || y%4 || !(y%100) && y%400))
+   if (m<1 || m>12 || d<1 || (d>mon[m] && (m!=2 || d!=29 || y%4 || (!(y%100) && y%400))))
       return Nil;
    n = (12*y + m - 3) / 12;
    return box((4404*y+367*m-1094)/12 - 2*n + n/4 - n/100 + n/400 + d);

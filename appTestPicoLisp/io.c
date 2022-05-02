@@ -55,14 +55,14 @@ void pathString(any x, char *p) {
    if ((c = getByte1(&i, &w, &x)) == '+')
       *p++ = c,  c = getByte(&i, &w, &x);
    if (c != '@')
-      while (*p++ = c)
+      while ((*p++ = c))
          c = getByte(&i, &w, &x);
    else {
-      if (h = Home)
+      if ((h = Home))
          do
             *p++ = *h++;
          while (*h);
-      while (*p++ = getByte(&i, &w, &x));
+      while ((*p++ = getByte(&i, &w, &x)));
    }
 }
 
@@ -284,7 +284,7 @@ static any anonymous(any s) {
    if ((c = getByte1(&i, &w, &s)) != '$')
       return NULL;
    n = 0;
-   while (c = getByte(&i, &w, &s)) {
+   while ((c = getByte(&i, &w, &s))) {
       if (c < '0' || c > '9')
          return NULL;
       n = n * 10 + c - '0';
@@ -294,7 +294,7 @@ static any anonymous(any s) {
    do
       if ((any)n > h->cells  &&  (any)n < h->cells + CELLS)
          return symPtr((any)n);
-   while (h = h->next);
+   while ((h = h->next));
    return NULL;
 }
 
@@ -410,7 +410,7 @@ static any read0(bool top) {
          putByte(Chr, &i, &w, &p, &c1);
       }
       y = popSym(i, w, p, &c1),  Env.get();
-      if (x = isIntern(tail(y), Transient))
+      if ((x = isIntern(tail(y), Transient)))
          return x;
       intern(y, Transient);
       return y;
@@ -429,11 +429,11 @@ static any read0(bool top) {
       putByte(Chr, &i, &w, &p, &c1);
    }
    y = popSym(i, w, p, &c1);
-   if (x = symToNum(tail(y), (int)unBox(val(Scl)), '.', 0))
+   if ((x = symToNum(tail(y), (int)unBox(val(Scl)), '.', 0)))
       return x;
-   if (x = anonymous(name(y)))
+   if ((x = anonymous(name(y))))
       return x;
-   if (x = isIntern(tail(y), Intern))
+   if ((x = isIntern(tail(y), Intern)))
       return x;
    intern(y, Intern);
    val(y) = Nil;
@@ -475,7 +475,7 @@ any token(any x, int c) {
    }
    if (Chr >= '0' && Chr <= '9') {
       putByte1(Chr, &i, &w, &p);
-      while (Env.get(), Chr >= '0' && Chr <= '9' || Chr == '.')
+      while (Env.get(), (Chr >= '0' && Chr <= '9') || Chr == '.')
          putByte(Chr, &i, &w, &p, &c1);
       return symToNum(tail(popSym(i, w, p, &c1)), (int)unBox(val(Scl)), '.', 0);
    }
@@ -483,19 +483,19 @@ any token(any x, int c) {
       char nm[bufSize(x)];
 
       bufString(x, nm);
-      if (Chr >= 'A' && Chr <= 'Z' || Chr == '\\' || Chr >= 'a' && Chr <= 'z' || strchr(nm,Chr)) {
+      if ((Chr >= 'A' && Chr <= 'Z') || Chr == '\\' || (Chr >= 'a' && Chr <= 'z') || strchr(nm,Chr)) {
          if (Chr == '\\')
             Env.get();
          putByte1(Chr, &i, &w, &p);
          while (Env.get(),
-               Chr >= '0' && Chr <= '9' || Chr >= 'A' && Chr <= 'Z' ||
-               Chr == '\\' || Chr >= 'a' && Chr <= 'z' || strchr(nm,Chr) ) {
+               (Chr >= '0' && Chr <= '9') || (Chr >= 'A' && Chr <= 'Z') ||
+               Chr == '\\' || (Chr >= 'a' && Chr <= 'z') || strchr(nm,Chr) ) {
             if (Chr == '\\')
                Env.get();
             putByte(Chr, &i, &w, &p, &c1);
          }
          y = popSym(i, w, p, &c1);
-         if (x = isIntern(tail(y), Intern))
+         if ((x = isIntern(tail(y), Intern)))
             return x;
          intern(y, Intern);
          val(y) = Nil;
@@ -574,7 +574,7 @@ any doSkip(any x) {
 
 // (eol) -> flg
 any doEol(any ex __attribute__((unused))) {
-   return InFile && Chr=='\n' || Chr<=0? T : Nil;
+   return (InFile && Chr=='\n') || Chr<=0? T : Nil;
 }
 
 // (eof ['flg]) -> flg
@@ -919,7 +919,7 @@ void prIntern(any nm) {
    if (strchr(Delim, c))
       Env.put('\\');
    Env.put(c);
-   while (c = getByte(&i, &w, &nm)) {
+   while ((c = getByte(&i, &w, &nm))) {
       if (c == '\\' || strchr(Delim, c))
          Env.put('\\');
       Env.put(c);
@@ -936,7 +936,7 @@ void prTransient(any nm) {
       if (c == '"'  ||  c == '\\')
          Env.put('\\');
       Env.put(c);
-   } while (c = getByte(&i, &w, &nm));
+   } while ((c = getByte(&i, &w, &nm)));
    Env.put('"');
 }
 
@@ -1148,7 +1148,7 @@ any doSave(any x) {
       do
          *(long*)&cdr(p) &= ~1;
       while (--p >= h->cells);
-   } while (h = h->next);
+   } while ((h = h->next));
    return x;
 }
 

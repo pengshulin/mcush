@@ -38,7 +38,7 @@ any doAs(any x) {
 // (lit 'any) -> any
 any doLit(any x) {
    x = cadr(x);
-   if (isNum(x = EVAL(x)) || isNil(x) || x == T || isCell(x) && isNum(car(x)))
+   if (isNum(x = EVAL(x)) || isNil(x) || x == T || (isCell(x) && isNum(car(x))))
       return x;
    return cons(Quote, x);
 }
@@ -74,7 +74,7 @@ any doEval(any x) {
             if (p->cnt  &&  p->bnd[0].sym == At  &&  !--j)
                break;
          }
-      } while (p = p->link);
+      } while ((p = p->link));
       while (isCell(x)) {
          for (p = Env.bind, j = n; ; p = p->link) {
             if (p->i < 0)
@@ -142,7 +142,7 @@ any doRun(any x) {
                if (p->cnt  &&  p->bnd[0].sym == At  &&  !--j)
                   break;
             }
-         } while (p = p->link);
+         } while ((p = p->link));
          while (isCell(x)) {
             for (p = Env.bind, j = n; ; p = p->link) {
                if (p->i < 0)
@@ -332,7 +332,7 @@ any method(any x) {
             return NULL;
       }
       do
-         if (x = method(car(TheCls = y)))
+         if ((x = method(car(TheCls = y))))
             return x;
       while (isCell(y = cdr(y)));
    }
@@ -353,7 +353,7 @@ any doNew(any ex) {
    x = cdr(ex);
    Push(c1, consSym(EVAL(car(x)),0));
    TheKey = T,  TheCls = NULL;
-   if (y = method(data(c1)))
+   if ((y = method(data(c1))))
       evMethod(data(c1), y, cdr(x));
    else {
       Save(c2);
@@ -453,7 +453,7 @@ any doMeth(any ex) {
          err(ex, car(ex), "Bad message");
       if (isNum(val(TheKey))) {
          TheCls = NULL;
-         if (y = method(data(c1))) {
+         if ((y = method(data(c1)))) {
             x = evMethod(data(c1), y, cdr(x));
             drop(c1);
             return x;
@@ -473,7 +473,7 @@ any doSend(any ex) {
    x = cdr(x),  Push(c2,  EVAL(car(x)));
    NeedSymb(ex,data(c2));
    TheKey = data(c1),  TheCls = NULL;
-   if (y = method(data(c2))) {
+   if ((y = method(data(c2)))) {
       x = evMethod(data(c2), y, cdr(x));
       drop(c1);
       return x;
@@ -491,7 +491,7 @@ any doTry(any ex) {
    x = cdr(x),  Push(c2,  EVAL(car(x)));
    if (isSymb(data(c2))) {
       TheKey = data(c1),  TheCls = NULL;
-      if (y = method(data(c2))) {
+      if ((y = method(data(c2)))) {
          x = evMethod(data(c2), y, cdr(x));
          drop(c1);
          return x;
@@ -510,7 +510,7 @@ any doSuper(any ex) {
    while (isCell(car(x)))
       x = cdr(x);
    while (isCell(x)) {
-      if (y = method(car(TheCls = x))) {
+      if ((y = method(car(TheCls = x)))) {
          cls = Env.cls,  Env.cls = TheCls;
          key = Env.key,  Env.key = TheKey;
          x = evExpr(y, cdr(ex));
@@ -529,7 +529,7 @@ static any extra(any x) {
    while (isCell(x)) {
       if (x == Env.cls  ||  !(y = extra(car(x)))) {
          while (isCell(x = cdr(x)))
-            if (y = method(car(TheCls = x)))
+            if ((y = method(car(TheCls = x))))
                return y;
          return NULL;
       }
