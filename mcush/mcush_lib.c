@@ -240,14 +240,14 @@ char *get_rtc_tick_str(char *buf, uint32_t tick)
 }
 
 
-/* parse signed integer in dec/hex mode */
-int parse_int( const char *str, int *i )
+/* parse signed long integer in dec/hex mode */
+int parse_long_int( const char *str, long int *i )
 {
-    long long int r;
+    long int r;
     char *p;
     if( !str || (*str==0) )
         return 0;
-    r = strtoll( str, &p, 0 );
+    r = strtol( str, &p, 0 );
     if( (p==0) || (str==(const char*)p) )
         return 0;
     while( (*p==' ') || (*p=='\t') )
@@ -256,6 +256,30 @@ int parse_int( const char *str, int *i )
         return 0;
     //if( (r == LONG_MAX) || (r == LONG_MIN) )
     //    return 0;
+    *i = (long int)r;
+    return 1;
+}
+
+
+/* parse pointer in dec/hex mode */
+int parse_ptr( const char *str, uintptr_t *p )
+{
+    long int r;
+       
+    if( parse_long_int( str, &r ) == 0 )
+        return 0;
+    *p = (uintptr_t)r;
+    return 1;
+}
+
+
+/* parse signed integer in dec/hex mode */
+int parse_int( const char *str, int *i )
+{
+    long int r;
+       
+    if( parse_long_int( str, &r ) == 0 )
+        return 0;
     *i = (int)r;
     return 1;
 }
@@ -264,11 +288,11 @@ int parse_int( const char *str, int *i )
 /* parse signed integer (may with repeat number) in dec/hex mode */
 int parse_int_repeat( const char *str, int *i, int *repeat )
 {
-    long long int r, r2;
+    long int r, r2;
     char *p;
     if( !str || (*str==0) )
         return 0;
-    r = strtoll( str, &p, 0 );
+    r = strtol( str, &p, 0 );
     if( (p==0) || (str==(const char*)p) )
         return 0;
     while( (*p==' ') || (*p=='\t') )
@@ -277,7 +301,7 @@ int parse_int_repeat( const char *str, int *i, int *repeat )
     {
         p++;
         str = (const char*)p;
-        r2 = strtoll( str, &p, 0 );
+        r2 = strtol( str, &p, 0 );
         if( (p==0) || (str==(const char*)p) )
             return 0;
         while( (*p==' ') || (*p=='\t') )

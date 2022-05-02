@@ -259,7 +259,7 @@ int cmd_dump( int argc, char *argv[] )
         if( opt.spec )
         {
             if( STRCMP( opt.spec->name, shell_str_address ) == 0 )
-                parse_int(opt.value, (int*)&addr);
+                parse_ptr(opt.value, (uintptr_t *)&addr);
             else if( STRCMP( opt.spec->name, shell_str_length ) == 0 )
             {
                 if( parse_int(opt.value, (int*)&length) == 0 )

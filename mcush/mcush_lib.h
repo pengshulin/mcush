@@ -38,6 +38,8 @@ char *get_uptime_str(char *buf, int ms);
 char *get_rtc_str(char *buf);
 char *get_rtc_tick_str(char *buf, uint32_t tick);
 
+int parse_long_int( const char *str, long int *i );
+int parse_ptr( const char *str, uintptr_t *p );
 int parse_int( const char *str, int *i );
 int parse_int_repeat( const char *str, int *i, int *repeat );
 int parse_float( const char *str, float *f );

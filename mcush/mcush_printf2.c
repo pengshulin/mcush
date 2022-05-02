@@ -354,7 +354,8 @@ static int prints (
 
 //****************************************************************************
 /* the following should be enough for 32 bit int */
-#define PRINT_BUF_LEN 12
+//#define PRINT_BUF_LEN 12
+#define PRINT_BUF_LEN 20  /* for 64 bit int */
 static int printi (
                      char **out,
                      int i, uint base, int sign, int width, int pad,
