@@ -8,8 +8,12 @@ extern "C" {
 
 
 #define TASK_BLINK_NAME         "blinkT"
-#define TASK_BLINK_STACK_SIZE   250
 #define TASK_BLINK_PRIORITY     OS_PRIORITY_NORMAL
+#if DEBUG
+    #define TASK_BLINK_STACK_SIZE   512
+#else
+    #define TASK_BLINK_STACK_SIZE   252
+#endif
 
 #ifndef ERRNO_LED_NORMAL
     #define ERRNO_LED_NORMAL    0

@@ -15,6 +15,7 @@ typedef struct {
     uint8_t ext;  /* extend mode */
     uint8_t remote;  /* remote request */
     uint8_t len;  /* data length */
+    uint8_t _reserved;
     char data[8];  /* raw data */
 } can_message_t;
 

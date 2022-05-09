@@ -6,6 +6,28 @@
  * To use this service task, include task_beep.h file in your application
  * and call task_beep_init() before you use it.
  * 
+ * beeper is normally piezo-electric or magnetic-electric that can output
+ * differenct frequency tones
+ *
+ * in HAL layer, several apis should have been ported:
+ * void hal_beep_init(void);   init at startup (called at hal_platform_init())
+ * void hal_beep_on(int freq); set at specific frequency (Hz)
+ * void hal_beep_off(void);    stop, set mute
+ * 
+ * two APIs are provided:
+ * int beep_note( const beep_note_t *note, int repeat_count, int repeat_delay_ms );
+ * call this api play single tone once or several times
+ *
+ * in note structure, frequency and duration should have been assigned
+ *      typedef struct {
+ *          uint16_t freq;    in Hz
+ *          uint16_t ms;      in miliseconds 
+ *      } beep_note_t;
+ *
+ * int beep_notes( const beep_note_t *note );
+ * call this api to play tones list once
+ * notes list ends with ZERO note
+ * 
  * MCUSH designed by Peng Shulin, all rights reserved. */
 #include "mcush.h"
 #include "task_beep.h"

@@ -1,13 +1,15 @@
 #include "mcush.h"
 
+#define WEAK
+//#define WEAK  __weak
 
-__weak void NMI_Handler(void)
+WEAK void NMI_Handler(void)
 {
     while(1);
 }
 
 
-__weak void HardFault_Handler(unsigned int *args)
+WEAK void HardFault_Handler(unsigned int *args)
 {
     unsigned int r0;
     unsigned int r1;
@@ -47,25 +49,25 @@ __weak void HardFault_Handler(unsigned int *args)
 }
 
 
-__weak void MemManage_Handler(void)
+WEAK void MemManage_Handler(void)
 {
     while(1);
 }
 
 
-__weak void BusFault_Handler(void)
+WEAK void BusFault_Handler(void)
 {
     while(1);
 }
 
 
-__weak void UsageFault_Handler(void)
+WEAK void UsageFault_Handler(void)
 {
     while(1);
 }
 
 
-__weak void DebugMon_Handler(void)
+WEAK void DebugMon_Handler(void)
 {
     while(1);
 }

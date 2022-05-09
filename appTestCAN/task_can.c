@@ -11,15 +11,14 @@ void task_can_entry(void *p)
 {
     can_message_t msg;
 
+    (void)p;
     if( hal_can_init() == 0 )
-        vTaskDelete(0);
-    vTaskDelete(0);
-
+        os_task_delete(NULL);
     //set_errno(-1);
 
     while( 1 )
     {
-        if( hal_can_read( &msg, portMAX_DELAY ) )
+        if( hal_can_read( &msg, -1 ) )
         {
             /* TODO: process received message */
             /* LED set/clr/toggle command in two bytes */
@@ -45,11 +44,17 @@ void task_can_entry(void *p)
 
 void task_can_init(void)
 {
-    TaskHandle_t task;
+    os_task_handle_t task;
 
-    (void)xTaskCreate(task_can_entry, (const char *)"canT", 
-                TASK_CAN_STACK_SIZE / sizeof(portSTACK_TYPE),
-                NULL, TASK_CAN_PRIORITY, &task);
+#if OS_SUPPORT_STATIC_ALLOCATION
+    DEFINE_STATIC_TASK_BUFFER( can, TASK_CAN_STACK_SIZE );
+    task = os_task_create_static( "canT", task_can_entry, NULL,
+                TASK_CAN_STACK_SIZE, TASK_CAN_PRIORITY, 
+                &static_task_buffer_can );
+#else
+    task = os_task_create( "canT", task_can_entry, NULL,
+                TASK_CAN_STACK_SIZE, TASK_CAN_PRIORITY );
+#endif
     if( task == NULL )
         halt("create test task");
 }
