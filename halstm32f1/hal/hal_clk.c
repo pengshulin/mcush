@@ -37,9 +37,9 @@ void hal_clk_init(void)
     /* DebugMonitor_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
     /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
+    //HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
     /* SysTick_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+    //HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 
     /* Disable JTAG, use SWJ only */
     __HAL_AFIO_REMAP_SWJ_NOJTAG();
@@ -89,9 +89,8 @@ void hal_clk_init(void)
     {
     
     }
-    LL_Init1msTick(72000000);
-
-    LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
+    //LL_Init1msTick(72000000);
+    //LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
 
     LL_SetSystemCoreClock(72000000);
 

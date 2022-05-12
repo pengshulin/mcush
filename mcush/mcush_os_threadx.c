@@ -90,14 +90,25 @@ void os_task_delay_until( os_tick_t *old_tick, os_tick_t inc_ticks )
 
 os_task_handle_t os_task_create( const char *name, os_task_function_t entry, void *parm, size_t stack_bytes, int priority )
 {
-    (void)name;
-    (void)entry;
-    (void)parm;
-    (void)stack_bytes;
-    (void)priority;
-    /* TODO: allocate new TCB and stack area */
+    size_t recalc_stack_bytes = sizeof(long)*((stack_bytes+sizeof(long)-1)/sizeof(long));
+    void *mem;
+    os_task_handle_t task;
+    static_task_buffer_t buf;
 
-    return NULL;
+    mem = os_malloc( recalc_stack_bytes + sizeof(TX_THREAD));
+    if( mem == NULL )
+        return NULL;
+    buf.stack = mem;
+    buf.control = mem + sizeof(TX_THREAD);
+    task = os_task_create_static( name, entry, parm, recalc_stack_bytes, priority,
+                                  (const static_task_buffer_t *)&buf );
+    if( task == NULL )
+    {
+        os_free( mem );
+        return NULL;
+    }
+    task->tx_thread_need_free = mem; 
+    return task;
 }
 
 
@@ -118,7 +129,11 @@ os_task_handle_t os_task_create_static( const char *name, os_task_function_t ent
 
 void os_task_delete( os_task_handle_t task )
 {
+    void *mem = task->tx_thread_need_free;
+
     tx_thread_delete( task );
+    if( mem != NULL )
+        os_free( mem );
 }
 
 
@@ -143,12 +158,17 @@ void os_task_switch( void )
 void os_task_priority_set( os_task_handle_t task, int new_priority )
 {
     UINT old;
+
+    if( task == NULL )
+        task = _tx_thread_current_ptr;
     tx_thread_priority_change( task, (UINT)new_priority, &old );
 }
 
 
 int os_task_priority_get( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = _tx_thread_current_ptr;
     return task->tx_thread_user_priority;
 }
 
@@ -157,11 +177,24 @@ int os_task_priority_get( os_task_handle_t task )
 
 os_queue_handle_t os_queue_create( const char *name, size_t queue_length, size_t item_bytes )
 {
-    (void)name;
-    (void)queue_length;
-    (void)item_bytes;
-    /* TODO: allocate control block memory */
-    return NULL;
+    size_t recalc_queue_bytes = (ULONG)sizeof(ULONG)*queue_length*((item_bytes+sizeof(ULONG)-1)/sizeof(ULONG));
+    void *mem;
+    os_queue_handle_t queue;
+    static_queue_buffer_t buf;
+
+    mem = os_malloc( recalc_queue_bytes + sizeof(TX_QUEUE));
+    if( mem == NULL )
+        return NULL;
+    buf.data = mem;
+    buf.control = mem + sizeof(TX_QUEUE);
+    queue = os_queue_create_static( name, recalc_queue_bytes, item_bytes, (const static_queue_buffer_t *)&buf );
+    if( queue == NULL )
+    {
+        os_free( mem );
+        return NULL;
+    }
+    queue->tx_queue_need_free = mem; 
+    return queue;
 }
 
 
@@ -184,7 +217,12 @@ os_queue_handle_t os_queue_create_static( const char *name, size_t queue_length,
 
 void os_queue_delete( os_queue_handle_t queue )
 {
+    void *mem = queue->tx_queue_need_free;
+
     tx_queue_delete( queue );
+    if( mem != NULL )
+        os_free( mem );
+
 }
 
 
@@ -298,8 +336,22 @@ int os_queue_is_full_isr( os_queue_handle_t queue )
 
 os_mutex_handle_t os_mutex_create( void )
 {
-    /* TODO: allocate control block memory */
-    return NULL;
+    void *mem;
+    static_mutex_buffer_t *buf;
+    os_mutex_handle_t mutex;
+
+    mem = os_malloc( sizeof(TX_MUTEX) );
+    if( mem == NULL )
+        return NULL;
+    buf = (static_mutex_buffer_t*)mem;
+    mutex = os_mutex_create_static( buf );
+    if( mutex == NULL )
+    {
+        os_free( mem );
+        return NULL;
+    }
+    mutex->tx_mutex_need_free = mem; 
+    return mutex;
 }
 
 
@@ -316,7 +368,11 @@ os_mutex_handle_t os_mutex_create_static( static_mutex_buffer_t *buf )
 
 void os_mutex_delete( os_mutex_handle_t mutex )
 {
+    void *mem = mutex->tx_mutex_need_free;
+
     tx_mutex_delete( mutex );
+    if( mem != NULL )
+        os_free( mem );
 }
 
 
@@ -360,10 +416,22 @@ os_task_handle_t os_mutex_holder( os_mutex_handle_t mutex )
 
 os_semaphore_handle_t os_semaphore_create( int max_count, int init_count )
 {
-    (void)max_count;
-    (void)init_count;
-    /* TODO: allocate control block memory */
-    return NULL;
+    void *mem;
+    static_semaphore_buffer_t *buf;
+    os_semaphore_handle_t semaphore;
+
+    mem = os_malloc( sizeof(TX_SEMAPHORE) );
+    if( mem == NULL )
+        return NULL;
+    buf = (static_semaphore_buffer_t*)mem;
+    semaphore = os_semaphore_create_static( max_count, init_count, buf );
+    if( semaphore == NULL )
+    {
+        os_free( mem );
+        return NULL;
+    }
+    semaphore->tx_semaphore_need_free = mem; 
+    return semaphore;
 }
 
 
@@ -381,7 +449,11 @@ os_semaphore_handle_t os_semaphore_create_static( int max_count, int init_count,
 
 void os_semaphore_delete( os_semaphore_handle_t semaphore )
 {
+    void *mem = semaphore->tx_semaphore_need_free;
+
     tx_semaphore_delete( semaphore );
+    if( mem != NULL )
+        os_free( mem );
 }
 
 
@@ -425,11 +497,22 @@ int os_semaphore_count( os_semaphore_handle_t semaphore )
 
 os_timer_handle_t os_timer_create( const char *name, int period_ticks, int repeat_mode, os_timer_callback_t callback )
 {
-    (void)name;
-    (void)period_ticks;
-    (void)repeat_mode;
-    (void)callback;
-    return NULL;
+    void *mem;
+    static_timer_buffer_t *buf;
+    os_timer_handle_t timer;
+
+    mem = os_malloc( sizeof(TX_TIMER) );
+    if( mem == NULL )
+        return NULL;
+    buf = (static_timer_buffer_t*)mem;
+    timer = os_timer_create_static( name, period_ticks, repeat_mode, callback, buf );
+    if( timer == NULL )
+    {
+        os_free( mem );
+        return NULL;
+    }
+    timer->tx_timer_need_free = mem; 
+    return timer;
 }
 
 
@@ -466,7 +549,11 @@ int os_timer_reset( os_timer_handle_t timer )
 
 void os_timer_delete( os_timer_handle_t timer )
 {
+    void *mem = timer->tx_timer_need_free;
+
     tx_timer_delete( timer );
+    if( mem != NULL )
+        os_free( mem );
 }
 
 
@@ -474,26 +561,44 @@ void os_timer_delete( os_timer_handle_t timer )
 
 void *os_malloc( size_t bytes )
 {
-    return malloc( bytes );
+    void *ret;
+
+    TX_DISABLE
+    ret = malloc( bytes );
+    TX_RESTORE
+    return ret;
 }
 
 
 void *os_calloc( size_t nmemb, size_t size )
 {
-    return calloc( nmemb, size );
+    void *ret;
+
+    TX_DISABLE
+    ret = calloc( nmemb, size );
+    TX_RESTORE
+    return ret;
+
 }
 
 
 
 void *os_realloc( void *old_mem, size_t bytes )
 {
-    return realloc( old_mem, bytes );
+    void *ret;
+
+    TX_DISABLE
+    ret = realloc( old_mem, bytes );
+    TX_RESTORE
+    return ret;
 }
 
 
 void os_free( void *mem )
 {
+    TX_DISABLE
     free( mem );
+    TX_RESTORE
 }
 
 
@@ -507,7 +612,7 @@ void os_task_info_print(void)
     {
         switch(thread->tx_thread_state)
         {
-        case TX_READY: c=((thread==_tx_thread_execute_ptr)?'X':'R'); break;
+        case TX_READY: c=((thread==_tx_thread_current_ptr)?'X':'R'); break;
         case TX_QUEUE_SUSP:
         case TX_MUTEX_SUSP:
         case TX_SEMAPHORE_SUSP: c='B'; break;

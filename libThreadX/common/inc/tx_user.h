@@ -114,8 +114,14 @@
 #define TX_TIMER_THREAD_PRIORITY                ????
 */
 
+#define TX_THREAD_USER_EXTENSION                VOID *tx_thread_need_free;
 #define TX_QUEUE_USER_EXTENSION                 UINT tx_queue_message_size_in_bytes; \
-                                                UINT tx_queue_message_size_align_convert;
+                                                UINT tx_queue_message_size_align_convert; \
+                                                VOID *tx_queue_need_free;
+#define TX_MUTEX_USER_EXTENSION                 VOID *tx_mutex_need_free;
+#define TX_SEMAPHORE_USER_EXTENSION             VOID *tx_semaphore_need_free;
+#define TX_TIMER_USER_EXTENSION                 VOID *tx_timer_need_free;
+
 
 
 #ifndef TX_MAX_PRIORITIES
@@ -214,9 +220,9 @@
    enabled. If the application does not use notify callbacks, they may be disabled to reduce
    code size and improve performance.  */
 
-/*
+
 #define TX_DISABLE_NOTIFY_CALLBACKS
-*/
+
 
 
 /* Determine if the tx_thread_resume and tx_thread_suspend services should have their internal

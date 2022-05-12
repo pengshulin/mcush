@@ -68,11 +68,11 @@ extern void __main     (void) __attribute__((noreturn));                        
 //#else
 //    #pragma section     = ".intvec"
 //    #pragma location    = ".intvec"
-//    const DeviceVectors __vector_table = {
+//    const DeviceVectors g_pfnVectors = {
 //        (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
 //#endif
-    const DeviceVectors __vector_table __attribute__((section (".isr_vector")));
-    const DeviceVectors __vector_table = {
+    const DeviceVectors g_pfnVectors __attribute__((section (".isr_vector")));
+    const DeviceVectors g_pfnVectors = {
     .pvStack                            = (void*)(&_estack),
     .pfnReset_Handler                   = (void*)Reset_Handler,                 ///< Reset Handler
     .pfnNMI_Handler                     = (void*)NMI_Handler,                   ///< NMI Handler
@@ -150,11 +150,11 @@ extern void __main     (void) __attribute__((noreturn));                        
 //#else
 //    #pragma section     = ".intvec"
 //    #pragma location    = ".intvec"
-//    const DeviceVectors __vector_table = {
+//    const DeviceVectors g_pfnVectors = {
 //        (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
 //#endif
-    const DeviceVectors __vector_table __attribute__((section (".isr_vector")));
-    const DeviceVectors __vector_table = {
+    const DeviceVectors g_pfnVectors __attribute__((section (".isr_vector")));
+    const DeviceVectors g_pfnVectors = {
     .pvStack                            = (void*)(&_estack),
     .pfnReset_Handler                   = (void*)Reset_Handler,                 ///< Reset Handler
     .pfnNMI_Handler                     = (void*)NMI_Handler,                   ///< NMI Handler
@@ -217,7 +217,7 @@ extern void __main     (void) __attribute__((noreturn));                        
 #else
     #pragma section     = ".intvec"
     #pragma location    = ".intvec"
-    const DeviceVectors __vector_table = {
+    const DeviceVectors g_pfnVectors = {
         (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
 #endif
 
@@ -281,7 +281,7 @@ extern void __main     (void) __attribute__((noreturn));                        
 #else
     #pragma section     = ".intvec"
     #pragma location    = ".intvec"
-    const DeviceVectors __vector_table = {
+    const DeviceVectors g_pfnVectors = {
         (void*) __sfe("CSTACK"),                                                ///< IAR Initial Stack Pointer
 #endif
 

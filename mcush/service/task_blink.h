@@ -9,10 +9,24 @@ extern "C" {
 
 #define TASK_BLINK_NAME         "blinkT"
 #define TASK_BLINK_PRIORITY     OS_PRIORITY_NORMAL
-#if DEBUG
-    #define TASK_BLINK_STACK_SIZE   512
+#if MCUSH_OS == OS_THREADX
+    #if DEBUG
+        #define TASK_BLINK_STACK_SIZE   520
+    #else
+        #define TASK_BLINK_STACK_SIZE   192
+    #endif
+#elif MCUSH_OS == OS_FREERTOS
+    #if DEBUG
+        #define TASK_BLINK_STACK_SIZE   192
+    #else
+        #define TASK_BLINK_STACK_SIZE   128
+    #endif
 #else
-    #define TASK_BLINK_STACK_SIZE   252
+    #if DEBUG
+        #define TASK_BLINK_STACK_SIZE   512
+    #else
+        #define TASK_BLINK_STACK_SIZE   256
+    #endif
 #endif
 
 #ifndef ERRNO_LED_NORMAL

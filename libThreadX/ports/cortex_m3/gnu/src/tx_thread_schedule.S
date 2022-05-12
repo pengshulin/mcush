@@ -20,6 +20,8 @@
 /**************************************************************************/
 /**************************************************************************/
 
+#undef __ARM_FP  /* fixed by PengShulin */
+
     .global _tx_thread_current_ptr
     .global _tx_thread_execute_ptr
     .global _tx_timer_time_slice

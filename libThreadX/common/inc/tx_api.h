@@ -363,6 +363,9 @@ typedef struct TX_TIMER_STRUCT
     ULONG               tx_timer_performance__expiration_adjust_count;
 #endif
 
+    /* added by PengShulin, defined in tx_user.h */
+    TX_TIMER_USER_EXTENSION
+
 } TX_TIMER;
 
 
@@ -856,6 +859,9 @@ typedef struct TX_MUTEX_STRUCT
        is typically defined to whitespace in tx_port.h.  */
     TX_MUTEX_EXTENSION
 
+    /* added by PengShulin, defined in tx_user.h */
+    TX_MUTEX_USER_EXTENSION
+
 } TX_MUTEX;
 
 
@@ -992,6 +998,9 @@ typedef struct TX_SEMAPHORE_STRUCT
     /* Define the port extension in the semaphore control block. This
        is typically defined to whitespace in tx_port.h.  */
     TX_SEMAPHORE_EXTENSION
+
+    /* added by PengShulin, defined in tx_user.h */
+    TX_SEMAPHORE_USER_EXTENSION
 
 } TX_SEMAPHORE;
 

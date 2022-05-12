@@ -13,8 +13,8 @@
 #define TASK_VCP_TX_READ_TIMEOUT_MS    5  /* timeout for the last byte, actual cycle timeout will be doubled */
 #define TASK_VCP_TX_READ_TIMEOUT_TICK  OS_TICKS_MS(5)
 
-#define HAL_VCP_QUEUE_RX_LEN   128  /* memory consumption: RX_LEN x 2 */
-#define HAL_VCP_QUEUE_TX_LEN   63  /* memory consumption: TX_LEN x 3 */
+#define HAL_VCP_QUEUE_RX_LEN   32  /* memory consumption: RX_LEN x 2 */
+#define HAL_VCP_QUEUE_TX_LEN   16  /* memory consumption: TX_LEN x 3 */
 
 #define VCP_WRITE_BLOCK_AUTO_ADAPTED  1
 #define VCP_WRITE_BLOCK_AUTO_ADAPTED_BLOCK_TICK  OS_TICKS_MS(1000)
