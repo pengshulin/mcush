@@ -14,6 +14,19 @@ env.appendCompilerFlag( [
 
 env.Append( LIBS=['dbus-glib-1', 'dbus-1', 'gobject-2.0', 'glib-2.0'] )
 
+if hal_config.hal_lvgl:
+    hal_config.paths += ['lvgl']
+    hal_config.sources += ['lvgl/*.c']
+    #hal_config.paths += ['lvgl/drivers/gtkdrv']
+    #hal_config.sources += ['lvgl/drivers/gtkdrv/*.c']
+    hal_config.paths += ['lvgl/drivers/sdl']
+    hal_config.sources += ['lvgl/drivers/sdl/*.c']
+    env.appendDefineFlags( [
+        'LV_LVGL_H_INCLUDE_SIMPLE',
+        'LV_DEMO_CONF_INCLUDE_SIMPLE',
+        ] )
+    env.appendSDL()
+
 
 env.appendDefineFlags( [
     'HAL_DBUS=1',

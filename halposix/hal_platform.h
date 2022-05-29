@@ -10,5 +10,19 @@
 
 #include "hal_daq.h"
 
+int hal_stepper_motor_init( int id );
+void hal_stepper_motor_set_free( int id, int free );
+void hal_stepper_motor_set_dir( int id, int dir );
+int hal_stepper_motor_set_clk_freq( int id, float freq );
+int hal_stepper_motor_border_check( int id, int direction );
+
+/* alarm lamp */
+void hal_set_alarm_pwr(int on);
+void hal_set_alarm(int on);
+void hal_set_lamp(int r, int g, int b);
+int hal_set_lamp_calib(int cal);
+void hal_set_led_pwr(int on);
+
+
 
 #endif

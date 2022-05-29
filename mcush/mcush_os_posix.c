@@ -603,12 +603,14 @@ void os_timer_delete( os_timer_handle_t timer )
 
 void *os_malloc( size_t bytes )
 {
+    //printf("malloc: %lu\n", bytes);
     return malloc( bytes );
 }
 
 
 void *os_realloc( void *old_mem, size_t bytes )
 {
+    //printf("realloc: %lu\n", bytes);
     return realloc( old_mem, bytes );
 }
 

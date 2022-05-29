@@ -33,6 +33,8 @@
     #define HAL_UART_QUEUE_TX_LEN           10
 #endif
 
+    
+static int _inited=0;
 os_queue_handle_t hal_uart_queue_rx, hal_uart_queue_tx;
 int hal_uart_handle;
 pthread_t thread_rx, thread_tx;
@@ -86,7 +88,8 @@ void *thread_tx_writer(void *arg)
 
 int hal_uart_init( uint32_t baudrate )
 {
-
+    if( _inited )
+        return 1;
 #if OS_SUPPORT_STATIC_ALLOCATION
 #if HAL_UART_QUEUE_RX_LEN
     DEFINE_STATIC_QUEUE_BUFFER( uart_rx, HAL_UART_QUEUE_RX_LEN, 1 );
@@ -189,7 +192,7 @@ int hal_uart_init( uint32_t baudrate )
         pthread_cancel( thread_tx );
         return 0;
     }
-
+    _inited = 1;
     return 1;
 }
 

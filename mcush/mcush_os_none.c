@@ -1,4 +1,5 @@
 /* RTOS Abstract Layer for None
+ * only most frequently used APIs are ported, including
  * task/queue/mutex/semaphore/timer/memory
  */ 
 /* MCUSH designed by Peng Shulin, all rights reserved. */

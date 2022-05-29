@@ -1,6 +1,6 @@
 from VEnvironment import *
 
-RTOS = getEnv('RTOS', 'FREERTOS')
+RTOS = getEnv('RTOS', 'FREERTOS').upper()
 if RTOS == 'POSIX':
     haldir = 'posix'
 else:

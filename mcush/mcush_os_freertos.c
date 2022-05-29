@@ -616,8 +616,6 @@ void os_kernel_info_print(void)
     shell_printf( "%d\n", SystemCoreClock );
     _print_kernel_item_name( "TickRate" );
     shell_printf( "%d\n", OS_TICK_RATE );
-    //_print_kernel_item_name( "CurrentNumberOfTasks" );
-    //shell_printf( "%d\n", uxTaskGetNumberOfTasks() );
 }
 
 

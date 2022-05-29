@@ -54,7 +54,6 @@ class MyDialog(wx.Dialog):
         #self.DBusMonitorThread.setDaemon(1)
         #self.DBusMonitorThread.start()
 
-        self.lamp_pen = wx.Pen(wx.Colour(0, 0, 0, wx.ALPHA_OPAQUE))  # black border
         self.lamp_rect = wx.Rect(0, 0, LAMP_SIZE, LAMP_SIZE)
 
         DBusGMainLoop(set_as_default=True)
@@ -114,7 +113,7 @@ class MyDialog(wx.Dialog):
             return
         for idx, color in enumerate(self.color):
             r, g, b = (color>>16)&0xFF, (color>>8)&0xFF, (color)&0xFF
-            dc.SetPen(self.lamp_pen)
+            dc.SetPen(wx.BLACK_PEN)
             dc.SetBrush(wx.Brush(wx.Colour(r, g, b, 0xFF)))
             idx_x = idx % LINE_NUM 
             idx_y = int(idx / LINE_NUM)

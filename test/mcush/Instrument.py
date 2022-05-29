@@ -229,9 +229,9 @@ class Instrument:
             newline_str = self.readLine( strip=False )
             if newline_str is None:
                 if contents:
-                    raise Instrument.CommandTimeoutError( ' | '.join(contents) )
+                    raise CommandTimeoutError( ' | '.join(contents) )
                 else:
-                    raise Instrument.CommandTimeoutError( 'No response' )
+                    raise CommandTimeoutError( 'No response' )
             match = self.prompts.match( newline_str )
             if match:
                 contents.append( newline_str )

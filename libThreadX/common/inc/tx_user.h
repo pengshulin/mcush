@@ -123,6 +123,13 @@
 #define TX_TIMER_USER_EXTENSION                 VOID *tx_timer_need_free;
 
 
+#if DEBUG
+    #define TX_MINIMUM_STACK                        512
+#else
+    #define TX_MINIMUM_STACK                        256
+#endif
+
+
 
 #ifndef TX_MAX_PRIORITIES
 #define TX_MAX_PRIORITIES                       32

@@ -129,9 +129,19 @@ os_task_handle_t os_task_create_static( const char *name, os_task_function_t ent
 
 void os_task_delete( os_task_handle_t task )
 {
-    void *mem = task->tx_thread_need_free;
+    void *mem;
 
-    tx_thread_delete( task );
+    if( task == NULL )
+        task = _tx_thread_current_ptr;
+    mem = task->tx_thread_need_free;
+    if( tx_thread_terminate( task ) != TX_SUCCESS )
+        return;
+    //halt("thread not deleted");
+    /* for self-deleting thread, codes below will not be executed */
+    if( tx_thread_delete( task ) != TX_SUCCESS )
+    {
+        return;
+    }
     if( mem != NULL )
         os_free( mem );
 }
@@ -139,12 +149,16 @@ void os_task_delete( os_task_handle_t task )
 
 void os_task_suspend( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = _tx_thread_current_ptr;
     tx_thread_suspend( task );
 }
 
 
 void os_task_resume( os_task_handle_t task )
 {
+    if( task == NULL )
+        task = _tx_thread_current_ptr;
     tx_thread_resume( task );
 }
 
@@ -619,7 +633,7 @@ void os_task_info_print(void)
         case TX_SUSPENDED: c='S'; break;
         case TX_SLEEP: c='s'; break;
         case TX_COMPLETED: c='C'; break;
-        case TX_TERMINATED: c='T'; break;
+        case TX_TERMINATED: c='D'; break;
         default: c='?'; break;
         }
 

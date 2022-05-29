@@ -5,10 +5,10 @@
 #define OS_NONE      0
 #define OS_FREERTOS  1
 #define OS_RTX       2
-#define OS_THREADX   3
-#define OS_RTTHREAD  4
-#define OS_POSIX     5
-#define OS_CHIBIOS   6
+#define OS_RTTHREAD  3
+#define OS_POSIX     4
+#define OS_THREADX   5
+#define OS_UCOS3     6
 #define OS_LITEOS    7
 
 #ifndef MCUSH_OS
@@ -21,14 +21,14 @@
     #include "mcush_os_freertos.h"
 #elif MCUSH_OS == OS_RTX
     #include "mcush_os_rtx.h"
-#elif MCUSH_OS == OS_THREADX
-    #include "mcush_os_threadx.h"
 #elif MCUSH_OS == OS_RTTHREAD
     #include "mcush_os_rtthread.h"
 #elif MCUSH_OS == OS_POSIX
     #include "mcush_os_posix.h"
-#elif MCUSH_OS == OS_CHIBIOS
-    #include "mcush_os_chibios.h"
+#elif MCUSH_OS == OS_THREADX
+    #include "mcush_os_threadx.h"
+#elif MCUSH_OS == OS_UCOS3
+    #include "mcush_os_ucos3.h"
 #elif MCUSH_OS == OS_LITEOS
     #include "mcush_os_liteos.h"
 #else
